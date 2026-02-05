@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HoppOn - Denmark's Easiest Rideshare</title>
+    <link rel="icon" href="https://i.imgur.com/4oGYz8n.png" type="image/png">
     <style>
         :root {
             /* HoppOn Brand Colors */
@@ -61,19 +62,21 @@
         .logo-container {
             width: 80px;
             height: 80px;
-            background: var(--slate-900);
+            /* Removed background color so your image can take over or be transparent */
+            background: transparent; 
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 0.5rem;
             box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+            overflow: hidden; /* Ensures the image respects the rounded corners */
         }
 
-        .logo-icon {
-            color: var(--indigo-500);
-            width: 40px;
-            height: 40px;
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Fills the square completely */
         }
 
         /* Typography */
@@ -194,6 +197,7 @@
         @media (min-width: 600px) {
             .store-buttons {
                 flex-direction: row;
+                justify-content: center; /* 1. Added this to center buttons */
             }
             .container {
                 padding: 4rem 3rem;
@@ -205,9 +209,7 @@
 
     <div class="container">
         <div class="logo-container">
-            <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19 10c0-3.87-3.13-7-7-7S5 6.13 5 10c0 1.25.34 2.42.94 3.43l3.63 6.04c.48.8 1.54.98 2.25.37l.45-.38.45.38c.71.61 1.77.43 2.25-.37l3.63-6.04c.6-1.01.94-2.18.94-3.43zM7 10c0-2.76 2.24-5 5-5s5 2.24 5 5c0 .85-.23 1.65-.63 2.34l-2.94 4.89-1.43-1.22L9.57 17.23 6.63 12.34C6.23 11.65 6 10.85 6 10zm5-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-            </svg>
+            <img src="https://i.imgur.com/4oGYz8n.png" alt="HoppOn Logo" class="logo-img">
         </div>
 
         <div>
