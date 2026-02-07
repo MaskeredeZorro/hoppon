@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoppOn - Log Ind</title>
+    <link rel="icon" href="https://i.imgur.com/4oGYz8n.png" type="image/png">
+    <style>
+        :root { --slate-900: #0F172A; --indigo-500: #6366F1; --glass-bg: rgba(255, 255, 255, 0.85); --glass-border: rgba(255, 255, 255, 0.6); --shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
+        body { height: 100vh; width: 100%; background: radial-gradient(circle at top right, #E0E7FF 0%, #F8FAFC 60%, #FFFFFF 100%); display: flex; align-items: center; justify-content: center; }
+        .container { background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); padding: 3rem 2.5rem; border-radius: 32px; box-shadow: var(--shadow); width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 1.5rem; animation: slideUp 0.8s ease-out; }
+        
+        .logo-small { width: 50px; height: 50px; border-radius: 12px; margin: 0 auto; display: block; }
+        h2 { text-align: center; color: var(--slate-900); font-size: 1.5rem; }
+        
+        .input-group { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+        label { font-size: 0.85rem; font-weight: 600; color: #475569; margin-left: 4px; }
+        input { background: rgba(255, 255, 255, 0.5); border: 1px solid #CBD5E1; padding: 14px; border-radius: 14px; font-size: 1rem; color: var(--slate-900); outline: none; transition: 0.2s; width: 100%; }
+        input:focus { border-color: var(--indigo-500); background: #fff; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+        
+        .btn { background: var(--slate-900); color: white; padding: 16px; border-radius: 16px; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s; width: 100%; }
+        .btn:hover { background: var(--indigo-500); transform: translateY(-1px); }
+        
+        .links { text-align: center; font-size: 0.85rem; }
+        .links a { color: var(--indigo-500); text-decoration: none; font-weight: 600; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://i.imgur.com/4oGYz8n.png" alt="Logo" class="logo-small">
+        <h2>Velkommen tilbage</h2>
+        
+        <form class="input-group">
+            <div class="input-group">
+                <label>E-mail</label>
+                <input type="email" placeholder="navn@mail.dk">
+            </div>
+            <div class="input-group">
+                <label>Adgangskode</label>
+                <input type="password" placeholder="••••••••">
+            </div>
+            <button type="button" class="btn">Log ind</button>
+        </form>
+
+        <div class="links">
+            <p>Ny bruger? <a href="#">Opret konto her</a></p>
+            <p style="margin-top: 8px;"><a href="index.html" style="color: #94A3B8;">Tilbage til forsiden</a></p>
+        </div>
+    </div>
+</body>
+</html>
