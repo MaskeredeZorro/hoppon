@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoppOn - Betingelser</title>
+    <link rel="icon" href="https://i.imgur.com/4oGYz8n.png" type="image/png">
+    <style>
+        :root { --slate-900: #0F172A; --indigo-500: #6366F1; --glass-bg: rgba(255, 255, 255, 0.85); --glass-border: rgba(255, 255, 255, 0.6); --shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
+        body { height: 100vh; width: 100%; background: radial-gradient(circle at top right, #E0E7FF 0%, #F8FAFC 60%, #FFFFFF 100%); display: flex; align-items: center; justify-content: center; }
+        
+        .container { background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); padding: 2rem; border-radius: 32px; box-shadow: var(--shadow); width: 90%; max-width: 500px; display: flex; flex-direction: column; gap: 1rem; height: 80vh; /* Fixed height for scrolling */ animation: slideUp 0.8s ease-out; }
+        
+        h1 { text-align: center; font-size: 1.5rem; color: var(--slate-900); }
+        
+        .scroll-box { flex: 1; overflow-y: auto; padding-right: 10px; text-align: left; }
+        /* Custom Scrollbar styling */
+        .scroll-box::-webkit-scrollbar { width: 6px; }
+        .scroll-box::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+        
+        h3 { margin-top: 1.5rem; font-size: 0.95rem; color: var(--slate-900); font-weight: 700; }
+        p { margin-top: 0.5rem; font-size: 0.85rem; color: #64748B; line-height: 1.6; }
+        
+        .footer-action { border-top: 1px solid rgba(0,0,0,0.1); padding-top: 1rem; text-align: center; }
+        .btn-link { color: var(--indigo-500); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Betingelser & Privatliv</h1>
+        
+        <div class="scroll-box">
+            <p><strong>Opdateret:</strong> Februar 2026</p>
+            
+            <h3>1. Tjenesten</h3>
+            <p>HoppOn stiller en platform til rådighed, der forbinder chauffører med ledige sæder med passagerer, der ønsker transport. Vi er udelukkende formidler, ikke et taxiselskab, og kørsel sker på basis af omkostningsdeling.</p>
+            
+            <h3>2. Betaling & Udbetaling</h3>
+            <p>Al betaling behandles sikkert gennem vores partner Stripe. Passagerer betaler ved booking. Chauffører modtager betaling automatisk, når turen er markeret som fuldført via "Udbetal"-funktionen i appen. HoppOn tager et servicegebyr for at drive platformen.</p>
+            
+            <h3>3. Adfærdskodeks</h3>
+            <p>Brugere skal oplyse korrekte informationer. Vi har nultolerance over for chikane, diskrimination eller usikker kørsel. Vi forbeholder os retten til at suspendere konti, der overtræder vores sikkerhedsregler.</p>
+            
+            <h3>4. Persondatapolitik (GDPR)</h3>
+            <p>Vi indsamler kun data, der er nødvendige for at gennemføre turen (Navn, Lokation, Betalingsoplysninger). Vi sælger ikke dine data til tredjepart. Kortdata behandles via Mapbox og betalingsdata via Stripe.</p>
+            
+            <h3>5. Aflysninger</h3>
+            <p>Aflysninger foretaget mindre end 24 timer før afgang kan pålægges et gebyr for at kompensere chaufføren for den tabte plads.</p>
+        </div>
+
+        <div class="footer-action">
+            <a href="index.html" class="btn-link">Luk vindue</a>
+        </div>
+    </div>
+</body>
+</html>
