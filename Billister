@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoppOn - For Chauffører</title>
+    <link rel="icon" href="https://i.imgur.com/4oGYz8n.png" type="image/png">
+    <style>
+        :root { --slate-900: #0F172A; --indigo-500: #6366F1; --glass-bg: rgba(255, 255, 255, 0.85); --glass-border: rgba(255, 255, 255, 0.6); --shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
+        body { height: 100vh; width: 100%; background: radial-gradient(circle at top right, #E0E7FF 0%, #F8FAFC 60%, #FFFFFF 100%); display: flex; align-items: center; justify-content: center; color: var(--slate-900); }
+        .container { background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); padding: 3rem 2rem; border-radius: 32px; box-shadow: var(--shadow); text-align: center; max-width: 500px; width: 90%; display: flex; flex-direction: column; gap: 1.5rem; animation: slideUp 0.8s ease-out; }
+        h1 { font-size: 2rem; font-weight: 800; }
+        .benefit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 100%; }
+        .benefit-card { background: rgba(255,255,255,0.5); padding: 1.2rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.8); text-align: left; }
+        .benefit-icon { width: 24px; height: 24px; color: var(--indigo-500); margin-bottom: 0.5rem; }
+        .benefit-card h4 { font-size: 0.95rem; margin-bottom: 0.4rem; font-weight: 700; }
+        .benefit-card p { font-size: 0.8rem; color: #64748B; line-height: 1.4; }
+        .btn { background: var(--slate-900); color: white; padding: 16px; border-radius: 16px; text-decoration: none; font-weight: 600; display: block; transition: 0.2s; }
+        .btn:hover { background: var(--indigo-500); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div>
+            <h1>Kører du alligevel?</h1>
+            <p style="color: #475569; margin-top:5px;">Fyld dine tomme sæder og få dækket dine udgifter til brændstof.</p>
+        </div>
+
+        <div class="benefit-grid">
+            <div class="benefit-card">
+                <svg class="benefit-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <h4>Automatisk Udbetaling</h4>
+                <p>Når turen er slut, trykker du 'Udbetal' i appen. Pengene står på din konto med det samme.</p>
+            </div>
+            <div class="benefit-card">
+                <svg class="benefit-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <h4>Verificerede Profiler</h4>
+                <p>Alle passagerer er valideret med MitID/NemID, så du ved præcis hvem du lukker ind.</p>
+            </div>
+        </div>
+
+        <p style="font-size: 0.85rem; text-align: left; color: #475569; background: rgba(255,255,255,0.4); padding: 1rem; border-radius: 12px; line-height: 1.5;">
+            <strong>Nul besvær:</strong> Vi håndterer alt det administrative. Du skal bare koncentrere dig om at køre bilen, så klarer vores system betalingen bag kulisserne.
+        </p>
+
+        <a href="login.html" class="btn">Opret chaufførprofil</a>
+        <a href="index.html" style="font-size: 0.8rem; color: #94A3B8; text-decoration: none;">Tilbage til forsiden</a>
+    </div>
+</body>
+</html>
