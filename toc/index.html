@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handelsbetingelser | HoppOn</title>
+    <style>
+        :root {
+            --primary-color: #00D1FF; /* HoppOn Cyan */
+            --secondary-color: #0056b3;
+            --text-dark: #1a1a1a;
+            --text-light: #4a4a4a;
+            --bg-light: #f4f7f9;
+            --white: #ffffff;
+            --alert-bg: #fff4f4;
+            --alert-text: #c62828;
+            --success-bg: #f0fdf4;
+            --success-text: #15803d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            padding-bottom: 50px;
+        }
+
+        /* Header / Logo */
+        header {
+            background-color: var(--white);
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: 3px solid var(--primary-color);
+            margin-bottom: 40px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            text-decoration: none;
+            letter-spacing: -1px;
+        }
+
+        .logo span {
+            color: var(--text-dark);
+        }
+
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin-top: 35px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary-color);
+            padding-left: 15px;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--text-light);
+        }
+
+        ul, ol {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: var(--text-light);
+        }
+
+        li strong {
+            color: var(--text-dark);
+        }
+
+        /* Kontakt boks (Genbrugt) */
+        .contact-card {
+            background: #eefcff;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 209, 255, 0.2);
+            margin-top: 10px;
+        }
+        
+        /* Specifik styling til Aflysningspolitik */
+        .policy-box {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #fafafa;
+        }
+
+        .policy-header {
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .highlight-fee {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 0 15px;
+            }
+            header {
+                padding: 30px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="#" class="logo">Hopp<span>On</span></a>
+</header>
+
+<div class="container">
+    <h1>Handelsbetingelser</h1>
+    <p class="subtitle">Terms and Conditions - Senest opdateret: 9. februar 2026</p>
+
+    <section>
+        <h2>1. Generelle oplysninger</h2>
+        <p>Denne app ("Platformen") udbydes af:</p>
+        <div class="contact-card">
+            <p><strong>HoppOn v/ Alexander Strarup</strong></p>
+            <p>Silkeborgvej 52, st.tv.</p>
+            <p>8000 Aarhus C</p>
+            <p>CVR-nr.: 40151079</p>
+            <p>E-mail: <a href="mailto:hej@hoppon.dk">hej@hoppon.dk</a></p>
+        </div>
+        <p style="margin-top: 15px;">Disse betingelser gælder for enhver brug af HoppOn. Ved oprettelse af en profil accepterer du disse vilkår.</p>
+    </section>
+
+    <section>
+        <h2>2. Hvad er HoppOn?</h2>
+        <p>HoppOn er en digital formidlingsplatform, der faciliterer kontakt mellem private personer, der ønsker at dele en køretur ("Samkørsel").</p>
+        <ul>
+            <li><strong>HoppOn er ikke et transportselskab.</strong> Vi ejer ikke bilerne og ansætter ikke chaufførerne.</li>
+            <li>Vi stiller udelukkende teknologien til rådighed, så en chauffør ("Bilisten") og en passager ("Passageren") kan indgå aftale om kørsel og dele omkostningerne.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>3. Brugerprofil og Alderskrav</h2>
+        <p><strong>3.1 Oprettelse:</strong> For at bruge HoppOn skal du oprette en profil med korrekte oplysninger (Navn, telefonnummer, fødselsdagsdato, køn, e-mail og profilbillede).</p>
+        <p><strong>3.2 Alderskrav:</strong></p>
+        <ul>
+            <li><strong>Bilister:</strong> Skal være minimum 18 år og have gyldigt kørekort.</li>
+            <li><strong>Passagerer:</strong> Skal være minimum 18 år.</li>
+        </ul>
+        <p><strong>3.3</strong> HoppOn forbeholder sig retten til at suspendere profiler ved mistanke om snyd, chikane eller brud på disse vilkår.</p>
+    </section>
+
+    <section>
+        <h2>4. Pris, Betaling og Gebyrer</h2>
+        <p><strong>4.1 Prissætning:</strong> Bilisten fastsætter prisen for turen. Prisen må jf. dansk lovgivning kun dække omkostninger til kørslen (benzin, vedligehold, færgebillet, afskrivning m.m.). Det er ikke tilladt at drive kommerciel taxavirksomhed via HoppOn.</p>
+        <p><strong>4.2 Betaling:</strong> HoppOn samarbejder med <strong>Stripe</strong> som betalingsudbyder. Når en Passager booker en tur, reserveres beløbet på betalingskortet. Beløbet trækkes endeligt, når turen er gennemført.</p>
+        <p><strong>4.3 Servicegebyr:</strong> For at dække drift af platformen, serveromkostninger og betalingshåndtering, tager HoppOn et servicegebyr.</p>
+        <ul>
+            <li>Gebyret er på <span class="highlight-fee">15,00 DKK</span> pr. bekræftet passager.</li>
+            <li>Gebyret fratrækkes automatisk udbetalingen til Bilisten.</li>
+        </ul>
+        <p><em>(Eksempel: Hvis en tur koster 100 kr., betaler Passageren 100 kr. Bilisten får udbetalt 85 kr., og HoppOn beholder 15 kr.).</em></p>
+    </section>
+
+    <section>
+        <h2>5. Aflysningspolitik</h2>
+        <p>For at sikre tryghed for både Bilister og Passagerer gælder følgende regler ved aflysning. Tiderne beregnes ud fra turens planlagte starttidspunkt.</p>
+
+        <h3>5.1 Hvis Passageren aflyser:</h3>
+        
+        <div class="policy-box">
+            <span class="policy-header">Mere end 24 timer før:</span>
+            <ul>
+                <li>Passageren får 100% af beløbet refunderet.</li>
+                <li>Bilisten modtager intet.</li>
+            </ul>
+        </div>
+
+        <div class="policy-box">
+            <span class="policy-header">Mellem 3 og 24 timer før:</span>
+            <ul>
+                <li>Passageren får 50% af beløbet refunderet.</li>
+                <li>Bilisten modtager de resterende 50% minus et halveret servicegebyr (7,50 kr.).</li>
+            </ul>
+        </div>
+
+        <div class="policy-box">
+            <span class="policy-header">Mindre end 3 timer før (eller ved udeblivelse):</span>
+            <ul>
+                <li>Passageren får <strong>ingen</strong> refundering (0%).</li>
+                <li>Bilisten modtager 100% af turens pris minus det fulde servicegebyr (15,00 kr.).</li>
+            </ul>
+        </div>
+
+        <h3>5.2 Hvis Bilisten aflyser:</h3>
+        <p>Passageren får altid <strong>100% af beløbet refunderet</strong> (inklusive evt. gebyrer), uanset hvornår Bilisten aflyser.</p>
+        <p>Ved gentagne aflysninger fra en Bilists side forbeholder HoppOn sig retten til at ekskludere Bilisten fra platformen.</p>
+    </section>
+
+    <section>
+        <h2>6. Udbetaling til Bilister</h2>
+        <p>Udbetaling til Bilister sker via <strong>Stripe Connect</strong>.</p>
+        <p><strong>6.1</strong> For at kunne modtage udbetaling er det et krav, at Bilisten udfylder de lovpligtige <strong>DAC7-oplysninger</strong> (herunder skatteoplysninger) samt indtaster sit <strong>IBAN-nummer</strong> direkte i HoppOn-appen.</p>
+        <p><strong>6.2</strong> På baggrund af disse oplysninger opretter HoppOn automatisk en forbundet udbetalingskonto hos Stripe på vegne af Bilisten. Ved indtastning accepterer Bilisten, at HoppOn opbevarer IBAN-nummeret og videregiver de nødvendige oplysninger til Stripe for at facilitere udbetalingen.</p>
+        <p><strong>6.3</strong> Udbetalingen til bankkontoen igangsættes når bilisten anmoder om udbetaling. Der kan kun anmodes om udbetaling for afsluttede ture. Pengene vil herefter være tilgængelige på Bilistens konto inden for 5-10 hverdage, afhængig af Stripe og modtagerbankens behandlingstid.</p>
+    </section>
+
+    <section>
+        <h2>7. Ansvar og Forsikring</h2>
+        <p><strong>7.1</strong> HoppOn er udelukkende formidler. Vi påtager os intet ansvar for:</p>
+        <ul>
+            <li>Selve kørslen, herunder forsinkelser eller aflysninger.</li>
+            <li>Køretøjets stand.</li>
+            <li>Uoverensstemmelser mellem Bilist og Passager.</li>
+        </ul>
+        <p><strong>7.2 Forsikring:</strong> Det er til enhver tid Bilistens ansvar, at bilen er lovpligtigt ansvarsforsikret. I Danmark dækker bilens lovpligtige ansvarsforsikring passagerer ved uheld. HoppOn tilbyder ikke yderligere forsikring.</p>
+    </section>
+
+    <section>
+        <h2>8. Adfærd (Code of Conduct)</h2>
+        <p>Brugere af HoppOn forventes at udvise god opførsel. Det indebærer bl.a.:</p>
+        <ul>
+            <li>At møde til tiden.</li>
+            <li>At overholde færdselsloven.</li>
+            <li>At respektere hinandens grænser (f.eks. vedr. rygning, musik, husdyr).</li>
+            <li>At bilen er ren og sikkerhedsmæssigt forsvarlig.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>9. Lovvalg og Værneting</h2>
+        <p>Enhver tvist mellem HoppOn og brugeren skal afgøres efter dansk ret ved Retten i Aarhus som første instans.</p>
+    </section>
+</div>
+
+<footer>
+    &copy; 2026 HoppOn. Alle rettigheder forbeholdes.
+</footer>
+
+</body>
+</html>
