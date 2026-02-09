@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privatlivspolitik | HoppOn</title>
+    <style>
+        :root {
+            --primary-color: #00D1FF; /* HoppOn Cyan */
+            --secondary-color: #0056b3;
+            --text-dark: #1a1a1a;
+            --text-light: #4a4a4a;
+            --bg-light: #f4f7f9;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            padding-bottom: 50px;
+        }
+
+        /* Header / Logo område */
+        header {
+            background-color: var(--white);
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: 3px solid var(--primary-color);
+            margin-bottom: 40px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            text-decoration: none;
+            letter-spacing: -1px;
+        }
+
+        .logo span {
+            color: var(--text-dark);
+        }
+
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .last-updated {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary-color);
+            padding-left: 15px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--text-light);
+        }
+
+        ul {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: var(--text-light);
+        }
+
+        li strong {
+            color: var(--text-dark);
+        }
+
+        /* Kontakt boks */
+        .contact-card {
+            background: #eefcff;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 209, 255, 0.2);
+            margin-top: 10px;
+        }
+
+        .contact-card p {
+            margin-bottom: 5px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Mobil optimering */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 0 15px;
+            }
+            header {
+                padding: 30px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="#" class="logo">Hopp<span>On</span></a>
+</header>
+
+<div class="container">
+    <h1>Privatlivspolitik</h1>
+    <p class="last-updated">Senest opdateret: 9. februar 2026</p>
+
+    <section>
+        <h2>1. Dataansvarlig</h2>
+        <p>Den dataansvarlige for behandlingen af dine personoplysninger er:</p>
+        <div class="contact-card">
+            <p><strong>HoppOn v/ Alexander Strarup</strong></p>
+            <p>Silkeborgvej 52, st.tv.</p>
+            <p>8000 Aarhus C</p>
+            <p>CVR: 40151079</p>
+            <p>Kontakt: <a href="mailto:hej@hoppon.dk">hej@hoppon.dk</a></p>
+        </div>
+    </section>
+
+    <section>
+        <h2>2. Hvilke oplysninger indsamler vi?</h2>
+        <p>Når du bruger HoppOn, indsamler og behandler vi følgende oplysninger om dig:</p>
+        <ul>
+            <li><strong>Stamdata:</strong> Navn, e-mail, telefonnummer og fødselsdato (for at sikre alderskrav).</li>
+            <li><strong>Billeder:</strong> Profilbillede (for tryghed).</li>
+            <li><strong>Køretøjsdata (kun bilister):</strong> Bilmærke, model, år, farve og nummerplade.</li>
+            <li><strong>Transaktionsdata:</strong> Oplysninger om dine bookinger, betalinger og udbetalinger.</li>
+            <li><strong>Kommunikation:</strong> Beskeder sendt mellem brugere via appens chat-funktion.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>3. Formål med behandlingen</h2>
+        <p>Vi bruger dine oplysninger til at:</p>
+        <ul>
+            <li>Oprette og administrere din profil.</li>
+            <li>Formidle kontakt mellem bilister og passagerer (Samkørsel).</li>
+            <li>Gennemføre betalinger (via Stripe).</li>
+            <li>Forebygge svindel og sikre tryghed på platformen.</li>
+            <li>Overholde gældende lovgivning, herunder bogføringsloven.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>4. Hvem deler vi dine oplysninger med?</h2>
+        <p>Vi sælger aldrig dine data til tredjepart. Vi deler kun data, når det er nødvendigt for funktionen:</p>
+        <ul>
+            <li><strong>Andre brugere:</strong> Bilist og Passager se hinandens fornavn, profilbillede og telefonnummer for at kunne koordinere turen.</li>
+            <li><strong>Stripe (Betalingsudbyder):</strong> For at håndtere betalinger og udbetalinger deler vi relevante data med Stripe. Stripe fungerer som selvstændig dataansvarlig for selve betalingstransaktionen.</li>
+            <li><strong>Supabase:</strong> Vores tekniske database-udbyder, hvor data opbevares sikkert og krypteret.</li>
+            <li><strong>Myndigheder:</strong> Hvis det kræves ved lov (f.eks. ved politiets efterforskning), udleverer vi data til myndighederne.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>5. Opbevaring og Sletning</h2>
+        <p>Vi opbevarer dine data, så længe din profil er aktiv.</p>
+        <ul>
+            <li><strong>Sletning:</strong> Du kan til enhver tid anmode om sletning af din konto ved at skrive til <a href="mailto:hej@hoppon.dk">hej@hoppon.dk</a>.</li>
+        </ul>
+        <p>Ved sletning anonymiseres dine personlige data, men vi er lovmæssigt forpligtet til at gemme bogføringsmateriale (transaktionshistorik) i 5 år jf. Bogføringsloven.</p>
+    </section>
+
+    <section>
+        <h2>6. Dine rettigheder</h2>
+        <p>Du har ifølge Databeskyttelsesforordningen (GDPR) ret til:</p>
+        <ul>
+            <li>At få indsigt i, hvilke oplysninger vi har om dig.</li>
+            <li>At få rettet forkerte oplysninger.</li>
+            <li>At få slettet dine oplysninger (retten til at blive glemt), medmindre lovgivning kræver vi gemmer dem.</li>
+            <li>At gøre indsigelse mod vores behandling af dine oplysninger.</li>
+        </ul>
+        <p>Hvis du vil gøre brug af dine rettigheder, skal du kontakte os på <a href="mailto:hej@hoppon.dk">hej@hoppon.dk</a>.</p>
+    </section>
+</div>
+
+<footer>
+    &copy; 2026 HoppOn. Alle rettigheder forbeholdes.
+</footer>
+
+</body>
+</html>
