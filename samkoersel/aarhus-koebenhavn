@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samkørsel Aarhus – København | Billigt lift fra 150 kr. | HoppOn</title>
+    <meta name="description" content="Find billig samkørsel fra Aarhus til København. Spar op til 50% på turen over Storebælt. Se priser, afgange og book dit lift med HoppOn appen her.">
+    <link rel="icon" href="https://i.imgur.com/4oGYz8n.png" type="image/png">
+    
+    <style>
+        :root {
+            /* HoppOn Brand Colors */
+            --slate-900: #0F172A;
+            --indigo-500: #6366F1;
+            --indigo-600: #4F46E5;
+            --slate-100: #F1F5F9;
+            --slate-600: #475569;
+            --white: #FFFFFF;
+            
+            /* Glassmorphism Settings */
+            --glass-bg: rgba(255, 255, 255, 0.90); /* Lidt mere solid baggrund for læsbarhed */
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh; /* Ændret fra height til min-height */
+            width: 100%;
+            background: radial-gradient(circle at top right, #E0E7FF 0%, #F8FAFC 60%, #FFFFFF 100%);
+            display: flex;
+            align-items: flex-start; /* Ændret fra center for at tillade scrolling */
+            justify-content: center;
+            color: var(--slate-900);
+            overflow-y: auto; /* Tillad scrolling */
+            padding: 2rem 1rem;
+        }
+
+        /* Main Card Container */
+        .container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            padding: 3rem 2rem;
+            border-radius: 32px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            max-width: 700px; /* Gjort bredere for tekstens skyld */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-bottom: 2rem;
+        }
+
+        /* Logo Icon */
+        .logo-container {
+            width: 60px;
+            height: 60px;
+            background: transparent; 
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--slate-900);
+            letter-spacing: -1px;
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--slate-900);
+            text-align: left;
+            width: 100%;
+        }
+        
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            text-align: left;
+            width: 100%;
+        }
+
+        p {
+            font-size: 1rem;
+            color: var(--slate-600);
+            line-height: 1.6;
+            text-align: left;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .tagline {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Data Table for SEO */
+        .data-table {
+            width: 100%;
+            margin: 1.5rem 0;
+            background: rgba(255,255,255,0.5);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-size: 0.95rem;
+        }
+        
+        .data-row:last-child {
+            border-bottom: none;
+        }
+        
+        .data-label {
+            font-weight: 600;
+            color: var(--slate-900);
+        }
+
+        /* Button Group */
+        .store-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+            margin: 2rem 0;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: var(--slate-900);
+            color: var(--white);
+            text-decoration: none;
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            background: var(--indigo-500);
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Link Grid for Footer */
+        .link-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        .route-link {
+            text-align: left;
+            color: var(--indigo-500);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 8px;
+            border-radius: 8px;
+            background: rgba(99, 102, 241, 0.05);
+            transition: background 0.2s;
+        }
+        
+        .route-link:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: var(--slate-600);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Footer */
+        footer {
+            font-size: 0.75rem;
+            color: #94A3B8;
+            margin-top: 2rem;
+            text-align: center;
+            width: 100%;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Desktop Optimization */
+        @media (min-width: 600px) {
+            .store-buttons {
+                flex-direction: row;
+                justify-content: center;
+            }
+            .link-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="/" class="back-link">← Tilbage til forside</a>
+
+    <div class="container">
+        <div class="logo-container">
+            <img src="https://i.imgur.com/4oGYz8n.png" alt="HoppOn Logo" class="logo-img">
+        </div>
+
+        <div>
+            <h1>Samkørsel Aarhus – København</h1>
+            <p class="tagline">Den billigste vej over Storebælt. Find et lift nu.</p>
+        </div>
+
+        <div class="data-table">
+            <div class="data-row">
+                <span class="data-label">Gennemsnitspris</span>
+                <span>180 - 250 kr.</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Afstand</span>
+                <span>305 km</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Rejsetid</span>
+                <span>3 timer 15 min</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">CO2 Besparelse</span>
+                <span>Op til 75%</span>
+            </div>
+        </div>
+
+        <h2>Spar penge på turen over Storebælt</h2>
+        <p>Hvorfor betale fuld pris for toget eller køre alene over broen? Turen mellem Aarhus og København er Danmarks travleste pendlerstrækning. Med HoppOn finder du nemt og sikkert et lift. Vi matcher bilister med ledige sæder og passagerer, der skal samme vej.</p>
+        
+        <p>Som passager kommer du ofte til København for det halve af en togbillet. Som bilist får du dækket en stor del af dine omkostninger til benzin og broafgift. Det er ren win-win for din pengepung.</p>
+
+        <div class="store-buttons">
+            <a href="#" class="btn">
+                Download Appen
+            </a>
+        </div>
+
+        <h2>Sådan fungerer det</h2>
+        <p>1. <strong>Hent appen:</strong> Opret en profil hurtigt og nemt.</p>
+        <p>2. <strong>Søg efter tur:</strong> Indtast "Aarhus" og "København".</p>
+        <p>3. <strong>Book & Betal:</strong> Alt foregår sikkert i appen – ingen kontanter.</p>
+        <p>4. <strong>Kør sammen:</strong> Mød op og nyd turen.</p>
+
+        <h2>Ofte stillede spørgsmål</h2>
+        
+        <h3>Hvad koster det?</h3>
+        <p>Prisen sættes af bilisten, men ligger typisk mellem 180 kr. og 250 kr. per sæde. Det er ofte langt billigere end tog eller bus, da man deles om broafgiften.</p>
+
+        <h3>Hvor bliver jeg samlet op?</h3>
+        <p>I Aarhus er populære steder Musikhuset eller Banegården. I København er det ofte Valby Station eller DGI-byen. Aftal det præcise sted direkte i appens chat.</p>
+
+        <h3>Er det sikkert?</h3>
+        <p>Ja! Alle profiler på HoppOn er verificerede (MitID mulighed), og vi har et ratingsystem, så du altid kan se, hvem du kører med.</p>
+
+        <div style="width: 100%; height: 1px; background: rgba(0,0,0,0.1); margin: 2rem 0;"></div>
+
+        <h3 style="margin-top:0;">Andre populære ruter</h3>
+        <div class="link-grid">
+            <a href="/samkoersel/aalborg-aarhus.html" class="route-link">Aalborg ↔ Aarhus</a>
+            <a href="/samkoersel/odense-koebenhavn.html" class="route-link">Odense ↔ København</a>
+            <a href="/samkoersel/esbjerg-aarhus.html" class="route-link">Esbjerg ↔ Aarhus</a>
+            <a href="/samkoersel/roskilde-koebenhavn.html" class="route-link">Roskilde ↔ København</a>
+            <a href="/samkoersel/vejle-aarhus.html" class="route-link">Vejle ↔ Aarhus</a>
+            <a href="/samkoersel/herning-aarhus.html" class="route-link">Herning ↔ Aarhus</a>
+            <a href="/samkoersel/kolding-odense.html" class="route-link">Kolding ↔ Odense</a>
+            <a href="/samkoersel/silkeborg-aarhus.html" class="route-link">Silkeborg ↔ Aarhus</a>
+            <a href="/samkoersel/slagelse-koebenhavn.html" class="route-link">Slagelse ↔ København</a>
+            <a href="/samkoersel/helsingoer-koebenhavn.html" class="route-link">Helsingør ↔ København</a>
+        </div>
+
+        <footer>
+            &copy; 2026 HoppOn. <br> Powered by Stripe & Mapbox.
+        </footer>
+    </div>
+
+</body>
+</html>
