@@ -3,293 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Opret Profil | HoppOn</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Bedste Alternativer til GoMore (2026) | Spar penge med HoppOn</title>
+    <meta name="description" content="Leder du efter et billigere alternativ til GoMore? Sammenlign HoppOn og HandyHand.">
+    
     <style>
         :root {
-            --brand: #4F46E5; --brand-dark: #4338ca; --dark: #0F172A; --light: #F8FAFC;
-            --text: #334155; --text-light: #64748B; --success: #10B981; --error: #EF4444; --border: #E2E8F0;
+            --primary: #4F46E5;
+            --primary-dark: #4338ca;
+            --secondary: #0F172A;
+            --accent: #10B981;
+            --bg-color: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-main: #334155;
+            --text-light: #64748B;
+            --danger: #EF4444;
         }
+
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: #F3F4F6; color: var(--dark); min-height: 100vh; display: flex; flex-direction: column; }
-        .navbar { background: white; padding: 1rem 2rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-weight: 800; font-size: 1.5rem; color: var(--brand); text-decoration: none; }
-        .main-container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 2rem 1rem; }
-        .signup-card { background: white; width: 100%; max-width: 500px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); padding: 2.5rem; }
-        h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; text-align: center; }
-        .subtitle { text-align: center; color: var(--text-light); margin-bottom: 2rem; }
-        .form-group { margin-bottom: 1.25rem; }
-        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; }
-        input, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 12px; font-size: 1rem; background: var(--light); }
-        .avatar-upload { display: flex; flex-direction: column; align-items: center; margin-bottom: 1.5rem; cursor: pointer; }
-        .avatar-preview { width: 100px; height: 100px; border-radius: 50%; background: var(--light); border: 2px dashed var(--border); display: flex; justify-content: center; align-items: center; overflow: hidden; margin-bottom: 10px; }
-        .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
-        .car-toggle-container { background: #EEF2FF; border: 1px solid #C7D2FE; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--brand); }
-        input:checked + .slider:before { transform: translateX(20px); }
-        #carSection { display: none; border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1rem; }
-        .plate-lookup { display: flex; gap: 10px; }
-        .btn-lookup { background: var(--dark); color: white; border: none; padding: 0 20px; border-radius: 12px; cursor: pointer; font-weight: 600; }
-        .btn-submit { display: block; width: 100%; padding: 16px; background: var(--brand); color: white; border: none; border-radius: 16px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 1rem; }
-        #loadingOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display: none; justify-content: center; align-items: center; z-index: 100; flex-direction: column; gap: 15px; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--brand); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        body {
+            background: var(--bg-color);
+            color: var(--secondary);
+            line-height: 1.6;
+            padding-bottom: 4rem;
+        }
+
+        /* --- HEADER --- */
+        .header {
+            background: var(--secondary);
+            color: white;
+            padding: 4rem 2rem 8rem 2rem;
+            text-align: center;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        }
+
+        .header h1 { font-size: 3rem; font-weight: 800; margin-bottom: 1rem; line-height: 1.2; }
+        .header p { font-size: 1.25rem; color: #CBD5E1; max-width: 600px; margin: 0 auto; }
+
+        /* --- CONTAINER --- */
+        .container {
+            max-width: 1000px;
+            margin: -5rem auto 0;
+            padding: 0 1.5rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* --- CALCULATOR --- */
+        .calculator-card {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 3rem;
+        }
+
+        .calc-title { text-align: center; margin-bottom: 2rem; }
+        .slider-container { margin-bottom: 3rem; text-align: center; }
+        
+        .price-display {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: inline-block;
+            background: #EEF2FF;
+            padding: 0.5rem 1.5rem;
+            border-radius: 12px;
+        }
+
+        input[type=range] {
+            width: 100%;
+            max-width: 400px;
+            height: 8px;
+            border-radius: 5px;
+            background: #E2E8F0;
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+        
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(79, 70, 229, 0.4);
+        }
+
+        .comparison-results { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        
+        .result-box {
+            background: #F8FAFC;
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: transform 0.2s;
+        }
+
+        .result-box.winner {
+            background: #F0FDF4;
+            border-color: var(--accent);
+            transform: scale(1.02);
+            position: relative;
+        }
+
+        .badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .provider-logo { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; display: block; }
+        .hoppon-text { color: var(--secondary); }
+        .handy-text { color: #64748B; }
+
+        .earnings { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .winner .earnings { color: #166534; }
+        .loser .earnings { color: #64748B; }
+        
+        .fee-details { font-size: 0.9rem; color: var(--text-light); }
+        .fee-highlight { color: var(--danger); font-weight: 600; }
+
+        /* --- REVIEWS --- */
+        .reviews-section { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 4rem; }
+        
+        .review-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        .review-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; border-bottom: 1px solid #E2E8F0; padding-bottom: 1rem; }
+        .review-title { font-size: 1.5rem; font-weight: 700; }
+
+        .pro-con-list { list-style: none; }
+        .pro-con-list li { margin-bottom: 1rem; display: flex; align-items: flex-start; gap: 12px; font-size: 0.95rem; }
+        
+        /* NY CSS TILFØJET: Sikrer at teksten fylder resten af bredden */
+        .pro-con-list li div { flex: 1; }
+
+        .icon { width: 20px; height: 20px; flex-shrink: 0; margin-top: 4px; }
+        .icon-check { color: var(--accent); }
+        .icon-cross { color: var(--danger); }
+        .icon-info { color: #3B82F6; }
+
+        /* --- CTA --- */
+        .cta-section {
+            text-align: center;
+            margin-top: 4rem;
+            background: var(--secondary);
+            color: white;
+            padding: 3rem;
+            border-radius: 24px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: #059669; }
+
+        @media (max-width: 768px) {
+            .comparison-results, .reviews-section { grid-template-columns: 1fr; }
+            .header { padding: 3rem 1rem 6rem 1rem; }
+            .header h1 { font-size: 2rem; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="loadingOverlay">
-        <div class="spinner"></div>
-        <div style="font-weight: 600;">Arbejder på det...</div>
-    </div>
+    <header class="header">
+        <a href="/" style="color:white; text-decoration:none; position:absolute; top:20px; left:20px;">← Tilbage</a>
+        <h1>Bedste Alternativer til GoMore</h1>
+        <p>Er du træt af høje gebyrer? Vi har sammenlignet markedet for dig i 2026.</p>
+    </header>
 
-    <nav class="navbar">
-        <a href="index.html" class="logo">HoppOn</a>
-        <a href="index.html" class="nav-link" style="color: var(--text); text-decoration: none; font-weight: 500;">Log ind</a>
-    </nav>
-
-    <div class="main-container">
-        <div class="signup-card">
-            <h1>Opret profil</h1>
-            <p class="subtitle">Lad os få dig i gang 🚀</p>
-
-            <div class="avatar-upload" onclick="document.getElementById('signupImage').click()">
-                <div class="avatar-preview">
-                    <img id="previewImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23CBD5E1' viewBox='0 0 24 24'%3E%3Cpath d='M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z' /%3E%3C/svg%3E">
-                </div>
-                <span style="font-size: 0.8rem; color: var(--brand); font-weight: 600;">Upload Profilbillede *</span>
-                <input type="file" id="signupImage" accept="image/*" onchange="previewFile()" style="display: none;">
+    <div class="container">
+        
+        <div class="calculator-card">
+            <div class="calc-title">
+                <h2>Tjek din indtjening pr. passager</h2>
+                <p>Hvad betaler passageren for turen?</p>
             </div>
 
-            <div class="form-group">
-                <label>Fulde Navn *</label>
-                <input type="text" id="signupName" placeholder="Mette Jensen">
+            <div class="slider-container">
+                <div class="price-display"><span id="ticketPrice">100</span> kr.</div>
+                <br>
+                <input type="range" min="30" max="400" value="100" step="5" id="priceSlider">
             </div>
 
-            <div class="form-group">
-                <label>Køn *</label>
-                <select id="signupGender">
-                    <option value="" disabled selected>Vælg køn</option>
-                    <option value="Mand">Mand</option>
-                    <option value="Kvinde">Kvinde</option>
-                    <option value="Andet">Andet</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Email *</label>
-                <input type="email" id="signupEmail">
-            </div>
-
-            <div class="form-group">
-                <label>Adgangskode (min. 6 tegn) *</label>
-                <input type="password" id="signupPass">
-            </div>
-
-            <div class="car-toggle-container">
-                <div style="font-weight: 600; color: var(--brand-dark);">Jeg vil gerne være chauffør</div>
-                <label class="switch">
-                    <input type="checkbox" id="driverToggle" onchange="toggleCarSection()">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div id="carSection">
-                <div class="form-group">
-                    <label>Telefonnummer *</label>
-                    <input type="tel" id="signupPhone" placeholder="12 34 56 78">
-                </div>
-                <div class="form-group">
-                    <label>Nummerplade</label>
-                    <div class="plate-lookup">
-                        <input type="text" id="plateInput" placeholder="AB 12 345" style="text-transform: uppercase;">
-                        <button class="btn-lookup" type="button" onclick="fetchCar()">Søg</button>
+            <div class="comparison-results">
+                <div class="result-box winner">
+                    <div class="badge">Bedst i test</div>
+                    <span class="provider-logo hoppon-text">HoppOn</span>
+                    <div class="earnings"><span id="hopponEarnings">95</span> kr.</div>
+                    <div class="fee-details">
+                        Gebyr: <strong>Kun 5 kr.</strong><br>
+                        Uanset prisens størrelse.
                     </div>
-                    <div id="carResult" style="margin-top: 10px; font-weight: bold;"></div>
                 </div>
-                <input type="hidden" id="carMake"><input type="hidden" id="carModel"><input type="hidden" id="carYear"><input type="hidden" id="carColor">
+
+                <div class="result-box loser">
+                    <span class="provider-logo handy-text">HandyHand</span>
+                    <div class="earnings"><span id="handyEarnings">79</span> kr.</div>
+                    <div class="fee-details">
+                        Gebyr: <span class="fee-highlight" id="handyFee">21</span> kr.<br>
+                        (12% + 9 kr. pr. tur)
+                    </div>
+                </div>
+            </div>
+            
+            <p style="text-align:center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-light);">
+                <em id="savingText">Du tjener 16 kr. mere pr. passager med HoppOn.</em>
+            </p>
+        </div>
+
+        <div class="reviews-section">
+            
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="review-title" style="color: var(--primary);">HoppOn</div>
+                    <div style="background:#DCFCE7; color:#166534; padding:4px 10px; border-radius:6px; font-size:0.8rem; font-weight:700;">ANBEFALET</div>
+                </div>
+                <h3>Fordele</h3>
+                <ul class="pro-con-list">
+                    <li>
+                        <svg class="icon icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        <div>
+                            <strong>Markedets laveste gebyr:</strong> Fast pris på kun 5 kr. sikrer højere indtjening.
+                        </div>
+                    </li>
+                    <li>
+                        <svg class="icon icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        <div>
+                            <strong>Fokus på samkørsel:</strong> Designet specifikt til pendlere og lift.
+                        </div>
+                    </li>
+                </ul>
+
+                <h3 style="margin-top: 1.5rem;">Ulemper</h3>
+                <ul class="pro-con-list">
+                      <li>
+                        <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        <div>
+                            <strong>Nyere platform:</strong> Har endnu færre brugere end GoMore, men vokser hurtigt.
+                        </div>
+                    </li>
+                    <li>
+                        <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        <div>
+                            <strong>Kun transport:</strong> Kan ikke bruges til havearbejde eller flyttehjælp.
+                        </div>
+                    </li>
+                </ul>
             </div>
 
-            <button class="btn-submit" onclick="handleSignup()">Opret Konto</button>
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="review-title" style="color: #64748B;">HandyHand</div>
+                </div>
+                <h3>Fordele</h3>
+                <ul class="pro-con-list">
+                    <li>
+                        <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        <div>
+                            <strong>God til fragt:</strong> Perfekt hvis du skal have flyttet en sofa eller store kasser.
+                        </div>
+                    </li>
+                    <li>
+                        <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        <div>
+                            <strong>Alt-i-én:</strong> Find hjælp til alt fra rengøring til VVS samme sted.
+                        </div>
+                    </li>
+                </ul>
+
+                <h3 style="margin-top: 1.5rem;">Ulemper</h3>
+                <ul class="pro-con-list">
+                    <li>
+                        <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                        <div>
+                            <strong>Høje gebyrer:</strong> De tager både et fast gebyr (9 kr) plus 12% i kommission.
+                        </div>
+                    </li>
+                    <li>
+                        <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                        <div>
+                            <strong>Uvis forsikringsdækning:</strong> Hvis chaufføren er på vej til en betalt opgave, kan turen anses som erhvervskørsel. Her dækkes personskader hverken af Handyhand eller typiske private bilforsikringer.
+                        </div>
+                    </li>
+                </ul>
+            </div>
         </div>
+
+        <div class="cta-section">
+            <h2>Klar til at tjene mere på dine ture?</h2>
+            <p>Opret en profil på HoppOn i dag. Det er gratis og tager kun 2 minutter.</p>
+            <a href="#" class="btn">Opret profil nu</a>
+        </div>
+
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://xboklywxcozobvfrptpr.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_amqWmR5MrUSFHlniU2yp3Q_c8kUysEY'; 
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const slider = document.getElementById('priceSlider');
+        const ticketDisplay = document.getElementById('ticketPrice');
+        const hopponDisplay = document.getElementById('hopponEarnings');
+        const handyDisplay = document.getElementById('handyEarnings');
+        const handyFeeDisplay = document.getElementById('handyFee');
+        const savingText = document.getElementById('savingText');
 
-        // --- SIKKERHEDS FIX: LOG UD VED START ---
-        // Dette fjerner gamle, ugyldige sessioner, så du er "Ren Anonym"
-        // og opfylder dine storage regler.
-        window.onload = async () => {
-            await _supabase.auth.signOut();
-            setLoading(false); // Skjul loading, når vi er klar
-        };
+        function calculate() {
+            const price = parseInt(slider.value);
+            ticketDisplay.innerText = price;
 
-        function previewFile() {
-            const preview = document.getElementById('previewImg');
-            const file = document.getElementById('signupImage').files[0];
-            const reader = new FileReader();
-            reader.onloadend = () => { preview.src = reader.result; }
-            if (file) reader.readAsDataURL(file);
+            // HoppOn: Price - 5 flat fee
+            const hopponResult = price - 5;
+            hopponDisplay.innerText = hopponResult;
+
+            // HandyHand: Price - 9 flat fee - 12% commission
+            const variableFee = price * 0.12;
+            const fixedFee = 9;
+            const totalHandyFee = Math.round(variableFee + fixedFee);
+            const handyResult = Math.round(price - totalHandyFee);
+
+            handyDisplay.innerText = handyResult;
+            handyFeeDisplay.innerText = totalHandyFee;
+
+            const diff = hopponResult - handyResult;
+            savingText.innerHTML = `Du tjener <strong>${diff} kr.</strong> mere pr. passager med HoppOn.`;
         }
 
-        function toggleCarSection() {
-            const isDriver = document.getElementById('driverToggle').checked;
-            document.getElementById('carSection').style.display = isDriver ? 'block' : 'none';
-        }
-
-        function setLoading(isLoading) {
-            document.getElementById('loadingOverlay').style.display = isLoading ? 'flex' : 'none';
-        }
-
-        async function fetchCar() {
-            const plate = document.getElementById('plateInput').value.replace(/\s/g, '');
-            if(plate.length < 2) return;
-            setLoading(true);
-            try {
-                const { data, error } = await _supabase.rpc('get_car_details', { plate_text: plate });
-                const resDiv = document.getElementById('carResult');
-                if (data && !data.error && data.make) {
-                    resDiv.innerText = `✅ ${data.make} ${data.model}`;
-                    resDiv.style.color = 'var(--success)';
-                    document.getElementById('carMake').value = data.make;
-                    document.getElementById('carModel').value = data.model;
-                    document.getElementById('carYear').value = data.model_year;
-                    document.getElementById('carColor').value = data.color;
-                } else {
-                    resDiv.innerText = "❌ Bil ikke fundet";
-                    resDiv.style.color = 'var(--error)';
-                }
-            } catch (e) { console.error(e); }
-            setLoading(false);
-        }
-
-        async function handleSignup() {
-            const name = document.getElementById('signupName').value.trim();
-            const email = document.getElementById('signupEmail').value.trim();
-            const pass = document.getElementById('signupPass').value.trim();
-            const gender = document.getElementById('signupGender').value;
-            const imgInput = document.getElementById('signupImage');
-            
-            const isDriver = document.getElementById('driverToggle').checked;
-            const phone = document.getElementById('signupPhone').value.trim();
-            const plate = document.getElementById('plateInput').value.trim();
-
-            if (!name || !email || !pass || !gender || imgInput.files.length === 0) {
-                alert("Udfyld venligst alle felter og vælg et billede.");
-                return;
-            }
-            if (isDriver && (!phone || !plate)) {
-                alert("Udfyld venligst telefon og nummerplade");
-                return;
-            }
-
-            setLoading(true);
-
-            try {
-                // TRIN 1: Upload Billede
-                // Dette virker nu, fordi vi loggede ud ved start (window.onload)
-                const file = imgInput.files[0];
-                const fileName = `${Date.now()}.${file.name.split('.').pop()}`;
-                
-                const { error: uploadError } = await _supabase.storage.from('avatars').upload(fileName, file);
-                
-                if (uploadError) throw new Error("Upload fejl: " + uploadError.message);
-                
-                const { data: { publicUrl } } = _supabase.storage.from('avatars').getPublicUrl(fileName);
-
-                // Forbered Car Details JSON (Præcis som Flutter)
-                let carDetailsString = null;
-                if (isDriver) {
-                    const make = document.getElementById('carMake').value;
-                    const model = document.getElementById('carModel').value;
-                    const year = document.getElementById('carYear').value;
-                    const color = document.getElementById('carColor').value;
-                    
-                    const carJson = {
-                        make: make,
-                        model: model,
-                        year: year,
-                        color: color,
-                        plate: plate,
-                        details: `${year} • ${color} • ${plate}`,
-                        display_name: `${make} ${model}`
-                    };
-                    carDetailsString = JSON.stringify(carJson);
-                }
-
-                // TRIN 2: Opret Bruger (Sender metadata med!)
-                // Vi sender data med HER, så 'handle_new_user' triggeren kan bruge det
-                const { data: authData, error: authError } = await _supabase.auth.signUp({
-                    email: email, 
-                    password: pass,
-                    options: { 
-                        data: { 
-                            full_name: name, 
-                            avatar_url: publicUrl, 
-                            gender: gender,
-                            // Selvom din trigger måske ikke bruger disse endnu, 
-                            // sender vi dem med for sikkerheds skyld
-                            is_driver: isDriver,
-                            license_plate: plate,
-                            car_details: carDetailsString,
-                            phone_number: phone 
-                        } 
-                    }
-                });
-
-                if (authError) throw authError;
-
-                // TRIN 3: Opdater Profil (Som Flutter gør det)
-                // Vi venter 500ms som i din app
-                await new Promise(r => setTimeout(r, 500));
-
-                // Forsøg at opdatere. 
-                // Hvis email-verifikation er påkrævet, vil authData.session være null.
-                // Hvis session er null, kan vi IKKE opdatere pga. RLS.
-                // MEN: Hvis du siger det virker i appen, så prøver vi.
-                
-                if (authData.user) {
-                    const finalPhone = isDriver ? phone : null;
-                    const licensePlate = isDriver ? plate : null;
-
-                    // Vi prøver en update. Hvis den fejler pga rettigheder (ingen session),
-                    // så ignorerer vi fejlen, for så har triggeren forhåbentlig gjort arbejdet
-                    // via metadataen vi sendte i Trin 2.
-                    const { error: profileError } = await _supabase
-                        .from('profiles')
-                        .update({
-                            full_name: name,
-                            gender: gender,
-                            avatar_url: publicUrl,
-                            is_driver: isDriver,
-                            phone_number: finalPhone,
-                            license_plate: licensePlate,
-                            car_details: carDetailsString
-                        })
-                        .eq('id', authData.user.id);
-
-                    if (profileError) {
-                        console.warn("Profil update fejlede (forventet hvis email ej bekræftet):", profileError.message);
-                    }
-                }
-
-                alert("Konto oprettet! Tjek din email for bekræftelseslink.");
-                window.location.href = 'login.html';
-
-            } catch (e) {
-                alert("Fejl: " + e.message);
-                console.error(e);
-            } finally {
-                setLoading(false);
-            }
-        }
+        slider.addEventListener('input', calculate);
+        calculate();
     </script>
 </body>
 </html>
