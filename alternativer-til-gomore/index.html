@@ -3,19 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bedste Alternativer til GoMore (2026) | Spar penge med HoppOn</title>
-    <meta name="description" content="Hvad betaler du i gebyr? Sammenlign HoppOn og HandyHand.">
+    <title>Beregn din gevinst | Spar høje gebyrer | HoppOn</title>
+    <meta name="description" content="Hvor meget mister du i gebyrer hos andre? Beregn din besparelse her. Hos HoppOn betaler du kun 5 kr. fast gebyr.">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://hoppon.dk/alternativer-til-gomore" />
-
+    
     <style>
-        /* --- 100% KOPI AF KODE 2 CSS --- */
         :root {
             --brand: #4F46E5;
             --brand-dark: #4338ca;
             --dark: #0F172A;
             --light: #F8FAFC;
-            --dsb-red: #D32F2F; 
+            --bad-red: #D32F2F; 
             --success: #10B981;
         }
 
@@ -27,54 +25,94 @@
         .hero {
             background: var(--dark);
             color: white;
-            padding: 5rem 1rem 10rem 1rem; /* Bevaret original padding */
+            padding: 5rem 1rem 12rem 1rem; /* Extra padding bottom for overlap */
             text-align: center;
             background-image: radial-gradient(circle at top right, #1e293b 0%, #0F172A 100%);
         }
 
         .hero h1 { font-size: 3rem; font-weight: 800; margin-bottom: 1rem; line-height: 1.1; letter-spacing: -1px; }
-        .hero span { color: var(--brand); background: rgba(79, 70, 229, 0.1); padding: 0 10px; border-radius: 8px; }
         .hero p { font-size: 1.2rem; color: #94A3B8; max-width: 600px; margin: 0 auto; }
 
         /* MAIN CONTAINER */
-        .container { max-width: 1000px; margin: -8rem auto 4rem auto; padding: 0 1rem; position: relative; z-index: 10; }
+        .container { max-width: 1000px; margin: -10rem auto 4rem auto; padding: 0 1rem; position: relative; z-index: 10; }
 
-        /* COMPARISON CARD */
+        /* CALCULATOR CARD */
         .comparison-card {
             background: white;
             border-radius: 24px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* SLIDER SECTION (TOP OF CARD) */
+        .card-header {
+            padding: 2.5rem;
+            text-align: center;
+            border-bottom: 1px solid #E2E8F0;
+            background: #fff;
+        }
+        
+        .slider-label { font-size: 1.1rem; font-weight: 600; color: #64748B; margin-bottom: 0.5rem; display: block; }
+        .slider-value { font-size: 2.5rem; font-weight: 800; color: var(--dark); display: block; margin-bottom: 1.5rem; }
+
+        /* Custom Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            max-width: 600px;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 32px;
+            width: 32px;
+            border-radius: 50%;
+            background: var(--brand);
+            cursor: pointer;
+            margin-top: -12px;
+            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.4);
+            border: 4px solid white;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #E2E8F0;
+            border-radius: 4px;
+        }
+        input[type=range]:focus { outline: none; }
+
+        /* CARD BODY (SPLIT VIEW) */
+        .card-body {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            position: relative; /* Tilføjet for at slider kan ligge øverst */
         }
 
         /* LEFT SIDE: COMPETITOR */
         .side-competitor {
-            padding: 5rem 3rem 3rem 3rem; /* Øget top padding for at gøre plads til slider */
-            background: #F1F5F9;
+            padding: 3rem;
+            background: #F8FAFC;
             border-right: 1px solid #E2E8F0;
             display: flex; flex-direction: column;
-            opacity: 0.9;
         }
 
         /* RIGHT SIDE: HOPPON */
         .side-hoppon {
-            padding: 5rem 3rem 3rem 3rem; /* Øget top padding for at gøre plads til slider */
+            padding: 3rem;
             background: white;
             display: flex; flex-direction: column;
             position: relative;
         }
         
         .side-hoppon::before {
-            content: "BEDST I TEST"; /* Ændret tekst */
+            content: "BEDST I TEST";
             position: absolute; top: 0; right: 0;
             background: var(--success); color: white;
             font-size: 0.75rem; font-weight: 800;
             padding: 0.5rem 1.5rem;
             border-bottom-left-radius: 20px;
-            z-index: 20;
         }
 
         h2 { font-size: 1.5rem; margin-bottom: 2rem; font-weight: 800; }
@@ -82,26 +120,38 @@
         .hoppon-title { color: var(--brand); }
 
         /* DATA ROWS */
-        .data-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .data-row:last-child { border: none; margin: 0; padding: 0; }
+        .data-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .data-row:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        
+        /* Special spacing for total result */
+        .result-row { margin-top: 2rem; padding-top: 1.5rem; border-top: 2px dashed #E2E8F0; }
 
         .label { font-size: 0.8rem; color: #94A3B8; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; display: block; margin-bottom: 0.25rem; }
-        .value { font-size: 1.25rem; font-weight: 600; }
-        .value.bad { color: var(--dsb-red); font-size: 1.1rem; }
-        .value.good { color: var(--success); font-size: 1.4rem; font-weight: 700; }
-
-        .price-tag { font-size: 3.5rem; font-weight: 900; line-height: 1; margin-bottom: 0.5rem; color: var(--brand); }
+        .sub-note { font-size: 0.75rem; color: #94A3B8; font-weight: 400; }
         
-        .competitor-price {
-            font-size: 2.2rem; font-weight: 700; color: #64748B; position: relative; display: inline-block;
-        }
-        .competitor-price::after {
-            content: ''; position: absolute; left: -5px; right: -5px; top: 50%;
-            height: 3px; background: var(--dsb-red); transform: rotate(-10deg);
+        .value { font-size: 1.1rem; font-weight: 600; }
+        .value.bad { color: var(--bad-red); }
+        .value.good { color: var(--success); }
+        .value.neutral { color: #64748B; }
+
+        /* DYNAMIC NUMBERS */
+        .dynamic-fee { color: var(--bad-red); font-weight: 700; }
+        .dynamic-payout-bad { font-size: 2rem; font-weight: 800; color: #94A3B8; text-decoration: line-through; decoration-color: var(--bad-red); decoration-thickness: 3px; }
+        .dynamic-payout-good { font-size: 2.5rem; font-weight: 900; color: var(--brand); line-height: 1; }
+
+        .savings-badge {
+            display: inline-block;
+            background: #DCFCE7;
+            color: #166534;
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
         }
 
         /* CTA */
-        .cta-container { margin-top: auto; text-align: center; }
+        .cta-container { margin-top: auto; text-align: center; padding-top: 2rem; }
         .btn {
             display: block; width: 100%; padding: 1.25rem;
             background: var(--brand); color: white;
@@ -110,7 +160,7 @@
             box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
         }
         .btn:hover { background: var(--brand-dark); transform: translateY(-2px); }
-        .disclaimer { font-size: 0.75rem; color: #94A3B8; margin-top: 1rem; text-align: center; }
+        .disclaimer-text { font-size: 0.75rem; color: #94A3B8; margin-top: 1rem; text-align: center; }
 
         /* CONTENT SECTION */
         .content-section { max-width: 700px; margin: 0 auto 4rem auto; padding: 0 1rem; }
@@ -118,123 +168,119 @@
         .content-section p { margin-bottom: 1.5rem; color: #475569; font-size: 1.05rem; }
         
         .checklist { list-style: none; margin-bottom: 2rem; background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .checklist li { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; color: #334155; font-weight: 600; }
-        .check { color: var(--success); font-size: 1.2rem; }
+        .checklist li { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 1rem; color: #334155; font-weight: 600; }
+        .check { color: var(--success); font-size: 1.2rem; min-width: 20px; }
+
+        /* FACT BOX */
+        .fact-box {
+            background: #E0E7FF; padding: 24px; border-radius: 16px; 
+            border-left: 5px solid var(--brand); margin-top: 2rem;
+        }
 
         /* FOOTER LINKS */
         .seo-links { margin-top: 4rem; border-top: 1px solid #E2E8F0; padding-top: 2rem; }
         .link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-        .route-link { display: block; padding: 10px; background: white; text-decoration: none; color: #64748B; font-size: 0.9rem; font-weight: 500; border-radius: 8px; transition: all 0.2s; text-align: center; }
-        .route-link:hover { background: var(--brand); color: white; }
-
-        /* -- NY SLIDER STYLING (Minimalistisk) -- */
-        .full-width-slider {
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            padding: 1.5rem 2rem;
-            background: rgba(255,255,255,0.9);
-            border-bottom: 1px solid #E2E8F0;
-            z-index: 10;
-            text-align: center;
+        .footer-link {
+            display: block; padding: 10px; background: white; 
+            text-decoration: none; color: #64748B; font-size: 0.9rem; font-weight: 500;
+            border-radius: 8px; transition: all 0.2s; text-align: center;
         }
-        input[type=range] { width: 100%; max-width: 400px; height: 6px; border-radius: 5px; background: #CBD5E1; outline: none; -webkit-appearance: none; cursor: pointer; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: var(--brand); cursor: pointer; box-shadow: 0 0 10px rgba(79, 70, 229, 0.4); }
+        .footer-link:hover { background: var(--brand); color: white; }
 
-        /* MOBILE */
+        /* MOBILE RESPONSIVE */
         @media (max-width: 768px) {
             .hero h1 { font-size: 2rem; }
-            .comparison-card { grid-template-columns: 1fr; margin-top: 0; }
-            .side-competitor { border-right: none; border-bottom: 1px solid #E2E8F0; padding: 6rem 2rem 2rem 2rem; background: #f8fafc; }
+            .card-body { grid-template-columns: 1fr; }
+            .side-competitor { border-right: none; border-bottom: 1px solid #E2E8F0; padding: 2rem; }
             .side-hoppon { padding: 2rem; }
-            .full-width-slider { position: relative; background: #fff; padding: 2rem 1rem; }
+            .dynamic-payout-bad { font-size: 1.5rem; }
+            .dynamic-payout-good { font-size: 2rem; }
         }
     </style>
 </head>
 <body>
 
     <header class="hero">
-        <h1>Træt af høje gebyrer? <br> <span>Beregn din gevinst her.</span></h1>
-        <p>Se præcis hvor meget du mister pr. opgave. HoppOn er billigere, og du får dine penge med det samme.</p>
+        <h1>Træt af høje gebyrer?</h1>
+        <p>Se præcis, hvor meget du mister pr. opgave eller tur hos andre. <br>Hos HoppOn er gebyret fast og lavt, og du får dine penge med det samme.</p>
     </header>
 
     <div class="container">
         <div class="comparison-card">
             
-            <div class="full-width-slider">
-                <span style="font-size: 0.8rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 1px;">Pris for turen / opgaven:</span>
-                <div style="font-size: 1.5rem; font-weight: 800; color: var(--brand); display: inline-block; margin-left: 10px; width: 100px; text-align: left;"><span id="ticketPrice">100</span> kr.</div>
-                <br>
-                <input type="range" min="50" max="2000" value="100" step="10" id="priceSlider">
+            <div class="card-header">
+                <label for="priceRange" class="slider-label">Hvad koster opgaven eller turen?</label>
+                <span class="slider-value"><span id="displayPrice">500</span> kr.</span>
+                <input type="range" min="50" max="2000" step="10" value="500" id="priceRange">
             </div>
-            
-            <div class="side-competitor">
-                <h2 class="competitor-title">HandyHand</h2>
-                
-                <div class="data-row">
-                    <div>
-                        <span class="label">Platform Gebyr</span>
-                        <span class="competitor-price" style="font-size: 1.4rem; color: var(--dsb-red); text-decoration: none; border:none;"><span id="handyFeeText">-21 kr.</span></span>
-                        <div style="font-size:0.8rem; color:#94A3B8;">(12% + 9 kr.)</div>
-                    </div>
-                </div>
 
-                <div class="data-row">
-                    <div>
-                        <span class="label">Ved aflysning</span>
-                        <span class="value bad">10% bøde</span>
+            <div class="card-body">
+                <div class="side-competitor">
+                    <h2 class="competitor-title">HandyHand</h2>
+                    
+                    <div class="data-row">
+                        <div>
+                            <span class="label">Platform Gebyr</span>
+                            <span class="sub-note">(12% + 9 kr.)</span>
+                        </div>
+                        <span class="value bad" id="hhFee">-69 kr.</span>
                     </div>
-                </div>
 
-                <div class="data-row">
-                    <div>
-                        <span class="label">Tilbagebetaling</span>
-                        <span class="value">Låst kredit</span>
+                    <div class="data-row">
+                        <div>
+                            <span class="label">Ved aflysning</span>
+                        </div>
+                        <span class="value bad">10% straf</span>
                     </div>
-                </div>
 
-                <div class="data-row" style="margin-top: auto;">
-                    <div>
+                    <div class="data-row">
+                        <div>
+                            <span class="label">Tilbagebetaling</span>
+                        </div>
+                        <span class="value neutral">Låst som kredit</span>
+                    </div>
+
+                    <div class="result-row">
                         <span class="label">Din Udbetaling</span>
-                        <span class="competitor-price"><span id="handyEarnings">79</span> kr.</span>
+                        <div class="dynamic-payout-bad"><span id="hhPayout">431</span> kr.</div>
                     </div>
                 </div>
-            </div>
 
-            <div class="side-hoppon">
-                <h2 class="hoppon-title">HoppOn</h2>
-                
-                <div class="data-row">
-                    <div>
-                        <span class="label">Fast Gebyr</span>
+                <div class="side-hoppon">
+                    <h2 class="hoppon-title">HoppOn</h2>
+                    
+                    <div class="data-row">
+                        <div>
+                            <span class="label">Fast Gebyr</span>
+                            <span class="sub-note">(Fast lav pris)</span>
+                        </div>
                         <span class="value good">5 kr.</span>
                     </div>
-                </div>
 
-                <div class="data-row">
-                    <div>
-                        <span class="label">Ved aflysning</span>
+                    <div class="data-row">
+                        <div>
+                            <span class="label">Ved aflysning</span>
+                        </div>
                         <span class="value good">0 kr.</span>
                     </div>
-                </div>
 
-                <div class="data-row">
-                    <div>
-                        <span class="label">Tilbagebetaling</span>
-                        <span class="value">På din konto</span>
+                    <div class="data-row">
+                        <div>
+                            <span class="label">Tilbagebetaling</span>
+                        </div>
+                        <span class="value good">Direkte til konto</span>
                     </div>
-                </div>
 
-                <div class="data-row" style="margin-top: auto;">
-                    <div>
+                    <div class="result-row">
                         <span class="label">Din Udbetaling</span>
-                        <div class="price-tag"><span id="hopponEarnings">95</span> kr.</div>
-                        <span style="color:var(--success); font-size:0.9rem; font-weight:700;" id="savingText">Du sparer 16 kr.</span>
+                        <div class="dynamic-payout-good"><span id="hoPayout">495</span> kr.</div>
+                        <div class="savings-badge">Du tjener <span id="savingsDiff">64</span> kr. mere her</div>
                     </div>
-                </div>
 
-                <div class="cta-container">
-                    <a href="#" class="btn">Opret profil nu →</a>
-                    <p class="disclaimer">Ingen bookinggebyr • MitID verificeret • Tryg rejse</p>
+                    <div class="cta-container">
+                        <a href="#" class="btn">Opret profil nu →</a>
+                        <p class="disclaimer-text">Ingen abonnement • MitID verificeret • 2 min opsætning</p>
+                    </div>
                 </div>
             </div>
 
@@ -243,68 +289,87 @@
 
     <section class="content-section">
         <h3>Hvorfor betale procenter af dit arbejde?</h3>
-        <p>Hvorfor skal platformen tjene mere, bare fordi din opgave er større? Hos HoppOn tror vi på faste lave priser.</p>
+        <p>Hvorfor skal platformen tjene mere, bare fordi din opgave er større eller turen er længere? Hos HoppOn tror vi på faste lave priser og fuld gennemsigtighed.</p>
         
         <ul class="checklist">
-            <li><span class="check">✓</span> <strong>Fast pris:</strong> Kun 5 kr. i gebyr uanset prisens størrelse.</li>
-            <li><span class="check">✓</span> <strong>Direkte udbetaling:</strong> Ingen låste kreditter.</li>
-            <li><span class="check">✓</span> <strong>MitID valideret:</strong> Alle brugere er verificerede.</li>
-            <li><span class="check">✓</span> <strong>Ingen straffe:</strong> Det er gratis at aflyse, hvis uheldet er ude.</li>
+            <li><span class="check">✓</span> <span><strong>Fast pris:</strong> Kun 5 kr. i gebyr uanset om prisen er 100 eller 2000 kr.</span></li>
+            <li><span class="check">✓</span> <span><strong>Ingen "kredit-fælder":</strong> Får du en aflysning, ryger pengene retur til din bankkonto.</span></li>
+            <li><span class="check">✓</span> <span><strong>Sikkerhed:</strong> Alle brugere er valideret med MitID.</span></li>
+            <li><span class="check">✓</span> <span><strong>Ingen straffe:</strong> Det er gratis at aflyse, hvis uheldet er ude inden opgavestart.</span></li>
         </ul>
 
-        <div style="background: #E0E7FF; padding: 24px; border-radius: 16px; border-left: 5px solid var(--brand); margin-top: 2rem;">
-            <strong style="color: var(--brand-dark); display:block; margin-bottom: 0.5rem;">Eksempel:</strong>
-            På en opgave til 1.000 kr. betaler du 129 kr. i gebyr hos konkurrenten. Hos os betaler du 5 kr.
+        <div class="fact-box">
+            <strong style="color: var(--brand-dark); display:block; margin-bottom: 0.5rem;">Vidste du?</strong>
+            Hvis du sælger en ydelse eller et lift til 1.000 kr., tager konkurrenterne ofte over 120 kr. i gebyr. Hos HoppOn koster det stadig kun 5 kr. Det er en besparelse på over 100 kr. på én enkelt transaktion.
         </div>
 
         <div class="seo-links">
-            <h4 style="margin-bottom: 1rem; color: #64748B;">Andre populære sammenligninger</h4>
             <div class="link-grid">
-                <a href="#" class="route-link">HandyHand Alternativ</a>
-                <a href="#" class="route-link">GoMore Alternativ</a>
-                <a href="#" class="route-link">Billig Samkørsel</a>
-                <a href="#" class="route-link">Lej en bil privat</a>
+                <a href="#" class="footer-link">HandyHand Alternativ</a>
+                <a href="#" class="footer-link">GoMore Alternativ</a>
+                <a href="#" class="footer-link">Billig Samkørsel</a>
+                <a href="#" class="footer-link">Privat Biludlejning</a>
+                <a href="#" class="footer-link">Rengøringshjælp Uden Gebyr</a>
+                <a href="#" class="footer-link">Flyttehjælp Priser</a>
             </div>
         </div>
     </section>
 
     <footer style="text-align: center; padding: 2rem; color: #94A3B8; font-size: 0.85rem; border-top: 1px solid #E2E8F0; margin-top: 2rem;">
-        &copy; 2026 HoppOn. <br>
-        *Sammenligningspriser er baseret på HandyHands gebyrstruktur pr. 2026.
+        &copy; 2026 HoppOn.<br>
+        *Beregninger er baseret på HandyHands gebyrstruktur pr. februar 2026 (12% + 9 kr).
     </footer>
 
     <script>
-        const slider = document.getElementById('priceSlider');
-        const ticketDisplay = document.getElementById('ticketPrice');
-        const hopponDisplay = document.getElementById('hopponEarnings');
-        const handyDisplay = document.getElementById('handyEarnings');
-        const handyFeeDisplay = document.getElementById('handyFeeText');
-        const savingText = document.getElementById('savingText');
+        const slider = document.getElementById('priceRange');
+        const displayPrice = document.getElementById('displayPrice');
+        
+        // HandyHand Elements
+        const hhFeeEl = document.getElementById('hhFee');
+        const hhPayoutEl = document.getElementById('hhPayout');
+        
+        // HoppOn Elements
+        const hoPayoutEl = document.getElementById('hoPayout');
+        const savingsDiffEl = document.getElementById('savingsDiff');
 
-        function calculate() {
+        function updateCalculator() {
+            // Get current price from slider
             const price = parseInt(slider.value);
-            ticketDisplay.innerText = price;
+            
+            // Update the big price label
+            displayPrice.innerText = price;
 
-            // HoppOn Math: Price - 5 flat fee
-            const hopponResult = Math.max(0, price - 5);
-            hopponDisplay.innerText = hopponResult;
+            // --- CALCULATIONS ---
 
-            // HandyHand Math: Price - 9 flat fee - 12% commission
-            const variableFee = price * 0.12;
-            const fixedFee = 9;
-            const totalHandyFee = Math.round(variableFee + fixedFee);
-            const handyResult = Math.max(0, Math.round(price - totalHandyFee));
+            // HandyHand: 12% + 9kr
+            // We use Math.floor to keep numbers clean integers
+            const hhFee = Math.floor((price * 0.12) + 9);
+            const hhPayout = price - hhFee;
 
-            handyDisplay.innerText = handyResult;
-            handyFeeDisplay.innerText = `-${totalHandyFee} kr.`;
+            // HoppOn: Fixed 5kr
+            const hoFee = 5;
+            const hoPayout = price - hoFee;
 
-            // Calculate Difference
-            const diff = hopponResult - handyResult;
-            savingText.innerHTML = `Du tjener <strong>${diff} kr.</strong> mere her.`;
+            // Difference
+            const difference = hoPayout - hhPayout;
+
+            // --- UPDATE DOM ---
+            
+            // HandyHand updates
+            hhFeeEl.innerText = `-${hhFee} kr.`;
+            hhPayoutEl.innerText = hhPayout;
+
+            // HoppOn updates
+            hoPayoutEl.innerText = hoPayout;
+            savingsDiffEl.innerText = difference;
         }
 
-        slider.addEventListener('input', calculate);
-        calculate(); 
+        // Listen for slider movement
+        slider.addEventListener('input', updateCalculator);
+
+        // Run once on load to set initial values
+        updateCalculator();
     </script>
+
 </body>
 </html>
