@@ -189,12 +189,20 @@
             const pass = document.getElementById('signupPass').value.trim();
             const gender = document.getElementById('signupGender').value;
             const imgInput = document.getElementById('signupImage');
+            
+            // Driver & Phone Check
             const isDriver = document.getElementById('driverToggle').checked;
             const phone = document.getElementById('signupPhone').value.trim();
+            const plate = document.getElementById('plateInput').value.trim();
 
             if (!name || !email || !pass || !gender || imgInput.files.length === 0) {
                 alert("Udfyld venligst alle felter og vælg et billede.");
                 return;
+            }
+
+            if (isDriver) {
+                if (!phone) { alert("Indtast venligst telefonnummer"); return; }
+                if (!plate) { alert("Slå venligst din nummerplade op"); return; }
             }
 
             setLoading(true);
@@ -204,7 +212,8 @@
                 const file = imgInput.files[0];
                 const fileName = `${Date.now()}.${file.name.split('.').pop()}`;
                 const { error: uploadError } = await _supabase.storage.from('avatars').upload(fileName, file);
-                if (uploadError) throw uploadError;
+                if (uploadError) throw new Error("Fejl ved upload: " + uploadError.message);
+                
                 const { data: { publicUrl } } = _supabase.storage.from('avatars').getPublicUrl(fileName);
 
                 // 2. Auth Sign Up
@@ -214,37 +223,59 @@
                 });
                 if (authError) throw authError;
 
-                // 3. Bil Data (Præcis som din Flutter App)
-                let carDetails = null;
+                // --- VIGTIGT: Vent på at databasen opretter profilen via trigger ---
+                await new Promise(r => setTimeout(r, 1000));
+
+                // 3. Forbered Data
+                let updateData = {
+                    full_name: name,
+                    gender: gender,
+                    avatar_url: publicUrl,
+                    is_driver: isDriver,
+                    phone_number: isDriver ? phone : null,
+                    license_plate: null,
+                    car_details: null
+                };
+
                 if (isDriver) {
                     const make = document.getElementById('carMake').value;
                     const model = document.getElementById('carModel').value;
                     const year = document.getElementById('carYear').value;
                     const color = document.getElementById('carColor').value;
-                    const plate = document.getElementById('plateInput').value;
                     
-                    carDetails = JSON.stringify({
-                        make, model, year, color, plate,
+                    const carJson = {
+                        make: make,
+                        model: model,
+                        year: year,
+                        color: color,
+                        plate: plate,
                         details: `${year} • ${color} • ${plate}`,
                         display_name: `${make} ${model}`
-                    });
+                    };
+
+                    updateData.license_plate = plate;
+                    updateData.car_details = JSON.stringify(carJson);
                 }
 
-                // 4. Opdater Profiles
-                const { error: profileError } = await _supabase.from('profiles').update({
-                    full_name: name, gender, avatar_url: publicUrl,
-                    is_driver: isDriver, phone_number: isDriver ? phone : null,
-                    license_plate: isDriver ? document.getElementById('plateInput').value : null,
-                    car_details: carDetails
-                }).eq('id', authData.user.id);
+                // 4. Opdater Profiles (med fallback hvis den ikke findes)
+                const { error: profileError } = await _supabase
+                    .from('profiles')
+                    .update(updateData)
+                    .eq('id', authData.user.id);
 
-                if (profileError) throw profileError;
+                if (profileError) {
+                    console.log("Update fejlede, prøver upsert...");
+                    updateData.id = authData.user.id;
+                    const { error: upsertError } = await _supabase.from('profiles').upsert(updateData);
+                    if (upsertError) throw upsertError;
+                }
 
                 alert("Konto oprettet! 🎉");
                 window.location.href = 'index.html';
 
             } catch (e) {
                 alert("Fejl: " + e.message);
+                console.error(e);
             } finally {
                 setLoading(false);
             }
