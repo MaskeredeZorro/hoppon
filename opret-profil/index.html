@@ -6,261 +6,311 @@
     <title>Opret Profil | HoppOn</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ... (Samme CSS som før) ... */
-        :root {
-            --brand: #4F46E5; --brand-dark: #4338ca; --dark: #0F172A; --light: #F8FAFC;
-            --text: #334155; --text-light: #64748B; --success: #10B981; --error: #EF4444; --border: #E2E8F0;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: #F3F4F6; color: var(--dark); min-height: 100vh; display: flex; flex-direction: column; }
-        .navbar { background: white; padding: 1rem 2rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-weight: 800; font-size: 1.5rem; color: var(--brand); text-decoration: none; }
-        .main-container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 2rem 1rem; }
-        .signup-card { background: white; width: 100%; max-width: 500px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); padding: 2.5rem; }
-        h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; text-align: center; }
-        .subtitle { text-align: center; color: var(--text-light); margin-bottom: 2rem; }
+        /* --- GRUNDLÆGGENDE STIL --- */
+        :root { --brand: #4F46E5; --brand-dark: #4338ca; --dark: #0F172A; --light: #F8FAFC; --text: #334155; --text-light: #64748B; --success-bg: #DCFCE7; --success-text: #166534; --error-bg: #FEE2E2; --error-text: #991B1B; --border: #E2E8F0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
+        body { background-color: #F3F4F6; color: var(--dark); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem 1rem; }
+        
+        /* --- KORT DESIGN --- */
+        .card { background: white; width: 100%; max-width: 450px; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 2.5rem; }
+        h1 { font-size: 1.8rem; text-align: center; margin-bottom: 0.5rem; }
+        .subtitle { text-align: center; color: var(--text-light); margin-bottom: 2rem; font-size: 0.9rem; }
+
+        /* --- FORM FELTER --- */
         .form-group { margin-bottom: 1.25rem; }
         label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; }
-        input, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 12px; font-size: 1rem; background: var(--light); }
-        .avatar-upload { display: flex; flex-direction: column; align-items: center; margin-bottom: 1.5rem; cursor: pointer; }
-        .avatar-preview { width: 100px; height: 100px; border-radius: 50%; background: var(--light); border: 2px dashed var(--border); display: flex; justify-content: center; align-items: center; overflow: hidden; margin-bottom: 10px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 12px; font-size: 1rem; background: var(--light); outline: none; transition: border-color 0.2s; }
+        input:focus { border-color: var(--brand); background: white; }
+
+        /* --- AVATAR UPLOAD --- */
+        .avatar-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 1.5rem; cursor: pointer; }
+        .avatar-preview { width: 90px; height: 90px; border-radius: 50%; background: #E2E8F0; border: 2px dashed #CBD5E1; display: flex; justify-content: center; align-items: center; overflow: hidden; margin-bottom: 8px; position: relative; }
         .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
-        .car-toggle-container { background: #EEF2FF; border: 1px solid #C7D2FE; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .avatar-overlay { position: absolute; top:0;left:0;right:0;bottom:0; background: rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.2s; }
+        .avatar-section:hover .avatar-overlay { opacity: 1; }
+
+        /* --- CHAUFFØR TOGGLE --- */
+        .driver-box { background: #EEF2FF; border: 1px solid #C7D2FE; padding: 1rem; border-radius: 12px; margin: 1.5rem 0; display: flex; justify-content: space-between; align-items: center; }
+        .switch { position: relative; width: 44px; height: 24px; cursor: pointer; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--brand); }
+        .slider { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #cbd5e1; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input:checked + .slider { background: var(--brand); }
         input:checked + .slider:before { transform: translateX(20px); }
-        #carSection { display: none; border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1rem; }
-        .plate-lookup { display: flex; gap: 10px; }
-        .btn-lookup { background: var(--dark); color: white; border: none; padding: 0 20px; border-radius: 12px; cursor: pointer; font-weight: 600; }
-        .btn-submit { display: block; width: 100%; padding: 16px; background: var(--brand); color: white; border: none; border-radius: 16px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 1rem; }
-        #loadingOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display: none; justify-content: center; align-items: center; z-index: 100; flex-direction: column; gap: 15px; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--brand); border-radius: 50%; animation: spin 1s linear infinite; }
+
+        /* --- BIL SEKTION --- */
+        #carFields { display: none; border-top: 1px solid var(--border); padding-top: 1.5rem; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .plate-row { display: flex; gap: 10px; }
+        .btn-lookup { background: var(--dark); color: white; border: none; padding: 0 20px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: background 0.2s; display: flex; align-items: center; justify-content: center;}
+        .btn-lookup:hover { background: #1e293b; }
+        .btn-lookup:disabled { opacity: 0.7; cursor: wait; }
+
+        /* --- BIL STATUS BOKS (NYT DESIGN) --- */
+        #plateStatus { margin-top: 12px; display: none; /* Skjult som standard */ }
+        .car-found-box {
+            background-color: var(--success-bg); border: 1px solid #86EFAC; color: var(--success-text);
+            padding: 12px; border-radius: 12px; display: flex; align-items: center; gap: 12px; animation: fadeIn 0.3s ease-in-out;
+        }
+        .car-error-box {
+            background-color: var(--error-bg); border: 1px solid #FCA5A5; color: var(--error-text);
+            padding: 12px; border-radius: 12px; text-align: center; font-weight: 500; animation: fadeIn 0.3s ease-in-out;
+        }
+        .car-icon-bg { background: white; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+        /* --- KNAPPER & STATUS --- */
+        .btn-main { width: 100%; padding: 16px; background: var(--brand); color: white; border: none; border-radius: 16px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 1rem; transition: 0.2s; }
+        .btn-main:hover { background: var(--brand-dark); }
+        .btn-main:disabled { background: #A5B4FC; cursor: wait; }
+        
+        #statusMsg { text-align: center; margin-top: 1rem; font-size: 0.9rem; font-weight: 500; min-height: 1.4em; }
+
+        /* --- SPINNER --- */
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--dark); border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div id="loadingOverlay">
-        <div class="spinner"></div>
-        <div style="font-weight: 600;">Arbejder på det...</div>
+<div class="card">
+    <h1>Opret Profil</h1>
+    <p class="subtitle">Velkommen til HoppOn 🚀</p>
+
+    <div class="avatar-section" onclick="document.getElementById('avatarFile').click()">
+        <div class="avatar-preview">
+            <img id="previewImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23CBD5E1' viewBox='0 0 24 24'%3E%3Cpath d='M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z' /%3E%3C/svg%3E">
+            <div class="avatar-overlay">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+        </div>
+        <span style="color: var(--brand); font-size: 0.8rem; font-weight: 600;">Vælg Profilbillede *</span>
+        <input type="file" id="avatarFile" accept="image/*" style="display:none" onchange="previewAvatar()">
     </div>
 
-    <nav class="navbar">
-        <a href="index.html" class="logo">HoppOn</a>
-    </nav>
+    <div class="form-group">
+        <label>Fulde Navn *</label>
+        <input type="text" id="regName" placeholder="Mette Jensen">
+    </div>
 
-    <div class="main-container">
-        <div class="signup-card">
-            <h1>Opret profil</h1>
-            <p class="subtitle">Lad os få dig i gang 🚀</p>
+    <div class="form-group">
+        <label>Email *</label>
+        <input type="email" id="regEmail" placeholder="mette@example.com">
+    </div>
 
-            <div class="avatar-upload" onclick="document.getElementById('signupImage').click()">
-                <div class="avatar-preview">
-                    <img id="previewImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23CBD5E1' viewBox='0 0 24 24'%3E%3Cpath d='M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z' /%3E%3C/svg%3E">
-                </div>
-                <span style="font-size: 0.8rem; color: var(--brand); font-weight: 600;">Upload Profilbillede *</span>
-                <input type="file" id="signupImage" accept="image/*" onchange="previewFile()" style="display: none;">
-            </div>
+    <div class="form-group">
+        <label>Adgangskode *</label>
+        <input type="password" id="regPass" placeholder="Mindst 6 tegn">
+    </div>
 
-            <div class="form-group">
-                <label>Fulde Navn *</label>
-                <input type="text" id="signupName" placeholder="Mette Jensen">
-            </div>
-
-            <div class="form-group">
-                <label>Køn *</label>
-                <select id="signupGender">
-                    <option value="" disabled selected>Vælg køn</option>
-                    <option value="Mand">Mand</option>
-                    <option value="Kvinde">Kvinde</option>
-                    <option value="Andet">Andet</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Email *</label>
-                <input type="email" id="signupEmail">
-            </div>
-
-            <div class="form-group">
-                <label>Adgangskode (min. 6 tegn) *</label>
-                <input type="password" id="signupPass">
-            </div>
-
-            <div class="car-toggle-container">
-                <div style="font-weight: 600; color: var(--brand-dark);">Jeg vil gerne være chauffør</div>
-                <label class="switch">
-                    <input type="checkbox" id="driverToggle" onchange="toggleCarSection()">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div id="carSection">
-                <div class="form-group">
-                    <label>Telefonnummer *</label>
-                    <input type="tel" id="signupPhone" placeholder="12 34 56 78">
-                </div>
-                <div class="form-group">
-                    <label>Nummerplade</label>
-                    <div class="plate-lookup">
-                        <input type="text" id="plateInput" placeholder="AB 12 345" style="text-transform: uppercase;">
-                        <button class="btn-lookup" type="button" onclick="fetchCar()">Søg</button>
-                    </div>
-                    <div id="carResult" style="margin-top: 10px; font-weight: bold;"></div>
-                </div>
-                <input type="hidden" id="carMake"><input type="hidden" id="carModel"><input type="hidden" id="carYear"><input type="hidden" id="carColor">
-            </div>
-
-            <button class="btn-submit" onclick="handleSignup()">Opret Konto</button>
+    <div style="display: flex; gap: 15px;">
+        <div class="form-group" style="flex: 1;">
+            <label>Fødselsdato *</label>
+            <input type="date" id="regDob">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Køn *</label>
+            <select id="regGender">
+                <option value="" disabled selected>Vælg...</option>
+                <option value="Mand">Mand</option>
+                <option value="Kvinde">Kvinde</option>
+                <option value="Andet">Andet</option>
+            </select>
         </div>
     </div>
 
-    <script>
-        const SUPABASE_URL = 'https://xboklywxcozobvfrptpr.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_amqWmR5MrUSFHlniU2yp3Q_c8kUysEY'; 
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    <div class="driver-box">
+        <span style="font-weight: 600; color: var(--brand-dark);">Jeg vil være chauffør</span>
+        <label class="switch">
+            <input type="checkbox" id="isDriver" onchange="toggleDriver()">
+            <span class="slider"></span>
+        </label>
+    </div>
 
-        function previewFile() {
-            const preview = document.getElementById('previewImg');
-            const file = document.getElementById('signupImage').files[0];
+    <div id="carFields">
+        <div class="form-group">
+            <label>Telefonnummer *</label>
+            <input type="tel" id="regPhone" placeholder="12 34 56 78">
+        </div>
+        <div class="form-group">
+            <label>Nummerplade *</label>
+            <div class="plate-row">
+                <input type="text" id="plateInput" placeholder="AB 12 345" style="text-transform: uppercase;" onkeypress="handlePlateEnter(event)">
+                <button id="lookupBtn" class="btn-lookup" onclick="lookupPlate()">Søg</button>
+            </div>
+            <div id="plateStatus"></div>
+        </div>
+    </div>
+
+    <button class="btn-main" id="submitBtn" onclick="handleSignup()">Opret Konto</button>
+    <div id="statusMsg"></div>
+
+    <input type="hidden" id="carMake"><input type="hidden" id="carModel">
+</div>
+
+<script>
+    // Konfiguration
+    const SUPABASE_URL = 'https://xboklywxcozobvfrptpr.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_amqWmR5MrUSFHlniU2yp3Q_c8kUysEY';
+    const REDIRECT_URL = 'https://hoppon.dk/login'; 
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // UI Helpers
+    function previewAvatar() {
+        const file = document.getElementById('avatarFile').files[0];
+        if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => { preview.src = reader.result; }
-            if (file) reader.readAsDataURL(file);
+            reader.onload = e => document.getElementById('previewImg').src = e.target.result;
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function toggleDriver() {
+        const isChecked = document.getElementById('isDriver').checked;
+        document.getElementById('carFields').style.display = isChecked ? 'block' : 'none';
+    }
+
+    function handlePlateEnter(e) { if(e.key === 'Enter') lookupPlate(); }
+
+    // Nummerplade opslag
+    async function lookupPlate() {
+        const plateInput = document.getElementById('plateInput');
+        const plateVal = plateInput.value.trim().replace(/\s/g, '');
+        const statusDiv = document.getElementById('plateStatus');
+        const lookupBtn = document.getElementById('lookupBtn');
+
+        if (plateVal.length < 2) return;
+
+        // Reset og vis loading state
+        statusDiv.style.display = 'none';
+        statusDiv.className = '';
+        lookupBtn.disabled = true;
+        lookupBtn.innerHTML = '<div class="loader"></div>';
+
+        try {
+            const { data, error } = await _supabase.rpc('get_car_details', { plate_text: plateVal });
+
+            statusDiv.style.display = 'block'; // Vis boksen nu
+
+            if (data && !data.error && data.make) {
+                // SUCCES: Vis den flotte boks
+                statusDiv.className = 'car-found-box';
+                statusDiv.innerHTML = `
+                    <div class="car-icon-bg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>
+                    </div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 1rem;">Bil fundet!</div>
+                        <div style="font-size: 0.9rem;">${data.make} ${data.model}</div>
+                    </div>
+                `;
+                document.getElementById('carMake').value = data.make;
+                document.getElementById('carModel').value = data.model;
+                plateInput.style.borderColor = 'var(--success-text)';
+            } else {
+                // FEJL: Vis fejl boks
+                statusDiv.className = 'car-error-box';
+                statusDiv.innerHTML = `❌ Kunne ikke finde køretøj`;
+                plateInput.style.borderColor = 'var(--error-text)';
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            lookupBtn.disabled = false;
+            lookupBtn.innerText = 'Søg';
+        }
+    }
+
+    // Hoved Oprettelses Funktion
+    async function handleSignup() {
+        const btn = document.getElementById('submitBtn');
+        const msg = document.getElementById('statusMsg');
+        
+        msg.innerText = ""; msg.style.color = "inherit";
+
+        // Hent værdier
+        const email = document.getElementById('regEmail').value.trim();
+        const pass = document.getElementById('regPass').value;
+        const name = document.getElementById('regName').value.trim();
+        const dob = document.getElementById('regDob').value;
+        const gender = document.getElementById('regGender').value;
+        const avatarFile = document.getElementById('avatarFile').files[0];
+        
+        const isDriver = document.getElementById('isDriver').checked;
+        const phone = document.getElementById('regPhone').value.trim();
+        const plate = document.getElementById('plateInput').value.trim();
+        const carMake = document.getElementById('carMake').value;
+
+        // Validering
+        if (!email || !pass || !name || !dob || !gender || !avatarFile) {
+            alert("Udfyld venligst alle obligatoriske felter (markeret med *) og vælg et billede.");
+            return;
+        }
+        if (pass.length < 6) { alert("Adgangskoden skal være mindst 6 tegn."); return; }
+        
+        if (isDriver) {
+            if(!phone || !plate) { alert("Som chauffør skal du udfylde telefon og nummerplade."); return; }
+            if(!carMake) { alert("Tryk venligst 'Søg' for at validere nummerpladen først."); return; }
         }
 
-        function toggleCarSection() {
-            const isDriver = document.getElementById('driverToggle').checked;
-            document.getElementById('carSection').style.display = isDriver ? 'block' : 'none';
-        }
+        // Start loading
+        btn.disabled = true;
+        btn.innerHTML = 'Arbejder... <span class="loader" style="border-top-color: white; display: inline-block; vertical-align: middle; margin-left: 10px;"></span>';
+        msg.innerText = "Uploader profilbillede...";
 
-        function setLoading(isLoading) {
-            document.getElementById('loadingOverlay').style.display = isLoading ? 'flex' : 'none';
-        }
-
-        async function fetchCar() {
-            const plate = document.getElementById('plateInput').value.replace(/\s/g, '');
-            if(plate.length < 2) return;
-            setLoading(true);
-            try {
-                const { data, error } = await _supabase.rpc('get_car_details', { plate_text: plate });
-                const resDiv = document.getElementById('carResult');
-                if (data && !data.error && data.make) {
-                    resDiv.innerText = `✅ ${data.make} ${data.model}`;
-                    resDiv.style.color = 'var(--success)';
-                    document.getElementById('carMake').value = data.make;
-                    document.getElementById('carModel').value = data.model;
-                    document.getElementById('carYear').value = data.model_year;
-                    document.getElementById('carColor').value = data.color;
-                } else {
-                    resDiv.innerText = "❌ Bil ikke fundet";
-                    resDiv.style.color = 'var(--error)';
-                }
-            } catch (e) { console.error(e); }
-            setLoading(false);
-        }
-
-        async function handleSignup() {
-            const name = document.getElementById('signupName').value.trim();
-            const email = document.getElementById('signupEmail').value.trim();
-            const pass = document.getElementById('signupPass').value.trim();
-            const gender = document.getElementById('signupGender').value;
-            const imgInput = document.getElementById('signupImage');
+        try {
+            // 1. Upload Avatar
+            const fileExt = avatarFile.name.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
             
-            const isDriver = document.getElementById('driverToggle').checked;
-            const phone = document.getElementById('signupPhone').value.trim();
-            const plate = document.getElementById('plateInput').value.trim();
+            const { error: upErr } = await _supabase.storage.from('avatars').upload(fileName, avatarFile);
+            if (upErr) throw new Error("Billede upload fejlede: " + upErr.message);
+            
+            const { data: urlData } = _supabase.storage.from('avatars').getPublicUrl(fileName);
 
-            if (!name || !email || !pass || !gender || imgInput.files.length === 0) {
-                alert("Udfyld venligst alle felter og vælg et billede.");
-                return;
-            }
-            if (isDriver) {
-                if (!phone) { alert("Indtast venligst telefonnummer"); return; }
-                if (!plate) { alert("Slå venligst din nummerplade op"); return; }
-            }
+            msg.innerText = "Opretter bruger...";
 
-            setLoading(true);
+            // 2. Forbered data
+            const carDetailsStr = isDriver ? `${document.getElementById('carMake').value} ${document.getElementById('carModel').value} (${plate.toUpperCase()})` : null;
 
-            try {
-                // 1. Opret Auth Bruger (Uden metadata først for at undgå trigger fejl)
-                const { data: authData, error: authError } = await _supabase.auth.signUp({
-                    email: email, password: pass
-                });
-
-                if (authError) throw authError;
-                
-                // VIGTIGT: Vi venter på at sessionen er sat i browseren
-                // Dette er tricket! Uden dette tror Supabase vi er "anon"
-                const session = authData.session;
-                if (!session) throw new Error("Kunne ikke oprette session. Bekræft venligst din email.");
-
-                // Nu er vi logget ind! Nu kan vi uploade billedet.
-                // (Dette løser RLS fejlen ved upload)
-                
-                const file = imgInput.files[0];
-                const fileName = `${Date.now()}.${file.name.split('.').pop()}`;
-                const { error: uploadError } = await _supabase.storage.from('avatars').upload(fileName, file);
-                
-                if (uploadError) throw new Error("Fejl ved upload: " + uploadError.message);
-                
-                const { data: { publicUrl } } = _supabase.storage.from('avatars').getPublicUrl(fileName);
-
-                // 2. Vent på triggeren
-                await new Promise(r => setTimeout(r, 1000));
-
-                // 3. Opdater Profilen
-                let updateData = {
-                    full_name: name,
-                    gender: gender,
-                    avatar_url: publicUrl,
-                    is_driver: isDriver,
-                    phone_number: isDriver ? phone : null,
-                    license_plate: null,
-                    car_details: null
-                };
-
-                if (isDriver) {
-                    const make = document.getElementById('carMake').value;
-                    const model = document.getElementById('carModel').value;
-                    const year = document.getElementById('carYear').value;
-                    const color = document.getElementById('carColor').value;
-                    
-                    const carJson = {
-                        make, model, year, color, plate,
-                        details: `${year} • ${color} • ${plate}`,
-                        display_name: `${make} ${model}`
-                    };
-
-                    updateData.license_plate = plate;
-                    updateData.car_details = JSON.stringify(carJson);
+            // 3. Auth SignUp (Dette trigger din SQL-funktion)
+            const { error: authErr } = await _supabase.auth.signUp({
+                email: email,
+                password: pass,
+                options: {
+                    data: {
+                        full_name: name,
+                        avatar_url: urlData.publicUrl,
+                        gender: gender,
+                        birth_date: dob,
+                        is_driver: isDriver,
+                        phone_number: isDriver ? phone : null,
+                        license_plate: isDriver ? plate.toUpperCase() : null,
+                        car_details: carDetailsStr
+                    }
                 }
+            });
 
-                const { error: profileError } = await _supabase
-                    .from('profiles')
-                    .update(updateData)
-                    .eq('id', authData.user.id);
+            if (authErr) throw authErr;
 
-                if (profileError) {
-                    // Fallback
-                    console.warn("Update fejlede, prøver upsert...");
-                    updateData.id = authData.user.id;
-                    const { error: upsertError } = await _supabase.from('profiles').upsert(updateData);
-                    if (upsertError) throw upsertError;
-                }
+            // SUCCES!
+            msg.style.color = "var(--success-text)";
+            msg.innerHTML = "🎉 Profil oprettet! Omdirigerer til login...";
+            btn.innerHTML = "✅ Succes!";
 
-                alert("Konto oprettet! 🎉");
-                window.location.href = 'index.html';
-
-            } catch (e) {
-                alert("Fejl: " + e.message);
-                console.error(e);
-            } finally {
-                setLoading(false);
-            }
+            // Redirect efter 1.5 sekund
+            setTimeout(() => {
+                window.location.href = REDIRECT_URL;
+            }, 1500);
+            
+        } catch (e) {
+            // FEJL
+            msg.style.color = "var(--error-text)";
+            msg.innerText = e.message || "Der opstod en ukendt fejl.";
+            btn.disabled = false;
+            btn.innerText = "Prøv igen";
         }
-    </script>
+    }
+</script>
+
 </body>
 </html>
