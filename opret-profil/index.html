@@ -6,6 +6,7 @@
     <title>Opret Profil | HoppOn</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* ... (Samme CSS som før) ... */
         :root {
             --brand: #4F46E5; --brand-dark: #4338ca; --dark: #0F172A; --light: #F8FAFC;
             --text: #334155; --text-light: #64748B; --success: #10B981; --error: #EF4444; --border: #E2E8F0;
@@ -172,7 +173,6 @@
             const phone = document.getElementById('signupPhone').value.trim();
             const plate = document.getElementById('plateInput').value.trim();
 
-            // Validering
             if (!name || !email || !pass || !gender || imgInput.files.length === 0) {
                 alert("Udfyld venligst alle felter og vælg et billede.");
                 return;
@@ -185,22 +185,42 @@
             setLoading(true);
 
             try {
-                // 1. Upload Billede
+                // 1. Opret Auth Bruger (Uden metadata først for at undgå trigger fejl)
+                const { data: authData, error: authError } = await _supabase.auth.signUp({
+                    email: email, password: pass
+                });
+
+                if (authError) throw authError;
+                
+                // VIGTIGT: Vi venter på at sessionen er sat i browseren
+                // Dette er tricket! Uden dette tror Supabase vi er "anon"
+                const session = authData.session;
+                if (!session) throw new Error("Kunne ikke oprette session. Bekræft venligst din email.");
+
+                // Nu er vi logget ind! Nu kan vi uploade billedet.
+                // (Dette løser RLS fejlen ved upload)
+                
                 const file = imgInput.files[0];
                 const fileName = `${Date.now()}.${file.name.split('.').pop()}`;
                 const { error: uploadError } = await _supabase.storage.from('avatars').upload(fileName, file);
+                
                 if (uploadError) throw new Error("Fejl ved upload: " + uploadError.message);
+                
                 const { data: { publicUrl } } = _supabase.storage.from('avatars').getPublicUrl(fileName);
 
-                // 2. FORBERED METADATA (Sendes direkte med signUp!)
-                // Dette sikrer at din database-funktion 'handle_new_user' gemmer bil-info med det samme.
-                const metaData = {
-                    full_name: name,
-                    avatar_url: publicUrl,
-                    gender: gender,
-                };
+                // 2. Vent på triggeren
+                await new Promise(r => setTimeout(r, 1000));
 
-                let carJsonString = null;
+                // 3. Opdater Profilen
+                let updateData = {
+                    full_name: name,
+                    gender: gender,
+                    avatar_url: publicUrl,
+                    is_driver: isDriver,
+                    phone_number: isDriver ? phone : null,
+                    license_plate: null,
+                    car_details: null
+                };
 
                 if (isDriver) {
                     const make = document.getElementById('carMake').value;
@@ -209,42 +229,13 @@
                     const color = document.getElementById('carColor').value;
                     
                     const carJson = {
-                        make: make,
-                        model: model,
-                        year: year,
-                        color: color,
-                        plate: plate,
+                        make, model, year, color, plate,
                         details: `${year} • ${color} • ${plate}`,
                         display_name: `${make} ${model}`
                     };
 
-                    carJsonString = JSON.stringify(carJson);
-
-                    // Vi tilføjer disse felter, fordi din database-funktion leder efter dem!
-                    metaData.is_driver = true;
-                    metaData.license_plate = plate;
-                    metaData.car_details = carJsonString; 
-                }
-
-                // 3. OPRET BRUGER (Med komplet data)
-                const { data: authData, error: authError } = await _supabase.auth.signUp({
-                    email, password: pass,
-                    options: { data: metaData } // Her sender vi det hele!
-                });
-
-                if (authError) throw authError;
-
-                // 4. VENT PÅ TRIGGER & OPDATER TELEFON
-                // Din 'handle_new_user' funktion gemmer ikke telefonnummer, så det skal vi gøre manuelt.
-                await new Promise(r => setTimeout(r, 1000));
-
-                const updateData = { phone_number: isDriver ? phone : null };
-                
-                // Vi sender bil-info med igen for en sikkerheds skyld (upsert logic)
-                if (isDriver) {
-                    updateData.is_driver = isDriver;
                     updateData.license_plate = plate;
-                    updateData.car_details = carJsonString;
+                    updateData.car_details = JSON.stringify(carJson);
                 }
 
                 const { error: profileError } = await _supabase
@@ -253,10 +244,9 @@
                     .eq('id', authData.user.id);
 
                 if (profileError) {
-                    // Hvis update fejler (hvis triggeren var for langsom), bruger vi upsert
+                    // Fallback
                     console.warn("Update fejlede, prøver upsert...");
                     updateData.id = authData.user.id;
-                    updateData.full_name = name; // Nødvendig ved upsert
                     const { error: upsertError } = await _supabase.from('profiles').upsert(updateData);
                     if (upsertError) throw upsertError;
                 }
