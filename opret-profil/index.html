@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Opret Profil | HoppOn</title>
-    <meta name="robots" content="noindex, nofollow">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <style>
         :root {
             --brand: #4F46E5;
@@ -23,32 +21,26 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: #F3F4F6; color: var(--dark); min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* Navbar */
         .navbar { background: white; padding: 1rem 2rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .logo { font-weight: 800; font-size: 1.5rem; color: var(--brand); text-decoration: none; }
-        .nav-link { color: var(--text); text-decoration: none; font-weight: 500; font-size: 0.95rem; }
 
-        /* Container */
         .main-container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 2rem 1rem; }
         .signup-card { background: white; width: 100%; max-width: 500px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); padding: 2.5rem; }
 
         h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; text-align: center; }
         .subtitle { text-align: center; color: var(--text-light); margin-bottom: 2rem; }
 
-        /* Forms */
         .form-group { margin-bottom: 1.25rem; }
         label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; }
         input, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 12px; font-size: 1rem; background: var(--light); }
-        input:focus, select:focus { outline: 2px solid var(--brand); background: white; border-color: transparent; }
-
-        /* Avatar */
+        
         .avatar-upload { display: flex; flex-direction: column; align-items: center; margin-bottom: 1.5rem; cursor: pointer; }
         .avatar-preview { width: 100px; height: 100px; border-radius: 50%; background: var(--light); border: 2px dashed var(--border); display: flex; justify-content: center; align-items: center; overflow: hidden; margin-bottom: 10px; }
         .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
-        .avatar-label { font-size: 0.8rem; color: var(--brand); font-weight: 600; }
 
-        /* Driver Toggle */
         .car-toggle-container { background: #EEF2FF; border: 1px solid #C7D2FE; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Toggle Switch */
         .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; }
@@ -56,18 +48,12 @@
         input:checked + .slider { background-color: var(--brand); }
         input:checked + .slider:before { transform: translateX(20px); }
 
-        /* Car Section */
         #carSection { display: none; border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1rem; }
         .plate-lookup { display: flex; gap: 10px; }
         .btn-lookup { background: var(--dark); color: white; border: none; padding: 0 20px; border-radius: 12px; cursor: pointer; font-weight: 600; }
-        #carResult { margin-top: 8px; font-size: 0.9rem; font-weight: 600; display: none; }
 
-        /* Submit */
         .btn-submit { display: block; width: 100%; padding: 16px; background: var(--brand); color: white; border: none; border-radius: 16px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 1rem; }
-        .btn-submit:hover { background: var(--brand-dark); }
-        .btn-submit:disabled { opacity: 0.7; cursor: wait; }
-
-        /* Loading */
+        
         #loadingOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display: none; justify-content: center; align-items: center; z-index: 100; flex-direction: column; gap: 15px; }
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--brand); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -77,12 +63,11 @@
 
     <div id="loadingOverlay">
         <div class="spinner"></div>
-        <div style="font-weight: 600;">Opretter din profil...</div>
+        <div style="font-weight: 600;">Arbejder på det...</div>
     </div>
 
     <nav class="navbar">
         <a href="index.html" class="logo">HoppOn</a>
-        <a href="index.html" class="nav-link">Log ind</a>
     </nav>
 
     <div class="main-container">
@@ -94,21 +79,21 @@
                 <div class="avatar-preview">
                     <img id="previewImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23CBD5E1' viewBox='0 0 24 24'%3E%3Cpath d='M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z' /%3E%3C/svg%3E">
                 </div>
-                <span class="avatar-label">Upload Profilbillede *</span>
+                <span style="font-size: 0.8rem; color: var(--brand); font-weight: 600;">Upload Profilbillede *</span>
                 <input type="file" id="signupImage" accept="image/*" onchange="previewFile()" style="display: none;">
             </div>
 
             <div class="form-group">
                 <label>Fulde Navn *</label>
-                <input type="text" id="signupName" placeholder="F.eks. Mette Jensen">
+                <input type="text" id="signupName" placeholder="Mette Jensen">
             </div>
 
             <div class="form-group">
                 <label>Køn *</label>
                 <select id="signupGender">
                     <option value="" disabled selected>Vælg køn</option>
-                    <option value="Kvinde">Kvinde</option>
                     <option value="Mand">Mand</option>
+                    <option value="Kvinde">Kvinde</option>
                     <option value="Andet">Andet</option>
                 </select>
             </div>
@@ -136,20 +121,15 @@
                     <label>Telefonnummer *</label>
                     <input type="tel" id="signupPhone" placeholder="12 34 56 78">
                 </div>
-
                 <div class="form-group">
                     <label>Nummerplade</label>
                     <div class="plate-lookup">
                         <input type="text" id="plateInput" placeholder="AB 12 345" style="text-transform: uppercase;">
-                        <button class="btn-lookup" onclick="fetchCar()">Søg</button>
+                        <button class="btn-lookup" type="button" onclick="fetchCar()">Søg</button>
                     </div>
-                    <div id="carResult"></div>
+                    <div id="carResult" style="margin-top: 10px; font-weight: bold;"></div>
                 </div>
-                
-                <input type="hidden" id="carMake">
-                <input type="hidden" id="carModel">
-                <input type="hidden" id="carYear">
-                <input type="hidden" id="carColor">
+                <input type="hidden" id="carMake"><input type="hidden" id="carModel"><input type="hidden" id="carYear"><input type="hidden" id="carColor">
             </div>
 
             <button class="btn-submit" onclick="handleSignup()">Opret Konto</button>
@@ -160,18 +140,18 @@
         // --- KONFIGURATION ---
         const SUPABASE_URL = 'https://xboklywxcozobvfrptpr.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_amqWmR5MrUSFHlniU2yp3Q_c8kUysEY'; 
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // Vi kalder den _supabase for at undgå navne-konflikt
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Preview Image
         function previewFile() {
             const preview = document.getElementById('previewImg');
             const file = document.getElementById('signupImage').files[0];
             const reader = new FileReader();
-            reader.onloadend = function () { preview.src = reader.result; }
+            reader.onloadend = () => { preview.src = reader.result; }
             if (file) reader.readAsDataURL(file);
         }
 
-        // Toggle Driver Section
         function toggleCarSection() {
             const isDriver = document.getElementById('driverToggle').checked;
             document.getElementById('carSection').style.display = isDriver ? 'block' : 'none';
@@ -181,146 +161,82 @@
             document.getElementById('loadingOverlay').style.display = isLoading ? 'flex' : 'none';
         }
 
-        // --- FETCH CAR (Via Secure Supabase RPC) ---
         async function fetchCar() {
-            const plateInput = document.getElementById('plateInput');
-            const plate = plateInput.value.replace(/\s/g, '');
+            const plate = document.getElementById('plateInput').value.replace(/\s/g, '');
             if(plate.length < 2) return;
-            
             setLoading(true);
-            
             try {
-                // Vi bruger den sikre server-funktion (samme data som MotorAPI)
-                const { data, error } = await supabase.rpc('get_car_details', { plate_text: plate });
-
+                const { data, error } = await _supabase.rpc('get_car_details', { plate_text: plate });
                 const resDiv = document.getElementById('carResult');
                 if (data && !data.error && data.make) {
-                    resDiv.style.display = 'block';
                     resDiv.innerText = `✅ ${data.make} ${data.model}`;
                     resDiv.style.color = 'var(--success)';
-                    
                     document.getElementById('carMake').value = data.make;
                     document.getElementById('carModel').value = data.model;
                     document.getElementById('carYear').value = data.model_year;
                     document.getElementById('carColor').value = data.color;
                 } else {
-                    resDiv.style.display = 'block';
                     resDiv.innerText = "❌ Bil ikke fundet";
                     resDiv.style.color = 'var(--error)';
                 }
-            } catch (e) {
-                console.error(e);
-            }
+            } catch (e) { console.error(e); }
             setLoading(false);
         }
 
-        // --- SIGNUP LOGIC (Matcher Flutter 100%) ---
         async function handleSignup() {
-            // Hent værdier
             const name = document.getElementById('signupName').value.trim();
             const email = document.getElementById('signupEmail').value.trim();
             const pass = document.getElementById('signupPass').value.trim();
             const gender = document.getElementById('signupGender').value;
             const imgInput = document.getElementById('signupImage');
-            
             const isDriver = document.getElementById('driverToggle').checked;
             const phone = document.getElementById('signupPhone').value.trim();
-            const plate = document.getElementById('plateInput').value.trim();
 
-            // Validering
-            if (!name || !email || !pass || !gender) {
-                alert("Udfyld venligst alle felter");
+            if (!name || !email || !pass || !gender || imgInput.files.length === 0) {
+                alert("Udfyld venligst alle felter og vælg et billede.");
                 return;
-            }
-            if (imgInput.files.length === 0) {
-                alert("Du mangler et profilbillede 📸");
-                return;
-            }
-            if (isDriver) {
-                if (!plate || !document.getElementById('carMake').value) {
-                    alert("Du skal hente dine biloplysninger via nummerpladen 🚗");
-                    return;
-                }
-                if (!phone) {
-                    alert("Indtast venligst telefonnummer");
-                    return;
-                }
             }
 
             setLoading(true);
 
             try {
-                // TRIN A: Upload Billede
+                // 1. Upload billede
                 const file = imgInput.files[0];
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${Date.now()}.${fileExt}`;
-                const filePath = `/${fileName}`; // Flutter bruger '/$fileName'
-
-                const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file);
+                const fileName = `${Date.now()}.${file.name.split('.').pop()}`;
+                const { error: uploadError } = await _supabase.storage.from('avatars').upload(fileName, file);
                 if (uploadError) throw uploadError;
-                
-                const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(filePath);
+                const { data: { publicUrl } } = _supabase.storage.from('avatars').getPublicUrl(fileName);
 
-                // TRIN B: Forbered Bil Data (Flutter Logic)
-                let carDetailsString = null;
+                // 2. Auth Sign Up
+                const { data: authData, error: authError } = await _supabase.auth.signUp({
+                    email, password: pass,
+                    options: { data: { full_name: name, avatar_url: publicUrl, gender: gender } }
+                });
+                if (authError) throw authError;
+
+                // 3. Bil Data (Præcis som din Flutter App)
+                let carDetails = null;
                 if (isDriver) {
                     const make = document.getElementById('carMake').value;
                     const model = document.getElementById('carModel').value;
                     const year = document.getElementById('carYear').value;
                     const color = document.getElementById('carColor').value;
+                    const plate = document.getElementById('plateInput').value;
                     
-                    // Matcher Flutter json struktur nøjagtigt
-                    const carJson = {
-                        make: make,
-                        model: model,
-                        year: year,
-                        color: color,
-                        plate: plate,
-                        // Flutter: "${_yearCtrl.text} • ${_colorCtrl.text} • ${_plateCtrl.text}"
-                        details: `${year} • ${color} • ${plate}`, 
-                        // Flutter: "${_makeCtrl.text} ${_modelCtrl.text}"
+                    carDetails = JSON.stringify({
+                        make, model, year, color, plate,
+                        details: `${year} • ${color} • ${plate}`,
                         display_name: `${make} ${model}`
-                    };
-                    carDetailsString = JSON.stringify(carJson);
+                    });
                 }
 
-                const finalPhone = isDriver ? phone : null;
-
-                // TRIN C: Opret Bruger
-                const { data: authData, error: authError } = await supabase.auth.signUp({
-                    email: email,
-                    password: pass,
-                    options: {
-                        data: { 
-                            full_name: name, 
-                            avatar_url: publicUrl, 
-                            gender: gender 
-                        }
-                    }
-                });
-
-                if (authError) throw authError;
-
-                const userId = authData.user.id;
-
-                // TRIN D: Opdater Profiles Tabel
-                // Vi venter lige 500ms for en sikkerheds skyld (som i Flutter)
-                await new Promise(r => setTimeout(r, 500));
-
-                const profileUpdate = {
-                    full_name: name,
-                    gender: gender,
-                    avatar_url: publicUrl,
-                    is_driver: isDriver,
-                    phone_number: finalPhone,
-                    license_plate: isDriver ? plate : null,
-                    car_details: carDetailsString
-                };
-
-                const { error: profileError } = await supabase
-                    .from('profiles')
-                    .update(profileUpdate)
-                    .eq('id', userId);
+                // 4. Opdater Profiles
+                const { error: profileError } = await _supabase.from('profiles').update({
+                    full_name: name, gender, avatar_url: publicUrl,
+                    is_driver: isDriver, phone_number: isDriver ? phone : null,
+                    license_plate: isDriver ? document.getElementById('plateInput').value : null,
+                    car_details: carDetails
+                }).eq('id', authData.user.id);
 
                 if (profileError) throw profileError;
 
@@ -329,9 +245,9 @@
 
             } catch (e) {
                 alert("Fejl: " + e.message);
-                console.error(e);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         }
     </script>
 </body>
