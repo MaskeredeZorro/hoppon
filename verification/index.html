@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bekræft SMS | HoppOn</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Samme tema som login */
+        :root {
+            --brand: #4F46E5; --brand-dark: #4338ca; --dark: #0F172A; --light: #F8FAFC;
+            --text: #334155; --text-light: #64748B; --border: #E2E8F0; --error: #EF4444; --success: #10B981;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: #F3F4F6; color: var(--dark); min-height: 100vh; display: flex; flex-direction: column; }
+        .navbar { background: white; padding: 1rem 2rem; border-bottom: 1px solid var(--border); display: flex; justify-content: center; }
+        .logo { font-weight: 800; font-size: 1.5rem; color: var(--brand); text-decoration: none; }
+        .main-container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 2rem 1rem; }
+        
+        .verify-card { background: white; width: 100%; max-width: 400px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); padding: 2.5rem; text-align: center; }
+
+        .icon-bg { background: #EEF2FF; width: 80px; height: 80px; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 1.5rem auto; }
+        .sms-icon { font-size: 2rem; }
+
+        h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .subtitle { color: var(--text-light); margin-bottom: 2rem; font-size: 0.95rem; line-height: 1.5; }
+        
+        .code-input { 
+            width: 100%; letter-spacing: 5px; font-size: 1.5rem; text-align: center; font-weight: bold;
+            padding: 15px; border: 2px solid var(--border); border-radius: 12px; background: var(--light);
+            margin-bottom: 1.5rem; transition: all 0.2s;
+        }
+        .code-input:focus { outline: none; border-color: var(--brand); background: white; }
+
+        .btn-verify { display: block; width: 100%; padding: 16px; background: var(--brand); color: white; border: none; border-radius: 16px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: transform 0.2s; }
+        .btn-verify:hover { background: var(--brand-dark); transform: translateY(-1px); }
+
+        #msgBox { margin-top: 15px; font-size: 0.9rem; padding: 10px; border-radius: 8px; display: none; }
+        .msg-error { color: var(--error); background: #FEF2F2; }
+        .msg-success { color: var(--success); background: #ECFDF5; }
+
+        #loadingOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display: none; justify-content: center; align-items: center; z-index: 100; flex-direction: column; gap: 15px; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--brand); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <div style="font-weight: 600;">Verificerer...</div>
+    </div>
+
+    <nav class="navbar"><a href="#" class="logo">HoppOn</a></nav>
+
+    <div class="main-container">
+        <div class="verify-card">
+            <div class="icon-bg"><span class="sms-icon">📱</span></div>
+            <h1>Tjek din SMS</h1>
+            <p class="subtitle">Vi har sendt en 6-cifret kode til<br><strong id="phoneDisplay">...</strong></p>
+
+            <input type="text" id="codeInput" class="code-input" placeholder="000000" maxlength="6" inputmode="numeric">
+            
+            <button class="btn-verify" onclick="verifyCode()">Bekræft Kode</button>
+            <div id="msgBox"></div>
+
+            <div style="margin-top: 20px;">
+                <a href="login.html" style="font-size: 0.85rem; color: var(--text-light); text-decoration: underline;">Log ind igen / Skift nummer</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://xboklywxcozobvfrptpr.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_amqWmR5MrUSFHlniU2yp3Q_c8kUysEY'; 
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Hent telefonnummer fra session storage (sat i login.html)
+        const phone = sessionStorage.getItem('verify_phone');
+        if (phone) document.getElementById('phoneDisplay').innerText = phone;
+
+        function showMsg(text, isError) {
+            const box = document.getElementById('msgBox');
+            box.innerText = text;
+            box.className = isError ? 'msg-error' : 'msg-success';
+            box.style.display = 'block';
+        }
+
+        async function verifyCode() {
+            const code = document.getElementById('codeInput').value.trim();
+            if (code.length !== 6) { showMsg("Indtast venligst den 6-cifrede kode.", true); return; }
+
+            document.getElementById('loadingOverlay').style.display = 'flex';
+
+            try {
+                // 1. Hent bruger
+                const { data: { user } } = await _supabase.auth.getUser();
+                if (!user) throw new Error("Du er blevet logget ud. Prøv igen.");
+
+                // 2. Tjek koden i databasen
+                // Vi leder efter en kode der matcher UserID, Koden, og som ikke er udløbet
+                const { data, error } = await _supabase
+                    .from('sms_verifications')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .eq('code', code)
+                    .gt('expires_at', new Date().toISOString())
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .single();
+
+                if (error || !data) {
+                    throw new Error("Forkert eller udløbet kode. Prøv igen.");
+                }
+
+                // 3. Opdater Profil (phone_verified = true)
+                const { error: updateError } = await _supabase
+                    .from('profiles')
+                    .update({ phone_verified: true })
+                    .eq('id', user.id);
+
+                if (updateError) throw updateError;
+
+                // 4. Succes!
+                showMsg("Succes! Viderestiller...", false);
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+
+            } catch (e) {
+                console.error(e);
+                showMsg(e.message, true);
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
