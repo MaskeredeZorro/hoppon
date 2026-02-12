@@ -152,6 +152,9 @@
         .pro-con-list { list-style: none; }
         .pro-con-list li { margin-bottom: 1rem; display: flex; align-items: flex-start; gap: 12px; font-size: 0.95rem; }
         
+        /* NY CSS TILFØJET: Sikrer at teksten fylder resten af bredden */
+        .pro-con-list li div { flex: 1; }
+
         .icon { width: 20px; height: 20px; flex-shrink: 0; margin-top: 4px; }
         .icon-check { color: var(--accent); }
         .icon-cross { color: var(--danger); }
@@ -246,23 +249,31 @@
                 <ul class="pro-con-list">
                     <li>
                         <svg class="icon icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                        <strong>Markedets laveste gebyr:</strong> Fast pris på kun 5 kr. sikrer højere indtjening.
+                        <div>
+                            <strong>Markedets laveste gebyr:</strong> Fast pris på kun 5 kr. sikrer højere indtjening.
+                        </div>
                     </li>
                     <li>
                         <svg class="icon icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                        <strong>Fokus på samkørsel:</strong> Designet specifikt til pendlere og lift.
+                        <div>
+                            <strong>Fokus på samkørsel:</strong> Designet specifikt til pendlere og lift.
+                        </div>
                     </li>
                 </ul>
 
                 <h3 style="margin-top: 1.5rem;">Ulemper</h3>
                 <ul class="pro-con-list">
-                     <li>
+                      <li>
                         <svg class="icon icon-info" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                        <strong>Nyere platform:</strong> Har endnu færre brugere end GoMore, men vokser hurtigt.
+                        <div>
+                            <strong>Nyere platform:</strong> Har endnu færre brugere end GoMore, men vokser hurtigt.
+                        </div>
                     </li>
                     <li>
                         <svg class="icon icon-info" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                        <strong>Kun transport:</strong> Kan ikke bruges til havearbejde eller flyttehjælp.
+                        <div>
+                            <strong>Kun transport:</strong> Kan ikke bruges til havearbejde eller flyttehjælp.
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -275,11 +286,15 @@
                 <ul class="pro-con-list">
                     <li>
                         <svg class="icon icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                        <strong>God til fragt:</strong> Perfekt hvis du skal have flyttet en sofa eller store kasser.
+                        <div>
+                            <strong>God til fragt:</strong> Perfekt hvis du skal have flyttet en sofa eller store kasser.
+                        </div>
                     </li>
                     <li>
                         <svg class="icon icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                        <strong>Alt-i-én:</strong> Find hjælp til alt fra rengøring til VVS samme sted.
+                        <div>
+                            <strong>Alt-i-én:</strong> Find hjælp til alt fra rengøring til VVS samme sted.
+                        </div>
                     </li>
                 </ul>
 
@@ -287,11 +302,15 @@
                 <ul class="pro-con-list">
                     <li>
                         <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                        <strong>Høje gebyrer:</strong> De tager både et fast gebyr (9 kr) plus 12% i kommission.
+                        <div>
+                            <strong>Høje gebyrer:</strong> De tager både et fast gebyr (9 kr) plus 12% i kommission.
+                        </div>
                     </li>
                     <li>
                         <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                        <strong>Uvis forsikringsdækning:</strong> Hvis chaufføren er på vej til en betalt opgave, kan turen anses som erhvervskørsel. [cite_start]Her dækkes personskader hverken af Handyhand eller typiske private bilforsikringer[cite: 134, 137].
+                        <div>
+                            <strong>Uvis forsikringsdækning:</strong> Hvis chaufføren er på vej til en betalt opgave, kan turen anses som erhvervskørsel. Her dækkes personskader hverken af Handyhand eller typiske private bilforsikringer.
+                        </div>
                     </li>
                 </ul>
             </div>
