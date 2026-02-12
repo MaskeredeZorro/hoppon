@@ -7,53 +7,34 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --brand: #4F46E5;
-            --brand-dark: #4338ca;
-            --dark: #0F172A;
-            --light: #F8FAFC;
-            --text: #334155;
-            --text-light: #64748B;
-            --success: #10B981;
-            --error: #EF4444;
-            --border: #E2E8F0;
+            --brand: #4F46E5; --brand-dark: #4338ca; --dark: #0F172A; --light: #F8FAFC;
+            --text: #334155; --text-light: #64748B; --success: #10B981; --error: #EF4444; --border: #E2E8F0;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: #F3F4F6; color: var(--dark); min-height: 100vh; display: flex; flex-direction: column; }
-
         .navbar { background: white; padding: 1rem 2rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .logo { font-weight: 800; font-size: 1.5rem; color: var(--brand); text-decoration: none; }
-
         .main-container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 2rem 1rem; }
         .signup-card { background: white; width: 100%; max-width: 500px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); padding: 2.5rem; }
-
         h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; text-align: center; }
         .subtitle { text-align: center; color: var(--text-light); margin-bottom: 2rem; }
-
         .form-group { margin-bottom: 1.25rem; }
         label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; }
         input, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 12px; font-size: 1rem; background: var(--light); }
-        
         .avatar-upload { display: flex; flex-direction: column; align-items: center; margin-bottom: 1.5rem; cursor: pointer; }
         .avatar-preview { width: 100px; height: 100px; border-radius: 50%; background: var(--light); border: 2px dashed var(--border); display: flex; justify-content: center; align-items: center; overflow: hidden; margin-bottom: 10px; }
         .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
-
         .car-toggle-container { background: #EEF2FF; border: 1px solid #C7D2FE; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Toggle Switch */
         .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; }
         .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--brand); }
         input:checked + .slider:before { transform: translateX(20px); }
-
         #carSection { display: none; border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1rem; }
         .plate-lookup { display: flex; gap: 10px; }
         .btn-lookup { background: var(--dark); color: white; border: none; padding: 0 20px; border-radius: 12px; cursor: pointer; font-weight: 600; }
-
         .btn-submit { display: block; width: 100%; padding: 16px; background: var(--brand); color: white; border: none; border-radius: 16px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 1rem; }
-        
         #loadingOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display: none; justify-content: center; align-items: center; z-index: 100; flex-direction: column; gap: 15px; }
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--brand); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -137,11 +118,8 @@
     </div>
 
     <script>
-        // --- KONFIGURATION ---
         const SUPABASE_URL = 'https://xboklywxcozobvfrptpr.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_amqWmR5MrUSFHlniU2yp3Q_c8kUysEY'; 
-        
-        // Vi kalder den _supabase for at undgå navne-konflikt
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         function previewFile() {
@@ -190,16 +168,15 @@
             const gender = document.getElementById('signupGender').value;
             const imgInput = document.getElementById('signupImage');
             
-            // Driver & Phone Check
             const isDriver = document.getElementById('driverToggle').checked;
             const phone = document.getElementById('signupPhone').value.trim();
             const plate = document.getElementById('plateInput').value.trim();
 
+            // Validering
             if (!name || !email || !pass || !gender || imgInput.files.length === 0) {
                 alert("Udfyld venligst alle felter og vælg et billede.");
                 return;
             }
-
             if (isDriver) {
                 if (!phone) { alert("Indtast venligst telefonnummer"); return; }
                 if (!plate) { alert("Slå venligst din nummerplade op"); return; }
@@ -208,34 +185,22 @@
             setLoading(true);
 
             try {
-                // 1. Upload billede
+                // 1. Upload Billede
                 const file = imgInput.files[0];
                 const fileName = `${Date.now()}.${file.name.split('.').pop()}`;
                 const { error: uploadError } = await _supabase.storage.from('avatars').upload(fileName, file);
                 if (uploadError) throw new Error("Fejl ved upload: " + uploadError.message);
-                
                 const { data: { publicUrl } } = _supabase.storage.from('avatars').getPublicUrl(fileName);
 
-                // 2. Auth Sign Up
-                const { data: authData, error: authError } = await _supabase.auth.signUp({
-                    email, password: pass,
-                    options: { data: { full_name: name, avatar_url: publicUrl, gender: gender } }
-                });
-                if (authError) throw authError;
-
-                // --- VIGTIGT: Vent på at databasen opretter profilen via trigger ---
-                await new Promise(r => setTimeout(r, 1000));
-
-                // 3. Forbered Data
-                let updateData = {
+                // 2. FORBERED METADATA (Sendes direkte med signUp!)
+                // Dette sikrer at din database-funktion 'handle_new_user' gemmer bil-info med det samme.
+                const metaData = {
                     full_name: name,
-                    gender: gender,
                     avatar_url: publicUrl,
-                    is_driver: isDriver,
-                    phone_number: isDriver ? phone : null,
-                    license_plate: null,
-                    car_details: null
+                    gender: gender,
                 };
+
+                let carJsonString = null;
 
                 if (isDriver) {
                     const make = document.getElementById('carMake').value;
@@ -253,19 +218,45 @@
                         display_name: `${make} ${model}`
                     };
 
-                    updateData.license_plate = plate;
-                    updateData.car_details = JSON.stringify(carJson);
+                    carJsonString = JSON.stringify(carJson);
+
+                    // Vi tilføjer disse felter, fordi din database-funktion leder efter dem!
+                    metaData.is_driver = true;
+                    metaData.license_plate = plate;
+                    metaData.car_details = carJsonString; 
                 }
 
-                // 4. Opdater Profiles (med fallback hvis den ikke findes)
+                // 3. OPRET BRUGER (Med komplet data)
+                const { data: authData, error: authError } = await _supabase.auth.signUp({
+                    email, password: pass,
+                    options: { data: metaData } // Her sender vi det hele!
+                });
+
+                if (authError) throw authError;
+
+                // 4. VENT PÅ TRIGGER & OPDATER TELEFON
+                // Din 'handle_new_user' funktion gemmer ikke telefonnummer, så det skal vi gøre manuelt.
+                await new Promise(r => setTimeout(r, 1000));
+
+                const updateData = { phone_number: isDriver ? phone : null };
+                
+                // Vi sender bil-info med igen for en sikkerheds skyld (upsert logic)
+                if (isDriver) {
+                    updateData.is_driver = isDriver;
+                    updateData.license_plate = plate;
+                    updateData.car_details = carJsonString;
+                }
+
                 const { error: profileError } = await _supabase
                     .from('profiles')
                     .update(updateData)
                     .eq('id', authData.user.id);
 
                 if (profileError) {
-                    console.log("Update fejlede, prøver upsert...");
+                    // Hvis update fejler (hvis triggeren var for langsom), bruger vi upsert
+                    console.warn("Update fejlede, prøver upsert...");
                     updateData.id = authData.user.id;
+                    updateData.full_name = name; // Nødvendig ved upsert
                     const { error: upsertError } = await _supabase.from('profiles').upsert(updateData);
                     if (upsertError) throw upsertError;
                 }
