@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beregn din gevinst | Spar høje gebyrer | HoppOn</title>
-    <meta name="description" content="Hvor meget mister du i gebyrer hos andre? Beregn din besparelse her. Hos HoppOn betaler du kun 5 kr. fast gebyr.">
+    <title>Samkørsel Aarhus – København | Spar gebyrerne | HoppOn</title>
+    <meta name="description" content="Kør med HoppOn fra Aarhus til København. Spar de høje gebyrer fra andre platforme. Beregn din nøjagtige besparelse her.">
     <meta name="robots" content="index, follow">
     
     <style>
@@ -21,17 +21,39 @@
 
         body { background-color: #F3F4F6; color: var(--dark); line-height: 1.6; }
 
-        /* HERO SECTION */
+        /* HERO SECTION - OPDATERET DESIGN */
         .hero {
             background: var(--dark);
             color: white;
-            padding: 5rem 1rem 12rem 1rem; /* Extra padding bottom for overlap */
+            padding: 6rem 1rem 12rem 1rem; /* Extra padding bottom for overlap */
             text-align: center;
             background-image: radial-gradient(circle at top right, #1e293b 0%, #0F172A 100%);
         }
 
-        .hero h1 { font-size: 3rem; font-weight: 800; margin-bottom: 1rem; line-height: 1.1; letter-spacing: -1px; }
-        .hero p { font-size: 1.2rem; color: #94A3B8; max-width: 600px; margin: 0 auto; }
+        .hero h1 { 
+            font-size: 3.5rem; 
+            font-weight: 800; 
+            margin-bottom: 1.5rem; 
+            line-height: 1.1; 
+            letter-spacing: -1px; 
+        }
+        
+        /* Det fremhævede "span" element (Den anden linje) */
+        .hero span { 
+            color: var(--brand); 
+            background: rgba(79, 70, 229, 0.1); 
+            padding: 0 15px; 
+            border-radius: 12px; 
+            display: inline-block; /* Sikrer at baggrunden følger teksten pænt */
+            margin-top: 5px;
+        }
+
+        .hero p { 
+            font-size: 1.2rem; 
+            color: #94A3B8; 
+            max-width: 600px; 
+            margin: 0 auto; 
+        }
 
         /* MAIN CONTAINER */
         .container { max-width: 1000px; margin: -10rem auto 4rem auto; padding: 0 1rem; position: relative; z-index: 10; }
@@ -123,7 +145,6 @@
         .data-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid rgba(0,0,0,0.05); }
         .data-row:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         
-        /* Special spacing for total result */
         .result-row { margin-top: 2rem; padding-top: 1.5rem; border-top: 2px dashed #E2E8F0; }
 
         .label { font-size: 0.8rem; color: #94A3B8; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; display: block; margin-bottom: 0.25rem; }
@@ -134,9 +155,7 @@
         .value.good { color: var(--success); }
         .value.neutral { color: #64748B; }
 
-        /* DYNAMIC NUMBERS */
-        .dynamic-fee { color: var(--bad-red); font-weight: 700; }
-        .dynamic-payout-bad { font-size: 2rem; font-weight: 800; color: #94A3B8; text-decoration: line-through; decoration-color: var(--bad-red); decoration-thickness: 3px; }
+        .dynamic-payout-bad { font-size: 2rem; font-weight: 800; color: #94A3B8; text-decoration: line-through; text-decoration-color: var(--bad-red); text-decoration-thickness: 3px; }
         .dynamic-payout-good { font-size: 2.5rem; font-weight: 900; color: var(--brand); line-height: 1; }
 
         .savings-badge {
@@ -171,12 +190,6 @@
         .checklist li { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 1rem; color: #334155; font-weight: 600; }
         .check { color: var(--success); font-size: 1.2rem; min-width: 20px; }
 
-        /* FACT BOX */
-        .fact-box {
-            background: #E0E7FF; padding: 24px; border-radius: 16px; 
-            border-left: 5px solid var(--brand); margin-top: 2rem;
-        }
-
         /* FOOTER LINKS */
         .seo-links { margin-top: 4rem; border-top: 1px solid #E2E8F0; padding-top: 2rem; }
         .link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
@@ -189,60 +202,51 @@
 
         /* MOBILE RESPONSIVE */
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2rem; }
+            .hero h1 { font-size: 2.5rem; }
             .card-body { grid-template-columns: 1fr; }
             .side-competitor { border-right: none; border-bottom: 1px solid #E2E8F0; padding: 2rem; }
             .side-hoppon { padding: 2rem; }
-            .dynamic-payout-bad { font-size: 1.5rem; }
-            .dynamic-payout-good { font-size: 2rem; }
         }
     </style>
 </head>
 <body>
 
     <header class="hero">
-        <h1>Træt af høje gebyrer?</h1>
-        <p>Se præcis, hvor meget du mister pr. opgave eller tur hos andre. <br>Hos HoppOn er gebyret fast og lavt, og du får dine penge med det samme.</p>
+        <h1>Samkørsel fra Aarhus <br> <span>til København</span></h1>
+        <p>Hvorfor betale 20% i gebyr til platformen? <br>Brug slideren herunder og se, hvor meget du sparer på netop denne tur.</p>
     </header>
 
     <div class="container">
         <div class="comparison-card">
             
             <div class="card-header">
-                <label for="priceRange" class="slider-label">Hvad koster opgaven eller turen?</label>
-                <span class="slider-value"><span id="displayPrice">500</span> kr.</span>
-                <input type="range" min="50" max="2000" step="10" value="500" id="priceRange">
+                <label for="priceRange" class="slider-label">Hvad koster turen?</label>
+                <span class="slider-value"><span id="displayPrice">350</span> kr.</span>
+                <input type="range" min="50" max="1000" step="10" value="350" id="priceRange">
             </div>
 
             <div class="card-body">
                 <div class="side-competitor">
-                    <h2 class="competitor-title">HandyHand</h2>
+                    <h2 class="competitor-title">Andre Platforme</h2>
                     
                     <div class="data-row">
                         <div>
                             <span class="label">Platform Gebyr</span>
-                            <span class="sub-note">(12% + 9 kr.)</span>
+                            <span class="sub-note">(Typisk 12% + gebyr)</span>
                         </div>
-                        <span class="value bad" id="hhFee">-69 kr.</span>
+                        <span class="value bad" id="hhFee">-51 kr.</span>
                     </div>
 
                     <div class="data-row">
                         <div>
                             <span class="label">Ved aflysning</span>
                         </div>
-                        <span class="value bad">10% straf</span>
-                    </div>
-
-                    <div class="data-row">
-                        <div>
-                            <span class="label">Tilbagebetaling</span>
-                        </div>
-                        <span class="value neutral">Låst som kredit</span>
+                        <span class="value bad">Strafgebyr</span>
                     </div>
 
                     <div class="result-row">
                         <span class="label">Din Udbetaling</span>
-                        <div class="dynamic-payout-bad"><span id="hhPayout">431</span> kr.</div>
+                        <div class="dynamic-payout-bad"><span id="hhPayout">299</span> kr.</div>
                     </div>
                 </div>
 
@@ -264,22 +268,15 @@
                         <span class="value good">0 kr.</span>
                     </div>
 
-                    <div class="data-row">
-                        <div>
-                            <span class="label">Tilbagebetaling</span>
-                        </div>
-                        <span class="value good">Direkte til konto</span>
-                    </div>
-
                     <div class="result-row">
                         <span class="label">Din Udbetaling</span>
-                        <div class="dynamic-payout-good"><span id="hoPayout">495</span> kr.</div>
-                        <div class="savings-badge">Du tjener <span id="savingsDiff">64</span> kr. mere her</div>
+                        <div class="dynamic-payout-good"><span id="hoPayout">345</span> kr.</div>
+                        <div class="savings-badge">Du tjener <span id="savingsDiff">46</span> kr. mere her</div>
                     </div>
 
                     <div class="cta-container">
-                        <a href="#" class="btn">Opret profil nu →</a>
-                        <p class="disclaimer-text">Ingen abonnement • MitID verificeret • 2 min opsætning</p>
+                        <a href="#" class="btn">Opret turen nu →</a>
+                        <p class="disclaimer-text">Ingen bookinggebyr • MitID verificeret • Tryg rejse</p>
                     </div>
                 </div>
             </div>
@@ -288,43 +285,35 @@
     </div>
 
     <section class="content-section">
-        <h3>Hvorfor betale procenter af dit arbejde?</h3>
-        <p>Hvorfor skal platformen tjene mere, bare fordi din opgave er større eller turen er længere? Hos HoppOn tror vi på faste lave priser og fuld gennemsigtighed.</p>
+        <h3>Hvorfor betale gebyrer for at dele bil?</h3>
+        <p>Turen fra Aarhus til København koster ofte over 300 kr. Når platformene tager procenter, løber gebyret hurtigt op i 40-50 kr. pr. passager. Det synes vi ikke er rimeligt.</p>
         
         <ul class="checklist">
-            <li><span class="check">✓</span> <span><strong>Fast pris:</strong> Kun 5 kr. i gebyr uanset om prisen er 100 eller 2000 kr.</span></li>
-            <li><span class="check">✓</span> <span><strong>Ingen "kredit-fælder":</strong> Får du en aflysning, ryger pengene retur til din bankkonto.</span></li>
+            <li><span class="check">✓</span> <span><strong>Fast pris:</strong> Kun 5 kr. i gebyr uanset om turen koster 100 eller 400 kr.</span></li>
+            <li><span class="check">✓</span> <span><strong>Ingen "kredit-fælder":</strong> Pengene udbetales direkte til din konto.</span></li>
             <li><span class="check">✓</span> <span><strong>Sikkerhed:</strong> Alle brugere er valideret med MitID.</span></li>
-            <li><span class="check">✓</span> <span><strong>Ingen straffe:</strong> Det er gratis at aflyse, hvis uheldet er ude inden opgavestart.</span></li>
         </ul>
-
-        <div class="fact-box">
-            <strong style="color: var(--brand-dark); display:block; margin-bottom: 0.5rem;">Vidste du?</strong>
-            Hvis du sælger en ydelse eller et lift til 1.000 kr., tager konkurrenterne ofte over 120 kr. i gebyr. Hos HoppOn koster det stadig kun 5 kr. Det er en besparelse på over 100 kr. på én enkelt transaktion.
-        </div>
 
         <div class="seo-links">
             <div class="link-grid">
-                <a href="#" class="footer-link">HandyHand Alternativ</a>
-                <a href="#" class="footer-link">GoMore Alternativ</a>
-                <a href="#" class="footer-link">Billig Samkørsel</a>
-                <a href="#" class="footer-link">Privat Biludlejning</a>
-                <a href="#" class="footer-link">Rengøringshjælp Uden Gebyr</a>
-                <a href="#" class="footer-link">Flyttehjælp Priser</a>
+                <a href="#" class="footer-link">Aarhus - København</a>
+                <a href="#" class="footer-link">Aalborg - Aarhus</a>
+                <a href="#" class="footer-link">Odense - København</a>
+                <a href="#" class="footer-link">Esbjerg - Aarhus</a>
             </div>
         </div>
     </section>
 
     <footer style="text-align: center; padding: 2rem; color: #94A3B8; font-size: 0.85rem; border-top: 1px solid #E2E8F0; margin-top: 2rem;">
-        &copy; 2026 HoppOn.<br>
-        *Beregninger er baseret på HandyHands gebyrstruktur pr. februar 2026 (12% + 9 kr).
+        &copy; 2026 HoppOn. <br>
+        *Sammenligningspriser er estimater baseret på standard markedsgebyrer (ca. 12% + faste tillæg).
     </footer>
 
     <script>
         const slider = document.getElementById('priceRange');
         const displayPrice = document.getElementById('displayPrice');
         
-        // HandyHand Elements
+        // Competitor Elements
         const hhFeeEl = document.getElementById('hhFee');
         const hhPayoutEl = document.getElementById('hhPayout');
         
@@ -341,8 +330,7 @@
 
             // --- CALCULATIONS ---
 
-            // HandyHand: 12% + 9kr
-            // We use Math.floor to keep numbers clean integers
+            // Competitor: 12% + 9kr (Standard HandyHand/GoMore logic simulation)
             const hhFee = Math.floor((price * 0.12) + 9);
             const hhPayout = price - hhFee;
 
@@ -355,7 +343,7 @@
 
             // --- UPDATE DOM ---
             
-            // HandyHand updates
+            // Competitor updates
             hhFeeEl.innerText = `-${hhFee} kr.`;
             hhPayoutEl.innerText = hhPayout;
 
