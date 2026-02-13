@@ -7,9 +7,6 @@
     <title>Find et lift | HoppOn Samkørsel</title>
     <meta name="description" content="Rejs billigere, grønnere og sjovere med HoppOn. Find samkørsel i hele Danmark uden skjulte gebyrer. Book dit sæde i dag!">
     <meta name="keywords" content="samkørsel, lift, køre sammen, delebil, billig rejse, danmark, færge">
-    <meta property="og:title" content="Find et lift | HoppOn Samkørsel">
-    <meta property="og:description" content="Rejs billigere, grønnere og sjovere med HoppOn. Ingen skjulte gebyrer.">
-    <meta property="og:type" content="website">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
@@ -34,13 +31,27 @@
         body { background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; }
 
         /* HEADER */
-        header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
+        header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .logo { font-size: 1.5rem; font-weight: 900; color: var(--accent); letter-spacing: -0.5px; text-decoration: none; }
-        .header-actions { display: flex; gap: 1rem; }
+        .header-actions { display: flex; gap: 1rem; align-items: center;}
+        .user-greeting { font-weight: 600; color: var(--text-muted); font-size: 0.9rem; }
+        
         .btn-outline { padding: 8px 16px; border: 2px solid var(--border); border-radius: 12px; font-weight: 600; color: var(--brand); cursor: pointer; background: transparent; transition: 0.2s; }
         .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
-        .btn-primary { padding: 8px 16px; background: var(--brand); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-primary { padding: 12px 24px; background: var(--brand); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .btn-primary:hover { background: var(--accent); }
+
+        /* AUTH SEKTION (Login) */
+        .auth-container { max-width: 450px; margin: 5rem auto; padding: 0 1.5rem; display: none; }
+        .card { background: white; border-radius: 20px; padding: 2.5rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+        .card h2 { text-align: center; margin-bottom: 1.5rem; color: var(--brand); font-size: 1.8rem;}
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-muted); }
+        .form-group input { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 12px; font-size: 1rem; background: var(--bg-color); outline: none; transition: 0.2s; }
+        .form-group input:focus { border-color: var(--accent); }
+
+        /* APP CONTAINER (Skjult indtil logget ind) */
+        #mainAppContainer { display: none; }
 
         /* HERO SØGNING */
         .hero { background: linear-gradient(135deg, var(--brand) 0%, #1e293b 100%); padding: 4rem 1rem; text-align: center; color: white; }
@@ -64,7 +75,7 @@
         @media (max-width: 900px) { .main-container { grid-template-columns: 1fr; } }
 
         /* FILTER SIDEBAR */
-        .filters { background: var(--surface); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--border); position: sticky; top: 90px; height: fit-content; }
+        .filters { background: var(--surface); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--border); position: sticky; top: 100px; height: fit-content; }
         .filter-header { font-size: 1.2rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--brand); display: flex; justify-content: space-between; }
         .filter-reset { font-size: 0.8rem; color: var(--accent); font-weight: 600; cursor: pointer; border: none; background: none; }
         
@@ -72,11 +83,9 @@
         .filter-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .filter-label { font-weight: 700; font-size: 0.95rem; margin-bottom: 1rem; display: block; color: var(--brand); }
         
-        /* Custom Range Slider */
         .price-display { font-weight: 800; color: var(--accent); font-size: 1.2rem; margin-bottom: 0.5rem; display: block; }
         input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; }
 
-        /* Filter Toggles */
         .filter-toggle { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; cursor: pointer; }
         .filter-toggle span { font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 8px; }
         .checkbox-custom { width: 20px; height: 20px; border: 2px solid #cbd5e1; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
@@ -93,12 +102,11 @@
         .ride-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; transition: 0.3s; cursor: pointer; position: relative; overflow: hidden; }
         .ride-card:hover { border-color: var(--accent); box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.15); transform: translateY(-2px); }
         
-        /* Timeline */
         .timeline { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         .time-box { display: flex; flex-direction: column; }
         .time-box.right { text-align: right; }
         .time { font-size: 1.5rem; font-weight: 900; color: var(--brand); letter-spacing: -0.5px; }
-        .city { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .city { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         .duration-container { flex: 1; padding: 0 1.5rem; display: flex; flex-direction: column; align-items: center; position: relative; }
         .duration-line { width: 100%; height: 2px; background: #cbd5e1; position: relative; margin: 8px 0; }
@@ -106,213 +114,252 @@
         .duration-line::before { left: -4px; } .duration-line::after { right: -4px; }
         .duration-text { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); background: var(--surface); padding: 0 8px; position: relative; top: -14px; }
         
-        /* Mid Section */
         .card-mid { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px dashed var(--border); margin-bottom: 1.5rem; }
         .driver-info { display: flex; align-items: center; gap: 10px; }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--text-muted); overflow: hidden;}
+        .avatar { width: 44px; height: 44px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--text-muted); overflow: hidden;}
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
         .driver-name { font-weight: 600; font-size: 0.95rem; }
-        .car-badge { font-size: 0.8rem; color: var(--text-muted); background: #F1F5F9; padding: 4px 8px; border-radius: 8px; font-weight: 500; }
+        .car-badge { font-size: 0.8rem; color: var(--text-muted); background: #F1F5F9; padding: 4px 8px; border-radius: 8px; font-weight: 500; display: inline-block; margin-top: 4px;}
 
-        /* Badges */
-        .badges { display: flex; flex-wrap: wrap; gap: 8px; }
+        .badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end;}
         .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 4px; }
         .b-ferry { background: #E0F2FE; color: #0284C7; }
         .b-instant { background: #FEF3C7; color: #D97706; }
         .b-comfort { background: #F3E8FF; color: #4338CA; }
         .b-ladies { background: #FCE7F3; color: #BE185D; }
 
-        /* Footer */
         .card-footer { display: flex; justify-content: space-between; align-items: flex-end; }
         .price-tag { font-size: 1.8rem; font-weight: 900; color: var(--brand); letter-spacing: -1px; line-height: 1; }
         .price-sub { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
         .seats { font-size: 0.85rem; font-weight: 600; color: var(--success); display: flex; align-items: center; gap: 4px; }
         
-        /* Empty State */
         .empty-state { text-align: center; padding: 4rem 2rem; background: var(--surface); border-radius: 20px; border: 1px dashed #cbd5e1; }
         .empty-state h3 { font-size: 1.5rem; color: var(--brand); margin-bottom: 0.5rem; }
         .empty-state p { color: var(--text-muted); margin-bottom: 1.5rem; }
         
-        /* Laster / Skeleton (Simulated) */
-        #loader { text-align: center; padding: 3rem; font-weight: bold; color: var(--accent); display: none; }
+        #loader { text-align: center; padding: 4rem 0; font-weight: bold; color: var(--accent); font-size: 1.2rem; }
+        
+        /* Loading Overlay Global */
+        #globalLoader { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
+    <div id="globalLoader"><div class="spinner"></div></div>
+
     <header>
         <a href="#" class="logo">HoppOn</a>
-        <div class="header-actions">
-            <button class="btn-outline">Opret Tur</button>
-            <button class="btn-primary">Log Ind</button>
-        </div>
+        <div class="header-actions" id="headerActions">
+            </div>
     </header>
 
-    <section class="hero">
-        <h1>Find dit næste lift</h1>
-        <p>Rejs billigere, grønnere og sjovere. 0 kr i platformgebyr.</p>
-        <div class="search-bar">
-            <input type="text" class="search-input" id="searchFrom" placeholder="Fra (f.eks. Aarhus)" oninput="filterRides()">
-            <input type="text" class="search-input" id="searchTo" placeholder="Til (f.eks. Valby)" oninput="filterRides()">
-            <input type="date" class="search-input" id="searchDate" onchange="filterRides()" style="max-width: 180px;">
-            <button class="search-btn" onclick="filterRides()">Søg</button>
+    <div class="auth-container" id="authSection">
+        <div class="card">
+            <h2>Log ind for at finde ture</h2>
+            <div id="loginForm">
+                <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="navn@mail.dk"></div>
+                <div class="form-group"><label>Adgangskode</label><input type="password" id="loginPass" placeholder="******"></div>
+                <button class="btn-primary" style="width: 100%;" onclick="handleLogin()">Log Ind</button>
+            </div>
         </div>
-    </section>
+    </div>
 
-    <div class="main-container">
-        
-        <aside class="filters">
-            <div class="filter-header">
-                <span>Filtre</span>
-                <button class="filter-reset" onclick="resetFilters()">Nulstil</button>
+    <div id="mainAppContainer">
+        <section class="hero">
+            <h1>Find dit næste lift</h1>
+            <p>Rejs billigere, grønnere og sjovere. 0 kr i platformgebyr.</p>
+            <div class="search-bar">
+                <input type="text" class="search-input" id="searchFrom" placeholder="Fra (f.eks. Aarhus)" oninput="filterRides()">
+                <input type="text" class="search-input" id="searchTo" placeholder="Til (f.eks. Valby)" oninput="filterRides()">
+                <input type="date" class="search-input" id="searchDate" onchange="filterRides()" style="max-width: 180px;">
+                <button class="search-btn" onclick="filterRides()">Søg</button>
             </div>
+        </section>
 
-            <div class="filter-group">
-                <span class="filter-label">Maks pris</span>
-                <span class="price-display" id="priceOutput">500 kr</span>
-                <input type="range" id="filterPrice" min="20" max="500" value="500" step="10" oninput="updatePriceLabel(); filterRides()">
-            </div>
-
-            <div class="filter-group">
-                <span class="filter-label">Foretrukne muligheder</span>
-                
-                <label class="filter-toggle">
-                    <span>⚡ Lynbooking (Auto-godkend)</span>
-                    <input type="checkbox" id="f-instant" onchange="filterRides()">
-                    <div class="checkbox-custom"></div>
-                </label>
-                
-                <label class="filter-toggle">
-                    <span>🛋️ Komfort Garanti (Max 2 bagved)</span>
-                    <input type="checkbox" id="f-comfort" onchange="filterRides()">
-                    <div class="checkbox-custom"></div>
-                </label>
-                
-                <label class="filter-toggle">
-                    <span>⛴️ Via Færge</span>
-                    <input type="checkbox" id="f-ferry" onchange="filterRides()">
-                    <div class="checkbox-custom"></div>
-                </label>
-                
-                <label class="filter-toggle" style="color: var(--pink);">
-                    <span style="color: var(--pink);">🌸 Ladies Only</span>
-                    <input type="checkbox" id="f-ladies" onchange="filterRides()">
-                    <div class="checkbox-custom" style="border-color: #fbcfe8;"></div>
-                </label>
-            </div>
-
-            <div class="filter-group">
-                <span class="filter-label">Tilladt i bilen</span>
-                
-                <label class="filter-toggle">
-                    <span>🐾 Kæledyr tilladt</span>
-                    <input type="checkbox" id="f-pets" onchange="filterRides()">
-                    <div class="checkbox-custom"></div>
-                </label>
-                
-                <label class="filter-toggle">
-                    <span>🚬 Rygning tilladt</span>
-                    <input type="checkbox" id="f-smoking" onchange="filterRides()">
-                    <div class="checkbox-custom"></div>
-                </label>
-            </div>
-        </aside>
-
-        <main>
-            <div class="results-header">
-                <span class="results-count" id="resultsCount">Finder ture...</span>
-                <select style="width: auto; padding: 8px 12px; background: white;" id="sortSelect" onchange="filterRides()">
-                    <option value="time">Tidligste afgang</option>
-                    <option value="price">Laveste pris</option>
-                </select>
-            </div>
+        <div class="main-container">
             
-            <div id="loader">Henter de bedste ture til dig... 🚗💨</div>
-            
-            <div class="ride-list" id="rideListContainer">
+            <aside class="filters">
+                <div class="filter-header">
+                    <span>Filtre</span>
+                    <button class="filter-reset" onclick="resetFilters()">Nulstil</button>
                 </div>
-            
-            <div class="empty-state" id="emptyState" style="display: none;">
-                <h3>Øv, ingen ture fundet! 🏜️</h3>
-                <p>Der er desværre ingen der kører den rute med dine valgte filtre lige nu.</p>
-                <button class="btn-primary" style="width: auto; margin: 0 auto;" onclick="resetFilters()">Fjern filtre</button>
-            </div>
-        </main>
+
+                <div class="filter-group">
+                    <span class="filter-label">Maks pris pr. plads</span>
+                    <span class="price-display" id="priceOutput">500 kr</span>
+                    <input type="range" id="filterPrice" min="20" max="500" value="500" step="10" oninput="updatePriceLabel(); filterRides()">
+                </div>
+
+                <div class="filter-group">
+                    <span class="filter-label">Foretrukne muligheder</span>
+                    
+                    <label class="filter-toggle">
+                        <span>⚡ Lynbooking (Auto-godkend)</span>
+                        <input type="checkbox" id="f-instant" onchange="filterRides()">
+                        <div class="checkbox-custom"></div>
+                    </label>
+                    
+                    <label class="filter-toggle">
+                        <span>🛋️ Komfort Garanti (Max 2 bagved)</span>
+                        <input type="checkbox" id="f-comfort" onchange="filterRides()">
+                        <div class="checkbox-custom"></div>
+                    </label>
+                    
+                    <label class="filter-toggle">
+                        <span>⛴️ Via Færge</span>
+                        <input type="checkbox" id="f-ferry" onchange="filterRides()">
+                        <div class="checkbox-custom"></div>
+                    </label>
+                    
+                    <label class="filter-toggle" style="color: var(--pink); display: none;" id="filterLadiesOnlyRow">
+                        <span style="color: var(--pink);">🌸 Ladies Only</span>
+                        <input type="checkbox" id="f-ladies" onchange="filterRides()">
+                        <div class="checkbox-custom" style="border-color: #fbcfe8;"></div>
+                    </label>
+                </div>
+
+                <div class="filter-group">
+                    <span class="filter-label">Tilladt i bilen</span>
+                    
+                    <label class="filter-toggle">
+                        <span>🐾 Kæledyr tilladt</span>
+                        <input type="checkbox" id="f-pets" onchange="filterRides()">
+                        <div class="checkbox-custom"></div>
+                    </label>
+                    
+                    <label class="filter-toggle">
+                        <span>🚬 Rygning tilladt</span>
+                        <input type="checkbox" id="f-smoking" onchange="filterRides()">
+                        <div class="checkbox-custom"></div>
+                    </label>
+                </div>
+            </aside>
+
+            <main>
+                <div class="results-header">
+                    <span class="results-count" id="resultsCount">Søger efter ture...</span>
+                    <select style="width: auto; padding: 10px 14px; border: 1px solid var(--border); border-radius: 12px; background: white; outline: none; font-weight: 500;" id="sortSelect" onchange="filterRides()">
+                        <option value="time">Tidligste afgang først</option>
+                        <option value="price">Laveste pris først</option>
+                    </select>
+                </div>
+                
+                <div id="loader">Henter de bedste ture fra databasen... 🚗💨</div>
+                
+                <div class="ride-list" id="rideListContainer" style="display: none;">
+                    </div>
+                
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <h3>Øv, ingen ture fundet! 🏜️</h3>
+                    <p>Der er desværre ingen der kører den rute med dine valgte filtre lige nu.</p>
+                    <button class="btn-primary" style="width: auto; margin: 0 auto;" onclick="resetFilters()">Ryd alle filtre</button>
+                </div>
+            </main>
+        </div>
     </div>
 
     <script>
-        // --- 1. SETUP & DATA ---
-        // (Mock data baseret på dit præcise output, men bygget robust så det kan skiftes til Supabase fetch)
-        const mockData = [
-            {
-                "id": "c44b6066-96b2-430e-814c-e4cb6cee7002",
-                "driver_id": "da8e8119-a112-49be-8a7d-a642f053434e",
-                "origin_city": "Silkeborgvej 52, 8000 Aarhus",
-                "destination_city": "Lyshøj Allé 23, 2500 Valby",
-                "departure_time": "2026-02-14 19:46:00+00",
-                "arrival_time": "2026-02-14 22:48:00+00",
-                "price_dkk": 110,
-                "seats_available": 3,
-                "car_model": "{\"make\": \"AUDI\", \"year\": \"2025\", \"color\": \"Sort\", \"model\": \"Q3\", \"plate\": \"EE69690\", \"details\": \"2025 • Sort • EE69690\", \"display_name\": \"AUDI Q3\"}",
-                "status": "active",
-                "is_ferry": true,
-                "detour_flex": true,
-                "comfort_guarantee": false,
-                "pref_music": true,
-                "pref_pets": false,
-                "pref_smoking": false,
-                "pref_kids": true,
-                "instant_booking": true,
-                "ladies_only": false,
-                "driver": {
-                    "full_name": "GetGatronic",
-                    "avatar_url": "https://api.dicebear.com/7.x/notionists/svg?seed=GetGatronic&backgroundColor=e2e8f0" // Placeholder avatar
-                }
-            },
-            // Ekstra fiktiv tur for at vise filtrering
-            {
-                "id": "abc-123",
-                "driver_id": "da8e8119-a112-49be-8a7d-a642f053434e",
-                "origin_city": "Aalborg Banegård",
-                "destination_city": "Odense C",
-                "departure_time": "2026-02-15 08:00:00+00",
-                "arrival_time": "2026-02-15 10:30:00+00",
-                "price_dkk": 185,
-                "seats_available": 1,
-                "car_model": "{\"display_name\": \"Tesla Model 3\", \"color\": \"Hvid\"}",
-                "status": "active",
-                "is_ferry": false,
-                "detour_flex": false,
-                "comfort_guarantee": true,
-                "pref_music": true,
-                "pref_pets": true,
-                "pref_smoking": false,
-                "pref_kids": true,
-                "instant_booking": false,
-                "ladies_only": true,
-                "driver": {
-                    "full_name": "Sofie L.",
-                    "avatar_url": "https://api.dicebear.com/7.x/notionists/svg?seed=Sofie&backgroundColor=fce7f3"
-                }
-            }
-        ];
+        const SUPABASE_URL = 'https://xboklywxcozobvfrptpr.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_amqWmR5MrUSFHlniU2yp3Q_c8kUysEY'; 
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        let currentUser = null;
+        let currentUserProfile = null;
         let allRides = [];
 
         window.onload = async () => {
-            // I en live app ville du fetche her:
-            // document.getElementById('loader').style.display = 'block';
-            // const { data } = await _supabase.from('rides').select('*, driver:profiles(full_name, avatar_url)').eq('status', 'active');
-            // allRides = data;
+            document.getElementById('globalLoader').style.display = 'flex';
             
-            allRides = mockData; // Vi bruger mockdata til demonstration
+            // 1. Tjek om brugeren er logget ind
+            const { data: { session } } = await _supabase.auth.getSession();
             
-            // Sæt datovælger i hero til i dag
-            document.getElementById('searchDate').valueAsDate = new Date();
+            if (session) {
+                currentUser = session.user;
+                
+                // 2. Hent brugerens profil (for at tjekke køn til Ladies Only og vise navn i header)
+                const { data: profile } = await _supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+                currentUserProfile = profile;
+                
+                // Opdater Header
+                document.getElementById('headerActions').innerHTML = `
+                    <span class="user-greeting">Hej, ${profile ? profile.full_name.split(' ')[0] : 'Bruger'}</span>
+                    <button class="btn-outline" onclick="logout()">Log ud</button>
+                `;
+
+                // Vis Ladies Only filter, hvis Kvinde
+                if (profile && profile.gender === 'Kvinde') {
+                    document.getElementById('filterLadiesOnlyRow').style.display = 'flex';
+                }
+
+                // Skift UI
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('mainAppContainer').style.display = 'block';
+
+                // 3. HENT ALLE ÆGTE TURE FRA DATABASEN!
+                // Vi joiner med profiles tabellen for at få chaufførens info.
+                await fetchRidesFromDatabase();
+                
+                // Sæt datovælger i hero til i dag
+                document.getElementById('searchDate').valueAsDate = new Date();
+                
+            } else {
+                // Ikke logget ind: Vis login skærm
+                document.getElementById('authSection').style.display = 'block';
+                document.getElementById('mainAppContainer').style.display = 'none';
+            }
             
-            filterRides();
+            document.getElementById('globalLoader').style.display = 'none';
         };
 
-        // --- 2. LOGIK: FILTRERING & SØGNING ---
+        // --- AUTH ---
+        async function handleLogin() {
+            document.getElementById('globalLoader').style.display = 'flex';
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
+            
+            const { data, error } = await _supabase.auth.signInWithPassword({ email, password: pass });
+            if (error) {
+                alert("Login fejl: " + error.message);
+                document.getElementById('globalLoader').style.display = 'none';
+            } else {
+                location.reload(); // Genindlæs siden for at hente profil og ture
+            }
+        }
+
+        async function logout() {
+            await _supabase.auth.signOut();
+            location.reload();
+        }
+
+        // --- DATABASE FETCH ---
+        async function fetchRidesFromDatabase() {
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('rideListContainer').style.display = 'none';
+            
+            // Hent alle aktive ture, og træk chaufførens navn og billede med via foreign key
+            const { data, error } = await _supabase
+                .from('rides')
+                .select('*, driver:profiles!driver_id(full_name, avatar_url, gender)')
+                .eq('status', 'active');
+                
+            if (error) {
+                console.error("Fejl ved hentning af ture:", error);
+                alert("Kunne ikke hente ture. Prøv igen senere.");
+                allRides = [];
+            } else {
+                allRides = data || [];
+            }
+            
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('rideListContainer').style.display = 'flex';
+            
+            // Kør filterfunktionen for at vise dem på skærmen
+            filterRides();
+        }
+
+        // --- LOGIK: FILTRERING & SØGNING ---
         function updatePriceLabel() {
             document.getElementById('priceOutput').innerText = document.getElementById('filterPrice').value + " kr";
         }
@@ -331,7 +378,8 @@
         }
 
         function filterRides() {
-            // Hent værdier
+            if (allRides.length === 0) return; // Sikkerhed, hvis DB er tom
+
             const qFrom = document.getElementById('searchFrom').value.toLowerCase();
             const qTo = document.getElementById('searchTo').value.toLowerCase();
             const qDate = document.getElementById('searchDate').value;
@@ -351,7 +399,7 @@
                 if (qFrom && !r.origin_city.toLowerCase().includes(qFrom)) return false;
                 if (qTo && !r.destination_city.toLowerCase().includes(qTo)) return false;
                 
-                // Dato tjek (Sammenligner YYYY-MM-DD lokalt)
+                // Dato tjek
                 if (qDate) {
                     const rideDateStr = new Date(r.departure_time).toISOString().split('T')[0];
                     if (rideDateStr !== qDate) return false;
@@ -373,14 +421,14 @@
             if (sortBy === 'price') {
                 filtered.sort((a, b) => a.price_dkk - b.price_dkk);
             } else {
-                // Sorter på tid (tidligst først)
+                // Tidligste først
                 filtered.sort((a, b) => new Date(a.departure_time) - new Date(b.departure_time));
             }
 
             renderRides(filtered);
         }
 
-        // --- 3. LOGIK: RENDERING AF HTML ---
+        // --- LOGIK: RENDERING AF HTML ---
         function renderRides(rides) {
             const container = document.getElementById('rideListContainer');
             const counter = document.getElementById('resultsCount');
@@ -403,6 +451,9 @@
                 const depTimeStr = depDate.toLocaleTimeString('da-DK', {hour: '2-digit', minute:'2-digit'});
                 const arrTimeStr = arrDate ? arrDate.toLocaleTimeString('da-DK', {hour: '2-digit', minute:'2-digit'}) : '--:--';
                 
+                // Visning af dato hvis den afviger fra i dag (Nice UX)
+                const dateStr = depDate.toLocaleDateString('da-DK', {day: 'numeric', month: 'short'});
+                
                 // Udregn varighed til den pæne midter-linje
                 let durationStr = "";
                 if (arrDate) {
@@ -412,19 +463,21 @@
                     durationStr = `${diffHrs}t ${diffMins}m`;
                 }
 
-                // Sikker parsing af Car Model JSON
+                // Sikker parsing af Car Model JSON fra databasen
                 let carDisplayName = "Bil";
                 if (ride.car_model) {
                     try {
-                        const carObj = JSON.parse(ride.car_model);
+                        const carObj = typeof ride.car_model === 'string' ? JSON.parse(ride.car_model) : ride.car_model;
                         carDisplayName = carObj.display_name || `${carObj.make} ${carObj.model}`;
-                        if(carObj.color) carDisplayName += ` (${carObj.color})`;
-                    } catch(e) {}
+                    } catch(e) {
+                        console.error("Kunne ikke parse bil:", e);
+                    }
                 }
 
-                // Sikker Håndtering af Chauffør Data
-                const driverName = ride.driver?.full_name || "Ukendt Chauffør";
-                const avatarUrl = ride.driver?.avatar_url || ""; // Hvis tom, bruger vi bare initial i css
+                // Sikker Håndtering af Chauffør Data (via joinet)
+                // "driver" er det alias vi brugte i Supabase kaldet
+                const driverName = ride.driver?.full_name || "Chauffør";
+                const avatarUrl = ride.driver?.avatar_url || ""; 
                 const initial = driverName.charAt(0).toUpperCase();
 
                 // Byg Badges dynamisk
@@ -434,12 +487,16 @@
                 if (ride.comfort_guarantee) badgesHTML += `<span class="badge b-comfort">🛋️ Komfort</span>`;
                 if (ride.ladies_only) badgesHTML += `<span class="badge b-ladies">🌸 Ladies Only</span>`;
 
-                // Skab selve kortet (HTML)
+                // Skab selve kortet
                 const card = document.createElement('div');
                 card.className = 'ride-card';
-                card.onclick = () => window.location.href = `/tur/${ride.id}`; // Link til ride details
+                card.onclick = () => alert(`Her ville vi gå til detalje-siden for tur: ${ride.id}`); 
                 
                 card.innerHTML = `
+                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--accent); margin-bottom: 10px; text-transform: uppercase;">
+                        📅 ${dateStr}
+                    </div>
+
                     <div class="timeline">
                         <div class="time-box">
                             <span class="time">${depTimeStr}</span>
@@ -476,7 +533,7 @@
                             <div class="price-sub">Pris pr. passager</div>
                         </div>
                         <div style="text-align: right;">
-                            <div class="seats">✔️ ${ride.seats_available} pladser tilbage</div>
+                            <div class="seats">✔️ ${ride.seats_available} plads(er) tilbage</div>
                         </div>
                     </div>
                 `;
