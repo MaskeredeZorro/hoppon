@@ -288,8 +288,6 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let currentUser = null;
-        let userCarModel = "Min Bil"; // Hentes fra profilen!
-        
         let map = null;
         let currentPrice = 0;
         let cachedDistanceKm = 0;
@@ -319,13 +317,7 @@
                 
                 // Set default Date (Today) & Time (+1 hour)
                 const now = new Date();
-                
-                // Formatér datoen manuelt for at tage højde for lokal dansk tidszone
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
-                const todayStr = `${year}-${month}-${day}`;
-                
+                const todayStr = now.toISOString().split('T')[0];
                 selectedDates.push(todayStr);
                 renderDates();
                 
@@ -343,10 +335,12 @@
 
         // --- WIZARD NAVIGATION ---
         function goToStep(step) {
+            // Validation before leaving Step 1
             if (step === 2 && (!originCoords || !destCoords)) {
                 alert("Hov! Vælg venligst både en start- og slutdestination for at gå videre.");
                 return;
             }
+            // Validation before leaving Step 2
             if (step === 3 && selectedDates.length === 0) {
                 alert("Du skal vælge mindst én dato for din tur.");
                 return;
@@ -358,12 +352,14 @@
             document.getElementById('stepIndicator').innerText = `Trin ${step} af 3`;
             window.scrollTo({ top: 0, behavior: 'smooth' });
             
+            // Show InfoCard only on step 3
             if(step === 3) {
                 document.getElementById('infoCard').classList.add('active');
             } else {
                 document.getElementById('infoCard').classList.remove('active');
             }
             
+            // Re-render map size as layout might shift slightly
             if(map) setTimeout(() => map.resize(), 100);
         }
 
@@ -372,7 +368,8 @@
             const container = document.getElementById('datesContainer');
             container.innerHTML = '';
             
-            selectedDates.sort(); // Kronologisk rækkefølge
+            // Sort dates chronologically
+            selectedDates.sort();
             
             selectedDates.forEach((dateStr, index) => {
                 const dateObj = new Date(dateStr);
@@ -398,7 +395,7 @@
             }
             selectedDates.push(val);
             renderDates();
-            input.value = ''; 
+            input.value = ''; // clear input
         }
         
         function removeDate(index) {
@@ -406,7 +403,7 @@
             renderDates();
         }
 
-        // --- AUTH & USER PROFILE ---
+        // --- AUTH & USER ---
         async function handleLogin() {
             setLoading(true);
             const email = document.getElementById('loginEmail').value;
@@ -419,14 +416,8 @@
 
         async function fetchUserProfile(userId) {
             const { data } = await _supabase.from('profiles').select('*').eq('id', userId).single();
-            if (data) {
-                if (data.gender === 'Kvinde') {
-                    document.getElementById('ladiesOnlyRow').style.display = 'flex';
-                }
-                // Hent bilens model fra databasen! (Fikser dit null problem)
-                if (data.car_details) {
-                    userCarModel = data.car_details;
-                }
+            if (data && data.gender === 'Kvinde') {
+                document.getElementById('ladiesOnlyRow').style.display = 'flex';
             }
         }
 
@@ -633,7 +624,8 @@
         function updateCO2Display() {
             if(cachedDistanceKm === 0) return;
             const seats = parseInt(document.getElementById('seatsInput').value) || 3;
-            // Din logik: (Total distance * 0.16) * antal personer (her tager vi max mulige for turen)
+            // Antager +1 for chaufføren i Dart koden, men besparelsen er sparet biler pr. *passager*.
+            // Dvs. 3 pladser = 3 potentielt sparede biler.
             const potentialCO2 = (cachedDistanceKm * 0.16) * seats;
             document.getElementById('co2Value').innerText = potentialCO2.toFixed(1);
         }
@@ -710,24 +702,12 @@
                 city: wp.name, lat: wp.coords.lat, lng: wp.coords.lng
             }));
             
-            const timeStr = document.getElementById('rideTime').value; // F.eks. "18:45"
-            const [hours, minutes] = timeStr.split(':');
+            const timeStr = document.getElementById('rideTime').value; // HH:MM
 
-            // Vi looper igennem ALLE valgte datoer og bygger én stor pakke!
+            // Create an array of payloads, one for each date!
             const payloadsToInsert = selectedDates.map(dateStr => {
-                const [year, month, day] = dateStr.split('-');
-                
-                // --- FIKS TIL TIDSZONE & ARRIVAL_TIME ---
-                // Opretter et Date objekt med præcis den LOKALE tid og dato chaufføren har valgt
-                const localDepartureDate = new Date(year, month - 1, day, hours, minutes);
-                
-                // Udregn ankomsttid (ved at lægge rejsens varighed til i millisekunder)
-                const localArrivalDate = new Date(localDepartureDate.getTime() + (cachedDurationMin * 60000));
-                
-                // toISOString() sørger for, at tiden sendes til databasen i rent UTC format (+00),
-                // så f.eks. "18:45 dansk tid" bliver gemt som "17:45 UTC", hvilket forhindrer tidszone-kludder.
-                const departureIso = localDepartureDate.toISOString(); 
-                const arrivalIso = localArrivalDate.toISOString();
+                // Kombiner valgt dato "YYYY-MM-DD" og tid "HH:MM"
+                const dateTimeString = `${dateStr}T${timeStr}:00Z`; // BEMÆRK: Vi bruger Z (UTC) for konsistens.
 
                 return {
                     driver_id: currentUser.id,
@@ -735,18 +715,15 @@
                     destination_city: document.getElementById('destInput').value,
                     origin_location: `POINT(${originCoords.lng} ${originCoords.lat})`,
                     destination_location: `POINT(${destCoords.lng} ${destCoords.lat})`,
-                    departure_time: departureIso,         // FIX: UTC format
-                    arrival_time: arrivalIso,             // FIX: Tilføjet og udregnet!
+                    departure_time: new Date(dateTimeString).toISOString(),
                     seats_available: parseInt(document.getElementById('seatsInput').value),
                     price_dkk: currentPrice,
-                    car_model: userCarModel,              // FIX: Nu henter den bilmodel!
                     status: 'active',
                     is_ferry: document.getElementById('swFerry').checked,
                     instant_booking: document.getElementById('swInstant').checked,
                     detour_flex: document.getElementById('swFlex').checked,
                     comfort_guarantee: document.getElementById('swComfort').checked,
                     ladies_only: document.getElementById('swLadies') ? document.getElementById('swLadies').checked : false,
-                    luggage_size: "Mellem",               // FIX: Tilføjet standard-værdi for bagage!
                     pref_music: rules.Music,
                     pref_smoking: rules.Smoking,
                     pref_pets: rules.Pets,
@@ -756,7 +733,7 @@
                 };
             });
 
-            // Kast hele listen ind i databasen på én gang!
+            // Indsæt hele arrayet af ture på én gang i Supabase
             const { error } = await _supabase.from('rides').insert(payloadsToInsert);
             
             if (error) {
