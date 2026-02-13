@@ -4,17 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>Find et lift | HoppOn Samkørsel - 0 kr i gebyr</title>
-    <meta name="description" content="Find billige lift i hele Danmark. Spar penge på din rejse og mød nye mennesker. Ingen skjulte gebyrer - du betaler kun for din plads.">
+    <title>Find et lift | HoppOn Samkørsel</title>
+    <meta name="description" content="Rejs billigere, grønnere og sjovere med HoppOn. Find samkørsel i hele Danmark uden skjulte gebyrer. Book dit sæde i dag!">
+    <meta name="keywords" content="samkørsel, lift, køre sammen, delebil, billig rejse, danmark, færge">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --brand: #0F172A; --accent: #6366F1; --accent-hover: #4F46E5;
-            --bg-color: #F8FAFC; --surface: #FFFFFF; --text-main: #334155;
-            --text-muted: #64748B; --border: #E2E8F0; --success: #10B981; --pink: #EC4899;
+            --brand: #0F172A;         /* Deep Slate */
+            --accent: #6366F1;        /* Indigo */
+            --accent-hover: #4F46E5;
+            --bg-color: #F8FAFC;      /* Light Gray/Blue */
+            --surface: #FFFFFF;
+            --text-main: #334155;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --pink: #EC4899;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -22,14 +31,15 @@
 
         /* HEADER */
         header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 70px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .logo { font-size: 1.5rem; font-weight: 900; color: var(--accent); text-decoration: none; letter-spacing: -1px; }
+        .logo { font-size: 1.5rem; font-weight: 900; color: var(--accent); letter-spacing: -1px; text-decoration: none; }
         .header-actions { display: flex; gap: 1rem; align-items: center; }
+        .user-greeting { font-weight: 600; color: var(--text-muted); font-size: 0.9rem; }
         
         .btn-outline { padding: 8px 16px; border: 2px solid var(--border); border-radius: 12px; font-weight: 600; color: var(--brand); cursor: pointer; transition: 0.2s; background: transparent; }
         .btn-primary { padding: 10px 20px; background: var(--brand); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .btn-primary:hover { background: var(--accent); }
 
-        /* HERO & FIXED SEARCH BAR */
+        /* HERO & SEARCH BAR FIX */
         .hero { background: linear-gradient(135deg, var(--brand) 0%, #1e293b 100%); padding: 4rem 1rem; text-align: center; color: white; }
         .hero h1 { font-size: 2.8rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: -1px; }
         .hero p { color: #cbd5e1; font-size: 1.2rem; margin-bottom: 2.5rem; }
@@ -72,7 +82,7 @@
         
         .timeline { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         .time { font-size: 1.7rem; font-weight: 900; color: var(--brand); line-height: 1; }
-        .city { font-size: 1rem; font-weight: 700; color: var(--text-main); margin-top: 4px; display: block; }
+        .city { font-size: 1rem; font-weight: 700; color: var(--text-main); margin-top: 4px; display: block; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         .route-path { flex: 1; margin: 0 2rem; position: relative; height: 2px; background: #E2E8F0; display: flex; justify-content: center; align-items: center; }
         .route-path::before, .route-path::after { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 50%; background: white; border: 2px solid #E2E8F0; }
@@ -84,7 +94,7 @@
         .avatar { width: 45px; height: 45px; border-radius: 50%; background: #F1F5F9; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
         
-        .badge-group { display: flex; gap: 6px; flex-wrap: wrap; }
+        .badge-group { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;}
         .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; gap: 4px; }
         .b-ferry { background: #E0F2FE; color: #0284C7; }
         .b-pink { background: #FCE7F3; color: #BE185D; }
@@ -95,99 +105,113 @@
         .price span { font-size: 1rem; font-weight: 600; color: var(--text-muted); margin-left: 2px; }
         .seats-left { font-weight: 700; color: var(--success); display: flex; align-items: center; gap: 5px; font-size: 0.95rem; }
 
-        #loader { text-align: center; padding: 5rem; font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+        /* AUTH & APP TOGGLE */
+        #mainAppContainer { display: none; }
+        .auth-container { max-width: 450px; margin: 5rem auto; padding: 0 1.5rem; display: none; }
+
+        #globalLoader { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
+
+    <div id="globalLoader"><div class="spinner"></div></div>
 
     <header>
         <a href="/" class="logo">HoppOn</a>
         <div class="header-actions" id="headerAuth">
             <button class="btn-outline" onclick="window.location.href='/login'">Log Ind</button>
-            <button class="btn-primary" onclick="window.location.href='/opret-profil'">Opret Profil</button>
         </div>
     </header>
 
-    <section class="hero">
-        <h1>Find dit næste lift</h1>
-        <p>Danmarks billigste samkørsel. 0 kr i gebyr.</p>
-        <div class="search-bar">
-            <div class="search-group">
-                <span class="search-icon">📍</span>
-                <input type="text" id="searchFrom" class="search-input" placeholder="Hvorfra? (by eller postnr)" oninput="filterRides()">
-            </div>
-            <div class="search-group">
-                <span class="search-icon">🏁</span>
-                <input type="text" id="searchTo" class="search-input" placeholder="Hvorhen? (by eller postnr)" oninput="filterRides()">
-            </div>
-            <button class="search-btn" onclick="filterRides()">Find Tur</button>
+    <div class="auth-container" id="authSection">
+        <div class="card">
+            <h2 style="text-align: center; margin-bottom: 1.5rem;">Log ind for at finde lift</h2>
+            <div class="form-group"><label>Email</label><input type="email" id="loginEmail" class="search-input" style="background:#F1F5F9" placeholder="navn@mail.dk"></div>
+            <div class="form-group"><label>Adgangskode</label><input type="password" id="loginPass" class="search-input" style="background:#F1F5F9" placeholder="******"></div>
+            <button class="btn-primary" style="width: 100%; padding:14px;" onclick="handleLogin()">Log Ind</button>
         </div>
-    </section>
+    </div>
 
-    <div class="main-container">
-        <aside class="filters">
-            <div class="filter-header">Filtre</div>
-            
-            <div class="filter-group">
-                <span class="filter-label">Prisloft</span>
-                <span class="price-val" id="priceLabel">500 kr</span>
-                <input type="range" id="filterPrice" min="20" max="500" value="500" oninput="filterRides()">
+    <div id="mainAppContainer">
+        <section class="hero">
+            <h1>Find dit næste lift</h1>
+            <p>Danmarks billigste samkørsel. 0 kr i gebyr.</p>
+            <div class="search-bar">
+                <div class="search-group">
+                    <span class="search-icon">📍</span>
+                    <input type="text" id="searchFrom" class="search-input" placeholder="Hvorfra? (f.eks. Aarhus)" oninput="filterRides()">
+                </div>
+                <div class="search-group">
+                    <span class="search-icon">🏁</span>
+                    <input type="text" id="searchTo" class="search-input" placeholder="Hvorhen? (f.eks. Valby)" oninput="filterRides()">
+                </div>
+                <button class="search-btn" onclick="filterRides()">Find Tur</button>
             </div>
+        </section>
 
-            <div class="filter-group">
-                <span class="filter-label">Faciliteter</span>
-                <label class="check-row"><span>⛴️ Kun via færge</span><input type="checkbox" id="f-ferry" onchange="filterRides()"></label>
-                <label class="check-row"><span>⚡ Lynbooking</span><input type="checkbox" id="f-instant" onchange="filterRides()"></label>
-                <label class="check-row" id="ladiesOnlyFilter" style="display:none; color: var(--pink);"><span>🌸 Ladies Only</span><input type="checkbox" id="f-ladies" onchange="filterRides()"></label>
-            </div>
-            
-            <button class="btn-outline" style="width:100%" onclick="resetFilters()">Ryd alle filtre</button>
-        </aside>
+        <div class="main-container">
+            <aside class="filters">
+                <div class="filter-header">Filtre</div>
+                <div class="filter-group">
+                    <span class="filter-label">Prisloft</span>
+                    <span class="price-val" id="priceLabel">500 kr</span>
+                    <input type="range" id="filterPrice" min="20" max="500" value="500" oninput="filterRides()">
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">Faciliteter</span>
+                    <label class="check-row"><span>⛴️ Kun via færge</span><input type="checkbox" id="f-ferry" onchange="filterRides()"></label>
+                    <label class="check-row"><span>⚡ Lynbooking</span><input type="checkbox" id="f-instant" onchange="filterRides()"></label>
+                    <label class="check-row" id="ladiesOnlyFilter" style="display:none; color: var(--pink);"><span>🌸 Ladies Only</span><input type="checkbox" id="f-ladies" onchange="filterRides()"></label>
+                </div>
+                <button class="btn-outline" style="width:100%" onclick="resetFilters()">Ryd alle filtre</button>
+            </aside>
 
-        <main>
-            <div id="loader">Henter de bedste lift... 🚗</div>
-            <div id="rideListContainer" class="ride-list"></div>
-            
-            <div id="emptyState" style="display:none; text-align:center; padding: 4rem;">
-                <h3 style="font-size: 1.5rem; margin-bottom: 10px;">Ingen ture fundet 🏜️</h3>
-                <p style="color: var(--text-muted);">Prøv at justere dine filtre eller søge på en anden by.</p>
-            </div>
-        </main>
+            <main>
+                <div id="loader" style="text-align:center; padding: 3rem;">Henter lift... 🚗</div>
+                <div id="rideListContainer" class="ride-list"></div>
+                <div id="emptyState" style="display:none; text-align:center; padding: 4rem;">
+                    <h3>Ingen ture fundet 🏜️</h3>
+                    <p style="color: var(--text-muted);">Prøv at justere dine filtre eller søge på en anden by.</p>
+                </div>
+            </main>
+        </div>
     </div>
 
     <script>
         const _supabase = supabase.createClient('https://xboklywxcozobvfrptpr.supabase.co', 'sb_publishable_amqWmR5MrUSFHlniU2yp3Q_c8kUysEY');
-        
         let allRides = [];
         let isUserLoggedIn = false;
 
         window.onload = async () => {
             const { data: { session } } = await _supabase.auth.getSession();
-            
             if (session) {
                 isUserLoggedIn = true;
+                document.getElementById('mainAppContainer').style.display = 'block';
                 const { data: profile } = await _supabase.from('profiles').select('gender, full_name').eq('id', session.user.id).single();
-                
-                // Vis Ladies Only hvis køn er Kvinde
                 if (profile?.gender === 'Kvinde') document.getElementById('ladiesOnlyFilter').style.display = 'flex';
-                
-                document.getElementById('headerAuth').innerHTML = `
-                    <span style="font-weight:700; color:var(--text-muted); margin-right:10px;">Hej ${profile.full_name.split(' ')[0]}</span>
-                    <button class="btn-outline" onclick="logout()">Log ud</button>
-                `;
+                document.getElementById('headerAuth').innerHTML = `<span class="user-greeting">Hej ${profile.full_name.split(' ')[0]}</span><button class="btn-outline" onclick="logout()">Log ud</button>`;
+            } else {
+                document.getElementById('authSection').style.display = 'block';
             }
             fetchRides();
+            document.getElementById('globalLoader').style.display = 'none';
         };
+
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
+            const { error } = await _supabase.auth.signInWithPassword({ email, password: pass });
+            if (error) alert(error.message); else location.reload();
+        }
 
         async function fetchRides() {
             const now = new Date().toISOString();
-
-            // Vi bruger de nye SQL kolonner!
-            const { data, error } = await _supabase
-                .from('rides')
+            const { data, error } = await _supabase.from('rides')
                 .select('*, driver:profiles!driver_id(full_name, avatar_url)')
                 .eq('status', 'active')
-                .gte('departure_time', now) // KUN FRA I DAG OG FREM
+                .gte('departure_time', now)
                 .order('departure_time', { ascending: true });
 
             if (!error) {
@@ -208,10 +232,8 @@
             document.getElementById('priceLabel').innerText = maxP + " kr";
 
             const filtered = allRides.filter(r => {
-                // Brug _public kolonner til søgning hvis de findes
-                const origin = (r.origin_city_public || r.origin_city).toLowerCase();
-                const dest = (r.destination_city_public || r.destination_city).toLowerCase();
-                
+                const origin = (isUserLoggedIn ? r.origin_city : r.origin_city_public).toLowerCase();
+                const dest = (isUserLoggedIn ? r.destination_city : r.destination_city_public).toLowerCase();
                 if (from && !origin.includes(from)) return false;
                 if (to && !dest.includes(to)) return false;
                 if (r.price_dkk > maxP) return false;
@@ -227,68 +249,35 @@
             const container = document.getElementById('rideListContainer');
             const empty = document.getElementById('emptyState');
             container.innerHTML = '';
-            
             if (rides.length === 0) { empty.style.display = 'block'; return; }
             empty.style.display = 'none';
 
             rides.forEach(ride => {
                 const depDate = new Date(ride.departure_time);
                 const arrDate = new Date(ride.arrival_time);
-                
-                const timeOptions = { hour: '2-digit', minute: '2-digit' };
-                const dateOptions = { weekday: 'short', day: 'numeric', month: 'short' };
-                
-                // VISUEL LOGIK: Fuld adresse hvis logget ind, ellers vasket public by
-                const displayOrigin = isUserLoggedIn ? ride.origin_city : (ride.origin_city_public || "Ukendt by");
-                const displayDest = isUserLoggedIn ? ride.destination_city : (ride.destination_city_public || "Ukendt by");
+                const displayOrigin = isUserLoggedIn ? ride.origin_city : ride.origin_city_public;
+                const displayDest = isUserLoggedIn ? ride.destination_city : ride.destination_city_public;
+                const car = isUserLoggedIn ? JSON.parse(ride.car_model) : JSON.parse(ride.car_model_public);
 
-                // BIL LOGIK: Brug den vaskede public JSON hvis ikke logget ind
-                const car = isUserLoggedIn ? 
-                    (typeof ride.car_model === 'string' ? JSON.parse(ride.car_model) : ride.car_model) : 
-                    (typeof ride.car_model_public === 'string' ? JSON.parse(ride.car_model_public) : ride.car_model_public);
-
-                // Beregn rejsetid
                 const diff = Math.abs(arrDate - depDate);
-                const hrs = Math.floor(diff / (1000 * 60 * 60));
-                const mins = Math.floor((diff / (1000 * 60)) % 60);
+                const hrs = Math.floor(diff / 3600000);
+                const mins = Math.floor((diff / 60000) % 60);
 
                 const card = document.createElement('div');
                 card.className = 'ride-card';
-                card.onclick = () => {
-                    if(!isUserLoggedIn) {
-                        alert("Log ind for at se præcis opsamlingsadresse og booke plads! 🚀");
-                        window.location.href = '/login';
-                    } else {
-                        window.location.href = '/tur/' + ride.id;
-                    }
-                };
+                card.onclick = () => window.location.href = '/tur/' + ride.id;
 
                 card.innerHTML = `
-                    <span class="card-date">${depDate.toLocaleDateString('da-DK', dateOptions)}</span>
-                    
+                    <span class="card-date">${depDate.toLocaleDateString('da-DK', {weekday:'short', day:'numeric', month:'short'})}</span>
                     <div class="timeline">
-                        <div>
-                            <span class="time">${depDate.toLocaleTimeString('da-DK', timeOptions)}</span>
-                            <span class="city">${displayOrigin}</span>
-                        </div>
-                        <div class="route-path">
-                            <div class="dur-badge">${hrs}t ${mins}m</div>
-                        </div>
-                        <div style="text-align:right">
-                            <span class="time">${arrDate.toLocaleTimeString('da-DK', timeOptions)}</span>
-                            <span class="city">${displayDest}</span>
-                        </div>
+                        <div><span class="time">${depDate.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'})}</span><span class="city">${displayOrigin}</span></div>
+                        <div class="route-path"><div class="dur-badge">${hrs}t ${mins}m</div></div>
+                        <div style="text-align:right"><span class="time">${arrDate.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'})}</span><span class="city">${displayDest}</span></div>
                     </div>
-
                     <div class="card-mid">
                         <div class="driver">
-                            <div class="avatar">
-                                ${ride.driver?.avatar_url ? `<img src="${ride.driver.avatar_url}">` : ride.driver?.full_name[0]}
-                            </div>
-                            <div>
-                                <strong style="display:block">${ride.driver?.full_name}</strong>
-                                <span style="font-size:0.85rem; color:var(--text-muted)">🚗 ${car?.display_name || 'Bil'} ${isUserLoggedIn ? `• ${car?.plate || ''}` : ''}</span>
-                            </div>
+                            <div class="avatar">${ride.driver?.avatar_url ? `<img src="${ride.driver.avatar_url}">` : ride.driver?.full_name[0]}</div>
+                            <div><strong style="display:block">${ride.driver?.full_name}</strong><span style="font-size:0.85rem; color:var(--text-muted)">🚗 ${car?.display_name || 'Bil'} ${isUserLoggedIn ? `• ${car?.plate || ''}` : ''}</span></div>
                         </div>
                         <div class="badge-group">
                             ${ride.is_ferry ? '<span class="badge b-ferry">⛴️ Færge</span>' : ''}
@@ -296,11 +285,7 @@
                             ${ride.ladies_only ? '<span class="badge b-pink">🌸 Ladies Only</span>' : ''}
                         </div>
                     </div>
-
-                    <div class="card-footer">
-                        <div class="price">${ride.price_dkk}<span>kr</span></div>
-                        <div class="seats-left">✔️ ${ride.seats_available} pladser tilbage</div>
-                    </div>
+                    <div class="card-footer"><div class="price">${ride.price_dkk}<span>kr</span></div><div class="seats-left">✔️ ${ride.seats_available} pladser tilbage</div></div>
                 `;
                 container.appendChild(card);
             });
@@ -310,16 +295,11 @@
             document.getElementById('searchFrom').value = '';
             document.getElementById('searchTo').value = '';
             document.getElementById('filterPrice').value = 500;
-            document.getElementById('f-ferry').checked = false;
-            document.getElementById('f-instant').checked = false;
-            if(document.getElementById('f-ladies')) document.getElementById('f-ladies').checked = false;
+            document.querySelectorAll('input[type=checkbox]').forEach(c => c.checked = false);
             filterRides();
         }
 
-        async function logout() {
-            await _supabase.auth.signOut();
-            location.reload();
-        }
+        async function logout() { await _supabase.auth.signOut(); location.reload(); }
     </script>
 </body>
 </html>
