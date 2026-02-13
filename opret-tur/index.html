@@ -18,7 +18,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg-color); color: var(--primary); padding-bottom: 4rem; padding-top: 70px; }
         
-        /* STICKY HEADER */
+        /* STICKY HEADER & WIZARD STEPS */
         .sticky-header {
             position: fixed; top: 0; left: 0; right: 0; height: 70px;
             background: white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
@@ -26,7 +26,15 @@
             padding: 0 2rem; z-index: 1000;
         }
         .header-logo { font-size: 1.5rem; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
-        .header-step { font-weight: 600; color: var(--text-main); background: #F1F5F9; padding: 6px 16px; border-radius: 20px; font-size: 0.9rem; }
+        
+        .wizard-steps { display: flex; align-items: center; gap: 8px; }
+        .w-step { display: flex; align-items: center; gap: 8px; color: var(--text-light); font-weight: 600; font-size: 0.95rem; transition: 0.3s; }
+        .w-step.active, .w-step.completed { color: var(--primary); }
+        .w-circle { width: 28px; height: 28px; border-radius: 50%; background: #E2E8F0; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; transition: 0.3s; }
+        .w-step.active .w-circle, .w-step.completed .w-circle { background: var(--primary); color: white; }
+        .w-line { width: 35px; height: 3px; background: #E2E8F0; border-radius: 2px; transition: 0.3s; }
+        .w-line.completed { background: var(--primary); }
+        
         .header-co2 { font-weight: 700; color: var(--success); font-size: 0.95rem; display: flex; align-items: center; gap: 6px; }
         .header-co2 span { background: rgba(16, 185, 129, 0.1); padding: 4px 10px; border-radius: 8px; }
 
@@ -34,18 +42,21 @@
         
         .card { background: white; border-radius: 20px; padding: 2.5rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); margin-bottom: 2rem; }
         
-        .layout-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 3rem; }
-        @media (max-width: 850px) { .layout-grid { grid-template-columns: 1fr; gap: 2rem; } }
+        .layout-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 3rem; transition: grid-template-columns 0.3s ease; }
+        .layout-grid.full-width { grid-template-columns: 1fr; }
+        @media (max-width: 850px) { .layout-grid, .layout-grid.full-width { grid-template-columns: 1fr; gap: 2rem; } }
         
-        .right-col { position: sticky; top: 100px; height: fit-content; }
+        .right-col { position: sticky; top: 100px; height: fit-content; transition: opacity 0.3s; }
         
-        /* WIZARD STEPS */
+        /* WIZARD CONTAINERS */
         .step-container { display: none; animation: fadeIn 0.3s ease-in-out; }
         .step-container.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        h2 { font-size: 1.8rem; margin-bottom: 1.5rem; color: var(--primary); }
+        h2 { font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--primary); }
+        .step-desc { color: var(--text-light); margin-bottom: 2rem; font-size: 0.95rem; line-height: 1.5; }
         .section-title { font-size: 1.1rem; font-weight: 700; margin: 1.5rem 0 0.8rem 0; color: var(--primary); border-bottom: 2px solid #F1F5F9; padding-bottom: 8px; }
+        
         .form-group { margin-bottom: 1rem; position: relative; }
         label { display: block; font-size: 0.9rem; color: var(--text-light); margin-bottom: 0.4rem; font-weight: 500; }
         input, select, textarea { width: 100%; padding: 12px 16px; border: 1px solid #E2E8F0; border-radius: 12px; font-size: 1rem; background: #F8FAFC; transition: border 0.2s; }
@@ -54,18 +65,25 @@
         .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; text-align: center; transition: all 0.2s; }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2); }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-accent { background: var(--accent); color: white; margin-bottom: 10px; }
-        .btn-outline { background: transparent; border: 2px solid #E2E8F0; color: var(--text-light); }
+        .btn-accent { background: var(--accent); color: white; }
+        .btn-outline { background: transparent; border: 2px solid #E2E8F0; color: var(--text-main); }
         .btn-outline:hover { background: #F8FAFC; box-shadow: none; transform: none; }
         .btn-small { padding: 8px 12px; font-size: 0.9rem; width: auto; display: inline-block; }
+        .nav-buttons { display: flex; gap: 15px; margin-top: 2.5rem; border-top: 1px solid #E2E8F0; padding-top: 2rem; }
+
+        /* CALENDAR GRID */
+        .calendar-wrapper { border: 1px solid #E2E8F0; border-radius: 16px; padding: 15px; background: white; margin-bottom: 2rem; }
+        .calendar-scroll { max-height: 280px; overflow-y: auto; padding-right: 5px; }
+        .calendar-scroll::-webkit-scrollbar { width: 6px; }
+        .calendar-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; }
         
-        /* NAVIGATION BUTTONS */
-        .nav-buttons { display: flex; gap: 15px; margin-top: 2rem; border-top: 1px solid #E2E8F0; padding-top: 2rem; }
-        
-        /* DATE LIST UI */
-        .date-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1rem; }
-        .date-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; font-weight: 600; }
-        .date-item button { background: none; border: none; color: var(--danger); font-weight: bold; cursor: pointer; padding: 5px; }
+        .date-box { padding: 12px 5px; border: 2px solid #F1F5F9; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.2s; background: #F8FAFC; user-select: none; }
+        .date-box:hover { border-color: var(--accent); background: white; }
+        .date-box.selected { background: var(--primary); border-color: var(--primary); color: white; transform: scale(0.95); }
+        .date-box .day-name { display: block; font-size: 0.75rem; text-transform: uppercase; opacity: 0.8; font-weight: 600; }
+        .date-box .day-num { display: block; font-size: 1.5rem; font-weight: 900; margin: 2px 0; }
+        .date-box .month-name { display: block; font-size: 0.8rem; font-weight: 500; }
         
         .suggestions-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #E2E8F0; border-radius: 12px; max-height: 250px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); margin-top: 5px; }
         .suggestion-item { padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #F1F5F9; display: flex; flex-direction: column; gap: 4px; }
@@ -77,34 +95,36 @@
         .price-selector { display: flex; align-items: center; justify-content: space-between; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 5px; }
         .price-btn { width: 40px; height: 40px; border-radius: 8px; border: none; background: white; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-size: 1.2rem; }
         .price-value { font-weight: 800; font-size: 1.2rem; }
+        .rec-price-text { font-size: 0.8rem; color: var(--text-light); margin-top: 6px; text-align: right; }
         
-        .switch-row { display: flex; justify-content: space-between; align-items: center; padding: 14px; border: 1px solid #E2E8F0; border-radius: 12px; margin-bottom: 10px; background: white; }
-        .switch-info { display: flex; flex-direction: column; }
-        .switch-title { font-weight: 700; color: var(--primary); }
-        .switch-sub { font-size: 0.85rem; color: var(--text-light); margin-top: 2px; }
+        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .switch-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border: 1px solid #E2E8F0; border-radius: 12px; background: white; }
+        .switch-info { display: flex; flex-direction: column; padding-right: 10px; }
+        .switch-title { font-weight: 700; color: var(--primary); font-size: 0.95rem;}
+        .switch-sub { font-size: 0.75rem; color: var(--text-light); margin-top: 2px; line-height: 1.2;}
         
-        .toggle { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+        .toggle { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
         .toggle input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 24px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
         input:checked + .slider { background-color: var(--accent); }
         input:checked + .slider.pink { background-color: #EC4899; }
-        input:checked + .slider:before { transform: translateX(20px); }
+        input:checked + .slider:before { transform: translateX(18px); }
         
         .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
         .rule-btn { padding: 12px; border-radius: 12px; border: 1px solid; text-align: center; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
         .rule-true { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: var(--primary); }
         .rule-false { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #64748B; }
         
-        #map { width: 100%; height: 350px; border-radius: 16px; border: 1px solid #E2E8F0; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .info-card { background: #F8FAFC; padding: 1.5rem; border-radius: 16px; border: 1px solid #E2E8F0; display: none; }
-        .info-card.active { display: block; animation: fadeIn 0.4s ease; }
+        #map { width: 100%; height: 320px; border-radius: 16px; border: 1px solid #E2E8F0; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .info-card { background: #F8FAFC; padding: 1.5rem; border-radius: 16px; border: 1px solid #E2E8F0; }
         
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.95rem; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.95rem; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px; }
+        .info-row:last-of-type { border-bottom: none; }
         .info-row span:first-child { color: var(--text-light); }
         .info-row span:last-child { font-weight: 700; color: var(--primary); }
         
-        .payout-highlight { margin-top: 15px; padding: 20px; border-radius: 12px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05)); border: 1px solid rgba(16, 185, 129, 0.3); text-align: center; }
+        .payout-highlight { margin-top: 10px; padding: 20px; border-radius: 12px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05)); border: 1px solid rgba(16, 185, 129, 0.3); text-align: center; }
         .payout-highlight .gebyr-badge { display: inline-block; background: var(--success); color: white; font-size: 0.75rem; font-weight: 800; padding: 4px 8px; border-radius: 20px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
         .payout-highlight .amount { font-size: 1.8rem; font-weight: 900; color: var(--primary); }
         .payout-highlight .sub { font-size: 0.85rem; color: var(--text-light); margin-top: 4px;}
@@ -122,7 +142,15 @@
 
     <header class="sticky-header">
         <div class="header-logo">HoppOn</div>
-        <div class="header-step" id="stepIndicator">Trin 1 af 3</div>
+        
+        <div class="wizard-steps">
+            <div class="w-step active" id="wStep1"><div class="w-circle">1</div><span>Rute</span></div>
+            <div class="w-line" id="wLine1"></div>
+            <div class="w-step" id="wStep2"><div class="w-circle">2</div><span>Tid</span></div>
+            <div class="w-line" id="wLine2"></div>
+            <div class="w-step" id="wStep3"><div class="w-circle">3</div><span>Detaljer</span></div>
+        </div>
+
         <div class="header-co2">
             🌱 <span><strong id="co2Value">0.0</strong> kg CO₂ sparet*</span>
         </div>
@@ -130,12 +158,14 @@
 
     <div class="container" id="mainAppContainer" style="display:none;">
         <div class="card" id="createRideForm">
-            <div class="layout-grid">
+            <div class="layout-grid" id="mainGrid">
                 
                 <div class="left-col">
                     
                     <div id="step1" class="step-container active">
                         <h2>Hvor skal du hen?</h2>
+                        <p class="step-desc">Vælg din start- og slutdestination. Tilføj mellemstops, hvis du vil samle passagerer op på vejen.</p>
+                        
                         <div class="section-title" style="margin-top:0;">Ruten</div>
                         <div class="form-group">
                             <label>Fra</label>
@@ -152,44 +182,49 @@
                             <div id="destSuggestions" class="suggestions-list"></div>
                         </div>
                         
+                        <div class="switch-row" style="margin-top: 1.5rem;">
+                            <div class="switch-info"><span class="switch-title">Kører du via færge?</span><span class="switch-sub">Ruten krydser vandet via Kattegat</span></div>
+                            <label class="toggle"><input type="checkbox" id="swFerry" onchange="currentPrice = 0; calculateRoute()"><span class="slider"></span></label>
+                        </div>
+
                         <div class="nav-buttons" style="justify-content: flex-end;">
-                            <button class="btn btn-accent" style="width: auto; padding: 14px 30px;" onclick="goToStep(2)">Næste: Vælg Tidspunkt &rarr;</button>
+                            <button class="btn btn-accent" style="width: auto; padding: 14px 40px;" onclick="goToStep(2)">Næste trin &rarr;</button>
                         </div>
                     </div>
 
                     <div id="step2" class="step-container">
                         <h2>Hvornår kører du?</h2>
-                        <p style="color: var(--text-light); margin-bottom: 1.5rem;">Tilføj en eller flere datoer, hvis du kører turen flere gange.</p>
+                        <p class="step-desc">Vælg de datoer, du gerne vil køre turen. Du kan sagtens klikke og vælge flere! Angiv derefter dit afgangstidspunkt nederst.</p>
                         
-                        <div class="section-title" style="margin-top:0;">Afgangstid</div>
+                        <div class="section-title" style="margin-top:0;">Vælg datoer</div>
+                        <div class="calendar-wrapper">
+                            <div class="calendar-scroll">
+                                <div class="calendar-grid" id="calendarGrid">
+                                    </div>
+                            </div>
+                        </div>
+                        
+                        <div class="section-title">Afgangstidspunkt</div>
                         <div class="form-group">
-                            <label>Fast afgangstidspunkt (gælder alle valgte datoer)</label>
-                            <input type="time" id="rideTime">
+                            <label>Hvornår kører du fra start-destinationen?</label>
+                            <input type="time" id="rideTime" style="max-width: 200px;" onchange="updateTimes()">
                         </div>
 
-                        <div class="section-title">Datoer</div>
-                        <div id="datesContainer" class="date-list">
-                            </div>
-                        
-                        <div style="display: flex; gap: 10px;">
-                            <input type="date" id="newDateInput" style="flex: 1;">
-                            <button class="btn btn-outline btn-small" onclick="addNewDate()" style="margin: 0; width: auto;">+ Tilføj Dato</button>
-                        </div>
-                        
                         <div class="nav-buttons">
                             <button class="btn btn-outline" style="flex: 1; margin: 0;" onclick="goToStep(1)">&larr; Tilbage</button>
-                            <button class="btn btn-accent" style="flex: 2; margin: 0;" onclick="goToStep(3)">Næste: Detaljer &rarr;</button>
+                            <button class="btn btn-accent" style="flex: 2; margin: 0;" onclick="goToStep(3)">Næste trin &rarr;</button>
                         </div>
                     </div>
 
                     <div id="step3" class="step-container">
                         <h2>De sidste detaljer</h2>
+                        <p class="step-desc">Tilpas antallet af ledige pladser, fastsæt din pris, og angiv dine husregler for turen.</p>
                         
                         <div class="section-title" style="margin-top:0;">Pladser & Pris</div>
                         <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 15px;">
                             <div class="form-group">
-                                <label>Sæder</label>
-                                <input type="number" id="seatsInput" value="3" min="1" max="7" onchange="currentPrice = 0; calculateRoute(); updateCO2Display();">
+                                <label>Ledige Sæder</label>
+                                <input type="number" id="seatsInput" value="3" min="1" max="7" onchange="currentPrice = 0; calculateRoute()">
                             </div>
                             <div class="form-group">
                                 <label>Din Pris (kr)</label>
@@ -198,32 +233,31 @@
                                     <div class="price-value" id="priceDisplay">0</div>
                                     <button class="price-btn" onclick="adjustPrice(5)">+</button>
                                 </div>
+                                <div class="rec-price-text">Vi anbefaler <strong id="recPriceDisplay" style="color:var(--primary)">0</strong> kr <span style="color:var(--success); font-weight:bold;">(0 kr i gebyr)</span></div>
                             </div>
                         </div>
 
-                        <div class="section-title">Indstillinger</div>
-                        <div class="switch-row">
-                            <div class="switch-info"><span class="switch-title">Lynbooking</span><span class="switch-sub">Godkend automatisk</span></div>
-                            <label class="toggle"><input type="checkbox" id="swInstant"><span class="slider"></span></label>
-                        </div>
-                        <div class="switch-row">
-                            <div class="switch-info"><span class="switch-title">Færge</span><span class="switch-sub">Kørslen er via færgen</span></div>
-                            <label class="toggle"><input type="checkbox" id="swFerry" onchange="currentPrice = 0; calculateRoute()"><span class="slider"></span></label>
-                        </div>
-                        <div class="switch-row">
-                            <div class="switch-info"><span class="switch-title">Fleksibel</span><span class="switch-sub">Max 5 min. omvej</span></div>
-                            <label class="toggle"><input type="checkbox" id="swFlex" checked><span class="slider"></span></label>
-                        </div>
-                        <div class="switch-row">
-                            <div class="switch-info"><span class="switch-title">Komfort Garanti</span><span class="switch-sub">Max 2 på bagsædet</span></div>
-                            <label class="toggle"><input type="checkbox" id="swComfort"><span class="slider"></span></label>
-                        </div>
-                        <div class="switch-row" id="ladiesOnlyRow" style="display:none;">
-                            <div class="switch-info"><span class="switch-title">Ladies Only</span><span class="switch-sub">Kun for kvinder</span></div>
-                            <label class="toggle"><input type="checkbox" id="swLadies"><span class="slider pink"></span></label>
+                        <div class="section-title" style="margin-top:2rem;">Indstillinger</div>
+                        <div class="settings-grid">
+                            <div class="switch-row">
+                                <div class="switch-info"><span class="switch-title">Lynbooking</span><span class="switch-sub">Godkend automatisk</span></div>
+                                <label class="toggle"><input type="checkbox" id="swInstant"><span class="slider"></span></label>
+                            </div>
+                            <div class="switch-row">
+                                <div class="switch-info"><span class="switch-title">Fleksibel</span><span class="switch-sub">Max 5 min. omvej</span></div>
+                                <label class="toggle"><input type="checkbox" id="swFlex" checked><span class="slider"></span></label>
+                            </div>
+                            <div class="switch-row">
+                                <div class="switch-info"><span class="switch-title">Komfort Garanti</span><span class="switch-sub">Max 2 på bagsædet</span></div>
+                                <label class="toggle"><input type="checkbox" id="swComfort"><span class="slider"></span></label>
+                            </div>
+                            <div class="switch-row" id="ladiesOnlyRow" style="display:none;">
+                                <div class="switch-info"><span class="switch-title">Ladies Only</span><span class="switch-sub">Kun for kvinder</span></div>
+                                <label class="toggle"><input type="checkbox" id="swLadies"><span class="slider pink"></span></label>
+                            </div>
                         </div>
 
-                        <div class="section-title">Husregler</div>
+                        <div class="section-title" style="margin-top:2rem;">Husregler</div>
                         <div class="rules-grid">
                             <div class="rule-btn rule-true" id="ruleMusic" onclick="toggleRule('Music')"><span>✔️</span> Musik</div>
                             <div class="rule-btn rule-false" id="ruleSmoking" onclick="toggleRule('Smoking')"><span>❌</span> Rygning</div>
@@ -231,7 +265,7 @@
                             <div class="rule-btn rule-true" id="ruleKids" onclick="toggleRule('Kids')"><span>✔️</span> Børn</div>
                         </div>
 
-                        <div class="section-title">Besked til passagerer</div>
+                        <div class="section-title" style="margin-top:2rem;">Besked til passagerer</div>
                         <div class="form-group">
                             <textarea id="commentInput" rows="3" placeholder="Skriv lidt om opsamlingssted, plads i bagagerummet eller andet..."></textarea>
                         </div>
@@ -242,18 +276,28 @@
                     </div>
                 </div>
 
-                <div class="right-col">
+                <div class="right-col" id="rightColumn">
                     <div id="map"></div>
                     
                     <div class="info-card" id="infoCard">
                         <h3 style="margin-bottom: 15px; color: var(--primary); font-size: 1.2rem;">Tur Overblik</h3>
+                        
                         <div class="info-row">
-                            <span>Samlet distance:</span>
-                            <span id="distanceText">0 km</span>
+                            <span>Afgang:</span>
+                            <span id="departureText">--:--</span>
                         </div>
                         <div class="info-row">
-                            <span>Est. køretid:</span>
+                            <span>Est. ankomst:</span>
+                            <span id="arrivalText">--:--</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span>Køretid:</span>
                             <span id="durationText">0 t 0 m</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Samlet kørsel:</span>
+                            <span id="distanceText">0 km</span>
                         </div>
                         
                         <div class="payout-highlight">
@@ -290,18 +334,18 @@
         let currentUser = null;
         let map = null;
         let currentPrice = 0;
+        let recommendedPrice = 0;
         let cachedDistanceKm = 0;
         let cachedDurationMin = 0;
+        let crossesSeaGlobal = false;
+        
         let originCoords = null; 
         let destCoords = null;
         let waypoints = []; 
         let rules = { Music: true, Smoking: false, Pets: false, Kids: true };
         let searchTimeout = null;
-        
-        // Multi-date logic
         let selectedDates = [];
 
-        // Færgehavne
         const FERRY_AARHUS = [10.21396, 56.15720];
         const FERRY_ODDEN = [11.29615, 55.97330];
 
@@ -315,14 +359,15 @@
                 document.getElementById('mainAppContainer').style.display = 'block';
                 initMap();
                 
-                // Set default Date (Today) & Time (+1 hour)
+                // Sæt standardtid og generer kalender
                 const now = new Date();
+                document.getElementById('rideTime').value = new Date(now.getTime() + 3600000).toTimeString().substring(0,5);
+                
+                // Tilføj i dag som standard valgt
                 const todayStr = now.toISOString().split('T')[0];
                 selectedDates.push(todayStr);
-                renderDates();
-                
-                document.getElementById('newDateInput').min = todayStr;
-                document.getElementById('rideTime').value = new Date(now.getTime() + 3600000).toTimeString().substring(0,5);
+                generateCalendar();
+                updateTimes();
                 
             } else {
                 document.getElementById('mainAppContainer').style.display = 'block';
@@ -333,74 +378,131 @@
             setLoading(false);
         };
 
-        // --- WIZARD NAVIGATION ---
+        // --- WIZARD & UI NAVIGATION ---
         function goToStep(step) {
-            // Validation before leaving Step 1
             if (step === 2 && (!originCoords || !destCoords)) {
                 alert("Hov! Vælg venligst både en start- og slutdestination for at gå videre.");
                 return;
             }
-            // Validation before leaving Step 2
             if (step === 3 && selectedDates.length === 0) {
-                alert("Du skal vælge mindst én dato for din tur.");
+                alert("Du skal vælge mindst én dato i kalenderen for din tur.");
                 return;
             }
             
+            // Opdater containers
             document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
             document.getElementById('step' + step).classList.add('active');
             
-            document.getElementById('stepIndicator').innerText = `Trin ${step} af 3`;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Opdater Header Progress
+            document.querySelectorAll('.w-step').forEach((el, i) => {
+                el.classList.remove('active', 'completed');
+                if(i + 1 < step) el.classList.add('completed');
+                if(i + 1 === step) el.classList.add('active');
+            });
+            document.querySelectorAll('.w-line').forEach((el, i) => {
+                el.classList.remove('completed');
+                if(i + 1 < step) el.classList.add('completed');
+            });
+
+            // Layout justering (Skjul map/højre kolonne på Trin 2)
+            const rightCol = document.getElementById('rightColumn');
+            const mainGrid = document.getElementById('mainGrid');
             
-            // Show InfoCard only on step 3
-            if(step === 3) {
-                document.getElementById('infoCard').classList.add('active');
+            if (step === 2) {
+                rightCol.style.opacity = '0';
+                setTimeout(() => { 
+                    rightCol.style.display = 'none'; 
+                    mainGrid.classList.add('full-width'); 
+                }, 300);
             } else {
-                document.getElementById('infoCard').classList.remove('active');
+                mainGrid.classList.remove('full-width');
+                setTimeout(() => { 
+                    rightCol.style.display = 'block'; 
+                    setTimeout(() => { rightCol.style.opacity = '1'; if(map) map.resize(); }, 50);
+                }, 300);
             }
             
-            // Re-render map size as layout might shift slightly
-            if(map) setTimeout(() => map.resize(), 100);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // --- MULTI-DATE LOGIC ---
-        function renderDates() {
-            const container = document.getElementById('datesContainer');
+        // --- KALENDER GENERATOR ---
+        function generateCalendar() {
+            const container = document.getElementById('calendarGrid');
             container.innerHTML = '';
             
-            // Sort dates chronologically
-            selectedDates.sort();
+            const today = new Date();
+            today.setHours(0,0,0,0);
             
-            selectedDates.forEach((dateStr, index) => {
-                const dateObj = new Date(dateStr);
-                const displayDate = dateObj.toLocaleDateString('da-DK', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+            // Generer de næste 365 dage
+            for(let i = 0; i < 365; i++) {
+                const d = new Date(today);
+                d.setDate(today.getDate() + i);
                 
-                const div = document.createElement('div');
-                div.className = 'date-item';
-                div.innerHTML = `
-                    <span>📅 ${displayDate}</span>
-                    <button onclick="removeDate(${index})">Slet</button>
+                const dateStr = d.toISOString().split('T')[0]; // YYYY-MM-DD
+                
+                // Formater tekst til dansk
+                const dayName = d.toLocaleDateString('da-DK', {weekday: 'short'}).replace('.', '');
+                const dayNum = d.getDate();
+                const monthName = d.toLocaleDateString('da-DK', {month: 'short'}).replace('.', '');
+
+                const box = document.createElement('div');
+                box.className = 'date-box';
+                if (selectedDates.includes(dateStr)) box.classList.add('selected');
+                
+                box.innerHTML = `
+                    <span class="day-name">${dayName}</span>
+                    <span class="day-num">${dayNum}.</span>
+                    <span class="month-name">${monthName}</span>
                 `;
-                container.appendChild(div);
-            });
-        }
-        
-        function addNewDate() {
-            const input = document.getElementById('newDateInput');
-            const val = input.value;
-            if(!val) return;
-            if(selectedDates.includes(val)) {
-                alert("Denne dato er allerede tilføjet.");
-                return;
+                
+                box.onclick = () => {
+                    if(selectedDates.includes(dateStr)) {
+                        selectedDates = selectedDates.filter(ds => ds !== dateStr);
+                        box.classList.remove('selected');
+                    } else {
+                        selectedDates.push(dateStr);
+                        box.classList.add('selected');
+                    }
+                };
+                
+                container.appendChild(box);
             }
-            selectedDates.push(val);
-            renderDates();
-            input.value = ''; // clear input
         }
-        
-        function removeDate(index) {
-            selectedDates.splice(index, 1);
-            renderDates();
+
+        // --- TIDSBEREGNING ---
+        function updateTimes() {
+            const timeStr = document.getElementById('rideTime').value;
+            if(!timeStr) return;
+            
+            document.getElementById('departureText').innerText = timeStr;
+
+            if(cachedDurationMin > 0) {
+                const [hours, mins] = timeStr.split(':').map(Number);
+                const isFerry = document.getElementById('swFerry').checked;
+                
+                // Tillæg 90 minutter hvis færge
+                const ferryExtraMins = (isFerry && crossesSeaGlobal) ? 90 : 0; 
+                const totalMins = (hours * 60) + mins + cachedDurationMin + ferryExtraMins;
+
+                const arrivalHours = Math.floor(totalMins / 60) % 24;
+                const arrivalMins = totalMins % 60;
+                
+                document.getElementById('arrivalText').innerText = `${arrivalHours.toString().padStart(2, '0')}:${arrivalMins.toString().padStart(2, '0')}`;
+                
+                // Opdater også det visuelle varigheds-tekst
+                const totalDurH = Math.floor((cachedDurationMin + ferryExtraMins) / 60);
+                const totalDurM = (cachedDurationMin + ferryExtraMins) % 60;
+                document.getElementById('durationText').innerText = `${totalDurH} t ${totalDurM} m`;
+            }
+        }
+
+        // --- CO2 BEREGNING ---
+        function updateCO2Display() {
+            if(cachedDistanceKm === 0) return;
+            const seats = parseInt(document.getElementById('seatsInput').value) || 3;
+            // Som anmodet: Summen for alle 4 (sæder + chauffør)
+            const potentialCO2 = (cachedDistanceKm * 0.16) * (seats + 1);
+            document.getElementById('co2Value').innerText = potentialCO2.toFixed(1);
         }
 
         // --- AUTH & USER ---
@@ -421,9 +523,7 @@
             }
         }
 
-        function setLoading(isLoading) {
-            document.getElementById('loadingOverlay').style.display = isLoading ? 'flex' : 'none';
-        }
+        function setLoading(isLoading) { document.getElementById('loadingOverlay').style.display = isLoading ? 'flex' : 'none'; }
 
         function toggleRule(ruleName) {
             rules[ruleName] = !rules[ruleName];
@@ -438,7 +538,7 @@
             }
         }
 
-        // --- MAPBOX & GEOLOCATION ---
+        // --- MAPBOX FUNKTIONER ---
         function initMap() {
             if(map) return;
             map = new mapboxgl.Map({
@@ -529,13 +629,13 @@
             }
         });
 
-        // --- ROUTE & PRICE CALCULATION ---
+        // --- RUTE & PRIS BEREGNING ---
         async function calculateRoute() {
             if (!originCoords || !destCoords) return;
-            map.resize();
+            if(map) map.resize();
 
             const isFerry = document.getElementById('swFerry').checked;
-            const crossesSea = (originCoords.lng < 10.8 && destCoords.lng > 10.8) || (originCoords.lng > 10.8 && destCoords.lng < 10.8);
+            crossesSeaGlobal = (originCoords.lng < 10.8 && destCoords.lng > 10.8) || (originCoords.lng > 10.8 && destCoords.lng < 10.8);
             
             let totalDistance = 0;
             let totalDuration = 0;
@@ -545,7 +645,7 @@
             waypoints.forEach(wp => { if(wp.coords) allPoints.push(wp.coords); });
             allPoints.push(destCoords);
 
-            if (isFerry && crossesSea) {
+            if (isFerry && crossesSeaGlobal) {
                 const isEastbound = originCoords.lng < destCoords.lng;
                 const fStart = isEastbound ? {lng: FERRY_AARHUS[0], lat: FERRY_AARHUS[1]} : {lng: FERRY_ODDEN[0], lat: FERRY_ODDEN[1]};
                 const fEnd = isEastbound ? {lng: FERRY_ODDEN[0], lat: FERRY_ODDEN[1]} : {lng: FERRY_AARHUS[0], lat: FERRY_AARHUS[1]};
@@ -581,7 +681,7 @@
             } else {
                 const coordsString = allPoints.map(c => `${c.lng},${c.lat}`).join(';');
                 let url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordsString}?geometries=geojson&access_token=${MAPBOX_TOKEN}`;
-                if (!isFerry || !crossesSea) url += '&exclude=ferry';
+                if (!isFerry || !crossesSeaGlobal) url += '&exclude=ferry';
 
                 const res = await fetch(url);
                 const data = await res.json();
@@ -599,7 +699,7 @@
                 cachedDurationMin = Math.round(totalDuration);
                 
                 const seats = parseInt(document.getElementById('seatsInput').value) || 3;
-                const ferryCost = (isFerry && crossesSea) ? 249 : 0;
+                const ferryCost = (isFerry && crossesSeaGlobal) ? 249 : 0;
                 const maxPrice = Math.floor((cachedDistanceKm * 3.73 + ferryCost) / seats);
                 
                 if(currentPrice === 0 || currentPrice > maxPrice) {
@@ -607,27 +707,18 @@
                     if (recommended > 150) recommended = 150;
                     if (recommended < 20) recommended = 20;
                     recommended = Math.round(recommended / 5) * 5;
+                    
                     currentPrice = Math.min(recommended, maxPrice); 
+                    recommendedPrice = currentPrice;
                 }
                 
                 document.getElementById('distanceText').innerText = `${Math.round(cachedDistanceKm)} km`;
-                const hours = Math.floor(cachedDurationMin / 60);
-                const mins = cachedDurationMin % 60;
-                document.getElementById('durationText').innerText = `${hours} t ${mins} m`;
+                document.getElementById('recPriceDisplay').innerText = recommendedPrice;
                 
+                updateTimes();
                 updatePriceUI();
                 updateCO2Display();
             }
-        }
-
-        // CO2 Tæller til Header
-        function updateCO2Display() {
-            if(cachedDistanceKm === 0) return;
-            const seats = parseInt(document.getElementById('seatsInput').value) || 3;
-            // Antager +1 for chaufføren i Dart koden, men besparelsen er sparet biler pr. *passager*.
-            // Dvs. 3 pladser = 3 potentielt sparede biler.
-            const potentialCO2 = (cachedDistanceKm * 0.16) * seats;
-            document.getElementById('co2Value').innerText = potentialCO2.toFixed(1);
         }
 
         function drawRouteOnMap(routeGeojson, points, showFerryLine) {
@@ -687,13 +778,10 @@
             document.getElementById('payoutText').innerText = currentPrice;
         }
 
-        // --- SUBMIT: MULTIPLE RIDES ---
+        // --- SUBMIT ---
         async function submitRides() {
             if (!currentUser || !originCoords || !destCoords) {
                 alert("Fejl: Mangler rute-information."); return;
-            }
-            if (selectedDates.length === 0) {
-                alert("Fejl: Du skal vælge mindst én dato for din tur."); return;
             }
             
             setLoading(true);
@@ -702,12 +790,10 @@
                 city: wp.name, lat: wp.coords.lat, lng: wp.coords.lng
             }));
             
-            const timeStr = document.getElementById('rideTime').value; // HH:MM
+            const timeStr = document.getElementById('rideTime').value;
 
-            // Create an array of payloads, one for each date!
             const payloadsToInsert = selectedDates.map(dateStr => {
-                // Kombiner valgt dato "YYYY-MM-DD" og tid "HH:MM"
-                const dateTimeString = `${dateStr}T${timeStr}:00Z`; // BEMÆRK: Vi bruger Z (UTC) for konsistens.
+                const dateTimeString = `${dateStr}T${timeStr}:00Z`;
 
                 return {
                     driver_id: currentUser.id,
@@ -733,7 +819,6 @@
                 };
             });
 
-            // Indsæt hele arrayet af ture på én gang i Supabase
             const { error } = await _supabase.from('rides').insert(payloadsToInsert);
             
             if (error) {
@@ -742,7 +827,6 @@
                 alert(`Succes! Du har oprettet ${selectedDates.length} tur(e) 🚀`); 
                 location.reload(); 
             }
-            
             setLoading(false);
         }
 
