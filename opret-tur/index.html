@@ -27,12 +27,12 @@
         }
         .header-logo { font-size: 1.5rem; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
         
-        .wizard-steps { display: flex; align-items: center; gap: 8px; }
+        .wizard-steps { display: flex; align-items: center; gap: 4px; }
         .w-step { display: flex; align-items: center; gap: 8px; color: var(--text-light); font-weight: 600; font-size: 0.95rem; transition: 0.3s; }
         .w-step.active, .w-step.completed { color: var(--primary); }
-        .w-circle { width: 28px; height: 28px; border-radius: 50%; background: #E2E8F0; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; transition: 0.3s; }
+        .w-circle { width: 28px; height: 28px; border-radius: 50%; background: #E2E8F0; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; transition: 0.3s; font-weight: 700; color: var(--text-light); }
         .w-step.active .w-circle, .w-step.completed .w-circle { background: var(--primary); color: white; }
-        .w-line { width: 35px; height: 3px; background: #E2E8F0; border-radius: 2px; transition: 0.3s; }
+        .w-line { width: 40px; height: 3px; background: #E2E8F0; border-radius: 2px; transition: 0.3s; margin: 0 4px; }
         .w-line.completed { background: var(--primary); }
         
         .header-co2 { font-weight: 700; color: var(--success); font-size: 0.95rem; display: flex; align-items: center; gap: 6px; }
@@ -95,7 +95,7 @@
         .price-selector { display: flex; align-items: center; justify-content: space-between; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 5px; }
         .price-btn { width: 40px; height: 40px; border-radius: 8px; border: none; background: white; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-size: 1.2rem; }
         .price-value { font-weight: 800; font-size: 1.2rem; }
-        .rec-price-text { font-size: 0.8rem; color: var(--text-light); margin-top: 6px; text-align: right; }
+        .rec-price-text { font-size: 0.85rem; color: var(--text-light); margin-top: 8px; text-align: right; }
         
         .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .switch-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border: 1px solid #E2E8F0; border-radius: 12px; background: white; }
@@ -119,10 +119,14 @@
         #map { width: 100%; height: 320px; border-radius: 16px; border: 1px solid #E2E8F0; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .info-card { background: #F8FAFC; padding: 1.5rem; border-radius: 16px; border: 1px solid #E2E8F0; }
         
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.95rem; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px; }
+        .info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.95rem; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px; }
         .info-row:last-of-type { border-bottom: none; }
         .info-row span:first-child { color: var(--text-light); }
         .info-row span:last-child { font-weight: 700; color: var(--primary); }
+        
+        /* Redigerbar ankomsttid */
+        .editable-time { font-family: inherit; font-size: 1rem; font-weight: 700; color: var(--primary); background: transparent; border: 1px solid transparent; border-bottom: 2px dashed var(--accent); padding: 0 4px; width: auto; text-align: right; cursor: pointer; outline: none; transition: 0.2s; }
+        .editable-time:hover, .editable-time:focus { background: #EEF2FF; border-bottom: 2px solid var(--accent); border-radius: 4px 4px 0 0; }
         
         .payout-highlight { margin-top: 10px; padding: 20px; border-radius: 12px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05)); border: 1px solid rgba(16, 185, 129, 0.3); text-align: center; }
         .payout-highlight .gebyr-badge { display: inline-block; background: var(--success); color: white; font-size: 0.75rem; font-weight: 800; padding: 4px 8px; border-radius: 20px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
@@ -182,8 +186,8 @@
                             <div id="destSuggestions" class="suggestions-list"></div>
                         </div>
                         
-                        <div class="switch-row" style="margin-top: 1.5rem;">
-                            <div class="switch-info"><span class="switch-title">Kører du via færge?</span><span class="switch-sub">Ruten krydser vandet via Kattegat</span></div>
+                        <div class="switch-row" style="margin-top: 1.5rem; border-color: var(--accent);">
+                            <div class="switch-info"><span class="switch-title">Kører du via færge?</span><span class="switch-sub">Ruten krydser Kattegat (Giver automatisk +90 min)</span></div>
                             <label class="toggle"><input type="checkbox" id="swFerry" onchange="currentPrice = 0; calculateRoute()"><span class="slider"></span></label>
                         </div>
 
@@ -194,7 +198,7 @@
 
                     <div id="step2" class="step-container">
                         <h2>Hvornår kører du?</h2>
-                        <p class="step-desc">Vælg de datoer, du gerne vil køre turen. Du kan sagtens klikke og vælge flere! Angiv derefter dit afgangstidspunkt nederst.</p>
+                        <p class="step-desc">Vælg de datoer, du gerne vil køre turen. Du kan klikke for at vælge lige så mange du har lyst til! Angiv derefter dit afgangstidspunkt.</p>
                         
                         <div class="section-title" style="margin-top:0;">Vælg datoer</div>
                         <div class="calendar-wrapper">
@@ -206,7 +210,7 @@
                         
                         <div class="section-title">Afgangstidspunkt</div>
                         <div class="form-group">
-                            <label>Hvornår kører du fra start-destinationen?</label>
+                            <label>Hvornår kører du fra din start-destination?</label>
                             <input type="time" id="rideTime" style="max-width: 200px;" onchange="updateTimes()">
                         </div>
 
@@ -224,7 +228,7 @@
                         <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 15px;">
                             <div class="form-group">
                                 <label>Ledige Sæder</label>
-                                <input type="number" id="seatsInput" value="3" min="1" max="7" onchange="currentPrice = 0; calculateRoute()">
+                                <input type="number" id="seatsInput" value="3" min="1" max="7" onchange="currentPrice = 0; calculateRoute();">
                             </div>
                             <div class="form-group">
                                 <label>Din Pris (kr)</label>
@@ -286,9 +290,10 @@
                             <span>Afgang:</span>
                             <span id="departureText">--:--</span>
                         </div>
-                        <div class="info-row">
-                            <span>Est. ankomst:</span>
-                            <span id="arrivalText">--:--</span>
+                        
+                        <div class="info-row" style="align-items: center;">
+                            <span>Est. ankomst (klik for at rette):</span>
+                            <input type="time" id="arrivalTimeInput" class="editable-time">
                         </div>
                         
                         <div class="info-row">
@@ -332,6 +337,7 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let currentUser = null;
+        let currentUserCarDetails = null; // GEM BILEN HER TIL DB
         let map = null;
         let currentPrice = 0;
         let recommendedPrice = 0;
@@ -359,11 +365,10 @@
                 document.getElementById('mainAppContainer').style.display = 'block';
                 initMap();
                 
-                // Sæt standardtid og generer kalender
+                // Standardtid til +1 time
                 const now = new Date();
                 document.getElementById('rideTime').value = new Date(now.getTime() + 3600000).toTimeString().substring(0,5);
                 
-                // Tilføj i dag som standard valgt
                 const todayStr = now.toISOString().split('T')[0];
                 selectedDates.push(todayStr);
                 generateCalendar();
@@ -389,25 +394,20 @@
                 return;
             }
             
-            // Opdater containers
             document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
             document.getElementById('step' + step).classList.add('active');
             
-            // Opdater Header Progress
-            document.querySelectorAll('.w-step').forEach((el, i) => {
-                el.classList.remove('active', 'completed');
-                if(i + 1 < step) el.classList.add('completed');
-                if(i + 1 === step) el.classList.add('active');
-            });
-            document.querySelectorAll('.w-line').forEach((el, i) => {
-                el.classList.remove('completed');
-                if(i + 1 < step) el.classList.add('completed');
-            });
+            // Opdater Progress Bar Farver
+            document.getElementById('wStep1').className = step >= 1 ? 'w-step active' : 'w-step';
+            document.getElementById('wLine1').className = step >= 2 ? 'w-line completed' : 'w-line';
+            document.getElementById('wStep2').className = step >= 2 ? 'w-step active' : 'w-step';
+            document.getElementById('wLine2').className = step >= 3 ? 'w-line completed' : 'w-line';
+            document.getElementById('wStep3').className = step >= 3 ? 'w-step active' : 'w-step';
 
-            // Layout justering (Skjul map/højre kolonne på Trin 2)
             const rightCol = document.getElementById('rightColumn');
             const mainGrid = document.getElementById('mainGrid');
             
+            // Skjul kort på Trin 2
             if (step === 2) {
                 rightCol.style.opacity = '0';
                 setTimeout(() => { 
@@ -433,14 +433,12 @@
             const today = new Date();
             today.setHours(0,0,0,0);
             
-            // Generer de næste 365 dage
             for(let i = 0; i < 365; i++) {
                 const d = new Date(today);
                 d.setDate(today.getDate() + i);
                 
-                const dateStr = d.toISOString().split('T')[0]; // YYYY-MM-DD
+                const dateStr = d.toISOString().split('T')[0]; 
                 
-                // Formater tekst til dansk
                 const dayName = d.toLocaleDateString('da-DK', {weekday: 'short'}).replace('.', '');
                 const dayNum = d.getDate();
                 const monthName = d.toLocaleDateString('da-DK', {month: 'short'}).replace('.', '');
@@ -464,7 +462,6 @@
                         box.classList.add('selected');
                     }
                 };
-                
                 container.appendChild(box);
             }
         }
@@ -480,16 +477,16 @@
                 const [hours, mins] = timeStr.split(':').map(Number);
                 const isFerry = document.getElementById('swFerry').checked;
                 
-                // Tillæg 90 minutter hvis færge
+                // + 90 minutter hvis færgen krydser Kattegat
                 const ferryExtraMins = (isFerry && crossesSeaGlobal) ? 90 : 0; 
                 const totalMins = (hours * 60) + mins + cachedDurationMin + ferryExtraMins;
 
                 const arrivalHours = Math.floor(totalMins / 60) % 24;
                 const arrivalMins = totalMins % 60;
                 
-                document.getElementById('arrivalText').innerText = `${arrivalHours.toString().padStart(2, '0')}:${arrivalMins.toString().padStart(2, '0')}`;
+                // Opdater den redigerbare ankomsttid
+                document.getElementById('arrivalTimeInput').value = `${arrivalHours.toString().padStart(2, '0')}:${arrivalMins.toString().padStart(2, '0')}`;
                 
-                // Opdater også det visuelle varigheds-tekst
                 const totalDurH = Math.floor((cachedDurationMin + ferryExtraMins) / 60);
                 const totalDurM = (cachedDurationMin + ferryExtraMins) % 60;
                 document.getElementById('durationText').innerText = `${totalDurH} t ${totalDurM} m`;
@@ -500,7 +497,7 @@
         function updateCO2Display() {
             if(cachedDistanceKm === 0) return;
             const seats = parseInt(document.getElementById('seatsInput').value) || 3;
-            // Som anmodet: Summen for alle 4 (sæder + chauffør)
+            // Sum = distance * 0.16 * 4 (Hvor 4 er chauffør + passagerer)
             const potentialCO2 = (cachedDistanceKm * 0.16) * (seats + 1);
             document.getElementById('co2Value').innerText = potentialCO2.toFixed(1);
         }
@@ -518,8 +515,14 @@
 
         async function fetchUserProfile(userId) {
             const { data } = await _supabase.from('profiles').select('*').eq('id', userId).single();
-            if (data && data.gender === 'Kvinde') {
-                document.getElementById('ladiesOnlyRow').style.display = 'flex';
+            if (data) {
+                if (data.gender === 'Kvinde') {
+                    document.getElementById('ladiesOnlyRow').style.display = 'flex';
+                }
+                // Hent og gem bil-detaljerne fra profilen så de kan sendes med turen!
+                if (data.car_details) {
+                    currentUserCarDetails = typeof data.car_details === 'object' ? JSON.stringify(data.car_details) : data.car_details;
+                }
             }
         }
 
@@ -668,6 +671,7 @@
                 const data2 = await res2.json();
                 
                 if (data1.routes && data1.routes[0] && data2.routes && data2.routes[0]) {
+                    // Her tæller vi kun de kørte kilometer (færgeoverfarten er ekskluderet fra distancen)
                     totalDistance = (data1.routes[0].distance + data2.routes[0].distance) / 1000;
                     totalDuration = (data1.routes[0].duration + data2.routes[0].duration) / 60;
                     
@@ -790,10 +794,24 @@
                 city: wp.name, lat: wp.coords.lat, lng: wp.coords.lng
             }));
             
-            const timeStr = document.getElementById('rideTime').value;
+            // Hent den manuelle ankomsttid (hvis brugeren har ændret den)
+            const depTimeStr = document.getElementById('rideTime').value;
+            const arrTimeStr = document.getElementById('arrivalTimeInput').value;
 
             const payloadsToInsert = selectedDates.map(dateStr => {
-                const dateTimeString = `${dateStr}T${timeStr}:00Z`;
+                // Afgang
+                const depDateTimeString = `${dateStr}T${depTimeStr}:00Z`;
+
+                // Ankomst - håndter hvis ankomsten er efter midnat (næste dag)
+                const [depH, depM] = depTimeStr.split(':').map(Number);
+                const [arrH, arrM] = arrTimeStr.split(':').map(Number);
+                
+                const arrDateObj = new Date(depDateTimeString);
+                // Hvis ankomst-timen er mindre end afgang-timen, regner vi med det er næste dag
+                if (arrH < depH || (arrH === depH && arrM < depM)) {
+                    arrDateObj.setDate(arrDateObj.getDate() + 1);
+                }
+                arrDateObj.setUTCHours(arrH, arrM, 0, 0);
 
                 return {
                     driver_id: currentUser.id,
@@ -801,9 +819,11 @@
                     destination_city: document.getElementById('destInput').value,
                     origin_location: `POINT(${originCoords.lng} ${originCoords.lat})`,
                     destination_location: `POINT(${destCoords.lng} ${destCoords.lat})`,
-                    departure_time: new Date(dateTimeString).toISOString(),
+                    departure_time: new Date(depDateTimeString).toISOString(),
+                    arrival_time: arrDateObj.toISOString(),
                     seats_available: parseInt(document.getElementById('seatsInput').value),
                     price_dkk: currentPrice,
+                    car_model: currentUserCarDetails, // INJICERER BIL-DATA HER!
                     status: 'active',
                     is_ferry: document.getElementById('swFerry').checked,
                     instant_booking: document.getElementById('swInstant').checked,
@@ -825,7 +845,7 @@
                 alert("Fejl ved oprettelse: " + error.message);
             } else { 
                 alert(`Succes! Du har oprettet ${selectedDates.length} tur(e) 🚀`); 
-                location.reload(); 
+                window.location.href = "https://hoppon.dk"; 
             }
             setLoading(false);
         }
