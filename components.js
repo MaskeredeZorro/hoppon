@@ -3,24 +3,22 @@
 class HoppOnHeader extends HTMLElement {
     connectedCallback() {
         this.innerHTML = `
-            <header>
-                <a href="/" class="header-logo">
-                    <img src="https://i.imgur.com/4oGYz8n.png" alt="HoppOn Icon">
-                    HoppOn
-                </a>
-                <nav class="nav-links">
-                    <a href="/lift" class="nav-link">Find lift</a>
-                    <a href="/opret-tur" class="nav-link hide-mobile">Udbyd tur</a>
-                    <a href="/opret-profil" class="nav-link hide-mobile">Opret profil</a>
-                    
-                    <a href="/login" class="nav-btn-login">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        Log ind
+            <header class="glass-header">
+                <div class="header-container">
+                    <a href="/" class="logo">
+                        <img src="https://i.imgur.com/4oGYz8n.png" alt="HoppOn Samkørsel Logo">
+                        HoppOn
                     </a>
-                </nav>
+                    <nav class="desktop-nav">
+                        <a href="/lift">Find lift</a>
+                        <a href="/opret-tur">Udbyd tur</a>
+                        <a href="/hvordan-det-virker">Sådan virker det</a>
+                    </nav>
+                    <div class="auth-buttons">
+                        <a href="/login" class="btn-ghost">Log ind</a>
+                        <a href="/opret-profil" class="btn-primary-small">Opret profil</a>
+                    </div>
+                </div>
             </header>
         `;
     }
@@ -29,20 +27,47 @@ class HoppOnHeader extends HTMLElement {
 class HoppOnFooter extends HTMLElement {
     connectedCallback() {
         this.innerHTML = `
-            <footer>
-                <div class="footer-links">
-                    <a href="/privacy_policy">Privatlivspolitik</a>
-                    <a href="/toc">Handelsbetingelser</a>
-                    <a href="#">Support</a>
+            <footer class="site-footer">
+                <div class="footer-grid">
+                    <div class="footer-brand">
+                        <img src="https://i.imgur.com/4oGYz8n.png" alt="HoppOn Ikon" class="footer-logo">
+                        <h3>HoppOn Samkørsel</h3>
+                        <p>Danmarks nye, gebyrfrie samkørselsplatform. Rejs grønnere, billigere og sjovere – uden mellemmænd der tager en bid af kagen.</p>
+                    </div>
+                    
+                    <div class="footer-links">
+                        <h4>Kør med HoppOn</h4>
+                        <a href="/lift">Find et lift</a>
+                        <a href="/opret-tur">Tilbyd et lift</a>
+                        <a href="/pendler">For pendlere</a>
+                        <a href="/priser">Priser (0 kr. i gebyr)</a>
+                    </div>
+
+                    <div class="footer-links">
+                        <h4>Populære Ruter</h4>
+                        <a href="/lift?fra=Aarhus&til=København">Samkørsel Aarhus - København</a>
+                        <a href="/lift?fra=Aalborg&til=Odense">Samkørsel Aalborg - Odense</a>
+                        <a href="/lift?fra=København&til=Odense">Samkørsel København - Odense</a>
+                        <a href="/lift?fra=Esbjerg&til=Aarhus">Samkørsel Esbjerg - Aarhus</a>
+                    </div>
+
+                    <div class="footer-links">
+                        <h4>Hjælp & Vilkår</h4>
+                        <a href="/faq">Support & FAQ</a>
+                        <a href="/toc">Handelsbetingelser</a>
+                        <a href="/privacy_policy">Privatlivspolitik</a>
+                        <a href="/kontakt">Kontakt os</a>
+                    </div>
                 </div>
-                <div class="footer-copy">
-                    &copy; 2026 HoppOn. <br> Powered by Stripe & Mapbox.
+                
+                <div class="footer-bottom">
+                    <p>&copy; 2026 HoppOn ApS. Alle rettigheder forbeholdes. CVR: XXXXXXXX</p>
+                    <div class="tech-stack">Powered by Stripe & Mapbox</div>
                 </div>
             </footer>
         `;
     }
 }
 
-// Her fortæller vi browseren, at vores nye tags findes
 customElements.define('hoppon-header', HoppOnHeader);
 customElements.define('hoppon-footer', HoppOnFooter);
