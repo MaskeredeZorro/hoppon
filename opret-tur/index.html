@@ -73,7 +73,6 @@
         .rule-true { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: var(--primary); }
         .rule-false { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #64748B; }
         
-        /* Kortet og info-boksen er nu synlige fra start */
         #map { width: 100%; height: 350px; border-radius: 16px; border: 1px solid #E2E8F0; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .info-card { background: #F8FAFC; padding: 1.5rem; border-radius: 16px; border: 1px solid #E2E8F0; }
         
@@ -138,7 +137,7 @@
 
                     <div class="section-title">Pladser & Pris</div>
                     <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 15px;">
-                        <div class="form-group"><label>Sæder</label><input type="number" id="seatsInput" value="3" min="1" max="7" onchange="adjustPrice(0)"></div>
+                        <div class="form-group"><label>Sæder</label><input type="number" id="seatsInput" value="3" min="1" max="7" onchange="currentPrice = 0; calculateRoute()"></div>
                         <div class="form-group">
                             <label>Din Pris (kr)</label>
                             <div class="price-selector">
@@ -155,8 +154,8 @@
                         <label class="toggle"><input type="checkbox" id="swInstant"><span class="slider"></span></label>
                     </div>
                     <div class="switch-row">
-                        <div class="switch-info"><span class="switch-title">Færge</span><span class="switch-sub">Prisen er inkl. færge (+249 kr loft)</span></div>
-                        <label class="toggle"><input type="checkbox" id="swFerry" onchange="calculateRoute()"><span class="slider"></span></label>
+                        <div class="switch-info"><span class="switch-title">Færge</span><span class="switch-sub">Kørslen er via færgen (+249 kr loft)</span></div>
+                        <label class="toggle"><input type="checkbox" id="swFerry" onchange="currentPrice = 0; calculateRoute()"><span class="slider"></span></label>
                     </div>
                     <div class="switch-row">
                         <div class="switch-info"><span class="switch-title">Fleksibel</span><span class="switch-sub">Max 5 min. omvej</span></div>
@@ -200,10 +199,6 @@
                             <span>Est. køretid:</span>
                             <span id="durationText">0 t 0 m</span>
                         </div>
-                        <div class="info-row">
-                            <span>Skattefrit prisloft pr. sæde:</span>
-                            <span id="maxPriceText">0 kr.</span>
-                        </div>
                         
                         <div class="payout-highlight">
                             Din udbetaling: <span id="payoutText">0</span> kr. / passager
@@ -220,8 +215,6 @@
     <script>
         const SUPABASE_URL = 'https://xboklywxcozobvfrptpr.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_amqWmR5MrUSFHlniU2yp3Q_c8kUysEY'; 
-        
-        // HUSK: Dette er din nye, ubegrænsede token!
         const MAPBOX_TOKEN = 'pk.eyJ1IjoiaG9wcG9uIiwiYSI6ImNtbGpxd2dvNDAybmkzZXBnMnE3emFtY3oifQ.125QBf3ZNc7sCVxuBwnCnA';
         
         mapboxgl.accessToken = MAPBOX_TOKEN;
@@ -238,6 +231,7 @@
         let rules = { Music: true, Smoking: false, Pets: false, Kids: true };
         let searchTimeout = null;
 
+        // Færgehavne til Kattegat
         const FERRY_AARHUS = [10.21396, 56.15720];
         const FERRY_ODDEN = [11.29615, 55.97330];
 
@@ -309,10 +303,9 @@
             map = new mapboxgl.Map({
                 container: 'map',
                 style: 'mapbox://styles/mapbox/streets-v12',
-                center: [10.2039, 56.1629], // Centreret over Danmark
+                center: [10.2039, 56.1629],
                 zoom: 6
             });
-            // Sikrer at kortet fylder sin div ordentligt fra start
             setTimeout(() => map.resize(), 500);
         }
 
@@ -340,19 +333,14 @@
 
         function debouncedSearch(input, type) {
             clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                handleSearch(input, type);
-            }, 300);
+            searchTimeout = setTimeout(() => { handleSearch(input, type); }, 300);
         }
 
         async function handleSearch(input, type) {
             const query = input.value;
             const listEl = document.getElementById(type + 'Suggestions');
             
-            if (query.length < 2) {
-                listEl.style.display = 'none';
-                return;
-            }
+            if (query.length < 2) { listEl.style.display = 'none'; return; }
             
             try {
                 const optimizedQuery = encodeURIComponent(query + ", Denmark");
@@ -362,11 +350,7 @@
                 const data = await res.json();
                 
                 listEl.innerHTML = '';
-                
-                if(data.features.length === 0) {
-                    listEl.style.display = 'none';
-                    return;
-                }
+                if(data.features.length === 0) { listEl.style.display = 'none'; return; }
 
                 data.features.forEach(feat => {
                     const div = document.createElement('div');
@@ -376,35 +360,28 @@
                     const mainText = placeNameParts[0];
                     const subText = placeNameParts.slice(1).join(', ');
 
-                    div.innerHTML = `
-                        <span class="sugg-title">${mainText}</span>
-                        <span class="sugg-sub">${subText}</span>
-                    `;
+                    div.innerHTML = `<span class="sugg-title">${mainText}</span><span class="sugg-sub">${subText}</span>`;
                     
                     div.onclick = () => {
                         input.value = mainText; 
                         listEl.style.display = 'none';
                         
                         const coords = { lng: feat.center[0], lat: feat.center[1] };
-                        if (type === 'origin') originCoords = coords;
-                        else if (type === 'dest') destCoords = coords;
+                        if (type === 'origin') { originCoords = coords; currentPrice = 0; }
+                        else if (type === 'dest') { destCoords = coords; currentPrice = 0; }
                         else {
                             const wpId = parseInt(type.split('_')[1]);
                             const wp = waypoints.find(w => w.id === wpId);
-                            if(wp) { wp.coords = coords; wp.name = mainText; }
+                            if(wp) { wp.coords = coords; wp.name = mainText; currentPrice = 0; }
                         }
                         calculateRoute();
                     };
                     listEl.appendChild(div);
                 });
-                
                 listEl.style.display = 'block';
-            } catch(e) {
-                console.error("Mapbox Søgefejl:", e);
-            }
+            } catch(e) { console.error("Mapbox Søgefejl:", e); }
         }
 
-        // Skjul forslag når man klikker udenfor
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.form-group')) {
                 document.querySelectorAll('.suggestions-list').forEach(el => el.style.display = 'none');
@@ -413,60 +390,116 @@
 
         async function calculateRoute() {
             if (!originCoords || !destCoords) return;
-            
+            map.resize();
+
             const isFerry = document.getElementById('swFerry').checked;
             
-            let coordsArray = [originCoords];
-            waypoints.forEach(wp => { if(wp.coords) coordsArray.push(wp.coords); });
-            coordsArray.push(destCoords);
-
-            const coordsString = coordsArray.map(c => `${c.lng},${c.lat}`).join(';');
+            // Tjekker om rejsen overhovedet krydser havet mellem Jylland (vest for 10.8) og Sjælland (øst for 10.8)
+            const crossesSea = (originCoords.lng < 10.8 && destCoords.lng > 10.8) || (originCoords.lng > 10.8 && destCoords.lng < 10.8);
             
-            let url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordsString}?geometries=geojson&access_token=${MAPBOX_TOKEN}`;
-            if(!isFerry) url += '&exclude=ferry';
-
-            const res = await fetch(url);
-            const data = await res.json();
+            let totalDistance = 0;
+            let totalDuration = 0;
+            let routeGeojson = { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [] } };
             
-            if (data.routes && data.routes[0]) {
-                const route = data.routes[0];
-                cachedDistanceKm = route.distance / 1000;
-                cachedDurationMin = Math.round(route.duration / 60);
+            let allPoints = [originCoords];
+            waypoints.forEach(wp => { if(wp.coords) allPoints.push(wp.coords); });
+            allPoints.push(destCoords);
+
+            if (isFerry && crossesSea) {
+                // FÆRGE RUTE (To adskilte kørsler)
+                const isEastbound = originCoords.lng < destCoords.lng;
+                const fStart = isEastbound ? {lng: FERRY_AARHUS[0], lat: FERRY_AARHUS[1]} : {lng: FERRY_ODDEN[0], lat: FERRY_ODDEN[1]};
+                const fEnd = isEastbound ? {lng: FERRY_ODDEN[0], lat: FERRY_ODDEN[1]} : {lng: FERRY_AARHUS[0], lat: FERRY_AARHUS[1]};
                 
-                drawRouteOnMap(route.geometry, coordsArray, isFerry);
+                // Opdel evt. mellemstops så de hører til den rigtige landdel
+                let wpsLeg1 = [], wpsLeg2 = [];
+                waypoints.forEach(wp => {
+                    if (!wp.coords) return;
+                    if (isEastbound) { if (wp.coords.lng < 10.8) wpsLeg1.push(wp.coords); else wpsLeg2.push(wp.coords); } 
+                    else { if (wp.coords.lng > 10.8) wpsLeg1.push(wp.coords); else wpsLeg2.push(wp.coords); }
+                });
                 
-                // SKAT logik (3,73 kr pr km)
+                const coordsLeg1 = [originCoords, ...wpsLeg1, fStart].map(c => `${c.lng},${c.lat}`).join(';');
+                const coordsLeg2 = [fEnd, ...wpsLeg2, destCoords].map(c => `${c.lng},${c.lat}`).join(';');
+                
+                const url1 = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordsLeg1}?geometries=geojson&access_token=${MAPBOX_TOKEN}`;
+                const url2 = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordsLeg2}?geometries=geojson&access_token=${MAPBOX_TOKEN}`;
+                
+                const [res1, res2] = await Promise.all([fetch(url1), fetch(url2)]);
+                const data1 = await res1.json();
+                const data2 = await res2.json();
+                
+                if (data1.routes && data1.routes[0] && data2.routes && data2.routes[0]) {
+                    totalDistance = (data1.routes[0].distance + data2.routes[0].distance) / 1000;
+                    totalDuration = (data1.routes[0].duration + data2.routes[0].duration) / 60;
+                    
+                    // Brug en MultiLineString, så ruterne ikke tegner en streg over vandet automatisk
+                    routeGeojson.geometry.type = 'MultiLineString';
+                    routeGeojson.geometry.coordinates = [
+                        data1.routes[0].geometry.coordinates,
+                        data2.routes[0].geometry.coordinates
+                    ];
+                    drawRouteOnMap(routeGeojson, allPoints, true); // true = tegn blå stiplet linje
+                }
+            } else {
+                // STANDARD KØRSEL UDEN FÆRGE
+                const coordsString = allPoints.map(c => `${c.lng},${c.lat}`).join(';');
+                let url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordsString}?geometries=geojson&access_token=${MAPBOX_TOKEN}`;
+                if (!isFerry || !crossesSea) url += '&exclude=ferry';
+
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if (data.routes && data.routes[0]) {
+                    totalDistance = data.routes[0].distance / 1000;
+                    totalDuration = data.routes[0].duration / 60;
+                    routeGeojson.geometry = data.routes[0].geometry;
+                    drawRouteOnMap(routeGeojson, allPoints, false);
+                }
+            }
+            
+            if (totalDistance > 0) {
+                cachedDistanceKm = totalDistance;
+                cachedDurationMin = Math.round(totalDuration);
+                
                 const seats = parseInt(document.getElementById('seatsInput').value) || 3;
-                const ferryCost = isFerry ? 249 : 0;
+                const ferryCost = (isFerry && crossesSea) ? 249 : 0;
                 const maxPrice = Math.floor((cachedDistanceKm * 3.73 + ferryCost) / seats);
                 
-                // Sæt en fornuftig standardpris
+                // Hvis vi skal foreslå en ny pris
                 if(currentPrice === 0 || currentPrice > maxPrice) {
-                    currentPrice = Math.min(Math.floor(cachedDistanceKm * 1.0), maxPrice); 
-                    if(currentPrice < 20) currentPrice = 20;
+                    let recommended = Math.floor(cachedDistanceKm * 1.0); // 1 kr pr. km.
+                    
+                    // Loftet for den foreslåede pris (og bund)
+                    if (recommended > 150) recommended = 150;
+                    if (recommended < 20) recommended = 20;
+                    
+                    // Afrunding til nærmeste 5'er (f.eks. 143 bliver 145)
+                    recommended = Math.round(recommended / 5) * 5;
+                    
+                    // Sørg for at den afrundede pris ikke overstiger SKATs faktiske juridiske loft
+                    currentPrice = Math.min(recommended, maxPrice); 
                 }
                 
                 document.getElementById('distanceText').innerText = `${Math.round(cachedDistanceKm)} km`;
                 const hours = Math.floor(cachedDurationMin / 60);
                 const mins = cachedDurationMin % 60;
                 document.getElementById('durationText').innerText = `${hours} t ${mins} m`;
-                document.getElementById('maxPriceText').innerText = `${maxPrice} kr.`;
                 
                 updatePriceUI();
             }
         }
 
         function drawRouteOnMap(routeGeojson, points, showFerryLine) {
-            // FIX: Fjern altid LAYERS før du fjerner SOURCES, for at undgå Mapbox crash!
+            // ALTID slet layers før sources for at undgå Mapbox error
             if (map.getLayer('route')) map.removeLayer('route');
             if (map.getLayer('ferry-line')) map.removeLayer('ferry-line');
-            
             if (map.getSource('route')) map.removeSource('route');
             if (map.getSource('ferry-line')) map.removeSource('ferry-line');
             
             document.querySelectorAll('.mapboxgl-marker').forEach(m => m.remove());
 
-            // Tilføj den sorte hovedrute
+            // Tegn selve kørselsruten
             map.addSource('route', { type: 'geojson', data: { type: 'Feature', properties: {}, geometry: routeGeojson } });
             map.addLayer({
                 id: 'route', type: 'line', source: 'route',
@@ -474,7 +507,7 @@
                 paint: { 'line-color': '#0F172A', 'line-width': 4 }
             });
 
-            // Tilføj evt. den blå stiplede færgelinje
+            // Tegn den visuelle færgelinje hvis bedt om det
             if (showFerryLine) {
                 map.addSource('ferry-line', {
                     type: 'geojson',
@@ -487,13 +520,13 @@
                 });
             }
 
-            // Placer pins
+            // Markører for adresser
             points.forEach((p, idx) => {
                 const color = idx === 0 ? '#10B981' : (idx === points.length - 1 ? '#EF4444' : '#6366F1');
                 new mapboxgl.Marker({ color: color }).setLngLat([p.lng, p.lat]).addTo(map);
             });
 
-            // Zoom kortet ind så ruten passer
+            // Zoom og center
             const bounds = new mapboxgl.LngLatBounds(points[0], points[0]);
             points.forEach(p => bounds.extend([p.lng, p.lat]));
             map.fitBounds(bounds, { padding: 40 });
@@ -503,12 +536,13 @@
             currentPrice += amt; 
             if(currentPrice < 20) currentPrice = 20; 
             
+            // SKAT's reelle loft regnes i baggrunden for at sikre ingen tager ulovligt meget
             const seats = parseInt(document.getElementById('seatsInput').value) || 3;
-            const ferryCost = document.getElementById('swFerry').checked ? 249 : 0;
+            const ferryCost = (document.getElementById('swFerry').checked) ? 249 : 0;
             const maxPrice = Math.floor((cachedDistanceKm * 3.73 + ferryCost) / seats);
             
             if (currentPrice > maxPrice) {
-                alert(`Prisen overstiger SKATs kørselssats (Max ca. ${maxPrice} kr).`);
+                alert(`Du har ramt grænsen! Du kan maksimalt tage ${maxPrice} kr. på denne tur (Skattefrit loft).`);
                 currentPrice = maxPrice;
             }
             updatePriceUI(); 
@@ -516,8 +550,8 @@
 
         function updatePriceUI() {
             document.getElementById('priceDisplay').innerText = currentPrice;
-            const platformFee = 15;
-            document.getElementById('payoutText').innerText = Math.max(0, currentPrice - platformFee);
+            // 0 kr gebyr, hele beløbet udbetales.
+            document.getElementById('payoutText').innerText = currentPrice;
         }
 
         async function submitRide() {
