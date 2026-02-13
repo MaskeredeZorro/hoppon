@@ -4,102 +4,128 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>Find et lift | HoppOn Samkørsel - 0 kr i gebyr</title>
-    <meta name="description" content="Find billige lift i hele Danmark. Spar penge på din rejse og mød nye mennesker. Ingen skjulte gebyrer - du betaler 100% til chaufføren.">
+    <title>Find et lift | HoppOn Samkørsel</title>
+    <meta name="description" content="Rejs billigere, grønnere og sjovere med HoppOn. Find samkørsel i hele Danmark uden skjulte gebyrer. Book dit sæde i dag!">
+    <meta name="keywords" content="samkørsel, lift, køre sammen, delebil, billig rejse, danmark, færge">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --brand: #0F172A; --accent: #6366F1; --accent-hover: #4F46E5;
-            --bg-color: #F8FAFC; --surface: #FFFFFF; --text-main: #334155;
-            --text-muted: #64748B; --border: #E2E8F0; --success: #10B981; --pink: #EC4899;
+            --brand: #0F172A;         /* Deep Slate */
+            --accent: #6366F1;        /* Indigo */
+            --accent-hover: #4F46E5;
+            --bg-color: #F8FAFC;      /* Light Gray/Blue */
+            --surface: #FFFFFF;
+            --text-main: #334155;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --pink: #EC4899;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; padding-top: 70px; }
+        body { background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; }
 
         /* HEADER */
-        header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 70px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .logo { font-size: 1.5rem; font-weight: 900; color: var(--accent); text-decoration: none; letter-spacing: -1px; }
-        .header-actions { display: flex; gap: 1rem; align-items: center; }
+        header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .logo { font-size: 1.5rem; font-weight: 900; color: var(--accent); letter-spacing: -0.5px; text-decoration: none; }
+        .header-actions { display: flex; gap: 1rem; align-items: center;}
         .user-greeting { font-weight: 600; color: var(--text-muted); font-size: 0.9rem; }
         
-        .btn-outline { padding: 8px 16px; border: 2px solid var(--border); border-radius: 12px; font-weight: 600; color: var(--brand); cursor: pointer; transition: 0.2s; background: transparent; }
-        .btn-primary { padding: 10px 20px; background: var(--brand); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-outline { padding: 8px 16px; border: 2px solid var(--border); border-radius: 12px; font-weight: 600; color: var(--brand); cursor: pointer; background: transparent; transition: 0.2s; }
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-primary { padding: 12px 24px; background: var(--brand); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .btn-primary:hover { background: var(--accent); }
 
-        /* HERO & FIXED SEARCH BAR */
+        /* HERO SØGNING - FIXET SØGEBAR */
         .hero { background: linear-gradient(135deg, var(--brand) 0%, #1e293b 100%); padding: 4rem 1rem; text-align: center; color: white; }
-        .hero h1 { font-size: 2.8rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: -1px; }
-        .hero p { color: #cbd5e1; font-size: 1.2rem; margin-bottom: 2.5rem; }
+        .hero h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .hero p { color: #cbd5e1; font-size: 1.1rem; margin-bottom: 2rem; }
         
-        .search-bar { background: var(--surface); padding: 0.6rem; border-radius: 20px; max-width: 900px; width: 100%; margin: 0 auto; display: flex; gap: 0.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); align-items: center; }
-        .search-group { flex: 1; min-width: 0; display: flex; align-items: center; background: #F1F5F9; border-radius: 14px; padding: 0 12px; border: 1px solid transparent; transition: 0.2s; }
-        .search-group:focus-within { border-color: var(--accent); background: white; }
-        .search-icon { color: var(--text-muted); margin-right: 8px; font-size: 1.2rem; }
-        .search-input { width: 100%; padding: 12px 4px; border: none; background: transparent; font-size: 1rem; font-weight: 500; color: var(--brand); outline: none; }
-        .search-btn { flex-shrink: 0; background: var(--accent); color: white; border: none; padding: 14px 2.5rem; border-radius: 14px; font-weight: 800; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+        .search-bar { background: var(--surface); padding: 0.5rem; border-radius: 16px; max-width: 800px; width: 100%; margin: 0 auto; display: flex; gap: 0.5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); }
+        .search-input { flex: 1; min-width: 0; padding: 12px 16px; border: 1px solid transparent; border-radius: 12px; background: #F1F5F9; font-size: 1rem; color: var(--brand); font-weight: 500; outline: none; }
+        .search-input:focus { border-color: var(--accent); background: white; }
+        .search-btn { flex-shrink: 0; background: var(--accent); color: white; border: none; padding: 0 2rem; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+        .search-btn:hover { background: var(--accent-hover); }
 
         @media (max-width: 768px) {
-            .search-bar { flex-direction: column; padding: 1rem; }
-            .search-group { width: 100%; }
-            .search-btn { width: 100%; }
+            .search-bar { flex-direction: column; background: transparent; box-shadow: none; }
+            .search-input { background: var(--surface); padding: 16px; }
+            .search-btn { padding: 16px; }
         }
 
-        /* LAYOUT */
-        .main-container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; display: grid; grid-template-columns: 320px 1fr; gap: 2.5rem; }
-        @media (max-width: 950px) { .main-container { grid-template-columns: 1fr; } }
+        /* MAIN LAYOUT */
+        .main-container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; display: grid; grid-template-columns: 300px 1fr; gap: 2rem; }
+        @media (max-width: 900px) { .main-container { grid-template-columns: 1fr; } }
 
-        /* FILTERS */
-        .filters { background: var(--surface); padding: 1.8rem; border-radius: 24px; border: 1px solid var(--border); position: sticky; top: 100px; height: fit-content; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .filter-header { font-size: 1.2rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-        .filter-group { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
-        .filter-label { font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; display: block; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        /* FILTER SIDEBAR */
+        .filters { background: var(--surface); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--border); position: sticky; top: 100px; height: fit-content; }
+        .filter-header { font-size: 1.2rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--brand); display: flex; justify-content: space-between; }
+        .filter-reset { font-size: 0.8rem; color: var(--accent); font-weight: 600; cursor: pointer; border: none; background: none; }
         
-        .price-val { font-size: 1.4rem; font-weight: 900; color: var(--accent); display: block; margin-bottom: 8px; }
+        .filter-group { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+        .filter-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .filter-label { font-weight: 700; font-size: 0.95rem; margin-bottom: 1rem; display: block; color: var(--brand); }
+        
+        .price-display { font-weight: 800; color: var(--accent); font-size: 1.2rem; margin-bottom: 0.5rem; display: block; }
         input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; }
 
-        .check-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; cursor: pointer; font-weight: 600; font-size: 0.95rem; }
-        .check-row input { width: 20px; height: 20px; accent-color: var(--accent); cursor: pointer; }
+        .filter-toggle { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; cursor: pointer; }
+        .filter-toggle span { font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+        .checkbox-custom { width: 20px; height: 20px; border: 2px solid #cbd5e1; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        input[type="checkbox"] { display: none; }
+        input[type="checkbox"]:checked + .checkbox-custom { background: var(--accent); border-color: var(--accent); }
+        input[type="checkbox"]:checked + .checkbox-custom::after { content: "✓"; color: white; font-size: 12px; font-weight: bold; }
 
-        /* RIDE CARDS (Ticket Style) */
-        .ride-list { display: flex; flex-direction: column; gap: 1.2rem; }
-        .ride-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 1.8rem; transition: 0.3s; cursor: pointer; position: relative; }
-        .ride-card:hover { border-color: var(--accent); box-shadow: 0 12px 20px -5px rgba(99, 102, 241, 0.1); transform: translateY(-3px); }
-        
-        .card-date { font-size: 0.8rem; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; display: block; letter-spacing: 1px; }
+        /* RIDE LIST */
+        .ride-list { display: flex; flex-direction: column; gap: 1rem; }
+        .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .results-count { font-weight: 700; color: var(--brand); font-size: 1.2rem; }
+
+        /* TICKET / RIDE CARD */
+        .ride-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; transition: 0.3s; cursor: pointer; position: relative; overflow: hidden; }
+        .ride-card:hover { border-color: var(--accent); box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.15); transform: translateY(-2px); }
         
         .timeline { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-        .time { font-size: 1.7rem; font-weight: 900; color: var(--brand); line-height: 1; }
-        .city { font-size: 1rem; font-weight: 700; color: var(--text-main); margin-top: 4px; display: block; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .time-box { display: flex; flex-direction: column; }
+        .time-box.right { text-align: right; }
+        .time { font-size: 1.5rem; font-weight: 900; color: var(--brand); letter-spacing: -0.5px; }
+        .city { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .route-path { flex: 1; margin: 0 2rem; position: relative; height: 2px; background: #E2E8F0; display: flex; justify-content: center; align-items: center; }
-        .route-path::before, .route-path::after { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 50%; background: white; border: 2px solid #E2E8F0; }
-        .route-path::before { left: -5px; } .route-path::after { right: -5px; }
-        .dur-badge { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); background: var(--bg-color); padding: 4px 10px; border-radius: 12px; position: absolute; top: -14px; border: 1px solid var(--border); }
-
-        .card-mid { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 0; border-top: 1px dashed var(--border); border-bottom: 1px dashed var(--border); margin-bottom: 1.2rem; }
-        .driver { display: flex; align-items: center; gap: 12px; }
-        .avatar { width: 45px; height: 45px; border-radius: 50%; background: #F1F5F9; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .duration-container { flex: 1; padding: 0 1.5rem; display: flex; flex-direction: column; align-items: center; position: relative; }
+        .duration-line { width: 100%; height: 2px; background: #cbd5e1; position: relative; margin: 8px 0; }
+        .duration-line::before, .duration-line::after { content: ''; position: absolute; width: 8px; height: 8px; border-radius: 50%; background: white; border: 2px solid #cbd5e1; top: -4px; }
+        .duration-line::before { left: -4px; } .duration-line::after { right: -4px; }
+        .duration-text { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); background: var(--surface); padding: 0 8px; position: relative; top: -14px; }
+        
+        .card-mid { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px dashed var(--border); margin-bottom: 1.5rem; }
+        .driver-info { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 44px; height: 44px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--text-muted); overflow: hidden;}
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .badge-group { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;}
-        .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; gap: 4px; }
+        .driver-name { font-weight: 600; font-size: 0.95rem; }
+        .car-badge { font-size: 0.8rem; color: var(--text-muted); background: #F1F5F9; padding: 4px 8px; border-radius: 8px; font-weight: 500; display: inline-block; margin-top: 4px;}
+
+        .badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end;}
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 4px; }
         .b-ferry { background: #E0F2FE; color: #0284C7; }
-        .b-pink { background: #FCE7F3; color: #BE185D; }
-        .b-instant { background: #FEF3C7; color: #B45309; }
+        .b-instant { background: #FEF3C7; color: #D97706; }
+        .b-comfort { background: #F3E8FF; color: #4338CA; }
+        .b-ladies { background: #FCE7F3; color: #BE185D; }
 
-        .card-footer { display: flex; justify-content: space-between; align-items: center; }
-        .price { font-size: 2rem; font-weight: 900; color: var(--brand); letter-spacing: -1px; }
-        .price span { font-size: 1rem; font-weight: 600; color: var(--text-muted); margin-left: 2px; }
-        .seats-left { font-weight: 700; color: var(--success); display: flex; align-items: center; gap: 5px; font-size: 0.95rem; }
-
-        /* AUTH & APP TOGGLE */
-        #mainAppContainer { display: none; }
-        .auth-container { max-width: 450px; margin: 5rem auto; padding: 0 1.5rem; display: none; }
-
+        .card-footer { display: flex; justify-content: space-between; align-items: flex-end; }
+        .price-tag { font-size: 1.8rem; font-weight: 900; color: var(--brand); letter-spacing: -1px; line-height: 1; }
+        .price-sub { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+        .seats { font-size: 0.85rem; font-weight: 600; color: var(--success); display: flex; align-items: center; gap: 4px; }
+        
+        .empty-state { text-align: center; padding: 4rem 2rem; background: var(--surface); border-radius: 20px; border: 1px dashed #cbd5e1; }
+        .empty-state h3 { font-size: 1.5rem; color: var(--brand); margin-bottom: 0.5rem; }
+        .empty-state p { color: var(--text-muted); margin-bottom: 1.5rem; }
+        
+        #loader { text-align: center; padding: 4rem 0; font-weight: bold; color: var(--accent); font-size: 1.2rem; }
+        
         #globalLoader { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display: flex; justify-content: center; align-items: center; z-index: 2000; }
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -111,155 +137,194 @@
 
     <header>
         <a href="/" class="logo">HoppOn</a>
-        <div class="header-actions" id="headerAuth">
+        <div class="header-actions" id="headerActions">
             <button class="btn-outline" onclick="window.location.href='/login'">Log Ind</button>
+            <button class="btn-primary" onclick="window.location.href='/signup'">Opret Profil</button>
         </div>
     </header>
-
-    <div class="auth-container" id="authSection">
-        <div class="card">
-            <h2 style="text-align: center; margin-bottom: 1.5rem;">Log ind for at finde lift</h2>
-            <div class="form-group"><label>Email</label><input type="email" id="loginEmail" class="search-input" style="background:#F1F5F9" placeholder="navn@mail.dk"></div>
-            <div class="form-group"><label>Adgangskode</label><input type="password" id="loginPass" class="search-input" style="background:#F1F5F9" placeholder="******"></div>
-            <button class="btn-primary" style="width: 100%; padding:14px;" onclick="handleLogin()">Log Ind</button>
-        </div>
-    </div>
 
     <div id="mainAppContainer">
         <section class="hero">
             <h1>Find dit næste lift</h1>
-            <p>Danmarks billigste samkørsel. 0 kr i gebyr.</p>
+            <p>Rejs billigere, grønnere og sjovere. 0 kr i platformgebyr.</p>
             <div class="search-bar">
-                <div class="search-group">
-                    <span class="search-icon">📍</span>
-                    <input type="text" id="searchFrom" class="search-input" placeholder="Hvorfra? (f.eks. Aarhus)" oninput="filterRides()">
-                </div>
-                <div class="search-group">
-                    <span class="search-icon">🏁</span>
-                    <input type="text" id="searchTo" class="search-input" placeholder="Hvorhen? (f.eks. Valby)" oninput="filterRides()">
-                </div>
-                <button class="search-btn" onclick="filterRides()">Find Tur</button>
+                <input type="text" class="search-input" id="searchFrom" placeholder="Fra (f.eks. Aarhus)" oninput="filterRides()">
+                <input type="text" class="search-input" id="searchTo" placeholder="Til (f.eks. Valby)" oninput="filterRides()">
+                <input type="date" class="search-input" id="searchDate" onchange="filterRides()" style="max-width: 180px;">
+                <button class="search-btn" onclick="filterRides()">Søg</button>
             </div>
         </section>
 
         <div class="main-container">
             <aside class="filters">
-                <div class="filter-header">Filtre</div>
-                <div class="filter-group">
-                    <span class="filter-label">Prisloft</span>
-                    <span class="price-val" id="priceLabel">500 kr</span>
-                    <input type="range" id="filterPrice" min="20" max="500" value="500" oninput="filterRides()">
+                <div class="filter-header">
+                    <span>Filtre</span>
+                    <button class="filter-reset" onclick="resetFilters()">Nulstil</button>
                 </div>
+
                 <div class="filter-group">
-                    <span class="filter-label">Faciliteter</span>
-                    <label class="check-row"><span>⛴️ Kun via færge</span><input type="checkbox" id="f-ferry" onchange="filterRides()"></label>
-                    <label class="check-row"><span>⚡ Lynbooking</span><input type="checkbox" id="f-instant" onchange="filterRides()"></label>
-                    <label class="check-row" id="ladiesOnlyFilter" style="display:none; color: var(--pink);"><span>🌸 Ladies Only</span><input type="checkbox" id="f-ladies" onchange="filterRides()"></label>
+                    <span class="filter-label">Maks pris pr. plads</span>
+                    <span class="price-display" id="priceOutput">500 kr</span>
+                    <input type="range" id="filterPrice" min="20" max="500" value="500" step="10" oninput="updatePriceLabel(); filterRides()">
                 </div>
-                <button class="btn-outline" style="width:100%" onclick="resetFilters()">Ryd alle filtre</button>
+
+                <div class="filter-group">
+                    <span class="filter-label">Foretrukne muligheder</span>
+                    <label class="filter-toggle">
+                        <span>⚡ Lynbooking (Auto-godkend)</span>
+                        <input type="checkbox" id="f-instant" onchange="filterRides()">
+                        <div class="checkbox-custom"></div>
+                    </label>
+                    <label class="filter-toggle">
+                        <span>🛋️ Komfort Garanti (Max 2 bagved)</span>
+                        <input type="checkbox" id="f-comfort" onchange="filterRides()">
+                        <div class="checkbox-custom"></div>
+                    </label>
+                    <label class="filter-toggle">
+                        <span>⛴️ Via Færge</span>
+                        <input type="checkbox" id="f-ferry" onchange="filterRides()">
+                        <div class="checkbox-custom"></div>
+                    </label>
+                    <label class="filter-toggle" style="color: var(--pink); display: none;" id="filterLadiesOnlyRow">
+                        <span style="color: var(--pink);">🌸 Ladies Only</span>
+                        <input type="checkbox" id="f-ladies" onchange="filterRides()">
+                        <div class="checkbox-custom" style="border-color: #fbcfe8;"></div>
+                    </label>
+                </div>
+
+                <div class="filter-group">
+                    <span class="filter-label">Tilladt i bilen</span>
+                    <label class="filter-toggle">
+                        <span>🐾 Kæledyr tilladt</span>
+                        <input type="checkbox" id="f-pets" onchange="filterRides()">
+                        <div class="checkbox-custom"></div>
+                    </label>
+                    <label class="filter-toggle">
+                        <span>🚬 Rygning tilladt</span>
+                        <input type="checkbox" id="f-smoking" onchange="filterRides()">
+                        <div class="checkbox-custom"></div>
+                    </label>
+                </div>
             </aside>
 
             <main>
-                <div id="loader" style="text-align:center; padding: 3rem;">Henter lift... 🚗</div>
-                <div id="rideListContainer" class="ride-list"></div>
-                <div id="emptyState" style="display:none; text-align:center; padding: 4rem;">
-                    <h3>Ingen ture fundet 🏜️</h3>
-                    <p style="color: var(--text-muted);">Prøv at justere dine filtre eller søge på en anden by.</p>
+                <div class="results-header">
+                    <span class="results-count" id="resultsCount">Søger efter ture...</span>
+                    <select style="width: auto; padding: 10px 14px; border: 1px solid var(--border); border-radius: 12px; background: white; outline: none; font-weight: 500;" id="sortSelect" onchange="filterRides()">
+                        <option value="time">Tidligste afgang først</option>
+                        <option value="price">Laveste pris først</option>
+                    </select>
+                </div>
+                
+                <div id="loader">Henter de bedste ture fra databasen... 🚗💨</div>
+                <div class="ride-list" id="rideListContainer" style="display: none;"></div>
+                
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <h3>Øv, ingen ture fundet! 🏜️</h3>
+                    <p>Der er desværre ingen der kører den rute med dine valgte filtre lige nu.</p>
+                    <button class="btn-primary" style="width: auto; margin: 0 auto;" onclick="resetFilters()">Ryd alle filtre</button>
                 </div>
             </main>
         </div>
     </div>
 
     <script>
-        const _supabase = supabase.createClient('https://xboklywxcozobvfrptpr.supabase.co', 'sb_publishable_amqWmR5MrUSFHlniU2yp3Q_c8kUysEY');
-        let allRides = [];
+        const SUPABASE_URL = 'https://xboklywxcozobvfrptpr.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_amqWmR5MrUSFHlniU2yp3Q_c8kUysEY'; 
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentUser = null;
         let isUserLoggedIn = false;
+        let allRides = [];
 
         window.onload = async () => {
             const { data: { session } } = await _supabase.auth.getSession();
             if (session) {
                 isUserLoggedIn = true;
-                document.getElementById('mainAppContainer').style.display = 'block';
-                const { data: profile } = await _supabase.from('profiles').select('gender, full_name').eq('id', session.user.id).single();
-                
-                // Vis Ladies Only filter hvis kønnet er Kvinde
-                if (profile?.gender === 'Kvinde') document.getElementById('ladiesOnlyFilter').style.display = 'flex';
-                
-                document.getElementById('headerAuth').innerHTML = `<span class="user-greeting">Hej ${profile.full_name.split(' ')[0]}</span><button class="btn-outline" onclick="logout()">Log ud</button>`;
-            } else {
-                document.getElementById('authSection').style.display = 'block';
+                currentUser = session.user;
+                const { data: profile } = await _supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+                if (profile?.gender === 'Kvinde') document.getElementById('filterLadiesOnlyRow').style.display = 'flex';
+                document.getElementById('headerActions').innerHTML = `<span class="user-greeting">Hej ${profile.full_name.split(' ')[0]}</span><button class="btn-outline" onclick="logout()">Log ud</button>`;
             }
-            fetchRides();
+            await fetchRidesFromDatabase();
+            document.getElementById('searchDate').valueAsDate = new Date();
             document.getElementById('globalLoader').style.display = 'none';
         };
 
-        async function handleLogin() {
-            const email = document.getElementById('loginEmail').value;
-            const pass = document.getElementById('loginPass').value;
-            const { error } = await _supabase.auth.signInWithPassword({ email, password: pass });
-            if (error) alert(error.message); else location.reload();
-        }
+        async function logout() { await _supabase.auth.signOut(); location.reload(); }
 
-        async function fetchRides() {
-            const now = new Date().toISOString();
-            // JOIN profiles for at få chaufførdata
-            const { data, error } = await _supabase.from('rides')
+        async function fetchRidesFromDatabase() {
+            document.getElementById('loader').style.display = 'block';
+            const nowISO = new Date().toISOString(); 
+            const { data, error } = await _supabase
+                .from('rides')
                 .select('*, driver:profiles!driver_id(full_name, avatar_url)')
                 .eq('status', 'active')
-                .gte('departure_time', now) // Kun fremtidige ture
-                .order('departure_time', { ascending: true });
+                .gte('departure_time', nowISO); 
 
             if (!error) {
-                allRides = data;
+                allRides = data || [];
                 renderRides(allRides);
                 document.getElementById('loader').style.display = 'none';
+                document.getElementById('rideListContainer').style.display = 'flex';
+                filterRides();
             }
         }
 
+        function updatePriceLabel() { document.getElementById('priceOutput').innerText = document.getElementById('filterPrice').value + " kr"; }
+
         function filterRides() {
-            const from = document.getElementById('searchFrom').value.toLowerCase();
-            const to = document.getElementById('searchTo').value.toLowerCase();
-            const maxP = document.getElementById('filterPrice').value;
-            const ferry = document.getElementById('f-ferry').checked;
-            const instant = document.getElementById('f-instant').checked;
-            const ladies = document.getElementById('f-ladies').checked;
+            const qFrom = document.getElementById('searchFrom').value.toLowerCase();
+            const qTo = document.getElementById('searchTo').value.toLowerCase();
+            const qDate = document.getElementById('searchDate').value;
+            const maxPrice = parseInt(document.getElementById('filterPrice').value);
+            const reqInstant = document.getElementById('f-instant').checked;
+            const reqComfort = document.getElementById('f-comfort').checked;
+            const reqFerry = document.getElementById('f-ferry').checked;
+            const reqLadies = document.getElementById('f-ladies').checked;
+            const reqPets = document.getElementById('f-pets').checked;
+            const reqSmoking = document.getElementById('f-smoking').checked;
+            const sortBy = document.getElementById('sortSelect').value;
 
-            document.getElementById('priceLabel').innerText = maxP + " kr";
-
-            const filtered = allRides.filter(r => {
-                // Vi søger i de fulde by-navne da vi her antager brugeren er logget ind
-                const origin = (r.origin_city).toLowerCase();
-                const dest = (r.destination_city).toLowerCase();
-                
-                if (from && !origin.includes(from)) return false;
-                if (to && !dest.includes(to)) return false;
-                if (r.price_dkk > maxP) return false;
-                if (ferry && !r.is_ferry) return false;
-                if (instant && !r.instant_booking) return false;
-                if (ladies && !r.ladies_only) return false;
+            let filtered = allRides.filter(r => {
+                const origin = (isUserLoggedIn ? r.origin_city : r.origin_city_public).toLowerCase();
+                const dest = (isUserLoggedIn ? r.destination_city : r.destination_city_public).toLowerCase();
+                if (qFrom && !origin.includes(qFrom)) return false;
+                if (qTo && !dest.includes(qTo)) return false;
+                if (qDate && new Date(r.departure_time).toISOString().split('T')[0] !== qDate) return false;
+                if (r.price_dkk > maxPrice) return false;
+                if (reqInstant && !r.instant_booking) return false;
+                if (reqComfort && !r.comfort_guarantee) return false;
+                if (reqFerry && !r.is_ferry) return false;
+                if (reqLadies && !r.ladies_only) return false;
+                if (reqPets && !r.pref_pets) return false;
+                if (reqSmoking && !r.pref_smoking) return false;
                 return true;
             });
+
+            if (sortBy === 'price') filtered.sort((a, b) => a.price_dkk - b.price_dkk);
+            else filtered.sort((a, b) => new Date(a.departure_time) - new Date(b.departure_time));
+
             renderRides(filtered);
         }
 
         function renderRides(rides) {
             const container = document.getElementById('rideListContainer');
-            const empty = document.getElementById('emptyState');
+            const counter = document.getElementById('resultsCount');
+            const emptyState = document.getElementById('emptyState');
             container.innerHTML = '';
-            if (rides.length === 0) { empty.style.display = 'block'; return; }
-            empty.style.display = 'none';
+            counter.innerText = `${rides.length} tur(e) fundet`;
+            if (rides.length === 0) { emptyState.style.display = 'block'; return; }
+            emptyState.style.display = 'none';
 
             rides.forEach(ride => {
                 const depDate = new Date(ride.departure_time);
                 const arrDate = new Date(ride.arrival_time);
-                
-                // Parser car_model JSON
-                let car;
-                try {
-                    car = typeof ride.car_model === 'string' ? JSON.parse(ride.car_model) : ride.car_model;
-                } catch(e) { car = { display_name: 'Bil' }; }
+                const displayOrigin = isUserLoggedIn ? ride.origin_city : ride.origin_city_public;
+                const displayDest = isUserLoggedIn ? ride.destination_city : ride.destination_city_public;
+                const carModelRaw = isUserLoggedIn ? ride.car_model : ride.car_model_public;
+                const car = typeof carModelRaw === 'string' ? JSON.parse(carModelRaw) : carModelRaw;
 
-                // Beregn køretid
                 const diff = Math.abs(arrDate - depDate);
                 const hrs = Math.floor(diff / 3600000);
                 const mins = Math.floor((diff / 60000) % 60);
@@ -271,34 +336,22 @@
                 card.innerHTML = `
                     <span class="card-date">${depDate.toLocaleDateString('da-DK', {weekday:'short', day:'numeric', month:'short'})}</span>
                     <div class="timeline">
-                        <div>
-                            <span class="time">${depDate.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'})}</span>
-                            <span class="city">${ride.origin_city}</span>
-                        </div>
-                        <div class="route-path"><div class="dur-badge">${hrs}t ${mins}m</div></div>
-                        <div style="text-align:right">
-                            <span class="time">${arrDate.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'})}</span>
-                            <span class="city">${ride.destination_city}</span>
-                        </div>
+                        <div class="time-box"><span class="time">${depDate.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'})}</span><span class="city">${displayOrigin}</span></div>
+                        <div class="duration-container"><div class="duration-text">${hrs}t ${mins}m</div><div class="duration-line"></div></div>
+                        <div class="time-box right"><span class="time">${arrDate.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'})}</span><span class="city">${displayDest}</span></div>
                     </div>
                     <div class="card-mid">
-                        <div class="driver">
-                            <div class="avatar">${ride.driver?.avatar_url ? `<img src="${ride.driver.avatar_url}">` : ride.driver?.full_name[0]}</div>
-                            <div>
-                                <strong style="display:block">${ride.driver?.full_name}</strong>
-                                <span style="font-size:0.85rem; color:var(--text-muted)">🚗 ${car?.display_name || 'Bil'} • ${car?.plate || ''}</span>
-                            </div>
+                        <div class="driver-info">
+                            <div class="avatar">${ride.driver?.avatar_url ? `<img src="${ride.driver.avatar_url}">` : '👤'}</div>
+                            <div><strong class="driver-name">${ride.driver?.full_name}</strong><br><span class="car-badge">🚗 ${car?.display_name || 'Bil'} ${isUserLoggedIn ? `• ${car?.plate || ''}` : ''}</span></div>
                         </div>
-                        <div class="badge-group">
+                        <div class="badges">
                             ${ride.is_ferry ? '<span class="badge b-ferry">⛴️ Færge</span>' : ''}
                             ${ride.instant_booking ? '<span class="badge b-instant">⚡ Lyn</span>' : ''}
-                            ${ride.ladies_only ? '<span class="badge b-pink">🌸 Ladies Only</span>' : ''}
+                            ${ride.ladies_only ? '<span class="badge b-ladies">🌸 Ladies</span>' : ''}
                         </div>
                     </div>
-                    <div class="card-footer">
-                        <div class="price">${ride.price_dkk}<span>kr</span></div>
-                        <div class="seats-left">✔️ ${ride.seats_available} pladser tilbage</div>
-                    </div>
+                    <div class="card-footer"><div class="price-tag">${ride.price_dkk} <span style="font-size:1rem;">kr</span></div><div class="seats">✔️ ${ride.seats_available} pladser tilbage</div></div>
                 `;
                 container.appendChild(card);
             });
@@ -309,10 +362,9 @@
             document.getElementById('searchTo').value = '';
             document.getElementById('filterPrice').value = 500;
             document.querySelectorAll('input[type=checkbox]').forEach(c => c.checked = false);
+            updatePriceLabel();
             filterRides();
         }
-
-        async function logout() { await _supabase.auth.signOut(); location.reload(); }
     </script>
 </body>
 </html>
