@@ -1,7 +1,24 @@
 // components.js
 
 class HoppOnHeader extends HTMLElement {
-    connectedCallback() {
+    async connectedCallback() {
+        // Tjek om brugeren er logget ind via din globale _supabase klient
+        let authButtons = `
+            <a href="/login/" class="btn-ghost">Log ind</a>
+            <a href="/opret-profil/" class="btn-primary-small">Opret profil</a>
+        `;
+
+        // Hvis _supabase er tilgængelig, kan vi tjekke session
+        if (window._supabase) {
+            const { data: { session } } = await window._supabase.auth.getSession();
+            if (session) {
+                authButtons = `
+                    <button onclick="window._supabase.auth.signOut().then(() => location.reload())" class="btn-ghost">Log ud</button>
+                    <a href="/lift/" class="btn-primary-small">Find lift</a>
+                `;
+            }
+        }
+
         this.innerHTML = `
             <header class="glass-header">
                 <div class="header-container">
@@ -10,13 +27,12 @@ class HoppOnHeader extends HTMLElement {
                         HoppOn
                     </a>
                     <nav class="desktop-nav">
-                        <a href="/lift">Find lift</a>
-                        <a href="/opret-tur">Udbyd tur</a>
-                        <a href="/hvordan-det-virker">Sådan virker det</a>
+                        <a href="/lift/">Find lift</a>
+                        <a href="/opret-tur/">Udbyd tur</a>
+                        <a href="/support/">Support</a>
                     </nav>
                     <div class="auth-buttons">
-                        <a href="/login" class="btn-ghost">Log ind</a>
-                        <a href="/opret-profil" class="btn-primary-small">Opret profil</a>
+                        ${authButtons}
                     </div>
                 </div>
             </header>
@@ -37,26 +53,24 @@ class HoppOnFooter extends HTMLElement {
                     
                     <div class="footer-links">
                         <h4>Kør med HoppOn</h4>
-                        <a href="/lift">Find et lift</a>
-                        <a href="/opret-tur">Tilbyd et lift</a>
-                        <a href="/pendler">For pendlere</a>
-                        <a href="/priser">Priser (0 kr. i gebyr)</a>
+                        <a href="/lift/">Find et lift</a>
+                        <a href="/opret-tur/">Tilbyd et lift</a>
+                        <a href="/support/">Hjælp til samkørsel</a>
                     </div>
 
                     <div class="footer-links">
                         <h4>Populære Ruter</h4>
-                        <a href="/lift?fra=Aarhus&til=København">Samkørsel Aarhus - København</a>
-                        <a href="/lift?fra=Aalborg&til=Odense">Samkørsel Aalborg - Odense</a>
-                        <a href="/lift?fra=København&til=Odense">Samkørsel København - Odense</a>
-                        <a href="/lift?fra=Esbjerg&til=Aarhus">Samkørsel Esbjerg - Aarhus</a>
+                        <a href="/lift/?fra=Aarhus&til=København">Samkørsel Aarhus - København</a>
+                        <a href="/lift/?fra=Aalborg&til=Odense">Samkørsel Aalborg - Odense</a>
+                        <a href="/lift/?fra=København&til=Odense">Samkørsel København - Odense</a>
+                        <a href="/lift/?fra=Esbjerg&til=Aarhus">Samkørsel Esbjerg - Aarhus</a>
                     </div>
 
                     <div class="footer-links">
                         <h4>Hjælp & Vilkår</h4>
-                        <a href="/faq">Support & FAQ</a>
-                        <a href="/toc">Handelsbetingelser</a>
-                        <a href="/privacy_policy">Privatlivspolitik</a>
-                        <a href="/kontakt">Kontakt os</a>
+                        <a href="/support/">Support & FAQ</a>
+                        <a href="/toc/">Handelsbetingelser</a>
+                        <a href="/privacy_policy/">Privatlivspolitik</a>
                     </div>
                 </div>
                 
