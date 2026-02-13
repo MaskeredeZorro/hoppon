@@ -149,6 +149,9 @@
         document.getElementById('carFields').style.display = document.getElementById('isDriver').checked ? 'block' : 'none';
     }
 
+// Tilføj disse to nye skjulte input-felter globalt oppe i toppen af scriptet, eller lad funktionen oprette dem
+    let carDataStorage = {}; // Et midlertidigt sted at gemme bil-dataen
+
     async function lookupPlate() {
         const plateInput = document.getElementById('plateInput');
         const plate = plateInput.value.trim();
@@ -166,13 +169,19 @@
             document.getElementById('displayCarName').innerText = `${data.make} ${data.model}`;
             document.getElementById('displayCarMeta').innerText = `${data.model_year || ''} • ${data.color || ''} • ${plate.toUpperCase()}`;
             
-            document.getElementById('carMake').value = data.make;
-            document.getElementById('carModel').value = data.model;
+            // Gem alt relevant bil-data i vores globale variabel, så vi har det til oprettelsen
+            carDataStorage = {
+                make: data.make,
+                model: data.model,
+                year: data.model_year ? data.model_year.toString() : "",
+                color: data.color || ""
+            };
             
             badge.style.display = "flex";
         } else {
             err.innerText = "❌ Vi kunne ikke finde bilen. Tjek nummerpladen.";
             err.style.display = "block";
+            carDataStorage = {}; // Nulstil
         }
     }
 
@@ -206,10 +215,20 @@
             if (upErr) throw upErr;
             const { data: urlData } = _supabase.storage.from('avatars').getPublicUrl(fileName);
 
-            // 2. Car Details String
-            const make = document.getElementById('carMake').value;
-            const model = document.getElementById('carModel').value;
-            const carDetailsStr = isDriver ? `${make} ${model} (${plate})` : null;
+            // 2. Byg det komplekse JSON objekt til bilen
+            let carDetailsJSON = null;
+            if (isDriver && carDataStorage.make) {
+                const formattedPlate = plate.toUpperCase();
+                carDetailsJSON = {
+                    make: carDataStorage.make,
+                    model: carDataStorage.model,
+                    year: carDataStorage.year,
+                    color: carDataStorage.color,
+                    plate: formattedPlate,
+                    details: `${carDataStorage.year} • ${carDataStorage.color} • ${formattedPlate}`,
+                    display_name: `${carDataStorage.make} ${carDataStorage.model}`
+                };
+            }
 
             // 3. Auth SignUp
             const { error: authErr } = await _supabase.auth.signUp({
@@ -224,11 +243,10 @@
                         is_driver: isDriver,
                         phone_number: isDriver ? phone : null,
                         license_plate: isDriver ? plate : null,
-                        car_details: carDetailsStr
+                        car_details: carDetailsJSON // Nu sender vi JSON-objektet i stedet for en string
                     }
                 }
             });
-
             if (authErr) throw authErr;
 
             // Succes!
