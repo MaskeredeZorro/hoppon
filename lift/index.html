@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Find et lift | HoppOn Samkørsel</title>
+    <meta name="description" content="Rejs billigere, grønnere og sjovere med HoppOn. Find samkørsel i hele Danmark uden skjulte gebyrer. Book dit sæde i dag!">
+    <meta name="keywords" content="samkørsel, lift, køre sammen, delebil, billig rejse, danmark, færge">
+    <meta property="og:title" content="Find et lift | HoppOn Samkørsel">
+    <meta property="og:description" content="Rejs billigere, grønnere og sjovere med HoppOn. Ingen skjulte gebyrer.">
+    <meta property="og:type" content="website">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --brand: #0F172A;         /* Deep Slate */
+            --accent: #6366F1;        /* Indigo */
+            --accent-hover: #4F46E5;
+            --bg-color: #F8FAFC;      /* Light Gray/Blue */
+            --surface: #FFFFFF;
+            --text-main: #334155;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --pink: #EC4899;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; }
+
+        /* HEADER */
+        header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: 900; color: var(--accent); letter-spacing: -0.5px; text-decoration: none; }
+        .header-actions { display: flex; gap: 1rem; }
+        .btn-outline { padding: 8px 16px; border: 2px solid var(--border); border-radius: 12px; font-weight: 600; color: var(--brand); cursor: pointer; background: transparent; transition: 0.2s; }
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-primary { padding: 8px 16px; background: var(--brand); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-primary:hover { background: var(--accent); }
+
+        /* HERO SØGNING */
+        .hero { background: linear-gradient(135deg, var(--brand) 0%, #1e293b 100%); padding: 4rem 1rem; text-align: center; color: white; }
+        .hero h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .hero p { color: #cbd5e1; font-size: 1.1rem; margin-bottom: 2rem; }
+        
+        .search-bar { background: var(--surface); padding: 0.5rem; border-radius: 16px; max-width: 800px; margin: 0 auto; display: flex; gap: 0.5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); }
+        .search-input { flex: 1; padding: 12px 16px; border: 1px solid transparent; border-radius: 12px; background: #F1F5F9; font-size: 1rem; color: var(--brand); font-weight: 500; outline: none; }
+        .search-input:focus { border-color: var(--accent); background: white; }
+        .search-btn { background: var(--accent); color: white; border: none; padding: 0 2rem; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+        .search-btn:hover { background: var(--accent-hover); }
+
+        @media (max-width: 768px) {
+            .search-bar { flex-direction: column; background: transparent; box-shadow: none; }
+            .search-input { background: var(--surface); padding: 16px; }
+            .search-btn { padding: 16px; }
+        }
+
+        /* MAIN LAYOUT */
+        .main-container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; display: grid; grid-template-columns: 300px 1fr; gap: 2rem; }
+        @media (max-width: 900px) { .main-container { grid-template-columns: 1fr; } }
+
+        /* FILTER SIDEBAR */
+        .filters { background: var(--surface); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--border); position: sticky; top: 90px; height: fit-content; }
+        .filter-header { font-size: 1.2rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--brand); display: flex; justify-content: space-between; }
+        .filter-reset { font-size: 0.8rem; color: var(--accent); font-weight: 600; cursor: pointer; border: none; background: none; }
+        
+        .filter-group { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+        .filter-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .filter-label { font-weight: 700; font-size: 0.95rem; margin-bottom: 1rem; display: block; color: var(--brand); }
+        
+        /* Custom Range Slider */
+        .price-display { font-weight: 800; color: var(--accent); font-size: 1.2rem; margin-bottom: 0.5rem; display: block; }
+        input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+
+        /* Filter Toggles */
+        .filter-toggle { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; cursor: pointer; }
+        .filter-toggle span { font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+        .checkbox-custom { width: 20px; height: 20px; border: 2px solid #cbd5e1; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        input[type="checkbox"] { display: none; }
+        input[type="checkbox"]:checked + .checkbox-custom { background: var(--accent); border-color: var(--accent); }
+        input[type="checkbox"]:checked + .checkbox-custom::after { content: "✓"; color: white; font-size: 12px; font-weight: bold; }
+
+        /* RIDE LIST */
+        .ride-list { display: flex; flex-direction: column; gap: 1rem; }
+        .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .results-count { font-weight: 700; color: var(--brand); font-size: 1.2rem; }
+
+        /* TICKET / RIDE CARD */
+        .ride-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; transition: 0.3s; cursor: pointer; position: relative; overflow: hidden; }
+        .ride-card:hover { border-color: var(--accent); box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.15); transform: translateY(-2px); }
+        
+        /* Timeline */
+        .timeline { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .time-box { display: flex; flex-direction: column; }
+        .time-box.right { text-align: right; }
+        .time { font-size: 1.5rem; font-weight: 900; color: var(--brand); letter-spacing: -0.5px; }
+        .city { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .duration-container { flex: 1; padding: 0 1.5rem; display: flex; flex-direction: column; align-items: center; position: relative; }
+        .duration-line { width: 100%; height: 2px; background: #cbd5e1; position: relative; margin: 8px 0; }
+        .duration-line::before, .duration-line::after { content: ''; position: absolute; width: 8px; height: 8px; border-radius: 50%; background: white; border: 2px solid #cbd5e1; top: -4px; }
+        .duration-line::before { left: -4px; } .duration-line::after { right: -4px; }
+        .duration-text { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); background: var(--surface); padding: 0 8px; position: relative; top: -14px; }
+        
+        /* Mid Section */
+        .card-mid { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px dashed var(--border); margin-bottom: 1.5rem; }
+        .driver-info { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--text-muted); overflow: hidden;}
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .driver-name { font-weight: 600; font-size: 0.95rem; }
+        .car-badge { font-size: 0.8rem; color: var(--text-muted); background: #F1F5F9; padding: 4px 8px; border-radius: 8px; font-weight: 500; }
+
+        /* Badges */
+        .badges { display: flex; flex-wrap: wrap; gap: 8px; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+        .b-ferry { background: #E0F2FE; color: #0284C7; }
+        .b-instant { background: #FEF3C7; color: #D97706; }
+        .b-comfort { background: #F3E8FF; color: #4338CA; }
+        .b-ladies { background: #FCE7F3; color: #BE185D; }
+
+        /* Footer */
+        .card-footer { display: flex; justify-content: space-between; align-items: flex-end; }
+        .price-tag { font-size: 1.8rem; font-weight: 900; color: var(--brand); letter-spacing: -1px; line-height: 1; }
+        .price-sub { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+        .seats { font-size: 0.85rem; font-weight: 600; color: var(--success); display: flex; align-items: center; gap: 4px; }
+        
+        /* Empty State */
+        .empty-state { text-align: center; padding: 4rem 2rem; background: var(--surface); border-radius: 20px; border: 1px dashed #cbd5e1; }
+        .empty-state h3 { font-size: 1.5rem; color: var(--brand); margin-bottom: 0.5rem; }
+        .empty-state p { color: var(--text-muted); margin-bottom: 1.5rem; }
+        
+        /* Laster / Skeleton (Simulated) */
+        #loader { text-align: center; padding: 3rem; font-weight: bold; color: var(--accent); display: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" class="logo">HoppOn</a>
+        <div class="header-actions">
+            <button class="btn-outline">Opret Tur</button>
+            <button class="btn-primary">Log Ind</button>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Find dit næste lift</h1>
+        <p>Rejs billigere, grønnere og sjovere. 0 kr i platformgebyr.</p>
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchFrom" placeholder="Fra (f.eks. Aarhus)" oninput="filterRides()">
+            <input type="text" class="search-input" id="searchTo" placeholder="Til (f.eks. Valby)" oninput="filterRides()">
+            <input type="date" class="search-input" id="searchDate" onchange="filterRides()" style="max-width: 180px;">
+            <button class="search-btn" onclick="filterRides()">Søg</button>
+        </div>
+    </section>
+
+    <div class="main-container">
+        
+        <aside class="filters">
+            <div class="filter-header">
+                <span>Filtre</span>
+                <button class="filter-reset" onclick="resetFilters()">Nulstil</button>
+            </div>
+
+            <div class="filter-group">
+                <span class="filter-label">Maks pris</span>
+                <span class="price-display" id="priceOutput">500 kr</span>
+                <input type="range" id="filterPrice" min="20" max="500" value="500" step="10" oninput="updatePriceLabel(); filterRides()">
+            </div>
+
+            <div class="filter-group">
+                <span class="filter-label">Foretrukne muligheder</span>
+                
+                <label class="filter-toggle">
+                    <span>⚡ Lynbooking (Auto-godkend)</span>
+                    <input type="checkbox" id="f-instant" onchange="filterRides()">
+                    <div class="checkbox-custom"></div>
+                </label>
+                
+                <label class="filter-toggle">
+                    <span>🛋️ Komfort Garanti (Max 2 bagved)</span>
+                    <input type="checkbox" id="f-comfort" onchange="filterRides()">
+                    <div class="checkbox-custom"></div>
+                </label>
+                
+                <label class="filter-toggle">
+                    <span>⛴️ Via Færge</span>
+                    <input type="checkbox" id="f-ferry" onchange="filterRides()">
+                    <div class="checkbox-custom"></div>
+                </label>
+                
+                <label class="filter-toggle" style="color: var(--pink);">
+                    <span style="color: var(--pink);">🌸 Ladies Only</span>
+                    <input type="checkbox" id="f-ladies" onchange="filterRides()">
+                    <div class="checkbox-custom" style="border-color: #fbcfe8;"></div>
+                </label>
+            </div>
+
+            <div class="filter-group">
+                <span class="filter-label">Tilladt i bilen</span>
+                
+                <label class="filter-toggle">
+                    <span>🐾 Kæledyr tilladt</span>
+                    <input type="checkbox" id="f-pets" onchange="filterRides()">
+                    <div class="checkbox-custom"></div>
+                </label>
+                
+                <label class="filter-toggle">
+                    <span>🚬 Rygning tilladt</span>
+                    <input type="checkbox" id="f-smoking" onchange="filterRides()">
+                    <div class="checkbox-custom"></div>
+                </label>
+            </div>
+        </aside>
+
+        <main>
+            <div class="results-header">
+                <span class="results-count" id="resultsCount">Finder ture...</span>
+                <select style="width: auto; padding: 8px 12px; background: white;" id="sortSelect" onchange="filterRides()">
+                    <option value="time">Tidligste afgang</option>
+                    <option value="price">Laveste pris</option>
+                </select>
+            </div>
+            
+            <div id="loader">Henter de bedste ture til dig... 🚗💨</div>
+            
+            <div class="ride-list" id="rideListContainer">
+                </div>
+            
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <h3>Øv, ingen ture fundet! 🏜️</h3>
+                <p>Der er desværre ingen der kører den rute med dine valgte filtre lige nu.</p>
+                <button class="btn-primary" style="width: auto; margin: 0 auto;" onclick="resetFilters()">Fjern filtre</button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- 1. SETUP & DATA ---
+        // (Mock data baseret på dit præcise output, men bygget robust så det kan skiftes til Supabase fetch)
+        const mockData = [
+            {
+                "id": "c44b6066-96b2-430e-814c-e4cb6cee7002",
+                "driver_id": "da8e8119-a112-49be-8a7d-a642f053434e",
+                "origin_city": "Silkeborgvej 52, 8000 Aarhus",
+                "destination_city": "Lyshøj Allé 23, 2500 Valby",
+                "departure_time": "2026-02-14 19:46:00+00",
+                "arrival_time": "2026-02-14 22:48:00+00",
+                "price_dkk": 110,
+                "seats_available": 3,
+                "car_model": "{\"make\": \"AUDI\", \"year\": \"2025\", \"color\": \"Sort\", \"model\": \"Q3\", \"plate\": \"EE69690\", \"details\": \"2025 • Sort • EE69690\", \"display_name\": \"AUDI Q3\"}",
+                "status": "active",
+                "is_ferry": true,
+                "detour_flex": true,
+                "comfort_guarantee": false,
+                "pref_music": true,
+                "pref_pets": false,
+                "pref_smoking": false,
+                "pref_kids": true,
+                "instant_booking": true,
+                "ladies_only": false,
+                "driver": {
+                    "full_name": "GetGatronic",
+                    "avatar_url": "https://api.dicebear.com/7.x/notionists/svg?seed=GetGatronic&backgroundColor=e2e8f0" // Placeholder avatar
+                }
+            },
+            // Ekstra fiktiv tur for at vise filtrering
+            {
+                "id": "abc-123",
+                "driver_id": "da8e8119-a112-49be-8a7d-a642f053434e",
+                "origin_city": "Aalborg Banegård",
+                "destination_city": "Odense C",
+                "departure_time": "2026-02-15 08:00:00+00",
+                "arrival_time": "2026-02-15 10:30:00+00",
+                "price_dkk": 185,
+                "seats_available": 1,
+                "car_model": "{\"display_name\": \"Tesla Model 3\", \"color\": \"Hvid\"}",
+                "status": "active",
+                "is_ferry": false,
+                "detour_flex": false,
+                "comfort_guarantee": true,
+                "pref_music": true,
+                "pref_pets": true,
+                "pref_smoking": false,
+                "pref_kids": true,
+                "instant_booking": false,
+                "ladies_only": true,
+                "driver": {
+                    "full_name": "Sofie L.",
+                    "avatar_url": "https://api.dicebear.com/7.x/notionists/svg?seed=Sofie&backgroundColor=fce7f3"
+                }
+            }
+        ];
+
+        let allRides = [];
+
+        window.onload = async () => {
+            // I en live app ville du fetche her:
+            // document.getElementById('loader').style.display = 'block';
+            // const { data } = await _supabase.from('rides').select('*, driver:profiles(full_name, avatar_url)').eq('status', 'active');
+            // allRides = data;
+            
+            allRides = mockData; // Vi bruger mockdata til demonstration
+            
+            // Sæt datovælger i hero til i dag
+            document.getElementById('searchDate').valueAsDate = new Date();
+            
+            filterRides();
+        };
+
+        // --- 2. LOGIK: FILTRERING & SØGNING ---
+        function updatePriceLabel() {
+            document.getElementById('priceOutput').innerText = document.getElementById('filterPrice').value + " kr";
+        }
+
+        function resetFilters() {
+            document.getElementById('searchFrom').value = '';
+            document.getElementById('searchTo').value = '';
+            document.getElementById('searchDate').value = '';
+            document.getElementById('filterPrice').value = 500;
+            updatePriceLabel();
+            
+            const checkboxes = ['f-instant', 'f-comfort', 'f-ferry', 'f-ladies', 'f-pets', 'f-smoking'];
+            checkboxes.forEach(id => document.getElementById(id).checked = false);
+            
+            filterRides();
+        }
+
+        function filterRides() {
+            // Hent værdier
+            const qFrom = document.getElementById('searchFrom').value.toLowerCase();
+            const qTo = document.getElementById('searchTo').value.toLowerCase();
+            const qDate = document.getElementById('searchDate').value;
+            const maxPrice = parseInt(document.getElementById('filterPrice').value);
+            
+            const reqInstant = document.getElementById('f-instant').checked;
+            const reqComfort = document.getElementById('f-comfort').checked;
+            const reqFerry = document.getElementById('f-ferry').checked;
+            const reqLadies = document.getElementById('f-ladies').checked;
+            const reqPets = document.getElementById('f-pets').checked;
+            const reqSmoking = document.getElementById('f-smoking').checked;
+            const sortBy = document.getElementById('sortSelect').value;
+
+            // Filtrer listen
+            let filtered = allRides.filter(r => {
+                // 1. Søgefelter
+                if (qFrom && !r.origin_city.toLowerCase().includes(qFrom)) return false;
+                if (qTo && !r.destination_city.toLowerCase().includes(qTo)) return false;
+                
+                // Dato tjek (Sammenligner YYYY-MM-DD lokalt)
+                if (qDate) {
+                    const rideDateStr = new Date(r.departure_time).toISOString().split('T')[0];
+                    if (rideDateStr !== qDate) return false;
+                }
+
+                // 2. Filtre
+                if (r.price_dkk > maxPrice) return false;
+                if (reqInstant && !r.instant_booking) return false;
+                if (reqComfort && !r.comfort_guarantee) return false;
+                if (reqFerry && !r.is_ferry) return false;
+                if (reqLadies && !r.ladies_only) return false;
+                if (reqPets && !r.pref_pets) return false;
+                if (reqSmoking && !r.pref_smoking) return false;
+
+                return true;
+            });
+
+            // 3. Sortering
+            if (sortBy === 'price') {
+                filtered.sort((a, b) => a.price_dkk - b.price_dkk);
+            } else {
+                // Sorter på tid (tidligst først)
+                filtered.sort((a, b) => new Date(a.departure_time) - new Date(b.departure_time));
+            }
+
+            renderRides(filtered);
+        }
+
+        // --- 3. LOGIK: RENDERING AF HTML ---
+        function renderRides(rides) {
+            const container = document.getElementById('rideListContainer');
+            const counter = document.getElementById('resultsCount');
+            const emptyState = document.getElementById('emptyState');
+            
+            container.innerHTML = '';
+            counter.innerText = `${rides.length} tur(e) fundet`;
+
+            if (rides.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+            emptyState.style.display = 'none';
+
+            rides.forEach(ride => {
+                // Parse datoer
+                const depDate = new Date(ride.departure_time);
+                const arrDate = ride.arrival_time ? new Date(ride.arrival_time) : null;
+                
+                const depTimeStr = depDate.toLocaleTimeString('da-DK', {hour: '2-digit', minute:'2-digit'});
+                const arrTimeStr = arrDate ? arrDate.toLocaleTimeString('da-DK', {hour: '2-digit', minute:'2-digit'}) : '--:--';
+                
+                // Udregn varighed til den pæne midter-linje
+                let durationStr = "";
+                if (arrDate) {
+                    const diffMs = arrDate - depDate;
+                    const diffHrs = Math.floor(diffMs / 3600000);
+                    const diffMins = Math.floor((diffMs % 3600000) / 60000);
+                    durationStr = `${diffHrs}t ${diffMins}m`;
+                }
+
+                // Sikker parsing af Car Model JSON
+                let carDisplayName = "Bil";
+                if (ride.car_model) {
+                    try {
+                        const carObj = JSON.parse(ride.car_model);
+                        carDisplayName = carObj.display_name || `${carObj.make} ${carObj.model}`;
+                        if(carObj.color) carDisplayName += ` (${carObj.color})`;
+                    } catch(e) {}
+                }
+
+                // Sikker Håndtering af Chauffør Data
+                const driverName = ride.driver?.full_name || "Ukendt Chauffør";
+                const avatarUrl = ride.driver?.avatar_url || ""; // Hvis tom, bruger vi bare initial i css
+                const initial = driverName.charAt(0).toUpperCase();
+
+                // Byg Badges dynamisk
+                let badgesHTML = '';
+                if (ride.is_ferry) badgesHTML += `<span class="badge b-ferry">⛴️ Færge</span>`;
+                if (ride.instant_booking) badgesHTML += `<span class="badge b-instant">⚡ Lynbooking</span>`;
+                if (ride.comfort_guarantee) badgesHTML += `<span class="badge b-comfort">🛋️ Komfort</span>`;
+                if (ride.ladies_only) badgesHTML += `<span class="badge b-ladies">🌸 Ladies Only</span>`;
+
+                // Skab selve kortet (HTML)
+                const card = document.createElement('div');
+                card.className = 'ride-card';
+                card.onclick = () => window.location.href = `/tur/${ride.id}`; // Link til ride details
+                
+                card.innerHTML = `
+                    <div class="timeline">
+                        <div class="time-box">
+                            <span class="time">${depTimeStr}</span>
+                            <span class="city" title="${ride.origin_city}">${ride.origin_city.split(',')[0]}</span>
+                        </div>
+                        <div class="duration-container">
+                            <div class="duration-text">${durationStr}</div>
+                            <div class="duration-line"></div>
+                        </div>
+                        <div class="time-box right">
+                            <span class="time">${arrTimeStr}</span>
+                            <span class="city" title="${ride.destination_city}">${ride.destination_city.split(',')[0]}</span>
+                        </div>
+                    </div>
+
+                    <div class="card-mid">
+                        <div class="driver-info">
+                            <div class="avatar">
+                                ${avatarUrl ? `<img src="${avatarUrl}" alt="${driverName}">` : initial}
+                            </div>
+                            <div>
+                                <div class="driver-name">${driverName}</div>
+                                <div class="car-badge">🚗 ${carDisplayName}</div>
+                            </div>
+                        </div>
+                        <div class="badges">
+                            ${badgesHTML}
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <div>
+                            <div class="price-tag">${ride.price_dkk} <span style="font-size:1rem;">kr</span></div>
+                            <div class="price-sub">Pris pr. passager</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="seats">✔️ ${ride.seats_available} pladser tilbage</div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
