@@ -363,7 +363,7 @@
                     div.innerHTML = `<span class="sugg-title">${mainText}</span><span class="sugg-sub">${subText}</span>`;
                     
                     div.onclick = () => {
-                        input.value = mainText; 
+                        input.value = feat.place_name.replace(', Denmark', '');
                         listEl.style.display = 'none';
                         
                         const coords = { lng: feat.center[0], lat: feat.center[1] };
@@ -500,7 +500,7 @@
             document.querySelectorAll('.mapboxgl-marker').forEach(m => m.remove());
 
             // Tegn selve kørselsruten
-            map.addSource('route', { type: 'geojson', data: { type: 'Feature', properties: {}, geometry: routeGeojson } });
+            map.addSource('route', { type: 'geojson', data: routeGeojson });
             map.addLayer({
                 id: 'route', type: 'line', source: 'route',
                 layout: { 'line-join': 'round', 'line-cap': 'round' },
