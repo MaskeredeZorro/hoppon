@@ -6,7 +6,7 @@ class HoppOnHeader extends HTMLElement {
             <header class="glass-header">
                 <div class="header-container">
                     <a href="/" class="logo">
-                        <img src="https://i.imgur.com/4oGYz8n.png" alt="HoppOn Samkørsel Logo">
+                        <img src="https://i.imgur.com/32NBOeO.png" alt="HoppOn Samkørsel Logo">
                         HoppOn
                     </a>
                     <nav class="desktop-nav">
@@ -30,7 +30,7 @@ class HoppOnFooter extends HTMLElement {
             <footer class="site-footer">
                 <div class="footer-grid">
                     <div class="footer-brand">
-                        <img src="https://i.imgur.com/4oGYz8n.png" alt="HoppOn Ikon" class="footer-logo">
+                        <img src="https://i.imgur.com/32NBOeO.png" alt="HoppOn Ikon" class="footer-logo">
                         <h3>HoppOn Samkørsel</h3>
                         <p>Danmarks nye, gebyrfrie samkørselsplatform. Rejs grønnere, billigere og sjovere - uden mellemmænd der tager en bid af kagen.</p>
                     </div>
