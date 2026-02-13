@@ -141,7 +141,7 @@
 
                 if (profile.phone_verified) {
                     // ALL GOOD -> Forsiden
-                    window.location.href = 'index.html';
+                    window.location.href = 'https://hoppon.dk/lift/';
                 } else {
                     // MANGLER VERIFICERING -> Send SMS
                     await sendVerificationSMS(userId, profile.phone_number);
