@@ -6,15 +6,24 @@
     
     <title>Find et lift | HoppOn Samkørsel</title>
     <meta name="description" content="Rejs billigere, grønnere og sjovere med HoppOn. Find samkørsel i hele Danmark uden skjulte gebyrer. Book dit sæde i dag!">
+    <meta name="keywords" content="samkørsel, lift, køre sammen, delebil, billig rejse, danmark, færge">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --brand: #0F172A; --accent: #6366F1; --accent-hover: #4F46E5;
-            --bg-color: #F8FAFC; --surface: #FFFFFF; --text-main: #334155;
-            --text-muted: #64748B; --border: #E2E8F0; --success: #10B981; --pink: #EC4899;
+            --brand: #0F172A;         /* Deep Slate */
+            --accent: #6366F1;        /* Indigo */
+            --accent-hover: #4F46E5;
+            --bg-color: #F8FAFC;      /* Light Gray/Blue */
+            --surface: #FFFFFF;
+            --text-main: #334155;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --pink: #EC4899;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -22,16 +31,26 @@
 
         /* HEADER */
         header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 70px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .logo { font-size: 1.5rem; font-weight: 900; color: var(--accent); letter-spacing: -1px; text-decoration: none; }
-        .header-actions { display: flex; gap: 1rem; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: 900; color: var(--accent); letter-spacing: -1px; text-decoration: none; flex-shrink: 0; }
+        .header-actions { display: flex; gap: 1rem; align-items: center; flex-shrink: 0; }
         .user-greeting { font-weight: 600; color: var(--text-muted); font-size: 0.9rem; }
         
         .btn-outline { padding: 8px 16px; border: 2px solid var(--border); border-radius: 12px; font-weight: 600; color: var(--brand); cursor: pointer; transition: 0.2s; background: transparent; }
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
         .btn-primary { padding: 10px 20px; background: var(--brand); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-primary:hover { background: var(--accent); }
 
-        /* HERO & SØGEBAR FIX */
+        /* DYNAMISK HEADER SØGNING (Vises ved scroll) */
+        .header-search { display: flex; gap: 10px; opacity: 0; pointer-events: none; transform: translateY(-10px); transition: all 0.3s ease; flex: 1; justify-content: center; margin: 0 20px; }
+        .header-search.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        .hs-input { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; background: #F1F5F9; outline: none; width: 130px; font-weight: 500;}
+        .hs-btn { background: var(--brand); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem;}
+
+        @media (max-width: 900px) { .header-search { display: none !important; } }
+
+        /* HERO */
         .hero { background: linear-gradient(135deg, var(--brand) 0%, #1e293b 100%); padding: 3rem 1rem; text-align: center; color: white; }
-        .hero h1 { font-size: 2.2rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: -1px; }
+        .hero h1 { font-size: 2.5rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: -1px; }
         .hero p { color: #cbd5e1; font-size: 1.1rem; margin-bottom: 2rem; }
         
         .search-bar { background: var(--surface); padding: 0.5rem; border-radius: 18px; max-width: 850px; width: 100%; margin: 0 auto; display: flex; gap: 0.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); align-items: center; }
@@ -49,28 +68,30 @@
         @media (max-width: 950px) { .main-container { grid-template-columns: 1fr; } }
 
         /* FILTERS */
-        .filters { background: var(--surface); padding: 1.2rem; border-radius: 20px; border: 1px solid var(--border); position: sticky; top: 90px; height: fit-content; }
+        .filters { background: var(--surface); padding: 1.2rem; border-radius: 20px; border: 1px solid var(--border); position: sticky; top: 90px; height: fit-content; max-height: calc(100vh - 110px); overflow-y: auto; }
+        .filters::-webkit-scrollbar { width: 5px; } .filters::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .filter-header { font-size: 1.1rem; font-weight: 800; margin-bottom: 1.2rem; display: flex; justify-content: space-between; }
         .filter-group { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
         .filter-label { font-weight: 700; font-size: 0.8rem; margin-bottom: 0.8rem; display: block; color: var(--text-muted); text-transform: uppercase; }
         
         .price-display { font-weight: 800; color: var(--accent); font-size: 1.1rem; margin-bottom: 0.4rem; display: block; }
-        input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+        input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; margin-bottom: 10px; }
 
-        .filter-toggle { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
-        .checkbox-custom { width: 18px; height: 18px; border: 2px solid #cbd5e1; border-radius: 5px; position: relative; }
+        .select-input, .num-input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; margin-bottom: 10px; background: #F1F5F9; outline: none; font-weight: 500;}
+
+        .filter-toggle { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+        .checkbox-custom { width: 18px; height: 18px; border: 2px solid #cbd5e1; border-radius: 5px; position: relative; flex-shrink: 0; transition: 0.2s;}
         input[type="checkbox"] { display: none; }
         input[type="checkbox"]:checked + .checkbox-custom { background: var(--accent); border-color: var(--accent); }
         input[type="checkbox"]:checked + .checkbox-custom::after { content: "✓"; color: white; position: absolute; left: 2px; top: -2px; font-size: 12px; font-weight: bold; }
 
-        /* RIDE CARDS - KOMPAKT & HORISONTALT */
+        /* RIDE CARDS */
         .ride-list { display: flex; flex-direction: column; gap: 0.8rem; }
         .ride-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 1rem 1.2rem; transition: 0.2s; cursor: pointer; }
         .ride-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 15px -5px rgba(0,0,0,0.05); }
         
         .card-date { font-size: 0.75rem; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; display: block; }
         
-        /* Tidslinje: Tid - Bar - Tid */
         .timeline { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
         .time-box { display: flex; flex-direction: column; min-width: 120px; }
         .time-box.right { text-align: right; }
@@ -83,23 +104,24 @@
         .duration-line::before { left: -4px; } .duration-line::after { right: -4px; }
         .duration-text { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); background: var(--surface); padding: 0 6px; position: relative; top: -11px; }
 
-        /* Mid sektion */
         .card-mid { display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 0; border-top: 1px dashed var(--border); border-bottom: 1px dashed var(--border); margin-bottom: 0.7rem; }
-        .driver { display: flex; align-items: center; gap: 10px; }
+        .driver { display: flex; align-items: center; gap: 10px; flex-shrink: 0;}
         .avatar { width: 35px; height: 35px; border-radius: 50%; background: #F1F5F9; overflow: hidden; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--border); }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
         .driver-name { font-weight: 700; font-size: 0.85rem; }
         .car-info { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
 
-        .badge-group { display: flex; gap: 4px; }
-        .badge { padding: 2px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; }
-        .b-ferry { background: #E0F2FE; color: #0284C7; }
-        .b-pink { background: #FCE7F3; color: #BE185D; }
+        .badge-group { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+        .badge { padding: 2px 8px; border-radius: 20px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; border: 1px solid var(--border); background: var(--bg-color); color: var(--text-muted);}
+        .b-ferry { background: #E0F2FE; color: #0284C7; border-color: #BAE6FD; }
+        .b-pink { background: #FCE7F3; color: #BE185D; border-color: #FBCFE8; }
+        .b-instant { background: #FEF3C7; color: #B45309; border-color: #FDE68A; }
 
         .card-footer { display: flex; justify-content: space-between; align-items: center; }
         .price { font-size: 1.5rem; font-weight: 900; color: var(--brand); letter-spacing: -0.5px; }
         .seats-left { font-weight: 700; color: var(--success); font-size: 0.8rem; }
 
+        /* LOADERS */
         #globalLoader { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display: flex; justify-content: center; align-items: center; z-index: 2000; }
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -111,6 +133,13 @@
 
     <header>
         <a href="/" class="logo">HoppOn</a>
+        
+        <div class="header-search" id="headerSearch">
+            <input type="text" class="hs-input" id="hsFrom" placeholder="Hvorfra?" oninput="syncInputs('hsFrom', 'searchFrom'); filterRides();">
+            <input type="text" class="hs-input" id="hsTo" placeholder="Hvorhen?" oninput="syncInputs('hsTo', 'searchTo'); filterRides();">
+            <button class="hs-btn" onclick="window.scrollTo({top: 300, behavior: 'smooth'})">⚙️ Filtre</button>
+        </div>
+
         <div class="header-actions" id="headerActions">
             <button class="btn-outline" onclick="window.location.href='/login'">Log Ind</button>
             <button class="btn-primary" onclick="window.location.href='/signup'">Opret Profil</button>
@@ -118,12 +147,12 @@
     </header>
 
     <div id="mainAppContainer">
-        <section class="hero">
+        <section class="hero" id="heroSection">
             <h1>Find dit næste lift</h1>
             <p>Samkørsel i hele Danmark. 0 kr i gebyr.</p>
             <div class="search-bar">
-                <input type="text" class="search-input" id="searchFrom" placeholder="Fra (f.eks. Aarhus)" oninput="filterRides()">
-                <input type="text" class="search-input" id="searchTo" placeholder="Til (f.eks. Valby)" oninput="filterRides()">
+                <input type="text" class="search-input" id="searchFrom" placeholder="Fra (f.eks. Aarhus)" oninput="syncInputs('searchFrom', 'hsFrom'); filterRides();">
+                <input type="text" class="search-input" id="searchTo" placeholder="Til (f.eks. Valby)" oninput="syncInputs('searchTo', 'hsTo'); filterRides();">
                 <input type="date" class="search-input" id="searchDate" onchange="filterRides()" style="max-width: 150px;">
                 <button class="search-btn" onclick="filterRides()">Søg</button>
             </div>
@@ -131,25 +160,64 @@
 
         <div class="main-container">
             <aside class="filters">
-                <div class="filter-header">Filtre <button style="background:none; border:none; color:var(--accent); font-size:0.75rem; cursor:pointer;" onclick="resetFilters()">Nulstil</button></div>
+                <div class="filter-header">Filtre <button style="background:none; border:none; color:var(--accent); font-size:0.75rem; cursor:pointer;" onclick="resetFilters()">Nulstil alt</button></div>
+                
                 <div class="filter-group">
-                    <span class="filter-label">Maks pris</span>
+                    <span class="filter-label">Maks pris pr. plads</span>
                     <span class="price-display" id="priceOutput">500 kr</span>
                     <input type="range" id="filterPrice" min="20" max="500" value="500" step="10" oninput="updatePriceLabel(); filterRides()">
                 </div>
+
                 <div class="filter-group">
-                    <span class="filter-label">Valgmuligheder</span>
-                    <label class="filter-toggle"><span>⚡ Lynbooking</span><input type="checkbox" id="f-instant" onchange="filterRides()"><div class="checkbox-custom"></div></label>
+                    <span class="filter-label">Detaljer</span>
+                    <select id="f-seats" class="select-input" onchange="filterRides()">
+                        <option value="1">Søger 1 plads</option>
+                        <option value="2">Søger 2 pladser</option>
+                        <option value="3">Søger 3+ pladser</option>
+                    </select>
+                    
+                    <select id="f-luggage" class="select-input" onchange="filterRides()">
+                        <option value="">Al Bagage (Ligegyldigt)</option>
+                        <option value="Lille">Mindst Lille (Taske)</option>
+                        <option value="Mellem">Mindst Mellem (Kuffert)</option>
+                        <option value="Stor">Stor (Kuffert + ekstra)</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <span class="filter-label">Køre-muligheder</span>
+                    <label class="filter-toggle"><span>⚡ Lynbooking (Auto)</span><input type="checkbox" id="f-instant" onchange="filterRides()"><div class="checkbox-custom"></div></label>
+                    <label class="filter-toggle"><span>🛋️ Komfort (Max 2 bagved)</span><input type="checkbox" id="f-comfort" onchange="filterRides()"><div class="checkbox-custom"></div></label>
                     <label class="filter-toggle"><span>⛴️ Via Færge</span><input type="checkbox" id="f-ferry" onchange="filterRides()"><div class="checkbox-custom"></div></label>
+                    <label class="filter-toggle"><span>🛣️ Flex (Op til 5 min omvej)</span><input type="checkbox" id="f-flex" onchange="filterRides()"><div class="checkbox-custom"></div></label>
                     <label class="filter-toggle" style="color: var(--pink); display: none;" id="filterLadiesOnlyRow"><span>🌸 Ladies Only</span><input type="checkbox" id="f-ladies" onchange="filterRides()"><div class="checkbox-custom" style="border-color: #fbcfe8;"></div></label>
+                </div>
+
+                <div class="filter-group" style="border:none; padding:0; margin:0;">
+                    <span class="filter-label">Tilladt i bilen</span>
+                    <label class="filter-toggle"><span>🐾 Kæledyr tilladt</span><input type="checkbox" id="f-pets" onchange="filterRides()"><div class="checkbox-custom"></div></label>
+                    <label class="filter-toggle"><span>🚬 Rygning tilladt</span><input type="checkbox" id="f-smoking" onchange="filterRides()"><div class="checkbox-custom"></div></label>
+                    <label class="filter-toggle"><span>👶 Børn i bilen</span><input type="checkbox" id="f-kids" onchange="filterRides()"><div class="checkbox-custom"></div></label>
+                    <label class="filter-toggle"><span>🎵 Musik tilladt</span><input type="checkbox" id="f-music" onchange="filterRides()"><div class="checkbox-custom"></div></label>
                 </div>
             </aside>
 
             <main>
-                <div id="rideListContainer" class="ride-list"></div>
-                <div id="emptyState" style="display:none; text-align:center; padding: 3rem;">
-                    <h3>Ingen ture fundet 🏜️</h3>
-                    <p style="font-size:0.9rem; color:var(--text-muted);">Prøv at ændre dine filtre.</p>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <span style="font-weight: 700; color: var(--brand); font-size: 1.1rem;" id="resultsCount">Søger efter ture...</span>
+                    <select style="width:auto; padding:8px 12px; border:1px solid var(--border); border-radius:10px; font-weight:500; outline:none;" id="sortSelect" onchange="filterRides()">
+                        <option value="time">Tidligste afgang</option>
+                        <option value="price">Laveste pris</option>
+                    </select>
+                </div>
+                
+                <div id="loader" style="text-align:center; padding: 3rem; font-weight:bold; color:var(--accent);">Henter de bedste lift... 🚗💨</div>
+                <div class="ride-list" id="rideListContainer" style="display: none;"></div>
+                
+                <div id="emptyState" style="display:none; text-align:center; padding: 4rem; background:var(--surface); border-radius:20px; border:1px dashed #cbd5e1;">
+                    <h3 style="color:var(--brand); margin-bottom:5px;">Ingen ture fundet 🏜️</h3>
+                    <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:15px;">Prøv at ændre dine filtre for at se flere resultater.</p>
+                    <button class="btn-primary" onclick="resetFilters()">Ryd alle filtre</button>
                 </div>
             </main>
         </div>
@@ -159,6 +227,22 @@
         const _supabase = supabase.createClient('https://xboklywxcozobvfrptpr.supabase.co', 'sb_publishable_amqWmR5MrUSFHlniU2yp3Q_c8kUysEY');
         let allRides = [];
         let isUserLoggedIn = false;
+
+        // SCROLL LISTENER (Viser search bar i header)
+        window.addEventListener('scroll', () => {
+            const hero = document.getElementById('heroSection');
+            const headerSearch = document.getElementById('headerSearch');
+            if (window.scrollY > hero.offsetHeight - 50) {
+                headerSearch.classList.add('active');
+            } else {
+                headerSearch.classList.remove('active');
+            }
+        });
+
+        // Synkroniser inputs mellem Header og Hero
+        function syncInputs(sourceId, targetId) {
+            document.getElementById(targetId).value = document.getElementById(sourceId).value;
+        }
 
         window.onload = async () => {
             const { data: { session } } = await _supabase.auth.getSession();
@@ -174,16 +258,19 @@
         };
 
         async function fetchRides() {
-            const now = new Date().toISOString();
+            const nowISO = new Date().toISOString(); 
             const { data, error } = await _supabase.from('rides')
                 .select('*, driver:profiles!driver_id(full_name, avatar_url)')
                 .eq('status', 'active')
-                .gte('departure_time', now)
+                .gte('departure_time', nowISO)
                 .order('departure_time', { ascending: true });
 
             if (!error) {
                 allRides = data || [];
                 renderRides(allRides);
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('rideListContainer').style.display = 'flex';
+                filterRides(); // Anvend start-filtre (f.eks. dags dato)
             }
         }
 
@@ -192,37 +279,90 @@
             const to = document.getElementById('searchTo').value.toLowerCase();
             const qDate = document.getElementById('searchDate').value;
             const maxP = parseInt(document.getElementById('filterPrice').value);
-            
+            const reqSeats = parseInt(document.getElementById('f-seats').value);
+            const reqLuggage = document.getElementById('f-luggage').value;
+
             const filtered = allRides.filter(r => {
-                const origin = (isUserLoggedIn ? r.origin_city : (r.origin_city_public || r.origin_city)).toLowerCase();
-                const dest = (isUserLoggedIn ? r.destination_city : (r.destination_city_public || r.destination_city)).toLowerCase();
-                if (from && !origin.includes(from)) return false;
-                if (to && !dest.includes(to)) return false;
+                // Byer (Fallback til split på komma hvis public-felter er null og man ikke er logget ind)
+                const rawOrigin = isUserLoggedIn ? r.origin_city : (r.origin_city_public || r.origin_city.split(',').pop());
+                const rawDest = isUserLoggedIn ? r.destination_city : (r.destination_city_public || r.destination_city.split(',').pop());
+                
+                if (from && !rawOrigin.toLowerCase().includes(from)) return false;
+                if (to && !rawDest.toLowerCase().includes(to)) return false;
                 if (qDate && new Date(r.departure_time).toISOString().split('T')[0] !== qDate) return false;
+                
                 if (r.price_dkk > maxP) return false;
+                if (r.seats_available < reqSeats) return false;
+                
+                // Bagage logik (Simpel hierarki)
+                if (reqLuggage) {
+                    if (reqLuggage === 'Stor' && r.luggage_size !== 'Stor') return false;
+                    if (reqLuggage === 'Mellem' && r.luggage_size === 'Lille') return false;
+                }
+
+                // Checkboxes
                 if (document.getElementById('f-ferry').checked && !r.is_ferry) return false;
                 if (document.getElementById('f-instant').checked && !r.instant_booking) return false;
+                if (document.getElementById('f-comfort').checked && !r.comfort_guarantee) return false;
+                if (document.getElementById('f-flex').checked && !r.detour_flex) return false;
                 if (document.getElementById('f-ladies').checked && !r.ladies_only) return false;
+                if (document.getElementById('f-pets').checked && !r.pref_pets) return false;
+                if (document.getElementById('f-smoking').checked && !r.pref_smoking) return false;
+                if (document.getElementById('f-kids').checked && !r.pref_kids) return false;
+                if (document.getElementById('f-music').checked && !r.pref_music) return false;
+                
                 return true;
             });
+
+            const sortBy = document.getElementById('sortSelect').value;
+            if (sortBy === 'price') filtered.sort((a, b) => a.price_dkk - b.price_dkk);
+            else filtered.sort((a, b) => new Date(a.departure_time) - new Date(b.departure_time));
+
             renderRides(filtered);
         }
 
         function renderRides(rides) {
             const container = document.getElementById('rideListContainer');
+            const empty = document.getElementById('emptyState');
             container.innerHTML = '';
-            document.getElementById('emptyState').style.display = rides.length === 0 ? 'block' : 'none';
+            document.getElementById('resultsCount').innerText = `${rides.length} tur(e)`;
+
+            if (rides.length === 0) { empty.style.display = 'block'; return; }
+            empty.style.display = 'none';
 
             rides.forEach(ride => {
                 const depDate = new Date(ride.departure_time);
-                const arrDate = new Date(ride.arrival_time);
-                const hrs = Math.floor(Math.abs(arrDate - depDate) / 3600000);
-                const mins = Math.floor((Math.abs(arrDate - depDate) / 60000) % 60);
+                const arrDate = ride.arrival_time ? new Date(ride.arrival_time) : null;
+                let hrs = 0, mins = 0, arrTimeStr = "--:--";
+                if(arrDate) {
+                    const diff = Math.abs(arrDate - depDate);
+                    hrs = Math.floor(diff / 3600000);
+                    mins = Math.floor((diff / 60000) % 60);
+                    arrTimeStr = arrDate.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'});
+                }
 
-                const displayOrigin = isUserLoggedIn ? ride.origin_city : (ride.origin_city_public || "By");
-                const displayDest = isUserLoggedIn ? ride.destination_city : (ride.destination_city_public || "By");
-                const carData = isUserLoggedIn ? ride.car_model : ride.car_model_public;
-                const car = typeof carData === 'string' ? JSON.parse(carData) : carData;
+                // Håndter by-navne sikkert
+                let displayOrigin = isUserLoggedIn ? ride.origin_city : ride.origin_city_public;
+                let displayDest = isUserLoggedIn ? ride.destination_city : ride.destination_city_public;
+                if(!displayOrigin) displayOrigin = ride.origin_city.split(',').pop().trim();
+                if(!displayDest) displayDest = ride.destination_city.split(',').pop().trim();
+
+                // Håndter Bilen sikkert
+                const carData = isUserLoggedIn ? ride.car_model : (ride.car_model_public || ride.car_model);
+                let car = { display_name: 'Bil' };
+                try { car = typeof carData === 'string' ? JSON.parse(carData) : carData; } catch(e) {}
+
+                // Generer Ikon-badges
+                let bHTML = '';
+                if (ride.is_ferry) bHTML += `<span class="badge b-ferry">⛴️ Færge</span>`;
+                if (ride.instant_booking) bHTML += `<span class="badge b-instant">⚡ Lyn</span>`;
+                if (ride.comfort_guarantee) bHTML += `<span class="badge">🛋️ Komfort</span>`;
+                if (ride.detour_flex) bHTML += `<span class="badge">🛣️ Flex</span>`;
+                if (ride.pref_pets) bHTML += `<span class="badge">🐾 Dyr</span>`;
+                if (ride.pref_kids) bHTML += `<span class="badge">👶 Børn</span>`;
+                if (ride.pref_music) bHTML += `<span class="badge">🎵 Musik</span>`;
+                if (ride.pref_smoking) bHTML += `<span class="badge">🚬 Rygning</span>`;
+                if (ride.ladies_only) bHTML += `<span class="badge b-pink">🌸 Ladies</span>`;
 
                 const card = document.createElement('div');
                 card.className = 'ride-card';
@@ -240,23 +380,19 @@
                             <div class="duration-line"></div>
                         </div>
                         <div class="time-box right">
-                            <span class="time">${arrDate.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'})}</span>
+                            <span class="time">${arrTimeStr}</span>
                             <span class="city">${displayDest}</span>
                         </div>
                     </div>
                     <div class="card-mid">
                         <div class="driver">
-                            <div class="avatar">${ride.driver?.avatar_url ? `<img src="${ride.driver.avatar_url}">` : '👤'}</div>
+                            <div class="avatar">${ride.driver?.avatar_url ? `<img src="${ride.driver.avatar_url}">` : ride.driver?.full_name[0] || '👤'}</div>
                             <div>
-                                <div class="driver-name">${ride.driver?.full_name}</div>
+                                <div class="driver-name">${ride.driver?.full_name || 'Chauffør'}</div>
                                 <div class="car-info">🚗 ${car?.display_name || 'Bil'} ${isUserLoggedIn && car?.plate ? `• ${car.plate}` : ''}</div>
                             </div>
                         </div>
-                        <div class="badge-group">
-                            ${ride.is_ferry ? '<span class="badge b-ferry">Færge</span>' : ''}
-                            ${ride.instant_booking ? '<span class="badge b-instant">Lyn</span>' : ''}
-                            ${ride.ladies_only ? '<span class="badge b-pink">Ladies</span>' : ''}
-                        </div>
+                        <div class="badge-group">${bHTML}</div>
                     </div>
                     <div class="card-footer">
                         <div class="price">${ride.price_dkk}<span> kr</span></div>
@@ -269,8 +405,11 @@
 
         function updatePriceLabel() { document.getElementById('priceOutput').innerText = document.getElementById('filterPrice').value + " kr"; }
         function resetFilters() {
-            document.getElementById('searchFrom').value = ''; document.getElementById('searchTo').value = '';
+            document.getElementById('searchFrom').value = ''; document.getElementById('hsFrom').value = '';
+            document.getElementById('searchTo').value = ''; document.getElementById('hsTo').value = '';
             document.getElementById('filterPrice').value = 500;
+            document.getElementById('f-seats').value = "1";
+            document.getElementById('f-luggage').value = "";
             document.querySelectorAll('input[type=checkbox]').forEach(c => c.checked = false);
             updatePriceLabel(); filterRides();
         }
