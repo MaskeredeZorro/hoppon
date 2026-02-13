@@ -11,44 +11,33 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
+    <link rel="stylesheet" href="/style.css">
+    <script src="/supabase.js"></script>
+    <script src="/components.js" defer></script>
+
     <style>
-        :root {
-            --brand: #0F172A;         /* Deep Slate */
-            --accent: #6366F1;        /* Indigo */
-            --accent-hover: #4F46E5;
-            --bg-color: #F8FAFC;      /* Light Gray/Blue */
-            --surface: #FFFFFF;
-            --text-main: #334155;
-            --text-muted: #64748B;
-            --border: #E2E8F0;
-            --success: #10B981;
-            --warning: #F59E0B;
-            --pink: #EC4899;
+        /* DYNAMISK HEADER SØGNING (Svæver over den globale header) */
+        .header-search { 
+            position: fixed; 
+            top: 18px; /* Centrerer den vertikalt i din 75px høje globale header */
+            left: 50%; 
+            transform: translate(-50%, -10px); 
+            z-index: 1001; /* Ligger over headeren (som har z-index 1000) */
+            display: flex; 
+            gap: 10px; 
+            opacity: 0; 
+            pointer-events: none; 
+            transition: all 0.3s ease; 
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; padding-top: 70px; }
-
-        /* HEADER */
-        header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 70px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .logo { font-size: 1.5rem; font-weight: 900; color: var(--accent); letter-spacing: -1px; text-decoration: none; flex-shrink: 0; }
-        .header-actions { display: flex; gap: 1rem; align-items: center; flex-shrink: 0; }
-        .user-greeting { font-weight: 600; color: var(--text-muted); font-size: 0.9rem; }
-        
-        .btn-outline { padding: 8px 16px; border: 2px solid var(--border); border-radius: 12px; font-weight: 600; color: var(--brand); cursor: pointer; transition: 0.2s; background: transparent; }
-        .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
-        .btn-primary { padding: 10px 20px; background: var(--brand); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .btn-primary:hover { background: var(--accent); }
-
-        /* DYNAMISK HEADER SØGNING (Vises ved scroll) */
-        .header-search { display: flex; gap: 10px; opacity: 0; pointer-events: none; transform: translateY(-10px); transition: all 0.3s ease; flex: 1; justify-content: center; margin: 0 20px; }
-        .header-search.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        .header-search.active { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
         .hs-input { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; background: #F1F5F9; outline: none; width: 130px; font-weight: 500;}
         .hs-btn { background: var(--brand); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem;}
 
         @media (max-width: 900px) { .header-search { display: none !important; } }
 
-        /* HERO */
+        /* SIDESPECIFIKT DESIGN (Hero, Filtre, Cards) */
+        main-content { display: block; padding-top: 75px; flex: 1; }
+
         .hero { background: linear-gradient(135deg, var(--brand) 0%, #1e293b 100%); padding: 3rem 1rem; text-align: center; color: white; }
         .hero h1 { font-size: 2.5rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: -1px; }
         .hero p { color: #cbd5e1; font-size: 1.1rem; margin-bottom: 2rem; }
@@ -63,11 +52,9 @@
             .search-btn { width: 100%; }
         }
 
-        /* LAYOUT */
         .main-container { max-width: 1200px; margin: 1.5rem auto; padding: 0 1rem; display: grid; grid-template-columns: 280px 1fr; gap: 2rem; }
         @media (max-width: 950px) { .main-container { grid-template-columns: 1fr; } }
 
-        /* FILTERS */
         .filters { background: var(--surface); padding: 1.2rem; border-radius: 20px; border: 1px solid var(--border); position: sticky; top: 90px; height: fit-content; max-height: calc(100vh - 110px); overflow-y: auto; }
         .filters::-webkit-scrollbar { width: 5px; } .filters::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .filter-header { font-size: 1.1rem; font-weight: 800; margin-bottom: 1.2rem; display: flex; justify-content: space-between; }
@@ -77,7 +64,7 @@
         .price-display { font-weight: 800; color: var(--accent); font-size: 1.1rem; margin-bottom: 0.4rem; display: block; }
         input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; margin-bottom: 10px; }
 
-        .select-input, .num-input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; margin-bottom: 10px; background: #F1F5F9; outline: none; font-weight: 500;}
+        .select-input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; margin-bottom: 10px; background: #F1F5F9; outline: none; font-weight: 500;}
 
         .filter-toggle { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
         .checkbox-custom { width: 18px; height: 18px; border: 2px solid #cbd5e1; border-radius: 5px; position: relative; flex-shrink: 0; transition: 0.2s;}
@@ -85,7 +72,6 @@
         input[type="checkbox"]:checked + .checkbox-custom { background: var(--accent); border-color: var(--accent); }
         input[type="checkbox"]:checked + .checkbox-custom::after { content: "✓"; color: white; position: absolute; left: 2px; top: -1px; font-size: 13px; font-weight: bold; }
 
-        /* RIDE CARDS */
         .ride-list { display: flex; flex-direction: column; gap: 0.8rem; }
         .ride-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 1rem 1.2rem; transition: 0.2s; cursor: pointer; }
         .ride-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 15px -5px rgba(0,0,0,0.05); }
@@ -131,22 +117,15 @@
 
     <div id="globalLoader"><div class="spinner"></div></div>
 
-    <header>
-        <a href="/" class="logo">HoppOn</a>
-        
-        <div class="header-search" id="headerSearch">
-            <input type="text" class="hs-input" id="hsFrom" placeholder="Hvorfra?" oninput="syncInputs('hsFrom', 'searchFrom'); filterRides();">
-            <input type="text" class="hs-input" id="hsTo" placeholder="Hvorhen?" oninput="syncInputs('hsTo', 'searchTo'); filterRides();">
-            <button class="hs-btn" onclick="window.scrollTo({top: 300, behavior: 'smooth'})">⚙️ Filtre</button>
-        </div>
+    <hoppon-header></hoppon-header>
+    
+    <div class="header-search" id="headerSearch">
+        <input type="text" class="hs-input" id="hsFrom" placeholder="Hvorfra?" oninput="syncInputs('hsFrom', 'searchFrom'); filterRides();">
+        <input type="text" class="hs-input" id="hsTo" placeholder="Hvorhen?" oninput="syncInputs('hsTo', 'searchTo'); filterRides();">
+        <button class="hs-btn" onclick="window.scrollTo({top: 300, behavior: 'smooth'})">⚙️ Filtre</button>
+    </div>
 
-        <div class="header-actions" id="headerActions">
-            <button class="btn-outline" onclick="window.location.href='/login'">Log Ind</button>
-            <button class="btn-primary" onclick="window.location.href='/signup'">Opret Profil</button>
-        </div>
-    </header>
-
-    <div id="mainAppContainer">
+    <main-content>
         <section class="hero" id="heroSection">
             <h1>Find dit næste lift</h1>
             <p>Samkørsel i hele Danmark. 0 kr i gebyr.</p>
@@ -221,14 +200,16 @@
                 </div>
             </main>
         </div>
-    </div>
+    </main-content>
+
+    <hoppon-footer></hoppon-footer>
 
     <script>
-        const _supabase = supabase.createClient('https://xboklywxcozobvfrptpr.supabase.co', 'sb_publishable_amqWmR5MrUSFHlniU2yp3Q_c8kUysEY');
+        // BEMÆRK: _supabase initialiseres automatisk via supabase.js i <head>
         let allRides = [];
         let isUserLoggedIn = false;
 
-        // SCROLL LISTENER (Viser search bar i header)
+        // SCROLL LISTENER (Viser svævende search bar oven på global header)
         window.addEventListener('scroll', () => {
             const hero = document.getElementById('heroSection');
             const headerSearch = document.getElementById('headerSearch');
@@ -239,7 +220,6 @@
             }
         });
 
-        // Synkroniser inputs mellem Header og Hero
         function syncInputs(sourceId, targetId) {
             document.getElementById(targetId).value = document.getElementById(sourceId).value;
         }
@@ -250,7 +230,13 @@
                 isUserLoggedIn = true;
                 const { data: profile } = await _supabase.from('profiles').select('*').eq('id', session.user.id).single();
                 if (profile?.gender === 'Kvinde') document.getElementById('filterLadiesOnlyRow').style.display = 'flex';
-                document.getElementById('headerActions').innerHTML = `<span class="user-greeting">Hej ${profile.full_name.split(' ')[0]}</span><button class="btn-outline" onclick="logout()">Log ud</button>`;
+                
+                // Opdaterer bruger-knappen i den GLOBALE header (hvis den findes i komponentet)
+                const loginBtn = document.querySelector('.nav-btn-login');
+                if(loginBtn) {
+                    loginBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Log ud`;
+                    loginBtn.onclick = async (e) => { e.preventDefault(); await _supabase.auth.signOut(); location.reload(); };
+                }
             }
             await fetchRides();
             document.getElementById('searchDate').valueAsDate = new Date();
@@ -303,10 +289,10 @@
                 if (document.getElementById('f-comfort').checked && !r.comfort_guarantee) return false;
                 if (document.getElementById('f-flex').checked && !r.detour_flex) return false;
                 if (document.getElementById('f-ladies').checked && !r.ladies_only) return false;
-                if (document.getElementById('f-pets').checked && !r.pref_pets) return false;
-                if (document.getElementById('f-smoking').checked && !r.pref_smoking) return false;
-                if (document.getElementById('f-kids').checked && !r.pref_kids) return false;
-                if (document.getElementById('f-music').checked && !r.pref_music) return false;
+                if (document.getElementById('f-pets').checked && !r.pets) return false;
+                if (document.getElementById('f-smoking').checked && !r.smoking) return false;
+                if (document.getElementById('f-kids').checked && !r.kids) return false;
+                if (document.getElementById('f-music').checked && !r.music) return false;
                 
                 return true;
             });
@@ -358,13 +344,11 @@
                 const card = document.createElement('div');
                 card.className = 'ride-card';
                 
-                // --- NY ONCLICK LOGIK MED HOP-NUMMER ---
                 card.onclick = () => {
                     if (!isUserLoggedIn) {
                         alert("Log ind for at booke turen! 🚀");
                         window.location.href = '/login';
                     } else {
-                        // Brug ride_number hvis den eksisterer, ellers id som fallback (til gamle ture)
                         const urlId = ride.ride_number || ride.id;
                         window.location.href = '/lift/' + urlId;
                     }
@@ -415,7 +399,6 @@
             document.querySelectorAll('input[type=checkbox]').forEach(c => c.checked = false);
             updatePriceLabel(); filterRides();
         }
-        async function logout() { await _supabase.auth.signOut(); location.reload(); }
     </script>
 </body>
 </html>
