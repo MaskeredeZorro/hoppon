@@ -83,7 +83,7 @@
         .checkbox-custom { width: 18px; height: 18px; border: 2px solid #cbd5e1; border-radius: 5px; position: relative; flex-shrink: 0; transition: 0.2s;}
         input[type="checkbox"] { display: none; }
         input[type="checkbox"]:checked + .checkbox-custom { background: var(--accent); border-color: var(--accent); }
-        input[type="checkbox"]:checked + .checkbox-custom::after { content: "✓"; color: white; position: absolute; left: 2px; top: -2px; font-size: 12px; font-weight: bold; }
+        input[type="checkbox"]:checked + .checkbox-custom::after { content: "✓"; color: white; position: absolute; left: 2px; top: -1px; font-size: 13px; font-weight: bold; }
 
         /* RIDE CARDS */
         .ride-list { display: flex; flex-direction: column; gap: 0.8rem; }
@@ -171,8 +171,8 @@
                 <div class="filter-group">
                     <span class="filter-label">Detaljer</span>
                     <select id="f-seats" class="select-input" onchange="filterRides()">
-                        <option value="1">Søger 1 plads</option>
-                        <option value="2">Søger 2 pladser</option>
+                        <option value="1">Søger mindst 1 plads</option>
+                        <option value="2">Søger mindst 2 pladser</option>
                         <option value="3">Søger 3+ pladser</option>
                     </select>
                     
@@ -270,7 +270,7 @@
                 renderRides(allRides);
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('rideListContainer').style.display = 'flex';
-                filterRides(); // Anvend start-filtre (f.eks. dags dato)
+                filterRides(); 
             }
         }
 
@@ -283,9 +283,9 @@
             const reqLuggage = document.getElementById('f-luggage').value;
 
             const filtered = allRides.filter(r => {
-                // Byer (Fallback til split på komma hvis public-felter er null og man ikke er logget ind)
-                const rawOrigin = isUserLoggedIn ? r.origin_city : (r.origin_city_public || r.origin_city.split(',').pop());
-                const rawDest = isUserLoggedIn ? r.destination_city : (r.destination_city_public || r.destination_city.split(',').pop());
+                // Vi trækker direkte fra de rå by-navne nu!
+                const rawOrigin = r.origin_city;
+                const rawDest = r.destination_city;
                 
                 if (from && !rawOrigin.toLowerCase().includes(from)) return false;
                 if (to && !rawDest.toLowerCase().includes(to)) return false;
@@ -294,13 +294,11 @@
                 if (r.price_dkk > maxP) return false;
                 if (r.seats_available < reqSeats) return false;
                 
-                // Bagage logik (Simpel hierarki)
                 if (reqLuggage) {
                     if (reqLuggage === 'Stor' && r.luggage_size !== 'Stor') return false;
                     if (reqLuggage === 'Mellem' && r.luggage_size === 'Lille') return false;
                 }
 
-                // Checkboxes
                 if (document.getElementById('f-ferry').checked && !r.is_ferry) return false;
                 if (document.getElementById('f-instant').checked && !r.instant_booking) return false;
                 if (document.getElementById('f-comfort').checked && !r.comfort_guarantee) return false;
@@ -341,21 +339,17 @@
                     arrTimeStr = arrDate.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'});
                 }
 
-                // Håndter by-navne sikkert
-                let displayOrigin = isUserLoggedIn ? ride.origin_city : ride.origin_city_public;
-                let displayDest = isUserLoggedIn ? ride.destination_city : ride.destination_city_public;
-                if(!displayOrigin) displayOrigin = ride.origin_city.split(',').pop().trim();
-                if(!displayDest) displayDest = ride.destination_city.split(',').pop().trim();
+                // Altid vis fuld adresse 
+                const displayOrigin = ride.origin_city;
+                const displayDest = ride.destination_city;
 
-                // Håndter Bilen sikkert
-                const carData = isUserLoggedIn ? ride.car_model : (ride.car_model_public || ride.car_model);
+                // Parse bil dataen
                 let car = { display_name: 'Bil' };
-                try { car = typeof carData === 'string' ? JSON.parse(carData) : carData; } catch(e) {}
+                try { car = typeof ride.car_model === 'string' ? JSON.parse(ride.car_model) : ride.car_model; } catch(e) {}
 
-                // Generer Ikon-badges
                 let bHTML = '';
                 if (ride.is_ferry) bHTML += `<span class="badge b-ferry">⛴️ Færge</span>`;
-                if (ride.instant_booking) bHTML += `<span class="badge b-instant">⚡ Lyn</span>`;
+                if (ride.instant_booking) bHTML += `<span class="badge b-instant">⚡ Lynbooking</span>`;
                 if (ride.comfort_guarantee) bHTML += `<span class="badge">🛋️ Komfort</span>`;
                 if (ride.detour_flex) bHTML += `<span class="badge">🛣️ Flex</span>`;
                 if (ride.pref_pets) bHTML += `<span class="badge">🐾 Dyr</span>`;
@@ -366,14 +360,21 @@
 
                 const card = document.createElement('div');
                 card.className = 'ride-card';
-                card.onclick = () => window.location.href = '/tur/' + ride.id;
+                card.onclick = () => {
+                    if (!isUserLoggedIn) {
+                        alert("Log ind for at booke turen! 🚀");
+                        window.location.href = '/login';
+                    } else {
+                        window.location.href = '/tur/' + ride.id;
+                    }
+                };
 
                 card.innerHTML = `
                     <span class="card-date">${depDate.toLocaleDateString('da-DK', {weekday:'short', day:'numeric', month:'short'})}</span>
                     <div class="timeline">
                         <div class="time-box">
                             <span class="time">${depDate.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'})}</span>
-                            <span class="city">${displayOrigin}</span>
+                            <span class="city" title="${displayOrigin}">${displayOrigin}</span>
                         </div>
                         <div class="route-path">
                             <div class="duration-text">${hrs}t ${mins}m</div>
@@ -381,7 +382,7 @@
                         </div>
                         <div class="time-box right">
                             <span class="time">${arrTimeStr}</span>
-                            <span class="city">${displayDest}</span>
+                            <span class="city" title="${displayDest}">${displayDest}</span>
                         </div>
                     </div>
                     <div class="card-mid">
@@ -389,14 +390,14 @@
                             <div class="avatar">${ride.driver?.avatar_url ? `<img src="${ride.driver.avatar_url}">` : ride.driver?.full_name[0] || '👤'}</div>
                             <div>
                                 <div class="driver-name">${ride.driver?.full_name || 'Chauffør'}</div>
-                                <div class="car-info">🚗 ${car?.display_name || 'Bil'} ${isUserLoggedIn && car?.plate ? `• ${car.plate}` : ''}</div>
+                                <div class="car-info">🚗 ${car?.display_name || 'Bil'} ${car?.plate ? `• ${car.plate}` : ''}</div>
                             </div>
                         </div>
                         <div class="badge-group">${bHTML}</div>
                     </div>
                     <div class="card-footer">
                         <div class="price">${ride.price_dkk}<span> kr</span></div>
-                        <div class="seats-left">✔️ ${ride.seats_available} pladser</div>
+                        <div class="seats-left">✔️ ${ride.seats_available} pladser tilbage</div>
                     </div>
                 `;
                 container.appendChild(card);
@@ -404,6 +405,7 @@
         }
 
         function updatePriceLabel() { document.getElementById('priceOutput').innerText = document.getElementById('filterPrice').value + " kr"; }
+        
         function resetFilters() {
             document.getElementById('searchFrom').value = ''; document.getElementById('hsFrom').value = '';
             document.getElementById('searchTo').value = ''; document.getElementById('hsTo').value = '';
@@ -413,6 +415,7 @@
             document.querySelectorAll('input[type=checkbox]').forEach(c => c.checked = false);
             updatePriceLabel(); filterRides();
         }
+        
         async function logout() { await _supabase.auth.signOut(); location.reload(); }
     </script>
 </body>
