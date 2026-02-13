@@ -283,7 +283,6 @@
             const reqLuggage = document.getElementById('f-luggage').value;
 
             const filtered = allRides.filter(r => {
-                // Vi trækker direkte fra de rå by-navne nu!
                 const rawOrigin = r.origin_city;
                 const rawDest = r.destination_city;
                 
@@ -339,17 +338,15 @@
                     arrTimeStr = arrDate.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'});
                 }
 
-                // Altid vis fuld adresse 
                 const displayOrigin = ride.origin_city;
                 const displayDest = ride.destination_city;
 
-                // Parse bil dataen
                 let car = { display_name: 'Bil' };
                 try { car = typeof ride.car_model === 'string' ? JSON.parse(ride.car_model) : ride.car_model; } catch(e) {}
 
                 let bHTML = '';
                 if (ride.is_ferry) bHTML += `<span class="badge b-ferry">⛴️ Færge</span>`;
-                if (ride.instant_booking) bHTML += `<span class="badge b-instant">⚡ Lynbooking</span>`;
+                if (ride.instant_booking) bHTML += `<span class="badge b-instant">⚡ Lyn</span>`;
                 if (ride.comfort_guarantee) bHTML += `<span class="badge">🛋️ Komfort</span>`;
                 if (ride.detour_flex) bHTML += `<span class="badge">🛣️ Flex</span>`;
                 if (ride.pref_pets) bHTML += `<span class="badge">🐾 Dyr</span>`;
@@ -360,12 +357,16 @@
 
                 const card = document.createElement('div');
                 card.className = 'ride-card';
+                
+                // --- NY ONCLICK LOGIK MED HOP-NUMMER ---
                 card.onclick = () => {
                     if (!isUserLoggedIn) {
                         alert("Log ind for at booke turen! 🚀");
                         window.location.href = '/login';
                     } else {
-                        window.location.href = '/tur/' + ride.id;
+                        // Brug ride_number hvis den eksisterer, ellers id som fallback (til gamle ture)
+                        const urlId = ride.ride_number || ride.id;
+                        window.location.href = '/lift/' + urlId;
                     }
                 };
 
@@ -397,7 +398,7 @@
                     </div>
                     <div class="card-footer">
                         <div class="price">${ride.price_dkk}<span> kr</span></div>
-                        <div class="seats-left">✔️ ${ride.seats_available} pladser tilbage</div>
+                        <div class="seats-left">✔️ ${ride.seats_available} pladser</div>
                     </div>
                 `;
                 container.appendChild(card);
@@ -405,7 +406,6 @@
         }
 
         function updatePriceLabel() { document.getElementById('priceOutput').innerText = document.getElementById('filterPrice').value + " kr"; }
-        
         function resetFilters() {
             document.getElementById('searchFrom').value = ''; document.getElementById('hsFrom').value = '';
             document.getElementById('searchTo').value = ''; document.getElementById('hsTo').value = '';
@@ -415,7 +415,6 @@
             document.querySelectorAll('input[type=checkbox]').forEach(c => c.checked = false);
             updatePriceLabel(); filterRides();
         }
-        
         async function logout() { await _supabase.auth.signOut(); location.reload(); }
     </script>
 </body>
