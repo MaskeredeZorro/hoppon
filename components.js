@@ -32,7 +32,7 @@ class HoppOnFooter extends HTMLElement {
                     <div class="footer-brand">
                         <img src="https://i.imgur.com/4oGYz8n.png" alt="HoppOn Ikon" class="footer-logo">
                         <h3>HoppOn Samkørsel</h3>
-                        <p>Danmarks nye, gebyrfrie samkørselsplatform. Rejs grønnere, billigere og sjovere – uden mellemmænd der tager en bid af kagen.</p>
+                        <p>Danmarks nye, gebyrfrie samkørselsplatform. Rejs grønnere, billigere og sjovere - uden mellemmænd der tager en bid af kagen.</p>
                     </div>
                     
                     <div class="footer-links">
@@ -61,7 +61,7 @@ class HoppOnFooter extends HTMLElement {
                 </div>
                 
                 <div class="footer-bottom">
-                    <p>&copy; 2026 HoppOn ApS. Alle rettigheder forbeholdes. CVR: XXXXXXXX</p>
+                    <p>&copy; 2026 HoppOn ApS. Alle rettigheder forbeholdes. CVR: 40151079</p>
                     <div class="tech-stack">Powered by Stripe & Mapbox</div>
                 </div>
             </footer>
