@@ -19,34 +19,48 @@
         body { background: var(--bg-color); color: var(--primary); padding-bottom: 4rem; }
         .header { background: var(--primary); color: white; padding: 3rem 1.5rem 6rem 1.5rem; text-align: center; clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%); }
         .header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; }
-        .container { max-width: 600px; margin: -4rem auto 0; padding: 0 1rem; position: relative; z-index: 10; }
-        .card { background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); margin-bottom: 2rem; display: none; }
+        
+        /* OPDATERET: Bredere container til to kolonner */
+        .container { max-width: 1100px; margin: -4rem auto 0; padding: 0 1.5rem; position: relative; z-index: 10; }
+        
+        .card { background: white; border-radius: 20px; padding: 2.5rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); margin-bottom: 2rem; display: none; }
         .card.active { display: block; }
-        h2 { font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--primary); border-bottom: 2px solid #F1F5F9; padding-bottom: 10px; }
-        .section-title { font-size: 1.1rem; font-weight: 700; margin: 1.5rem 0 0.8rem 0; color: var(--primary); }
+        
+        /* NYT: CSS Grid Layout */
+        .layout-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 3rem; }
+        @media (max-width: 850px) { .layout-grid { grid-template-columns: 1fr; gap: 2rem; } }
+        
+        /* NYT: Sticky højre kolonne */
+        .right-col { position: sticky; top: 2rem; height: fit-content; }
+        
+        h2 { font-size: 1.8rem; margin-bottom: 1.5rem; color: var(--primary); }
+        .section-title { font-size: 1.1rem; font-weight: 700; margin: 1.5rem 0 0.8rem 0; color: var(--primary); border-bottom: 2px solid #F1F5F9; padding-bottom: 8px; }
         .form-group { margin-bottom: 1rem; position: relative; }
         label { display: block; font-size: 0.9rem; color: var(--text-light); margin-bottom: 0.4rem; font-weight: 500; }
-        input, select, textarea { width: 100%; padding: 12px 16px; border: 1px solid #E2E8F0; border-radius: 12px; font-size: 1rem; background: #F8FAFC; }
-        .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; text-align: center; }
+        input, select, textarea { width: 100%; padding: 12px 16px; border: 1px solid #E2E8F0; border-radius: 12px; font-size: 1rem; background: #F8FAFC; transition: border 0.2s; }
+        input:focus, textarea:focus { border-color: var(--accent); outline: none; }
+        
+        .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; text-align: center; transition: opacity 0.2s; }
+        .btn:hover { opacity: 0.9; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-accent { background: var(--accent); color: white; margin-bottom: 10px; }
         .btn-outline { background: transparent; border: 2px solid #E2E8F0; color: var(--text-light); margin-top: 10px; }
-        .btn-small { padding: 8px 12px; font-size: 0.9rem; }
+        .btn-small { padding: 8px 12px; font-size: 0.9rem; width: auto; display: inline-block; }
         
         .suggestions-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #E2E8F0; border-radius: 12px; max-height: 200px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         .suggestion-item { padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; gap: 10px; }
         .suggestion-item:hover { background: #F1F5F9; }
         
         .price-selector { display: flex; align-items: center; justify-content: space-between; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 5px; }
-        .price-btn { width: 40px; height: 40px; border-radius: 8px; border: none; background: white; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .price-btn { width: 40px; height: 40px; border-radius: 8px; border: none; background: white; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-size: 1.2rem; }
         .price-value { font-weight: 800; font-size: 1.2rem; }
         
-        .switch-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid #E2E8F0; border-radius: 12px; margin-bottom: 10px; background: white; }
+        .switch-row { display: flex; justify-content: space-between; align-items: center; padding: 14px; border: 1px solid #E2E8F0; border-radius: 12px; margin-bottom: 10px; background: white; }
         .switch-info { display: flex; flex-direction: column; }
         .switch-title { font-weight: 700; color: var(--primary); }
-        .switch-sub { font-size: 0.8rem; color: var(--text-light); }
+        .switch-sub { font-size: 0.85rem; color: var(--text-light); margin-top: 2px; }
         
-        .toggle { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .toggle { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
         .toggle input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 24px; }
         .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
@@ -54,16 +68,22 @@
         input:checked + .slider.pink { background-color: #EC4899; }
         input:checked + .slider:before { transform: translateX(20px); }
         
-        .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
         .rule-btn { padding: 12px; border-radius: 12px; border: 1px solid; text-align: center; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
         .rule-true { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: var(--primary); }
         .rule-false { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #64748B; }
-        .rule-icon { font-size: 1.2rem; }
         
-        #map { width: 100%; height: 250px; border-radius: 12px; margin-top: 15px; border: 1px solid #E2E8F0; display: none; }
+        /* OPDATERET: Kort og Info-boks stil */
+        #map { width: 100%; height: 350px; border-radius: 16px; border: 1px solid #E2E8F0; display: none; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .info-card { background: #F8FAFC; padding: 1.5rem; border-radius: 16px; border: 1px solid #E2E8F0; display: none; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.95rem; }
+        .info-row span:first-child { color: var(--text-light); }
+        .info-row span:last-child { font-weight: 700; color: var(--primary); }
+        .payout-highlight { margin-top: 15px; padding-top: 15px; border-top: 1px dashed #cbd5e1; text-align: center; font-size: 1.1rem; font-weight: 800; color: var(--success); }
+        
         .waypoint-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
         
-        #loadingOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 100; }
+        #loadingOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(2px); }
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -78,8 +98,8 @@
     </div>
 
     <div class="container">
-        <div id="authSection" class="card">
-            <h2 id="authTitle">Log ind for at oprette</h2>
+        <div id="authSection" class="card" style="max-width: 500px; margin: 0 auto;">
+            <h2 id="authTitle" style="text-align: center;">Log ind for at oprette</h2>
             <div id="loginForm">
                 <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="navn@mail.dk"></div>
                 <div class="form-group"><label>Adgangskode</label><input type="password" id="loginPass" placeholder="******"></div>
@@ -88,85 +108,111 @@
         </div>
 
         <div id="createRideForm" class="card">
-            <h2>Hvor skal du hen?</h2>
-            
-            <div class="section-title">Ruten</div>
-            <div class="form-group">
-                <label>Fra</label>
-                <input type="text" id="originInput" placeholder="Hvor kører du fra?" oninput="handleSearch(this, 'origin')">
-                <div id="originSuggestions" class="suggestions-list"></div>
-            </div>
-            
-            <div id="waypointsContainer"></div>
-            <button class="btn btn-outline btn-small" onclick="addWaypointInput()" style="margin-bottom: 1rem;">+ Tilføj mellemstop</button>
+            <div class="layout-grid">
+                
+                <div class="left-col">
+                    <h2>Rutedetaljer</h2>
+                    
+                    <div class="section-title" style="margin-top:0;">Ruten</div>
+                    <div class="form-group">
+                        <label>Fra</label>
+                        <input type="text" id="originInput" placeholder="Hvor kører du fra?" oninput="handleSearch(this, 'origin')">
+                        <div id="originSuggestions" class="suggestions-list"></div>
+                    </div>
+                    
+                    <div id="waypointsContainer"></div>
+                    <button class="btn btn-outline btn-small" onclick="addWaypointInput()" style="margin-bottom: 1rem;">+ Tilføj mellemstop</button>
 
-            <div class="form-group">
-                <label>Til</label>
-                <input type="text" id="destInput" placeholder="Hvor kører du til?" oninput="handleSearch(this, 'dest')">
-                <div id="destSuggestions" class="suggestions-list"></div>
-            </div>
+                    <div class="form-group">
+                        <label>Til</label>
+                        <input type="text" id="destInput" placeholder="Hvor kører du til?" oninput="handleSearch(this, 'dest')">
+                        <div id="destSuggestions" class="suggestions-list"></div>
+                    </div>
 
-            <div id="map"></div>
+                    <div class="section-title">Tidspunkt</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group"><label>Dato</label><input type="date" id="rideDate"></div>
+                        <div class="form-group"><label>Afgang</label><input type="time" id="rideTime"></div>
+                    </div>
 
-            <div class="section-title">Tidspunkt</div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div class="form-group"><label>Dato</label><input type="date" id="rideDate"></div>
-                <div class="form-group"><label>Afgang</label><input type="time" id="rideTime"></div>
-            </div>
+                    <div class="section-title">Pladser & Pris</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 15px;">
+                        <div class="form-group"><label>Sæder</label><input type="number" id="seatsInput" value="3" min="1" max="7" onchange="adjustPrice(0)"></div>
+                        <div class="form-group">
+                            <label>Din Pris (kr)</label>
+                            <div class="price-selector">
+                                <button class="price-btn" onclick="adjustPrice(-5)">-</button>
+                                <div class="price-value" id="priceDisplay">0</div>
+                                <button class="price-btn" onclick="adjustPrice(5)">+</button>
+                            </div>
+                        </div>
+                    </div>
 
-            <div class="section-title">Pladser & Pris</div>
-            <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 15px;">
-                <div class="form-group"><label>Sæder</label><input type="number" id="seatsInput" value="3" min="1" max="7"></div>
-                <div class="form-group">
-                    <label>Pris (kr)</label>
-                    <div class="price-selector">
-                        <button class="price-btn" onclick="adjustPrice(-5)">-</button>
-                        <div class="price-value" id="priceDisplay">0</div>
-                        <button class="price-btn" onclick="adjustPrice(5)">+</button>
+                    <div class="section-title">Indstillinger</div>
+                    <div class="switch-row">
+                        <div class="switch-info"><span class="switch-title">Lynbooking</span><span class="switch-sub">Godkend automatisk</span></div>
+                        <label class="toggle"><input type="checkbox" id="swInstant"><span class="slider"></span></label>
+                    </div>
+                    <div class="switch-row">
+                        <div class="switch-info"><span class="switch-title">Færge</span><span class="switch-sub">Prisen er inkl. færge (+249 kr loft)</span></div>
+                        <label class="toggle"><input type="checkbox" id="swFerry" onchange="calculateRoute()"><span class="slider"></span></label>
+                    </div>
+                    <div class="switch-row">
+                        <div class="switch-info"><span class="switch-title">Fleksibel</span><span class="switch-sub">Max 5 min. omvej</span></div>
+                        <label class="toggle"><input type="checkbox" id="swFlex" checked><span class="slider"></span></label>
+                    </div>
+                    <div class="switch-row">
+                        <div class="switch-info"><span class="switch-title">Komfort Garanti</span><span class="switch-sub">Max 2 på bagsædet</span></div>
+                        <label class="toggle"><input type="checkbox" id="swComfort"><span class="slider"></span></label>
+                    </div>
+                    <div class="switch-row" id="ladiesOnlyRow" style="display:none;">
+                        <div class="switch-info"><span class="switch-title">Ladies Only</span><span class="switch-sub">Kun for kvinder</span></div>
+                        <label class="toggle"><input type="checkbox" id="swLadies"><span class="slider pink"></span></label>
+                    </div>
+
+                    <div class="section-title">Husregler</div>
+                    <div class="rules-grid">
+                        <div class="rule-btn rule-true" id="ruleMusic" onclick="toggleRule('Music')"><span>✔️</span> Musik</div>
+                        <div class="rule-btn rule-false" id="ruleSmoking" onclick="toggleRule('Smoking')"><span>❌</span> Rygning</div>
+                        <div class="rule-btn rule-false" id="rulePets" onclick="toggleRule('Pets')"><span>❌</span> Kæledyr</div>
+                        <div class="rule-btn rule-true" id="ruleKids" onclick="toggleRule('Kids')"><span>✔️</span> Børn</div>
+                    </div>
+
+                    <div class="section-title">Besked til passagerer</div>
+                    <div class="form-group">
+                        <textarea id="commentInput" rows="3" placeholder="Skriv lidt om opsamlingssted, plads i bagagerummet eller andet..."></textarea>
+                    </div>
+                    
+                    <button class="btn btn-outline" style="margin-top: 2rem;" onclick="logout()">Log ud</button>
+                </div>
+
+                <div class="right-col">
+                    <div id="map"></div>
+                    
+                    <div class="info-card" id="infoCard">
+                        <h3 style="margin-bottom: 15px; color: var(--primary); font-size: 1.2rem;">Tur Overblik</h3>
+                        <div class="info-row">
+                            <span>Samlet distance:</span>
+                            <span id="distanceText">0 km</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Est. køretid:</span>
+                            <span id="durationText">0 t 0 m</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Skattefrit prisloft pr. sæde:</span>
+                            <span id="maxPriceText">0 kr.</span>
+                        </div>
+                        
+                        <div class="payout-highlight">
+                            Din udbetaling: <span id="payoutText">0</span> kr. / passager
+                        </div>
+                        
+                        <button class="btn btn-primary" style="margin-top: 20px; padding: 16px; font-size: 1.1rem;" onclick="submitRide()">OFFENTLIGGØR TUR 🚀</button>
                     </div>
                 </div>
+                
             </div>
-            <div id="payoutText" style="font-size:0.8rem; color:var(--text-light); text-align:right; font-style:italic;">Du får udbetalt 0 kr.</div>
-
-            <hr style="border:0; border-top:1px solid #E2E8F0; margin: 2rem 0;">
-
-            <div class="section-title">Indstillinger</div>
-            <div class="switch-row">
-                <div class="switch-info"><span class="switch-title">Lynbooking</span><span class="switch-sub">Godkend automatisk</span></div>
-                <label class="toggle"><input type="checkbox" id="swInstant"><span class="slider"></span></label>
-            </div>
-            <div class="switch-row">
-                <div class="switch-info"><span class="switch-title">Færge</span><span class="switch-sub">Prisen er inkl. færge</span></div>
-                <label class="toggle"><input type="checkbox" id="swFerry" onchange="calculateRoute()"><span class="slider"></span></label>
-            </div>
-            <div class="switch-row">
-                <div class="switch-info"><span class="switch-title">Fleksibel</span><span class="switch-sub">Max 5 min. omvej</span></div>
-                <label class="toggle"><input type="checkbox" id="swFlex" checked><span class="slider"></span></label>
-            </div>
-            <div class="switch-row">
-                <div class="switch-info"><span class="switch-title">Komfort Garanti</span><span class="switch-sub">Max 2 på bagsædet</span></div>
-                <label class="toggle"><input type="checkbox" id="swComfort"><span class="slider"></span></label>
-            </div>
-            <div class="switch-row" id="ladiesOnlyRow" style="display:none;">
-                <div class="switch-info"><span class="switch-title">Ladies Only</span><span class="switch-sub">Kun for kvinder</span></div>
-                <label class="toggle"><input type="checkbox" id="swLadies"><span class="slider pink"></span></label>
-            </div>
-
-            <div class="section-title" style="margin-top: 2rem;">Husregler</div>
-            <div class="rules-grid">
-                <div class="rule-btn rule-true" id="ruleMusic" onclick="toggleRule('Music')"><span class="rule-icon">✔️</span> Musik</div>
-                <div class="rule-btn rule-false" id="ruleSmoking" onclick="toggleRule('Smoking')"><span class="rule-icon">❌</span> Rygning</div>
-                <div class="rule-btn rule-false" id="rulePets" onclick="toggleRule('Pets')"><span class="rule-icon">❌</span> Kæledyr</div>
-                <div class="rule-btn rule-true" id="ruleKids" onclick="toggleRule('Kids')"><span class="rule-icon">✔️</span> Børn</div>
-            </div>
-
-            <div class="section-title" style="margin-top: 2rem;">Besked til passagerer</div>
-            <div class="form-group">
-                <textarea id="commentInput" rows="3" placeholder="Skriv lidt om opsamlingssted, regler eller andet..."></textarea>
-            </div>
-
-            <button class="btn btn-primary" style="margin-top: 30px;" onclick="submitRide()">OFFENTLIGGØR TUR</button>
-            <button class="btn btn-outline" onclick="logout()">Log ud</button>
         </div>
     </div>
 
@@ -182,14 +228,12 @@
         let map = null;
         let currentPrice = 0;
         let cachedDistanceKm = 0;
+        let cachedDurationMin = 0;
         let originCoords = null; 
         let destCoords = null;
-        let waypoints = []; // Array of { name, coords }
-        
-        // Husregler State
+        let waypoints = []; 
         let rules = { Music: true, Smoking: false, Pets: false, Kids: true };
 
-        // Faste færgekoordinater (Aarhus havn <-> Sjællands Odde)
         const FERRY_AARHUS = [10.21396, 56.15720];
         const FERRY_ODDEN = [11.29615, 55.97330];
 
@@ -206,7 +250,6 @@
                 showSection('authSection');
             }
 
-            // Sæt standard dato/tid
             const now = new Date();
             document.getElementById('rideDate').valueAsDate = now;
             document.getElementById('rideTime').value = new Date(now.getTime() + 3600000).toTimeString().substring(0,5);
@@ -244,34 +287,34 @@
             document.getElementById('loadingOverlay').style.display = isLoading ? 'flex' : 'none';
         }
 
-        // --- HUSREGLER LOGIK ---
         function toggleRule(ruleName) {
             rules[ruleName] = !rules[ruleName];
             const btn = document.getElementById('rule' + ruleName);
+            const dkName = ruleName === 'Kids' ? 'Børn' : ruleName === 'Pets' ? 'Kæledyr' : ruleName === 'Smoking' ? 'Rygning' : 'Musik';
             if (rules[ruleName]) {
                 btn.className = 'rule-btn rule-true';
-                btn.innerHTML = `<span class="rule-icon">✔️</span> ${ruleName === 'Kids' ? 'Børn' : ruleName === 'Pets' ? 'Kæledyr' : ruleName === 'Smoking' ? 'Rygning' : 'Musik'}`;
+                btn.innerHTML = `<span>✔️</span> ${dkName}`;
             } else {
                 btn.className = 'rule-btn rule-false';
-                btn.innerHTML = `<span class="rule-icon">❌</span> ${ruleName === 'Kids' ? 'Børn' : ruleName === 'Pets' ? 'Kæledyr' : ruleName === 'Smoking' ? 'Rygning' : 'Musik'}`;
+                btn.innerHTML = `<span>❌</span> ${dkName}`;
             }
         }
 
-        // --- MAPBOX & WAYPOINTS ---
         function initMap() {
             if(map) return;
             map = new mapboxgl.Map({
                 container: 'map',
                 style: 'mapbox://styles/mapbox/streets-v12',
-                center: [10.2039, 56.1629], // Standard center DK
+                center: [10.2039, 56.1629],
                 zoom: 6
             });
+            // Fix mapbox render bug i skjulte div'er
+            setTimeout(() => map.resize(), 500);
         }
 
         function addWaypointInput() {
             const id = Date.now();
             const container = document.getElementById('waypointsContainer');
-            
             const row = document.createElement('div');
             row.className = 'waypoint-row form-group';
             row.innerHTML = `
@@ -281,7 +324,6 @@
                 </div>
                 <button class="btn btn-outline" style="width:auto; margin:0; border-color:var(--danger); color:var(--danger);" onclick="removeWaypoint(this, ${id})">X</button>
             `;
-            
             waypoints.push({ id: id, name: '', coords: null });
             container.appendChild(row);
         }
@@ -308,15 +350,13 @@
                 div.className = 'suggestion-item';
                 div.innerText = feat.place_name;
                 div.onclick = () => {
-                    input.value = feat.place_name.split(',')[0]; // Behold kun bynavnet visuelt
+                    input.value = feat.place_name.split(',')[0]; 
                     listEl.style.display = 'none';
                     
                     const coords = { lng: feat.center[0], lat: feat.center[1] };
-                    
                     if (type === 'origin') originCoords = coords;
                     else if (type === 'dest') destCoords = coords;
                     else {
-                        // Find waypoint by ID and update
                         const wpId = parseInt(type.split('_')[1]);
                         const wp = waypoints.find(w => w.id === wpId);
                         if(wp) { wp.coords = coords; wp.name = input.value; }
@@ -328,7 +368,6 @@
             listEl.style.display = 'block';
         }
 
-        // Skjul forslag når man klikker udenfor
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.form-group')) {
                 document.querySelectorAll('.suggestions-list').forEach(el => el.style.display = 'none');
@@ -337,19 +376,19 @@
 
         async function calculateRoute() {
             if (!originCoords || !destCoords) return;
+            
             document.getElementById('map').style.display = 'block';
+            document.getElementById('infoCard').style.display = 'block';
             map.resize();
 
             const isFerry = document.getElementById('swFerry').checked;
             
-            // Byg koordinat streng
             let coordsArray = [originCoords];
             waypoints.forEach(wp => { if(wp.coords) coordsArray.push(wp.coords); });
             coordsArray.push(destCoords);
 
             const coordsString = coordsArray.map(c => `${c.lng},${c.lat}`).join(';');
             
-            // Mapbox Directions URL (tillader altid færger, men vi udelukker dem hvis brugeren IKKE har valgt færge)
             let url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordsString}?geometries=geojson&access_token=${MAPBOX_TOKEN}`;
             if(!isFerry) url += '&exclude=ferry';
 
@@ -359,28 +398,39 @@
             if (data.routes && data.routes[0]) {
                 const route = data.routes[0];
                 cachedDistanceKm = route.distance / 1000;
+                cachedDurationMin = Math.round(route.duration / 60);
                 
-                // Opdater visning
                 drawRouteOnMap(route.geometry, coordsArray, isFerry);
                 
-                // Pris algoritme (Ligesom SKAT logik i Flutter)
+                // SKAT logik (3,73 kr pr km)
+                const seats = parseInt(document.getElementById('seatsInput').value) || 3;
                 const ferryCost = isFerry ? 249 : 0;
-                currentPrice = Math.floor((cachedDistanceKm * 3.73 + ferryCost) / parseInt(document.getElementById('seatsInput').value));
-                if(currentPrice < 20) currentPrice = 20;
+                const maxPrice = Math.floor((cachedDistanceKm * 3.73 + ferryCost) / seats);
+                
+                // Sæt en fornuftig standardpris
+                if(currentPrice === 0 || currentPrice > maxPrice) {
+                    currentPrice = Math.min(Math.floor(cachedDistanceKm * 1.0), maxPrice); 
+                    if(currentPrice < 20) currentPrice = 20;
+                }
+                
+                // Opdater tekster i Info Card
+                document.getElementById('distanceText').innerText = `${Math.round(cachedDistanceKm)} km`;
+                const hours = Math.floor(cachedDurationMin / 60);
+                const mins = cachedDurationMin % 60;
+                document.getElementById('durationText').innerText = `${hours} t ${mins} m`;
+                document.getElementById('maxPriceText').innerText = `${maxPrice} kr.`;
+                
                 updatePriceUI();
             }
         }
 
         function drawRouteOnMap(routeGeojson, points, showFerryLine) {
-            // Ryd op
             if (map.getSource('route')) map.removeSource('route');
             if (map.getLayer('route')) map.removeLayer('route');
             if (map.getSource('ferry-line')) map.removeSource('ferry-line');
             if (map.getLayer('ferry-line')) map.removeLayer('ferry-line');
-            
             document.querySelectorAll('.mapboxgl-marker').forEach(m => m.remove());
 
-            // Tegn primær rute
             map.addSource('route', { type: 'geojson', data: { type: 'Feature', properties: {}, geometry: routeGeojson } });
             map.addLayer({
                 id: 'route', type: 'line', source: 'route',
@@ -388,30 +438,23 @@
                 paint: { 'line-color': '#0F172A', 'line-width': 4 }
             });
 
-            // Hvis Færge er slået til, tegn en specifik blå linje mellem Aarhus og Odden havne
             if (showFerryLine) {
                 map.addSource('ferry-line', {
                     type: 'geojson',
-                    data: {
-                        type: 'Feature',
-                        properties: {},
-                        geometry: { type: 'LineString', coordinates: [FERRY_AARHUS, FERRY_ODDEN] }
-                    }
+                    data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [FERRY_AARHUS, FERRY_ODDEN] } }
                 });
                 map.addLayer({
                     id: 'ferry-line', type: 'line', source: 'ferry-line',
                     layout: { 'line-join': 'round', 'line-cap': 'round' },
-                    paint: { 'line-color': '#3B82F6', 'line-width': 4, 'line-dasharray': [2, 2] } // Blå stiplet linje
+                    paint: { 'line-color': '#3B82F6', 'line-width': 4, 'line-dasharray': [2, 2] }
                 });
             }
 
-            // Tilføj Markers
             points.forEach((p, idx) => {
                 const color = idx === 0 ? '#10B981' : (idx === points.length - 1 ? '#EF4444' : '#6366F1');
                 new mapboxgl.Marker({ color: color }).setLngLat([p.lng, p.lat]).addTo(map);
             });
 
-            // Fit bounds
             const bounds = new mapboxgl.LngLatBounds(points[0], points[0]);
             points.forEach(p => bounds.extend([p.lng, p.lat]));
             map.fitBounds(bounds, { padding: 40 });
@@ -421,13 +464,12 @@
             currentPrice += amt; 
             if(currentPrice < 20) currentPrice = 20; 
             
-            // SKAT Tjek (Prisloft)
             const seats = parseInt(document.getElementById('seatsInput').value) || 3;
             const ferryCost = document.getElementById('swFerry').checked ? 249 : 0;
             const maxPrice = Math.floor((cachedDistanceKm * 3.73 + ferryCost) / seats);
             
             if (currentPrice > maxPrice) {
-                alert(`Prisen overstiger SKATs kørselssats (Max ca. ${maxPrice} kr). Sænk prisen.`);
+                alert(`Prisen overstiger SKATs kørselssats (Max ca. ${maxPrice} kr).`);
                 currentPrice = maxPrice;
             }
             updatePriceUI(); 
@@ -435,7 +477,8 @@
 
         function updatePriceUI() {
             document.getElementById('priceDisplay').innerText = currentPrice;
-            document.getElementById('payoutText').innerText = `Du får udbetalt ${Math.max(0, currentPrice - 15)} kr. pr. passager`;
+            const platformFee = 15; // Eksempel på gebyr
+            document.getElementById('payoutText').innerText = Math.max(0, currentPrice - platformFee);
         }
 
         async function submitRide() {
@@ -443,14 +486,11 @@
                 alert("Udfyld venligst start- og slutdestination.");
                 return;
             }
-            
             setLoading(true);
 
-            // Gør klar til at samle waypoint data til JSON-kolonnen i Supabase
             const waypointsData = waypoints.filter(wp => wp.coords).map(wp => ({
                 city: wp.name, lat: wp.coords.lat, lng: wp.coords.lng
             }));
-
             const dateTimeString = `${document.getElementById('rideDate').value}T${document.getElementById('rideTime').value}:00Z`;
 
             const payload = {
@@ -463,32 +503,23 @@
                 seats_available: parseInt(document.getElementById('seatsInput').value),
                 price_dkk: currentPrice,
                 status: 'active',
-                
-                // Toggles
                 is_ferry: document.getElementById('swFerry').checked,
                 instant_booking: document.getElementById('swInstant').checked,
                 detour_flex: document.getElementById('swFlex').checked,
                 comfort_guarantee: document.getElementById('swComfort').checked,
                 ladies_only: document.getElementById('swLadies') ? document.getElementById('swLadies').checked : false,
-                
-                // Preferences
                 pref_music: rules.Music,
                 pref_smoking: rules.Smoking,
                 pref_pets: rules.Pets,
                 pref_kids: rules.Kids,
-                
                 comment: document.getElementById('commentInput').value,
                 waypoints: waypointsData
             };
 
             const { error } = await _supabase.from('rides').insert(payload);
-
-            if (error) {
-                alert("Fejl ved oprettelse: " + error.message);
-            } else { 
-                alert("Turen er oprettet! 🚀"); 
-                location.reload(); 
-            }
+            if (error) alert("Fejl ved oprettelse: " + error.message);
+            else { alert("Turen er oprettet! 🚀"); location.reload(); }
+            
             setLoading(false);
         }
 
