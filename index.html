@@ -28,7 +28,19 @@
         .search-box { background: white; padding: 1rem; border-radius: 24px; display: flex; gap: 0.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4); max-width: 900px; margin: 3rem auto 0 auto; }
         .search-input { flex: 1; padding: 16px 20px; border: none; background: #F1F5F9; border-radius: 16px; font-size: 1.1rem; font-weight: 600; color: var(--brand); outline: none; }
         .search-input:focus { box-shadow: 0 0 0 2px var(--accent) inset; }
-        .search-btn { background: var(--accent); color: white; border: none; padding: 16px 3rem; border-radius: 16px; font-weight: 800; font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
+        .search-btn { 
+            background: var(--accent); 
+            color: white; 
+            border: none; 
+            padding: 16px 2rem; /* Skruet lidt ned fra 3rem til 2rem så den ikke er unødigt bred */
+            border-radius: 16px; 
+            font-weight: 800; 
+            font-size: 1.1rem; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            white-space: nowrap; /* FORHINDRER LINJESKIFT */
+            flex-shrink: 0;      /* FORHINDRER AT KNAPPEN BLIVER MAST */
+        }       
         .search-btn:hover { background: var(--accent-hover); transform: scale(1.02); }
 
         @media (max-width: 768px) {
