@@ -346,7 +346,7 @@
         async function initStripePayment(amountDKK) {
             try {
                 // Kalder din Edge Function
-                const { data, error } = await _supabase.functions.invoke('payment-sheet', {
+                const { data, error } = await _supabase.functions.invoke('web-payment-sheet', {
                     body: { 
                         amount: amountDKK, 
                         currency: 'dkk', 
