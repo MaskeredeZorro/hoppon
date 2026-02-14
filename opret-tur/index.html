@@ -441,8 +441,11 @@
                 initMap();
                 
                 const now = new Date();
-                document.getElementById('rideTime').value = new Date(now.getTime() + 3600000).toTimeString().substring(0,5);
-                
+                // Ny kode:
+                const defaultTime = new Date(now.getTime() + 3600000);
+                const hours = defaultTime.getHours().toString().padStart(2, '0');
+                const minutes = defaultTime.getMinutes().toString().padStart(2, '0');
+                document.getElementById('rideTime').value = `${hours}:${minutes}`;
                 const todayStr = now.toISOString().split('T')[0];
                 selectedDates.push(todayStr);
                 generateCalendar();
@@ -525,23 +528,25 @@
             }
         }
 
-        // --- TIDER & CO2 ---
-        function updateTimes() {
+        // --- TIDER & CO2 ---function updateTimes() {
             const timeStr = document.getElementById('rideTime').value;
             if(!timeStr) return;
             
-            document.getElementById('departureText').innerText = timeStr;
-
+            document.getElementById('departureText').innerText = timeStr; // Her står nu f.eks. 23:00
+        
             if(cachedDurationMin > 0) {
                 const [hours, mins] = timeStr.split(':').map(Number);
                 const isFerry = document.getElementById('swFerry').checked;
                 const ferryExtraMins = (isFerry && crossesSeaGlobal) ? 90 : 0; 
                 const totalMins = (hours * 60) + mins + cachedDurationMin + ferryExtraMins;
-
+        
+                // Tvinger 24-timers format i beregningen
                 const arrivalHours = Math.floor(totalMins / 60) % 24;
                 const arrivalMins = totalMins % 60;
                 
-                document.getElementById('arrivalTimeInput').value = `${arrivalHours.toString().padStart(2, '0')}:${arrivalMins.toString().padStart(2, '0')}`;
+                // padStart(2, '0') sikrer at det hedder 09:05 og ikke 9:5
+                const formattedArrival = `${arrivalHours.toString().padStart(2, '0')}:${arrivalMins.toString().padStart(2, '0')}`;
+                document.getElementById('arrivalTimeInput').value = formattedArrival;
                 
                 const totalDurH = Math.floor((cachedDurationMin + ferryExtraMins) / 60);
                 const totalDurM = (cachedDurationMin + ferryExtraMins) % 60;
