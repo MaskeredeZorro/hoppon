@@ -212,6 +212,7 @@
         let seatsSelected = 1;
         let pricePerSeat = 0;
         let maxSeats = 1;
+        const PLATFORM_FEE = 15; // Vi matcher dit app-gebyr her
 
         // Stripe Variabler
         let stripe = null;
@@ -271,7 +272,7 @@
                 populateUI();
                 updateReceipt();
                 
-                // Kald Edge Function for at initialisere Stripe!
+                // Initialiser Stripe med det samme for 1 sæde
                 await initStripePayment(seatsSelected * pricePerSeat);
 
                 document.getElementById('globalLoader').style.display = 'none';
@@ -286,7 +287,6 @@
 
         function populateUI() {
             const depDate = new Date(currentRide.departure_time);
-            
             document.getElementById('uiMonth').innerText = depDate.toLocaleDateString('da-DK', { month: 'short' });
             document.getElementById('uiDay').innerText = depDate.getDate();
             document.getElementById('uiTime').innerText = depDate.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
@@ -306,10 +306,7 @@
             }
 
             document.getElementById('uiSeatsAvailable').innerText = `✔️ ${maxSeats} pladser tilbage i bilen`;
-            
-            if(maxSeats === 1) {
-                document.getElementById('btnPlus').disabled = true;
-            }
+            if(maxSeats === 1) document.getElementById('btnPlus').disabled = true;
         }
 
         function adjustSeats(change) {
@@ -317,14 +314,12 @@
             if (newVal >= 1 && newVal <= maxSeats) {
                 seatsSelected = newVal;
                 document.getElementById('uiSeatsSelected').innerText = seatsSelected;
-                
                 document.getElementById('btnMinus').disabled = (seatsSelected === 1);
                 document.getElementById('btnPlus').disabled = (seatsSelected === maxSeats);
                 
                 updateReceipt();
 
-                // Når de skifter pladser, skal vi bygge et nyt PaymentIntent med det nye beløb
-                // Vi bruger en timeout så vi ikke spammer API'en, hvis de klikker hurtigt
+                // Opdater Stripe PaymentIntent når antal sæder ændres
                 clearTimeout(debounceTimer);
                 document.getElementById('payment-element').innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">Opdaterer pris...</div>';
                 document.getElementById('bookBtn').disabled = true;
@@ -336,21 +331,19 @@
         }
 
         function updateReceipt() {
-            const total = seatsSelected * pricePerSeat;
+            const subtotal = seatsSelected * pricePerSeat;
+            // Hvis gebyret er inkluderet i prisen (ligesom i din app), viser vi det her
             document.getElementById('uiCalculation').innerText = `${seatsSelected} x ${pricePerSeat} kr.`;
-            document.getElementById('uiSubtotal').innerText = `${total} kr.`;
-            document.getElementById('uiTotal').innerText = `${total} kr.`;
+            document.getElementById('uiSubtotal').innerText = `${subtotal} kr.`;
+            document.getElementById('uiTotal').innerText = `${subtotal} kr.`;
         }
 
-        // --- STRIPE INTEGRATION ---async function
-        initStripePayment(amountDKK) {
+        // --- STRIPE INTEGRATION ---
+        async function initStripePayment(amountDKK) {
             try {
-                // 1. Hent brugerens aktuelle "adgangskort" (Token)
                 const { data: { session } } = await _supabase.auth.getSession();
-                
-                if (!session) throw new Error("Du er ikke logget ind!");
+                if (!session) throw new Error("Log venligst ind igen.");
 
-                // 2. Kald Edge Function og vis adgangskortet til dørmanden!
                 const { data, error } = await _supabase.functions.invoke('web-payment-sheet', {
                     body: { 
                         amount: amountDKK, 
@@ -358,17 +351,14 @@
                         instant_booking: currentRide.instant_booking 
                     },
                     headers: {
-                        Authorization: `Bearer ${session.access_token}` // <--- HER ER MAGIEN!
+                        Authorization: `Bearer ${session.access_token}`
                     }
                 });
 
                 if (error) throw error;
-                if (data && data.error) throw new Error("Edge Function siger: " + data.error);
-                if (!data || !data.publishableKey) throw new Error("Fik uventet svar fra serveren: " + JSON.stringify(data));
+                if (data && data.error) throw new Error(data.error);
 
-                if (!stripe) {
-                    stripe = Stripe(data.publishableKey);
-                }
+                if (!stripe) stripe = Stripe(data.publishableKey);
 
                 currentPaymentIntentId = data.paymentIntentId;
 
@@ -378,10 +368,7 @@
                         colorPrimary: '#6366F1', 
                         colorBackground: '#ffffff',
                         colorText: '#0F172A',
-                        colorDanger: '#DC2626',
-                        fontFamily: 'Inter, system-ui, sans-serif',
-                        spacingUnit: '4px',
-                        borderRadius: '8px',
+                        borderRadius: '12px',
                     }
                 };
 
@@ -390,17 +377,12 @@
 
                 document.getElementById('payment-element').innerHTML = '';
                 paymentElement.mount('#payment-element');
-                
                 document.getElementById('bookBtn').disabled = false;
 
             } catch (err) {
-                console.error("Fejl ved Stripe setup:", err);
-                document.getElementById('payment-element').innerHTML = '';
-                const errorBox = document.getElementById('payment-error');
-                
-                let errorMsg = err.message || JSON.stringify(err);
-                errorBox.innerText = "SYSTEM FEJL: " + errorMsg;
-                errorBox.style.display = 'block';
+                console.error("Stripe Error:", err);
+                document.getElementById('payment-error').innerText = "SYSTEM FEJL: " + err.message;
+                document.getElementById('payment-error').style.display = 'block';
             }
         }
 
@@ -409,27 +391,19 @@
 
             const loader = document.getElementById('globalLoader');
             const loaderText = document.getElementById('loaderText');
-            const spinner = document.getElementById('loaderSpinner');
             const errorBox = document.getElementById('payment-error');
             
             errorBox.style.display = 'none';
             document.getElementById('bookBtn').disabled = true;
-
-            loaderText.innerText = "Behandler betaling...";
-            spinner.style.display = 'block';
             loader.style.display = 'flex';
+            loaderText.innerText = "Reserverer beløb...";
 
-            // 1. Gennemfør betaling med Stripe Elements
             const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
                 elements,
-                redirect: 'if_required', // VIGTIGT! Vi styrer selv redirect her på siden
-                confirmParams: {
-                    // Vi kan ikke bruge return_url til direkte redirection, da vi skal gemme bookingen i databasen først!
-                }
+                redirect: 'if_required'
             });
 
             if (stripeError) {
-                // Fejl i kortoplysninger etc.
                 loader.style.display = 'none';
                 document.getElementById('bookBtn').disabled = false;
                 errorBox.innerText = stripeError.message;
@@ -437,10 +411,8 @@
                 return;
             }
 
-            // 2. Tjek om reserveringen er gået igennem (requires_capture betyder at din Edge Function manual capture virkede!)
             if (paymentIntent && (paymentIntent.status === 'requires_capture' || paymentIntent.status === 'succeeded')) {
                 try {
-                    // 3. Indsæt booking i Supabase Databasen
                     const statusToSet = currentRide.instant_booking ? 'approved' : 'pending';
 
                     const { error: dbError } = await _supabase
@@ -451,13 +423,11 @@
                             seats_booked: seatsSelected,
                             status: statusToSet,
                             total_price: seatsSelected * pricePerSeat,
-                            // Din Flutter app bruger denne kolonne til at udbetale senere!
                             stripe_payment_id: currentPaymentIntentId 
                         });
 
                     if (dbError) throw dbError;
 
-                    // Hvis Lynbooking, fjern pladsen fra databasen med det samme
                     if(statusToSet === 'approved') {
                         await _supabase
                             .from('rides')
@@ -465,33 +435,20 @@
                             .eq('id', currentRide.id);
                     }
 
-                    // Alt er fantastisk! 🎉
-                    spinner.style.display = 'none';
-                    if (statusToSet === 'approved') {
-                        loaderText.innerHTML = `🎉 Betaling gennemført!<br><br><span style="font-size:1rem; font-weight:500;">Din plads er booket og bekræftet. Pak tasken!</span>`;
-                    } else {
-                        loaderText.innerHTML = `✅ Anmodning sendt!<br><br><span style="font-size:1rem; font-weight:500;">Vi har reserveret beløbet. Vi giver besked så snart chaufføren godkender!</span>`;
-                    }
+                    document.getElementById('loaderSpinner').style.display = 'none';
+                    loaderText.innerHTML = statusToSet === 'approved' 
+                        ? `🎉 Booket!<br><span style="font-size:0.9rem;">Turen er bekræftet.</span>`
+                        : `✅ Anmodning sendt!<br><span style="font-size:0.9rem;">Vi har reserveret pengene.</span>`;
 
-                    confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, zIndex: 3000 });
+                    confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
 
-                    // Gå til "Mine Ture" / Dashboard efter et par sekunder
-                    setTimeout(() => {
-                        window.location.href = "/mine-ture"; // Skift dette link til hvor passageren skal hen efter booking
-                    }, 3500);
+                    setTimeout(() => { window.location.href = "/mine-ture"; }, 3000);
 
                 } catch (err) {
-                    console.error("Database Fejl:", err);
-                    loader.style.display = 'none';
-                    document.getElementById('bookBtn').disabled = false;
-                    errorBox.innerText = "Betalingen gik igennem, men der skete en fejl i oprettelsen af turen. Kontakt support.";
+                    errorBox.innerText = "Fejl ved oprettelse i database. Kontakt support.";
                     errorBox.style.display = 'block';
+                    loader.style.display = 'none';
                 }
-            } else {
-                loader.style.display = 'none';
-                document.getElementById('bookBtn').disabled = false;
-                errorBox.innerText = "Betalingen kunne ikke gennemføres. Prøv venligst igen.";
-                errorBox.style.display = 'block';
             }
         }
     </script>
