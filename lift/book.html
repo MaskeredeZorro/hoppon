@@ -386,7 +386,7 @@
                         passenger_id: currentUser.id,
                         seats_booked: seatsSelected,
                         status: statusToSet,
-                        total_price: (seatsSelected * pricePerSeat) * SERVICE_FEE,
+                        total_price: (seatsSelected * pricePerSeat) * 1.05,
                         stripe_payment_id: currentPaymentIntentId 
                     });
 
