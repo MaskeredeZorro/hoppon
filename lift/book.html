@@ -298,26 +298,43 @@
             try {
                 const { data: { session } } = await _supabase.auth.getSession();
                 if (!session) throw new Error("Log venligst ind igen.");
-
+        
+                // Vi kalder din Edge Function
                 const { data, error } = await _supabase.functions.invoke('web-payment-sheet', {
                     body: { amount: amountDKK, currency: 'dkk', instant_booking: currentRide.instant_booking },
                     headers: { Authorization: `Bearer ${session.access_token}` }
                 });
-
+        
                 if (error) throw error;
                 if (data && data.error) throw new Error(data.error);
-
+        
+                // --- RETTELSE HER ---
+                // Vi tjekker om vi overhovedet fik en nøgle fra backenden
+                if (!data.publishableKey) {
+                    throw new Error("Backend sendte ikke 'publishableKey'. Husk at køre 'supabase secrets set STRIPE_PUBLISHABLE_KEY=...'");
+                }
+        
+                // Initialiser Stripe hvis det ikke er gjort
                 if (!stripe) stripe = Stripe(data.publishableKey);
+                
                 currentPaymentIntentId = data.paymentIntentId;
-
+        
                 const appearance = { theme: 'stripe', variables: { colorPrimary: '#6366F1', borderRadius: '12px' } };
-                elements = stripe.elements({ clientSecret: data.paymentIntent, appearance });
+                
+                // Vi bruger 'data.clientSecret' (som vi nu sender fra backenden)
+                elements = stripe.elements({ 
+                    clientSecret: data.clientSecret, 
+                    appearance 
+                });
+        
                 const paymentElement = elements.create('payment', { layout: 'tabs' });
-
+        
                 document.getElementById('payment-element').innerHTML = '';
                 paymentElement.mount('#payment-element');
                 document.getElementById('bookBtn').disabled = false;
+                
             } catch (err) {
+                console.error("Stripe Init Fejl:", err);
                 document.getElementById('payment-error').innerText = "SYSTEM FEJL: " + err.message;
                 document.getElementById('payment-error').style.display = 'block';
             }
