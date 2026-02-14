@@ -11,8 +11,6 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <link rel="stylesheet" href="/style.css">
     <script src="/supabase.js"></script>
@@ -698,25 +696,31 @@
 
         // --- MAPBOX & FALLBACK ---
         function initMap() {
-            // TJEK: Har browseren WebGL? (Mapbox GL JS kræver WebGL for at virke)
-            if (mapboxgl.supported()) {
-                // Mapbox understøttes - brug det primære kort!
-                if(map) return;
-                try {
-                    map = new mapboxgl.Map({
-                        container: 'map',
-                        style: 'mapbox://styles/mapbox/streets-v12',
-                        center: [10.2039, 56.1629],
-                        zoom: 6
-                    });
-                    setTimeout(() => map.resize(), 500);
-                } catch(e) {
-                    console.error("Mapbox fejlede, starter Leaflet fallback...", e);
-                    initLeafletFallback();
-                }
-            } else {
-                // Mapbox understøttes IKKE (Hardware Acceleration er slået fra) - brug Leaflet!
-                initLeafletFallback();
+            // Tjekker om browseren understøtter WebGL
+            if (!mapboxgl.supported()) {
+                console.warn('WebGL er ikke understøttet. Kortet vises ikke.');
+                // Viser en pæn besked i stedet for kortet
+                document.getElementById('map').innerHTML = `
+                    <div style="display:flex; height:100%; align-items:center; justify-content:center; text-align:center; padding:20px; color:var(--text-muted); background:#F1F5F9; border-radius:16px;">
+                        <div>
+                            <div style="font-size: 2rem; margin-bottom: 10px;">🗺️</div>
+                            Kortet kan ikke vises (kræver Hardware Acceleration).<br><b>Du kan sagtens oprette din tur alligevel!</b>
+                        </div>
+                    </div>`;
+                return; 
+            }
+
+            if(map) return;
+            try {
+                map = new mapboxgl.Map({
+                    container: 'map',
+                    style: 'mapbox://styles/mapbox/streets-v12',
+                    center: [10.2039, 56.1629],
+                    zoom: 6
+                });
+                setTimeout(() => map.resize(), 500);
+            } catch(e) {
+                console.error("Mapbox fejlede:", e);
             }
         }
 
@@ -889,66 +893,33 @@
         }
 
         function drawRouteOnMap(routeGeojson, points, showFerryLine) {
-            // Håndter hvis brugeren kører Mapbox
-            if (map) {
-                if (map.getLayer('route')) map.removeLayer('route');
-                if (map.getLayer('ferry-line')) map.removeLayer('ferry-line');
-                if (map.getSource('route')) map.removeSource('route');
-                if (map.getSource('ferry-line')) map.removeSource('ferry-line');
-                
-                document.querySelectorAll('.mapboxgl-marker').forEach(m => m.remove());
-
-                map.addSource('route', { type: 'geojson', data: routeGeojson });
-                map.addLayer({ id: 'route', type: 'line', source: 'route', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#0F172A', 'line-width': 4 } });
-
-                if (showFerryLine) {
-                    map.addSource('ferry-line', { type: 'geojson', data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [FERRY_AARHUS, FERRY_ODDEN] } } });
-                    map.addLayer({ id: 'ferry-line', type: 'line', source: 'ferry-line', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#3B82F6', 'line-width': 4, 'line-dasharray': [2, 2] } });
-                }
-
-                points.forEach((p, idx) => {
-                    const color = idx === 0 ? '#10B981' : (idx === points.length - 1 ? '#EF4444' : '#6366F1');
-                    new mapboxgl.Marker({ color: color }).setLngLat([p.lng, p.lat]).addTo(map);
-                });
-
-                const bounds = new mapboxgl.LngLatBounds(points[0], points[0]);
-                points.forEach(p => bounds.extend([p.lng, p.lat]));
-                map.fitBounds(bounds, { padding: 40 });
-            } 
-            // Håndter Fallback (Leaflet)
-            else if (leafletMap) {
-                if (leafletRouteLayer) leafletMap.removeLayer(leafletRouteLayer);
-                leafletMarkerLayers.forEach(m => leafletMap.removeLayer(m));
-                leafletMarkerLayers = [];
-
-                leafletRouteLayer = L.geoJSON(routeGeojson, {
-                    style: function() { return { color: '#0F172A', weight: 4 }; }
-                }).addTo(leafletMap);
-
-                if (showFerryLine) {
-                    const ferryLine = L.polyline([
-                        [FERRY_AARHUS[1], FERRY_AARHUS[0]], 
-                        [FERRY_ODDEN[1], FERRY_ODDEN[0]]
-                    ], { color: '#3B82F6', weight: 4, dashArray: '5, 10' }).addTo(leafletMap);
-                    leafletMarkerLayers.push(ferryLine);
-                }
-
-                points.forEach((p, idx) => {
-                    const color = idx === 0 ? '#10B981' : (idx === points.length - 1 ? '#EF4444' : '#6366F1');
-                    const customIcon = L.divIcon({
-                        className: '',
-                        html: `<div style="background-color: ${color}; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
-                        iconSize: [16, 16],
-                        iconAnchor: [8, 8]
+                    // Hvis kortet ikke eksisterer (pga. manglende WebGL), så stop funktionen her uden at crashe
+                    if (!map) return;
+        
+                    if (map.getLayer('route')) map.removeLayer('route');
+                    if (map.getLayer('ferry-line')) map.removeLayer('ferry-line');
+                    if (map.getSource('route')) map.removeSource('route');
+                    if (map.getSource('ferry-line')) map.removeSource('ferry-line');
+                    
+                    document.querySelectorAll('.mapboxgl-marker').forEach(m => m.remove());
+        
+                    map.addSource('route', { type: 'geojson', data: routeGeojson });
+                    map.addLayer({ id: 'route', type: 'line', source: 'route', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#0F172A', 'line-width': 4 } });
+        
+                    if (showFerryLine) {
+                        map.addSource('ferry-line', { type: 'geojson', data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [FERRY_AARHUS, FERRY_ODDEN] } } });
+                        map.addLayer({ id: 'ferry-line', type: 'line', source: 'ferry-line', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#3B82F6', 'line-width': 4, 'line-dasharray': [2, 2] } });
+                    }
+        
+                    points.forEach((p, idx) => {
+                        const color = idx === 0 ? '#10B981' : (idx === points.length - 1 ? '#EF4444' : '#6366F1');
+                        new mapboxgl.Marker({ color: color }).setLngLat([p.lng, p.lat]).addTo(map);
                     });
-                    const marker = L.marker([p.lat, p.lng], {icon: customIcon}).addTo(leafletMap);
-                    leafletMarkerLayers.push(marker);
-                });
-
-                const bounds = L.latLngBounds(points.map(p => [p.lat, p.lng]));
-                leafletMap.fitBounds(bounds, { padding: [40, 40] });
-            }
-        }
+        
+                    const bounds = new mapboxgl.LngLatBounds(points[0], points[0]);
+                    points.forEach(p => bounds.extend([p.lng, p.lat]));
+                    map.fitBounds(bounds, { padding: 40 });
+                }
 
         function adjustPrice(amt) { 
             currentPrice += amt; 
