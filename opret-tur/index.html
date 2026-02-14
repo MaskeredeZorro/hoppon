@@ -36,7 +36,7 @@
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border); /* Gør omridset tydeligere */
+            border: 1px solid var(--border);
             padding: 0.8rem 1.5rem;
             border-radius: 20px;
             box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
@@ -441,11 +441,13 @@
                 initMap();
                 
                 const now = new Date();
-                // Ny kode:
+                
+                // Ny kode: Tvinger 24 timers format (HH:MM)
                 const defaultTime = new Date(now.getTime() + 3600000);
                 const hours = defaultTime.getHours().toString().padStart(2, '0');
                 const minutes = defaultTime.getMinutes().toString().padStart(2, '0');
                 document.getElementById('rideTime').value = `${hours}:${minutes}`;
+                
                 const todayStr = now.toISOString().split('T')[0];
                 selectedDates.push(todayStr);
                 generateCalendar();
@@ -528,7 +530,8 @@
             }
         }
 
-        // --- TIDER & CO2 ---function updateTimes() {
+        // --- TIDER & CO2 ---
+        function updateTimes() {
             const timeStr = document.getElementById('rideTime').value;
             if(!timeStr) return;
             
