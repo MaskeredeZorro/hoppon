@@ -178,7 +178,7 @@
             @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         }
 
-/* MOBIL & IPHONE FIX (MAX 768px) - Påvirker IKKE computer */
+        /* MOBIL & IPHONE FIX (MAX 768px) - Påvirker IKKE computer */
         @media (max-width: 768px) {
             .ride-card {
                 padding: 1rem 0.8rem; /* Lidt mindre side-padding giver mere plads til teksten */
@@ -499,7 +499,8 @@
                         window.location.href = '/login';
                     } else {
                         const urlId = ride.ride_number || ride.id;
-                        window.location.href = '/lift/' + urlId;
+                        // HER ER DEN ENESTE ÆNDRING: Den peger nu på view.html
+                        window.location.href = '/lift/view.html?id=' + urlId;
                     }
                 };
 
