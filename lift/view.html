@@ -392,9 +392,12 @@
                 document.getElementById('rCommentText').innerText = `"${currentRide.comment}"`;
             }
 
-            document.getElementById('bPrice').innerText = `${currentRide.price_dkk} kr`;
+            // --- KORREKT PRIS BEREGNING (INKL. 5% GEBYR) ---
+            const finalPrice = Math.ceil(currentRide.price_dkk * 1.05);
+
+            document.getElementById('bPrice').innerText = `${finalPrice} kr`;
             document.getElementById('bSeats').innerText = `✔️ ${currentRide.seats_available} pladser tilbage`;
-            document.getElementById('mbPrice').innerText = `${currentRide.price_dkk} kr`;
+            document.getElementById('mbPrice').innerText = `${finalPrice} kr`;
             document.getElementById('mbSeats').innerText = `✔️ ${currentRide.seats_available} pladser`;
 
             document.getElementById('dName').innerText = driverProfile.full_name || "Anonym";
