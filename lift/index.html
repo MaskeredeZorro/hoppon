@@ -2,8 +2,7 @@
 <html lang="da">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
     <title>Find et lift | HoppOn Samkørsel</title>
     <meta name="description" content="Rejs billigere, grønnere og sjovere med HoppOn. Find samkørsel i hele Danmark uden skjulte gebyrer. Book dit sæde i dag!">
     <meta name="keywords" content="samkørsel, lift, køre sammen, delebil, billig rejse, danmark, færge">
@@ -16,11 +15,11 @@
     <script src="/components.js" defer></script>
 
     <style>
-        /* GLOBAL RESET FOR AT FORHINDRE "ZOOMET IND" FEJL PÅ MOBIL */
-        *, *::before, *::after { box-sizing: border-box; }
-        html, body { margin: 0; padding: 0; overflow-x: hidden; width: 100%; }
+        /* --- GLOBAL RESET: DETTE FIKSER "SVØMNING" --- */
+        * { box-sizing: border-box; }
+        html, body { overflow-x: hidden; width: 100%; margin: 0; padding: 0; }
 
-        /* DYNAMISK HEADER SØGNING (Svæver over den globale header) */
+        /* DYNAMISK HEADER SØGNING */
         .header-search { 
             position: fixed; 
             top: 12px; 
@@ -43,40 +42,72 @@
 
         @media (max-width: 900px) { .header-search { display: none !important; } }
 
-        /* SIDESPECIFIKT DESIGN (Hero, Filtre, Cards) */
+        /* SIDESPECIFIKT DESIGN */
         main-content { display: block; padding-top: 75px; flex: 1; }
 
         .hero { background: linear-gradient(135deg, var(--brand) 0%, #1e293b 100%); padding: 3rem 1rem; text-align: center; color: white; }
         .hero h1 { font-size: 2.5rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: -1px; }
         .hero p { color: #cbd5e1; font-size: 1.1rem; margin-bottom: 2rem; }
         
-        .search-bar { background: var(--surface); padding: 0.5rem; border-radius: 18px; max-width: 850px; width: 100%; margin: 0 auto; display: flex; gap: 0.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); align-items: center; }
-        .search-input { flex: 1; min-width: 0; padding: 12px 16px; border: 1px solid transparent; border-radius: 12px; background: #F1F5F9; font-size: 1rem; color: var(--brand); font-weight: 500; outline: none; }
+        /* DESKTOP SEARCH BAR (Standard Flex) */
+        .search-bar { 
+            background: var(--surface); 
+            padding: 0.5rem; 
+            border-radius: 18px; 
+            max-width: 850px; 
+            width: 100%; 
+            margin: 0 auto; 
+            display: flex; 
+            gap: 0.5rem; 
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); 
+            align-items: center; 
+        }
+        .search-input { 
+            flex: 1; 
+            min-width: 0; 
+            padding: 12px 16px; 
+            border: 1px solid transparent; 
+            border-radius: 12px; 
+            background: #F1F5F9; 
+            font-size: 1rem; 
+            color: var(--brand); 
+            font-weight: 500; 
+            outline: none; 
+        }
         .search-input:focus { border-color: var(--accent); background: white; }
-        #searchDate { max-width: 150px; }
+        
+        /* Dato felt max-bredde på computer så den ikke fylder for meget */
+        #searchDate { max-width: 150px; } 
+
         .search-btn { flex-shrink: 0; background: var(--accent); color: white; border: none; padding: 12px 1.8rem; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; }
 
-        /* MOBIL-DESIGN FOR SØGEBAREN (2 Kolonner / 2 Rækker) */
+        /* MOBIL SEARCH BAR (2x2 Grid) */
         @media (max-width: 768px) {
             .search-bar { 
-                display: grid; 
-                grid-template-columns: 1fr 1fr; /* Deler op i 2 lige store kolonner */
-                padding: 1.2rem; 
+                display: grid;              /* Skifter til Grid layout */
+                grid-template-columns: 1fr 1fr; /* 2 lige store kolonner */
+                grid-template-rows: auto auto;  /* 2 rækker */
+                padding: 1rem; 
                 background: rgba(255, 255, 255, 0.15); 
                 backdrop-filter: blur(10px);
                 border: 1px solid rgba(255, 255, 255, 0.2);
-                gap: 0.8rem;
+                gap: 10px;
             }
+            
+            /* Sørger for at inputtene fylder deres 'celle' helt ud */
             .search-input { 
                 width: 100%; 
-                padding: 12px 10px; 
-                font-size: 16px !important; /* VIGTIGT: Forhindrer iOS i at auto-zoome */
+                font-size: 16px; /* VIGTIGT: 16px forhindrer iPhone i at zoome ind automatisk */
+                padding: 12px;
             }
-            #searchDate { max-width: 100%; } 
+            
+            /* Dato feltet skal nu fylde hele sin celle på mobil, ikke kun 150px */
+            #searchDate { max-width: 100% !important; }
+            
             .search-btn { 
                 width: 100%; 
                 padding: 12px; 
-                font-size: 1.1rem; 
+                font-size: 1rem; 
             }
         }
 
@@ -88,7 +119,7 @@
         
         .filter-header { font-size: 1.1rem; font-weight: 800; margin-bottom: 1.2rem; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease; }
         .filter-chevron { display: none; font-size: 0.8rem; transition: transform 0.3s ease; }
-        .filter-content { display: block; }
+        .filter-content { display: block; } 
 
         .filter-group { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
         .filter-label { font-weight: 700; font-size: 0.8rem; margin-bottom: 0.8rem; display: block; color: var(--text-muted); text-transform: uppercase; }
