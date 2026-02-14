@@ -240,7 +240,7 @@
 
                 populateUI();
                 updateReceipt();
-                await initStripePayment((seatsSelected * pricePerSeat) * SERVICE_FEE+ (1 * seatsSelected));
+                await initStripePayment((seatsSelected * pricePerSeat) * SERVICE_FEE);
 
                 document.getElementById('globalLoader').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
@@ -281,7 +281,7 @@
                 document.getElementById('bookBtn').disabled = true;
 
                 debounceTimer = setTimeout(() => {
-                    initStripePayment((seatsSelected * pricePerSeat) + SERVICE_FEE);
+                    initStripePayment((seatsSelected * pricePerSeat) * SERVICE_FEE);
                 }, 800);
             }
         }
@@ -372,7 +372,7 @@
                         passenger_id: currentUser.id,
                         seats_booked: seatsSelected,
                         status: statusToSet,
-                        total_price: (seatsSelected * pricePerSeat) + SERVICE_FEE,
+                        total_price: (seatsSelected * pricePerSeat) * SERVICE_FEE,
                         stripe_payment_id: currentPaymentIntentId 
                     });
 
