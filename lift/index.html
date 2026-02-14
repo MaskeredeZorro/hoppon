@@ -277,7 +277,6 @@
             }
 
             await fetchRides();
-            document.getElementById('searchDate').valueAsDate = new Date();
             document.getElementById('globalLoader').style.display = 'none';
         };
 
@@ -429,13 +428,17 @@
 
         function updatePriceLabel() { document.getElementById('priceOutput').innerText = document.getElementById('filterPrice').value + " kr"; }
         function resetFilters() {
-            document.getElementById('searchFrom').value = ''; document.getElementById('hsFrom').value = '';
-            document.getElementById('searchTo').value = ''; document.getElementById('hsTo').value = '';
+            document.getElementById('searchFrom').value = ''; 
+            document.getElementById('hsFrom').value = '';
+            document.getElementById('searchTo').value = ''; 
+            document.getElementById('hsTo').value = '';
+            document.getElementById('searchDate').value = ''; // <--- TILFØJ DENNE LINJE
             document.getElementById('filterPrice').value = 500;
             document.getElementById('f-seats').value = "1";
             document.getElementById('f-luggage').value = "";
             document.querySelectorAll('input[type=checkbox]').forEach(c => c.checked = false);
-            updatePriceLabel(); filterRides();
+            updatePriceLabel(); 
+            filterRides();
         }
     </script>
 </body>
