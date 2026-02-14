@@ -40,13 +40,19 @@
 
         main-content { display: block; padding-top: 80px; min-height: 100vh; padding-bottom: 100px;}
 
-        /* --- LAYOUT (Forbedret 2-kolonne) --- */
+        /* --- LAYOUT (Opdateret så titel er øverst) --- */
         .page-container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem 1.5rem;
+        }
+
+        .page-title { font-size: 2.2rem; font-weight: 900; margin: 0 0 5px 0; letter-spacing: -1px; }
+        .page-subtitle { font-size: 1.1rem; color: var(--accent); font-weight: 800; text-transform: uppercase; margin-bottom: 2rem; }
+
+        .content-grid {
             display: grid;
-            grid-template-columns: 1fr 380px; /* Venstre side er flexibel, højre er 380px */
+            grid-template-columns: 1fr 380px; /* Venstre side flexibel, højre er 380px */
             gap: 2.5rem;
             align-items: start;
         }
@@ -60,9 +66,6 @@
             flex-direction: column;
             gap: 1.5rem;
         }
-
-        .page-title { font-size: 2.2rem; font-weight: 900; margin: 0 0 5px 0; letter-spacing: -1px; }
-        .page-subtitle { font-size: 1.1rem; color: var(--accent); font-weight: 800; text-transform: uppercase; margin-bottom: 1.5rem; }
 
         /* --- GENERISKE KORT --- */
         .card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; }
@@ -107,25 +110,6 @@
 
         .co2-box { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 1rem;}
 
-        /* --- REVIEWS --- */
-        .rating-overview { display: flex; gap: 20px; align-items: center; margin-bottom: 1.5rem; }
-        .big-rating { text-align: center; }
-        .big-rating h3 { font-size: 3rem; margin: 0; font-weight: 900; line-height: 1; }
-        .big-rating p { margin: 5px 0 0 0; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
-        .rating-bars { flex: 1; display: flex; flex-direction: column; gap: 6px; }
-        .rating-bar-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s;}
-        .rating-bar-row:hover { opacity: 0.8; }
-        .progress-bg { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--brand); border-radius: 4px; transition: width 0.3s ease; }
-        .rating-bar-row.active .progress-fill { background: var(--accent); }
-        .rating-bar-row.faded { opacity: 0.3; }
-
-        .review-card { padding: 15px; border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; }
-        .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .reviewer-info { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 0.9rem;}
-        .reviewer-info img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover;}
-        .review-comment { font-size: 0.9rem; color: var(--text-muted); line-height: 1.4;}
-
         /* --- MAP & BOOKING BOKS (Højre kolonne) --- */
         .map-card { padding: 10px; height: 250px; }
         #map { width: 100%; height: 100%; border-radius: 12px; background: #E2E8F0; z-index: 1;}
@@ -145,10 +129,11 @@
         .mobile-booking-bar { display: none; }
 
         @media (max-width: 900px) {
-            .page-container { grid-template-columns: 1fr; padding: 1rem; }
-            .details-grid { grid-template-columns: 1fr; } /* Stabler kortene på mobil */
-            .right-sidebar { position: static; } /* Kortet scrolles normalt på mobil */
-            .booking-card { display: none; /* Skjules på mobil, erstattes af bund-bar */ }
+            .page-container { padding: 1rem; }
+            .content-grid { grid-template-columns: 1fr; } /* Skifter til 1 kolonne på mobil */
+            .details-grid { grid-template-columns: 1fr; } /* Stabler chauffør og detaljer på mobil */
+            .right-sidebar { position: static; } 
+            .booking-card { display: none; }
             
             /* Sticky bund-bar på mobil */
             .mobile-booking-bar {
@@ -182,125 +167,111 @@
     <main-content id="mainContent" style="display: none;">
         <div class="page-container">
             
-            <div class="left-col">
+            <div>
+                <h1 class="page-title" id="pageTitle">Henter...</h1>
+                <div class="page-subtitle" id="rDate">Læser dato...</div>
+            </div>
+            
+            <div class="content-grid">
                 
-                <div>
-                    <h1 class="page-title" id="pageTitle">Henter...</h1>
-                    <div class="page-subtitle" id="rDate">Læser dato...</div>
-                </div>
-                
-                <div class="card">
-                    <div class="route-timeline">
-                        <div class="stop">
-                            <div class="stop-dot"></div>
-                            <div class="stop-info">
-                                <span class="time" id="rDepTime">--:--</span>
-                                <span class="city" id="rDepCity">Henter...</span>
-                                <div class="address" id="rDepAddr"></div>
-                            </div>
-                        </div>
-                        <div class="stop">
-                            <div class="stop-dot accent"></div>
-                            <div class="stop-info">
-                                <span class="time" id="rArrTime">--:--</span>
-                                <span class="city" id="rArrCity">Henter...</span>
-                                <div class="address" id="rArrAddr"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="details-grid">
+                <div class="left-col">
                     
-                    <div class="card" id="driverSection" style="margin: 0;">
-                        <h2>Chauffør</h2>
-                        <div class="driver-header">
-                            <div class="avatar-lg" id="dAvatar">👤</div>
-                            <div>
-                                <h3 class="driver-name" id="dName">Henter...</h3>
-                                <div class="driver-meta">
-                                    ⭐ <span id="dRatingMini">--</span> (<span id="dReviewsMini">0</span>)
+                    <div class="card">
+                        <div class="route-timeline">
+                            <div class="stop">
+                                <div class="stop-dot"></div>
+                                <div class="stop-info">
+                                    <span class="time" id="rDepTime">--:--</span>
+                                    <span class="city" id="rDepCity">Henter...</span>
+                                    <div class="address" id="rDepAddr"></div>
                                 </div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top:2px;" id="dAge"></div>
                             </div>
-                        </div>
-
-                        <div id="gomoreBadgeContainer"></div>
-
-                        <div class="stat-row">
-                            <span>✅ Telefon bekræftet</span>
-                        </div>
-                        <div class="stat-row">
-                            <span>🚗 <span id="dTotalRides">0</span> ture gennemført</span>
-                        </div>
-
-                        <div class="co2-box" id="co2Box" style="display:none;">
-                            <span style="font-size: 1.5rem;">🌱</span>
-                            <div>
-                                <div style="font-weight: 800; color: var(--success);" id="dCo2">0 kg CO₂</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Sparet ved samkørsel</div>
+                            <div class="stop">
+                                <div class="stop-dot accent"></div>
+                                <div class="stop-info">
+                                    <span class="time" id="rArrTime">--:--</span>
+                                    <span class="city" id="rArrCity">Henter...</span>
+                                    <div class="address" id="rArrAddr"></div>
+                                </div>
                             </div>
-                        </div>
-
-                        <div id="dBioBox" style="margin-top: 1rem; display:none;">
-                            <p style="margin:0; font-size:0.9rem; color: var(--text-muted); line-height: 1.5; font-style: italic;" id="dBio"></p>
                         </div>
                     </div>
 
-                    <div class="card" style="margin: 0;">
-                        <h2>Turens detaljer</h2>
-                        <div class="badge-list" id="rBadges"></div>
+                    <div class="details-grid">
                         
-                        <div class="stat-row">
-                            <span>🎒 Max bagage:</span>
-                            <strong style="margin-left:auto" id="rLuggage">Mellem</strong>
-                        </div>
-                        <div class="stat-row">
-                            <span>🚗 Bil:</span>
-                            <strong style="margin-left:auto; text-align:right;" id="rCar">Henter...</strong>
-                        </div>
-
-                        <div id="rCommentBox" style="display:none;">
-                            <div class="driver-comment" id="rCommentText"></div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="card">
-                    <h2>Anmeldelser af chaufføren</h2>
-                    <div class="rating-overview">
-                        <div class="big-rating">
-                            <h3 id="revAvg">0.0</h3>
-                            <p>Ud af 5</p>
-                        </div>
-                        <div class="rating-bars" id="ratingBarsContainer">
+                        <div class="card" id="driverSection" style="margin: 0;">
+                            <h2>Chauffør</h2>
+                            <div class="driver-header">
+                                <div class="avatar-lg" id="dAvatar">👤</div>
+                                <div>
+                                    <h3 class="driver-name" id="dName">Henter...</h3>
+                                    <div class="driver-meta">
+                                        ⭐ <span id="dRatingMini">--</span> (<span id="dReviewsMini">0</span>)
+                                    </div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top:2px;" id="dAge"></div>
+                                </div>
                             </div>
-                    </div>
 
-                    <div id="reviewsContainer">
-                        <div style="text-align:center; padding: 2rem; color: var(--text-muted); font-weight: 500;">Ingen anmeldelser endnu.</div>
+                            <div id="gomoreBadgeContainer"></div>
+
+                            <div class="stat-row">
+                                <span>✅ Telefon bekræftet</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>🚗 <span id="dTotalRides">0</span> ture gennemført</span>
+                            </div>
+
+                            <div class="co2-box" id="co2Box" style="display:none;">
+                                <span style="font-size: 1.5rem;">🌱</span>
+                                <div>
+                                    <div style="font-weight: 800; color: var(--success);" id="dCo2">0 kg CO₂</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Sparet ved samkørsel</div>
+                                </div>
+                            </div>
+
+                            <div id="dBioBox" style="margin-top: 1rem; display:none;">
+                                <p style="margin:0; font-size:0.9rem; color: var(--text-muted); line-height: 1.5; font-style: italic;" id="dBio"></p>
+                            </div>
+                        </div>
+
+                        <div class="card" style="margin: 0;">
+                            <h2>Turens detaljer</h2>
+                            <div class="badge-list" id="rBadges"></div>
+                            
+                            <div class="stat-row">
+                                <span>🎒 Max bagage:</span>
+                                <strong style="margin-left:auto" id="rLuggage">Mellem</strong>
+                            </div>
+                            <div class="stat-row">
+                                <span>🚗 Bil:</span>
+                                <strong style="margin-left:auto; text-align:right;" id="rCar">Henter...</strong>
+                            </div>
+
+                            <div id="rCommentBox" style="display:none;">
+                                <div class="driver-comment" id="rCommentText"></div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
+
+                <aside class="right-sidebar">
+                    
+                    <div class="card map-card">
+                        <div id="map"></div>
+                    </div>
+
+                    <div class="card booking-card">
+                        <div style="font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 5px;">Pris pr. plads</div>
+                        <div class="price-huge" id="bPrice">-- kr</div>
+                        <div class="seats-left" id="bSeats">✔️ -- pladser tilbage</div>
+                        <button class="btn-book" onclick="handleBooking()">Book plads</button>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 15px;">Du betaler først når anmodningen er godkendt.</div>
+                    </div>
+
+                </aside>
 
             </div>
-
-            <aside class="right-sidebar">
-                
-                <div class="card map-card">
-                    <div id="map"></div>
-                </div>
-
-                <div class="card booking-card">
-                    <div style="font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 5px;">Pris pr. plads</div>
-                    <div class="price-huge" id="bPrice">-- kr</div>
-                    <div class="seats-left" id="bSeats">✔️ -- pladser tilbage</div>
-                    <button class="btn-book" onclick="handleBooking()">Book plads</button>
-                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 15px;">Du betaler først når anmodningen er godkendt.</div>
-                </div>
-
-            </aside>
-
         </div>
     </main-content>
 
@@ -316,8 +287,6 @@
         let currentRide = null;
         let driverProfile = null;
         let allReviews = [];
-        let ratingDist = {5:0, 4:0, 3:0, 2:0, 1:0};
-        let activeFilter = null;
 
         window.onload = async () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -347,12 +316,11 @@
                 currentRide = ride;
                 driverProfile = ride.driver;
 
+                // Hent reviews for at udregne gennemsnit til det lille stjerne-ikon
                 const { data: reviews } = await _supabase
                     .from('reviews')
-                    .select('*, reviewer:profiles!reviewer_id(full_name, avatar_url)')
-                    .eq('reviewee_id', driverProfile.id)
-                    .order('created_at', { ascending: false });
-                
+                    .select('rating')
+                    .eq('reviewee_id', driverProfile.id);
                 allReviews = reviews || [];
 
                 const { count: ridesAsDriver } = await _supabase
@@ -466,120 +434,28 @@
                 `;
             }
 
-            calculateAndRenderReviews();
+            calculateDriverRating();
         }
 
-        function calculateAndRenderReviews() {
+        function calculateDriverRating() {
             let sum = 0;
-            ratingDist = {5:0, 4:0, 3:0, 2:0, 1:0};
-
-            allReviews.forEach(r => {
-                sum += r.rating;
-                if(ratingDist[r.rating] !== undefined) ratingDist[r.rating]++;
-            });
-
+            allReviews.forEach(r => sum += r.rating);
             const total = allReviews.length;
             const avg = total > 0 ? (sum / total) : 0;
 
-            document.getElementById('revAvg').innerText = avg > 0 ? avg.toFixed(1) : "Ny";
             document.getElementById('dRatingMini').innerText = avg > 0 ? avg.toFixed(1) : "Ny";
             document.getElementById('dReviewsMini').innerText = total;
-
-            renderRatingBars(total);
-            renderReviewList();
-        }
-
-        function renderRatingBars(total) {
-            const container = document.getElementById('ratingBarsContainer');
-            container.innerHTML = '';
-
-            [5, 4, 3, 2, 1].forEach(star => {
-                const count = ratingDist[star];
-                const pct = total > 0 ? (count / total) * 100 : 0;
-                
-                const isActive = activeFilter === star;
-                const isFaded = activeFilter !== null && activeFilter !== star;
-
-                const row = document.createElement('div');
-                row.className = `rating-bar-row ${isActive ? 'active' : ''} ${isFaded ? 'faded' : ''}`;
-                row.onclick = () => {
-                    activeFilter = activeFilter === star ? null : star; 
-                    renderRatingBars(total); 
-                    renderReviewList(); 
-                };
-
-                row.innerHTML = `
-                    <span style="width: 12px;">${star}</span>
-                    <div class="progress-bg">
-                        <div class="progress-fill" style="width: ${pct}%"></div>
-                    </div>
-                `;
-                container.appendChild(row);
-            });
-        }
-
-        function renderReviewList() {
-            const container = document.getElementById('reviewsContainer');
-            container.innerHTML = '';
-
-            let visibleReviews = allReviews;
-            if(activeFilter !== null) {
-                visibleReviews = allReviews.filter(r => r.rating === activeFilter);
-            }
-
-            if(visibleReviews.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--text-muted); background: #F8FAFC; border-radius:12px;">Ingen anmeldelser at vise.</div>`;
-                return;
-            }
-
-            visibleReviews.forEach(r => {
-                const date = new Date(r.created_at).toLocaleDateString('da-DK', { month:'short', year:'numeric' });
-                const name = r.reviewer?.full_name || "Slettet bruger";
-                const avatar = r.reviewer?.avatar_url ? `<img src="${r.reviewer.avatar_url}">` : `<div style="width:30px;height:30px;border-radius:50%;background:#E2E8F0;display:flex;align-items:center;justify-content:center;">👤</div>`;
-                
-                let starsHTML = '';
-                for(let i=1; i<=5; i++) {
-                    starsHTML += `<span style="color: ${i <= r.rating ? '#F59E0B' : '#E2E8F0'}">★</span>`;
-                }
-
-                container.innerHTML += `
-                    <div class="review-card">
-                        <div class="review-header">
-                            <div class="reviewer-info">
-                                ${avatar}
-                                <div>
-                                    <div style="line-height:1;">${name}</div>
-                                    <span style="font-size:0.75rem; color:var(--text-muted); font-weight:500;">${date}</span>
-                                </div>
-                            </div>
-                            <div style="font-size: 0.9rem;">${starsHTML}</div>
-                        </div>
-                        ${r.comment ? `<div class="review-comment">${r.comment}</div>` : ''}
-                    </div>
-                `;
-            });
-
-            if (activeFilter !== null) {
-                container.innerHTML += `
-                    <button style="width:100%; padding:10px; border:none; background:none; color:var(--accent); font-weight:700; cursor:pointer;" onclick="activeFilter=null; calculateAndRenderReviews();">
-                        Fjern filter (Vis alle)
-                    </button>
-                `;
-            }
         }
 
         // KORT LOGIK (Leaflet)
         async function initMap(originStr, destStr) {
-            // Sæt kortet op (Centreret over Danmark som standard)
             const map = L.map('map').setView([56.0, 10.0], 6);
             
-            // Lækkert, moderne kortdesign (Voyager)
             L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                 attribution: '&copy; OpenStreetMap'
             }).addTo(map);
 
             try {
-                // Hent koordinater for byerne (gratis OpenStreetMap API)
                 const getCoords = async (query) => {
                     const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
                     const data = await res.json();
@@ -590,14 +466,9 @@
                 const destCoords = await getCoords(destStr);
 
                 if (originCoords && destCoords) {
-                    // Sæt markers
                     L.marker(originCoords).addTo(map).bindPopup("Start");
                     L.marker(destCoords).addTo(map).bindPopup("Mål");
-                    
-                    // Tegn en streg mellem dem
                     L.polyline([originCoords, destCoords], {color: '#6366F1', weight: 4, dashArray: '10, 10'}).addTo(map);
-                    
-                    // Zoom så begge markers passer ind i billedet
                     const bounds = L.latLngBounds(originCoords, destCoords);
                     map.fitBounds(bounds, { padding: [30, 30] });
                 }
