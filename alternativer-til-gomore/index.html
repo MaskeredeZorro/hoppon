@@ -36,12 +36,18 @@
         .hero-alt h1 { font-size: 3.2rem; font-weight: 900; margin-bottom: 1rem; letter-spacing: -1.5px; line-height: 1.1; }
         .hero-alt p { font-size: 1.25rem; color: #cbd5e1; max-width: 750px; margin: 0 auto; line-height: 1.6;}
 
+        /* CSS TIL TEKST FREMHÆVNING */
         .text-highlight {
             background-color: var(--accent);
             color: white;
             padding: 2px 6px;
             border-radius: 4px;
             font-weight: 700;
+        }
+        
+        .text-accent {
+            color: var(--accent);
+            font-weight: 800;
         }
 
         /* CONTAINER */
@@ -239,7 +245,7 @@
     <main>
         <section class="hero-alt">
             <h1>Bedste Alternativer til GoMore (2026)</h1>
-            <p>Er du træt af at betale urimelige summer til platformen? Vi har sammenlignet markedet for dig, så du som chauffør kan <span class="text-highlight">beholde dine egne penge</span>.</p>
+            <p>Er du træt af at betale urimelige summer til platformen? Vi har sammenlignet markedet for dig, så du som chauffør kan <span class="text-accent">beholde dine egne penge</span>.</p>
         </section>
 
         <div class="dsb-container">
@@ -263,7 +269,7 @@
                         <div class="earnings"><span id="hopponEarnings">150</span> kr.</div>
                         <div class="fee-details">
                             <span style="color: #166534; font-weight: 800; font-size: 1.1rem;">Du beholder hver en krone.</span><br><br>
-                            Ingen provisioner og ingen fradrag i din indtjening. Du sætter prisen, og vi udbetaler <span class="text-highlight">præcis det beløb</span> direkte til din konto.
+                            Ingen provisioner og ingen fradrag i din indtjening. Du sætter prisen, og vi udbetaler <span class="text-accent">præcis det beløb</span> direkte til din konto.
                         </div>
                     </div>
 
@@ -289,7 +295,7 @@
                 </div>
                 
                 <p style="text-align:center; margin-top: 2.5rem; font-size: 1.15rem; color: var(--brand); font-weight: 700;">
-                    <span id="savingText">Konkurrenterne tager over 25 kr. fra dig pr. passager. Hos <span class="text-highlight">HoppOn får du 100%</span>.</span>
+                    <span id="savingText">Konkurrenterne tager over 25 kr. fra dig pr. passager. <span class="text-highlight">Hos HoppOn får du 100%</span>.</span>
                 </p>
             </div>
 
@@ -304,7 +310,7 @@
                     <ul class="pro-con-list">
                         <li>
                             <svg class="icon icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            <div><span class="text-highlight">0 kr. i chaufførgebyr:</span> Du får udbetalt <span class="text-highlight">hele din pris</span> uden skjulte fradrag.</div>
+                            <div><span class="text-accent">0 kr. i chaufførgebyr:</span> Du får udbetalt <span class="text-accent">hele din pris</span> uden skjulte fradrag.</div>
                         </li>
                         <li>
                             <svg class="icon icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
@@ -492,7 +498,7 @@
 
             // Find største tab
             const maxLost = hopponEarnings - Math.min(handyEarnings, blablaEarnings);
-            savingText.innerHTML = `Konkurrenterne snupper op til <strong>${maxLost} kr.</strong> fra din lomme pr. passager. Hos <span class="text-highlight">HoppOn får du 100%</span>.`;
+            savingText.innerHTML = `Konkurrenterne snupper op til <strong>${maxLost} kr.</strong> fra din lomme pr. passager. <span class="text-highlight">Hos HoppOn får du 100%</span>.`;
         }
 
         slider.addEventListener('input', calculate);
