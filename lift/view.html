@@ -488,7 +488,9 @@
                 alert("Du kan ikke booke din egen tur!");
                 return;
             }
-            alert("Booking flow starter her!");
+            
+            // HER ER RETTELSEN: Sendes til den nye checkout side
+            window.location.href = '/lift/book.html?id=' + (currentRide.ride_number || currentRide.id);
         }
     </script>
 </body>
