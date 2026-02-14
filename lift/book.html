@@ -159,7 +159,7 @@
                     </div>
                     <div class="receipt-row">
                         <span>Servicegebyr</span>
-                        <strong id="uiServiceFee">5 kr.</strong>
+                        <strong id="uiServiceFee">0 kr.</strong>
                     </div>
                     <div class="receipt-total">
                         <span>Total (DKK)</span>
@@ -190,7 +190,6 @@
         let seatsSelected = 1;
         let pricePerSeat = 0;
         let maxSeats = 1;
-        const SERVICE_FEE = 0.05; // Servicegebyret vi har talt om
 
         let stripe = null;
         let elements = null;
@@ -240,7 +239,10 @@
 
                 populateUI();
                 updateReceipt();
-                await initStripePayment((seatsSelected * pricePerSeat) * 1.05);
+                
+                // Vi sender KUN subtotalen (den rene chauffør-pris) til backenden
+                const initialSubtotal = seatsSelected * pricePerSeat;
+                await initStripePayment(initialSubtotal);
 
                 document.getElementById('globalLoader').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
@@ -275,7 +277,6 @@
                 document.getElementById('btnMinus').disabled = (seatsSelected === 1);
                 document.getElementById('btnPlus').disabled = (seatsSelected === maxSeats);
                 
-                // Opdaterer teksten i oversigten
                 updateReceipt();
         
                 clearTimeout(debounceTimer);
@@ -283,11 +284,9 @@
                 document.getElementById('bookBtn').disabled = true;
         
                 debounceTimer = setTimeout(() => {
-                    // HER BEREGNES DEN NYE TOTAL (Subtotal + 5%)
                     const subtotal = seatsSelected * pricePerSeat;
-                    const totalWithFee = subtotal * 1.05; 
-                    
-                    initStripePayment(totalWithFee);
+                    // Igen, vi sender KUN subtotalen, Edge Function ordner resten
+                    initStripePayment(subtotal);
                 }, 800);
             }
         }
@@ -295,17 +294,14 @@
         function updateReceipt() {
             const subtotal = seatsSelected * pricePerSeat;
             
-            // NY BEREGNING:
-            const calculatedFee = subtotal * 0.05; 
-            const total = subtotal + calculatedFee;
+            // MATH.CEIL: Runder altid OP til nærmeste hele krone, så det matcher Edge Function
+            const total = Math.ceil(subtotal * 1.05); 
+            const calculatedFee = total - subtotal;
             
             document.getElementById('uiCalculation').innerText = `${seatsSelected} x ${pricePerSeat} kr.`;
             document.getElementById('uiSubtotal').innerText = `${subtotal} kr.`;
-            
-            // Opdater gebyr-feltet med det nye tal (f.eks. 7,5 kr.)
-            document.getElementById('uiServiceFee').innerText = `${calculatedFee.toFixed(2).replace('.', ',')} kr.`;
-            
-            document.getElementById('uiTotal').innerText = `${total.toFixed(2).replace('.', ',')} kr.`;
+            document.getElementById('uiServiceFee').innerText = `${calculatedFee} kr.`;
+            document.getElementById('uiTotal').innerText = `${total} kr.`;
         }
 
         async function initStripePayment(amountDKK) {
@@ -313,7 +309,6 @@
                 const { data: { session } } = await _supabase.auth.getSession();
                 if (!session) throw new Error("Log venligst ind igen.");
         
-                // Vi kalder din Edge Function
                 const { data, error } = await _supabase.functions.invoke('web-payment-sheet', {
                     body: { amount: amountDKK, currency: 'dkk', instant_booking: currentRide.instant_booking },
                     headers: { Authorization: `Bearer ${session.access_token}` }
@@ -322,20 +317,16 @@
                 if (error) throw error;
                 if (data && data.error) throw new Error(data.error);
         
-                // --- RETTELSE HER ---
-                // Vi tjekker om vi overhovedet fik en nøgle fra backenden
                 if (!data.publishableKey) {
-                    throw new Error("Backend sendte ikke 'publishableKey'. Husk at køre 'supabase secrets set STRIPE_PUBLISHABLE_KEY=...'");
+                    throw new Error("Backend sendte ikke 'publishableKey'.");
                 }
         
-                // Initialiser Stripe hvis det ikke er gjort
                 if (!stripe) stripe = Stripe(data.publishableKey);
                 
                 currentPaymentIntentId = data.paymentIntentId;
         
                 const appearance = { theme: 'stripe', variables: { colorPrimary: '#6366F1', borderRadius: '12px' } };
                 
-                // Vi bruger 'data.clientSecret' (som vi nu sender fra backenden)
                 elements = stripe.elements({ 
                     clientSecret: data.clientSecret, 
                     appearance 
@@ -381,12 +372,16 @@
             if (paymentIntent && (paymentIntent.status === 'requires_capture' || paymentIntent.status === 'succeeded')) {
                 try {
                     const statusToSet = currentRide.instant_booking ? 'approved' : 'pending';
+                    
+                    // Databasen gemmer nu præcis det samme opskruede heltal som Stripe
+                    const finalTotal = Math.ceil((seatsSelected * pricePerSeat) * 1.05);
+
                     const { error: dbError } = await _supabase.from('bookings').insert({
                         ride_id: currentRide.id,
                         passenger_id: currentUser.id,
                         seats_booked: seatsSelected,
                         status: statusToSet,
-                        total_price: (seatsSelected * pricePerSeat) * 1.05,
+                        total_price: finalTotal, 
                         stripe_payment_id: currentPaymentIntentId 
                     });
 
