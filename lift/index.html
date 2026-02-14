@@ -19,7 +19,7 @@
     <script src="/components.js" defer></script>
 
     <style>
-        /* --- GLOBAL RESET: SIKRER AT INTET SKUBBES UD AF SKÆRMEN --- */
+        /* --- GLOBAL RESET --- */
         *, *::before, *::after { box-sizing: border-box; }
         html, body { 
             width: 100%; 
@@ -62,48 +62,46 @@
         /* SIDESPECIFIKT DESIGN */
         main-content { display: block; padding-top: 75px; flex: 1; }
 
-        .hero { background: linear-gradient(135deg, var(--brand) 0%, #1e293b 100%); padding: 3rem 1rem; text-align: center; color: white; }
+        .hero { background: linear-gradient(135deg, var(--brand) 0%, #1e293b 100%); padding: 3rem 1rem 4rem 1rem; text-align: center; color: white; }
         .hero h1 { font-size: 2.5rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: -1px; }
         .hero p { color: #cbd5e1; font-size: 1.1rem; margin-bottom: 2rem; }
         
-        /* NYT: Baggrund bag 0 kr i gebyr */
         .hero-highlight {
-            background-color: var(--accent); /* Samme lilla som din søge-knap */
+            background-color: var(--accent); /* HoppOn Lilla */
             color: white;
             padding: 2px 10px;
             border-radius: 6px;
             font-weight: 800;
         }
         
-        .search-bar { background: var(--surface); padding: 0.5rem; border-radius: 18px; max-width: 850px; width: 100%; margin: 0 auto; display: flex; gap: 0.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); align-items: center; }
+        .search-bar { background: var(--surface); padding: 0.5rem; border-radius: 18px; max-width: 850px; width: 100%; margin: 0 auto; display: flex; gap: 0.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); align-items: center; position: relative; z-index: 2;}
         .search-input { flex: 1; min-width: 0; padding: 12px 16px; border: 1px solid transparent; border-radius: 12px; background: #F1F5F9; font-size: 16px; color: var(--brand); font-weight: 500; outline: none; }
         .search-input:focus { border-color: var(--accent); background: white; }
-        
-        /* Dato felt - lader grå tekst syne frem når tomt */
         .search-input::placeholder { color: #94a3b8; font-weight: 500; }
         #searchDate { max-width: 150px; }
         
         .search-btn { flex-shrink: 0; background: var(--accent); color: white; border: none; padding: 12px 1.8rem; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; }
 
-        /* NYT: Fleksibel kort-søgningsknap under søgebaren */
-        .map-search-btn-container { max-width: 850px; margin: 10px auto 0 auto; display: flex; justify-content: flex-end; }
+        /* NYT DESIGN: Fleksibel kort-søgningsknap */
+        .map-search-btn-container { max-width: 850px; margin: -15px auto 0 auto; display: flex; justify-content: center; position: relative; z-index: 1;}
         .map-search-btn { 
-            background: rgba(255,255,255,0.1); 
-            border: 1px solid rgba(255,255,255,0.2); 
-            color: white; 
-            padding: 8px 16px; 
-            border-radius: 12px; 
-            font-size: 0.9rem; 
-            font-weight: 600; 
+            background: white; 
+            color: var(--brand); 
+            padding: 14px 30px 10px 30px; /* Lidt asymmetrisk padding for at glide ind under søgebaren */
+            border-radius: 0 0 20px 20px; 
+            font-size: 0.95rem; 
+            font-weight: 800; 
+            border: none;
             cursor: pointer; 
             display: flex; 
-            align-items: center; 
+            align-items: flex-end; 
             gap: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
             transition: 0.2s;
         }
-        .map-search-btn:hover { background: rgba(255,255,255,0.2); }
+        .map-search-btn:hover { color: var(--accent); padding-bottom: 15px; }
 
-        /* MOBIL SØGEBAR - 2x2 GRID */
+        /* MOBIL SØGEBAR */
         @media (max-width: 768px) {
             .search-bar { 
                 display: grid;
@@ -121,8 +119,9 @@
                 height: 50px; 
                 margin: 0; 
             }
-            .map-search-btn-container { justify-content: stretch; }
-            .map-search-btn { width: 100%; justify-content: center; height: 50px;}
+            .map-search-btn-container { justify-content: stretch; margin: 0; margin-top: 15px;}
+            .map-search-btn { width: 100%; justify-content: center; align-items: center; border-radius: 12px; padding: 15px;}
+            .map-search-btn:hover { padding-bottom: 15px; }
         }
 
         .main-container { max-width: 1200px; margin: 1.5rem auto; padding: 0 1rem; display: grid; grid-template-columns: 280px 1fr; gap: 2rem; }
@@ -130,19 +129,14 @@
         /* FILTRE */
         .filters { background: var(--surface); padding: 1.2rem; border-radius: 20px; border: 1px solid var(--border); position: sticky; top: 90px; height: fit-content; max-height: calc(100vh - 110px); overflow-y: auto; }
         .filters::-webkit-scrollbar { width: 5px; } .filters::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        
         .filter-header { font-size: 1.1rem; font-weight: 800; margin-bottom: 1.2rem; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease; width: 100%; }
         .filter-chevron { display: none; font-size: 0.8rem; transition: transform 0.3s ease; }
         .filter-content { display: block; } 
-
         .filter-group { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
         .filter-label { font-weight: 700; font-size: 0.8rem; margin-bottom: 0.8rem; display: block; color: var(--text-muted); text-transform: uppercase; }
-        
         .price-display { font-weight: 800; color: var(--accent); font-size: 1.1rem; margin-bottom: 0.4rem; display: block; }
         input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; margin-bottom: 10px; }
-
         .select-input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 16px; margin-bottom: 10px; background: #F1F5F9; outline: none; font-weight: 500;}
-
         .filter-toggle { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
         .checkbox-custom { width: 18px; height: 18px; border: 2px solid #cbd5e1; border-radius: 5px; position: relative; flex-shrink: 0; transition: 0.2s;}
         input[type="checkbox"] { display: none; }
@@ -153,11 +147,8 @@
         .ride-list { display: flex; flex-direction: column; gap: 0.8rem; }
         .ride-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 1rem 1.2rem; transition: 0.2s; cursor: pointer; overflow: hidden; max-width: 100%; }
         .ride-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 15px -5px rgba(0,0,0,0.05); }
-        
         .card-date { font-size: 0.75rem; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; display: block; }
-        
         .timeline { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; width: 100%; }
-        
         .time-box { display: flex; flex-direction: column; flex: 1; min-width: 0; overflow: hidden; }
         .time-box.right { align-items: flex-end; text-align: right; }
         .time { font-size: 1.4rem; font-weight: 900; color: var(--brand); letter-spacing: -0.5px; }
@@ -170,7 +161,6 @@
         .duration-text { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); background: var(--surface); padding: 0 6px; position: relative; top: -11px; white-space: nowrap; }
 
         .card-mid { display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 0; border-top: 1px dashed var(--border); border-bottom: 1px dashed var(--border); margin-bottom: 0.7rem; width: 100%; min-width: 0; }
-        
         .driver { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; overflow: hidden;}
         .avatar { width: 35px; height: 35px; border-radius: 50%; background: #F1F5F9; overflow: hidden; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--border); flex-shrink: 0; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
@@ -193,18 +183,18 @@
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- FULD SKÆRMS KORTVISNING (Skjult by default) --- */
+        /* --- FULD SKÆRMS KORTVISNING --- */
         #mapOverlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: white; z-index: 3000; display: none; flex-direction: column;
         }
-        #bigMap { flex: 1; width: 100%; background: #E2E8F0; }
+        #bigMap { flex: 1; width: 100%; background: #E2E8F0; z-index: 1;}
         .map-header {
             padding: 15px 20px; background: white; border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex; justify-content: space-between; align-items: center; z-index: 2;
         }
         .close-map-btn {
-            background: none; border: none; font-size: 1.5rem; font-weight: bold; color: var(--brand); cursor: pointer;
+            background: none; border: none; font-size: 1.5rem; font-weight: bold; color: var(--brand); cursor: pointer; padding: 5px;
         }
         
         /* Map Cluster Ikon */
@@ -214,6 +204,38 @@
             align-items: center; justify-content: center; font-weight: bold;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 14px;
         }
+
+        /* --- PREVIEW BOTTOM SHEET (Visning af tur på kort) --- */
+        #mapRidePreview {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(150%);
+            width: 90%;
+            max-width: 450px;
+            background: white;
+            border-radius: 20px;
+            padding: 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 4000;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            border: 1px solid var(--border);
+        }
+        #mapRidePreview.active {
+            transform: translateX(-50%) translateY(0);
+        }
+        .preview-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .preview-time { font-size: 1.4rem; font-weight: 900; color: var(--brand); letter-spacing: -0.5px; line-height: 1;}
+        .preview-route { font-size: 0.95rem; color: var(--text-muted); font-weight: 700; margin-top: 4px;}
+        .preview-price { font-size: 1.5rem; font-weight: 900; color: var(--accent); line-height: 1;}
+        .preview-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border); padding-top: 12px; }
+        .preview-driver { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; font-weight: 700; color: var(--brand);}
+        .preview-avatar { width: 32px; height: 32px; border-radius: 50%; background: #F1F5F9; display:flex; align-items:center; justify-content:center; overflow:hidden; border: 1px solid var(--border);}
+        .preview-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .preview-btn { color: var(--accent); font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; gap: 4px; }
 
         /* MOBILVISNING (MAX 950px) */
         @media (max-width: 950px) { 
@@ -238,6 +260,8 @@
             .badge-group { justify-content: flex-start; margin-left: 0; width: 100%; }
             .card-footer { flex-direction: column; align-items: flex-start; gap: 6px; }
             .price { font-size: 1.4rem; }
+            
+            #mapRidePreview { width: 95%; bottom: env(safe-area-inset-bottom, 20px); } /* iPhone safe area i bunden */
         }
     </style>
 </head>
@@ -256,12 +280,35 @@
     <div id="mapOverlay">
         <div class="map-header">
             <div>
-                <div style="font-size: 1.2rem; font-weight: 800; color: var(--brand);" id="mapOverlayTitle">Kortvisning</div>
-                <div style="font-size: 0.85rem; color: var(--text-muted);">Klik på cirklerne for at se ture</div>
+                <div style="font-size: 1.2rem; font-weight: 900; color: var(--brand);" id="mapOverlayTitle">Kortvisning</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Klik på cirklerne for at se ture</div>
             </div>
             <button class="close-map-btn" onclick="closeMap()">×</button>
         </div>
-        <div id="bigMap"></div>
+        
+        <div style="position: relative; flex: 1;">
+            <div id="bigMap"></div>
+            
+            <div id="mapRidePreview" onclick="goToPreviewRide()">
+                <div class="preview-header">
+                    <div>
+                        <div class="preview-time" id="mapPreviewTime">--:--</div>
+                        <div class="preview-route" id="mapPreviewDest">Til ...</div>
+                        <div style="font-size: 0.8rem; color: var(--accent); font-weight: 800; margin-top: 4px; text-transform: uppercase;" id="mapPreviewDate">--</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="preview-price" id="mapPreviewPrice">-- kr</div>
+                        <div style="font-size: 0.85rem; color: var(--success); font-weight: 700; margin-top: 4px;" id="mapPreviewSeats">-- pladser</div>
+                    </div>
+                </div>
+                <div class="preview-footer">
+                    <div class="preview-driver" id="mapPreviewDriver">
+                        <div class="preview-avatar">👤</div> <span>Chauffør</span>
+                    </div>
+                    <div class="preview-btn">Se tur <span style="font-size: 1.3rem; margin-top:-2px;">›</span></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <main-content>
@@ -369,6 +416,7 @@
         let filteredRidesForMap = [];
         let isUserLoggedIn = false;
         let leafletMap = null;
+        let currentPreviewRideId = null;
 
         function toggleMobileFilters() {
             if (window.innerWidth <= 950) {
@@ -484,7 +532,7 @@
             if (sortBy === 'price') filtered.sort((a, b) => a.price_dkk - b.price_dkk);
             else filtered.sort((a, b) => new Date(a.departure_time) - new Date(b.departure_time));
 
-            filteredRidesForMap = filtered; // Gemmer filtreret liste til kortet
+            filteredRidesForMap = filtered; 
             renderRides(filtered);
         }
 
@@ -567,50 +615,74 @@
             });
         }
 
-        // --- MAP SØGNING ---
-        function parsePostGISHex(hexStr) {
-            if (!hexStr || hexStr.length < 42) return null;
-            try {
-                // Konverterer simpel Hex representation til LatLng (Som i din Flutter kode)
-                // Denne simple version virker kun for bestemt data format, så vi prøver en sikker konvertering:
-                // Note: I web er det nemmest at bruge en API, men hvis databasen sender hex, skal det decodes.
-                // DA DETTE KAN VÆRE KOMPLEKST I JS UDEN BIBLIOTEKER, ANBEFALES DET AT BRUGE EN GEO-API, 
-                // eller at gemme lat/lng som rene tal (float) i databasen fremadrettet.
-                
-                // For nu bruger vi OpenStreetMap (Nominatim) gratis til at finde koordinaten ud fra bynavnet:
-                return null; 
-            } catch(e) { return null; }
+        // --- MAP SØGNING LOGIK ---
+        
+        function showRidePreview(ride) {
+            currentPreviewRideId = ride.ride_number || ride.id;
+            
+            const depDate = new Date(ride.departure_time);
+            const timeStr = depDate.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'});
+            const dateStr = depDate.toLocaleDateString('da-DK', {weekday:'short', day:'numeric', month:'short'});
+            
+            const driverName = ride.driver?.full_name || 'Chauffør';
+            const avatarHtml = ride.driver?.avatar_url ? `<img src="${ride.driver.avatar_url}">` : `👤`;
+            const destCity = ride.destination_city.split(',')[0];
+
+            document.getElementById('mapPreviewTime').innerText = timeStr;
+            document.getElementById('mapPreviewDate').innerText = dateStr;
+            document.getElementById('mapPreviewDest').innerText = `Til ${destCity}`;
+            document.getElementById('mapPreviewPrice').innerText = `${ride.price_dkk} kr`;
+            document.getElementById('mapPreviewSeats').innerText = `✔️ ${ride.seats_available} pladser`;
+            
+            document.getElementById('mapPreviewDriver').innerHTML = `
+                <div class="preview-avatar">${avatarHtml}</div> <span>${driverName}</span>
+            `;
+
+            document.getElementById('mapRidePreview').classList.add('active');
+        }
+
+        function goToPreviewRide() {
+            if(currentPreviewRideId) {
+                window.location.href = '/lift/view.html?id=' + currentPreviewRideId;
+            }
         }
 
         async function openMapSearch() {
             const fromCity = document.getElementById('searchFrom').value.trim();
             if (!fromCity) {
-                alert("Indtast venligst en by i 'Fra' feltet for at se kortet.");
+                alert("Indtast venligst en by i 'Fra' feltet for at se muligheder på kortet.");
                 document.getElementById('searchFrom').focus();
                 return;
             }
 
             document.getElementById('mapOverlay').style.display = 'flex';
             document.getElementById('mapOverlayTitle').innerText = `Ture fra ${fromCity}`;
-            document.body.style.overflow = 'hidden'; // Forhindrer baggrundsscroll
+            document.body.style.overflow = 'hidden'; 
 
             if (!leafletMap) {
-                leafletMap = L.map('bigMap').setView([56.0, 10.0], 6);
+                leafletMap = L.map('bigMap', { zoomControl: false }).setView([56.0, 10.0], 6);
+                L.control.zoom({ position: 'topright' }).addTo(leafletMap);
+                
                 L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                     attribution: '&copy; OpenStreetMap'
                 }).addTo(leafletMap);
+
+                // Klik på selve kortet lukker popup'en
+                leafletMap.on('click', () => {
+                    document.getElementById('mapRidePreview').classList.remove('active');
+                });
             }
             
-            // Rens kortet for gamle markers
+            // Tvinger kortet til at genberegne sin størrelse, da display var 'none'
+            setTimeout(() => { leafletMap.invalidateSize(); }, 200);
+            
             leafletMap.eachLayer((layer) => {
                 if (layer instanceof L.Marker) leafletMap.removeLayer(layer);
             });
+            document.getElementById('mapRidePreview').classList.remove('active');
 
-            // Vis alle mulige destinationer fra den valgte startby
             let bounds = [];
             for (let ride of filteredRidesForMap) {
-                // Vi bruger Nominatim (OSM) til lynhurtigt at finde byens placering 
-                // da PostGIS Hex konvertering kræver tunge biblioteker i JS.
                 const destCity = ride.destination_city.split(',')[0]; 
                 
                 try {
@@ -622,26 +694,24 @@
                         const lon = parseFloat(data[0].lon);
                         bounds.push([lat, lon]);
 
-                        // Opret en custom markør, ligesom i din Flutter kode
                         const customIcon = L.divIcon({
                             className: 'map-cluster-icon',
-                            html: `<span>1</span>`, // I en rigtig app ville man tælle ture pr by her
+                            html: `<span>1</span>`, 
                             iconSize: [35, 35],
                             iconAnchor: [17, 17]
                         });
 
                         const marker = L.marker([lat, lon], {icon: customIcon}).addTo(leafletMap);
                         
-                        // Når de klikker, hop til turen!
-                        marker.on('click', () => {
-                            const urlId = ride.ride_number || ride.id;
-                            window.location.href = '/lift/view.html?id=' + urlId;
+                        // Når de klikker på prikken -> Vis pop-up i bunden
+                        marker.on('click', (e) => {
+                            L.DomEvent.stopPropagation(e); // Undgår at map 'click' event fanger den
+                            showRidePreview(ride);
                         });
                     }
                 } catch(e) { console.log(e); }
             }
 
-            // Zoom kortet ind så alle prikker kan ses
             if(bounds.length > 0) {
                 leafletMap.fitBounds(L.latLngBounds(bounds), { padding: [50, 50] });
             }
@@ -649,6 +719,7 @@
 
         function closeMap() {
             document.getElementById('mapOverlay').style.display = 'none';
+            document.getElementById('mapRidePreview').classList.remove('active');
             document.body.style.overflow = 'auto';
         }
 
