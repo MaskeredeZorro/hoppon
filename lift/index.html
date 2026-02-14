@@ -19,15 +19,19 @@
         /* DYNAMISK HEADER SØGNING (Svæver over den globale header) */
         .header-search { 
             position: fixed; 
-            top: 18px; /* Centrerer den vertikalt i din 75px høje globale header */
+            top: 12px; 
             left: 50%; 
             transform: translate(-50%, -10px); 
-            z-index: 1001; /* Ligger over headeren (som har z-index 1000) */
+            z-index: 1001; 
             display: flex; 
             gap: 10px; 
             opacity: 0; 
             pointer-events: none; 
             transition: all 0.3s ease; 
+            background: white; 
+            padding: 8px 12px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
         .header-search.active { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
         .hs-input { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; background: #F1F5F9; outline: none; width: 130px; font-weight: 500;}
@@ -53,8 +57,7 @@
         }
 
         .main-container { max-width: 1200px; margin: 1.5rem auto; padding: 0 1rem; display: grid; grid-template-columns: 280px 1fr; gap: 2rem; }
-        @media (max-width: 950px) { .main-container { grid-template-columns: 1fr; } }
-
+        
         .filters { background: var(--surface); padding: 1.2rem; border-radius: 20px; border: 1px solid var(--border); position: sticky; top: 90px; height: fit-content; max-height: calc(100vh - 110px); overflow-y: auto; }
         .filters::-webkit-scrollbar { width: 5px; } .filters::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .filter-header { font-size: 1.1rem; font-weight: 800; margin-bottom: 1.2rem; display: flex; justify-content: space-between; }
@@ -111,6 +114,26 @@
         #globalLoader { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display: flex; justify-content: center; align-items: center; z-index: 2000; }
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* FIX AF MOBILVISNING */
+        @media (max-width: 950px) { 
+            .main-container { grid-template-columns: 1fr; } 
+            .filters { 
+                position: relative; 
+                top: 0; 
+                max-height: none; 
+                margin-bottom: 2rem; 
+            } 
+        }
+
+        @media (max-width: 480px) {
+            .time-box { min-width: 80px; } 
+            .time { font-size: 1.1rem; } 
+            .route-path { margin: 0 0.5rem; }
+            .driver { flex-wrap: wrap; } 
+            .card-footer { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .price { font-size: 1.3rem; }
+        }
     </style>
 </head>
 <body>
@@ -238,6 +261,21 @@
                     loginBtn.onclick = async (e) => { e.preventDefault(); await _supabase.auth.signOut(); location.reload(); };
                 }
             }
+
+            // Aflæs URL parametre og indsæt dem i søgefelterne
+            const urlParams = new URLSearchParams(window.location.search);
+            const fraParam = urlParams.get('fra');
+            const tilParam = urlParams.get('til');
+
+            if (fraParam) {
+                document.getElementById('searchFrom').value = fraParam;
+                document.getElementById('hsFrom').value = fraParam;
+            }
+            if (tilParam) {
+                document.getElementById('searchTo').value = tilParam;
+                document.getElementById('hsTo').value = tilParam;
+            }
+
             await fetchRides();
             document.getElementById('searchDate').valueAsDate = new Date();
             document.getElementById('globalLoader').style.display = 'none';
