@@ -15,7 +15,32 @@
 body { background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; min-height: 100vh; }
 
 /* === HEADER (GLASSMORPHISM) === */
-.glass-header { position: fixed; top: 0; left: 0; right: 0; height: 75px; background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.3); box-shadow: 0 4px 30px rgba(0,0,0,0.03); z-index: 1000; display: flex; justify-content: center; }
+.glass-header { 
+    position: fixed; top: 0; left: 0; right: 0; height: 75px; 
+    background: var(--glass-bg); 
+    backdrop-filter: blur(16px); 
+    -webkit-backdrop-filter: blur(16px); 
+    border-bottom: 1px solid rgba(255,255,255,0.3); 
+    box-shadow: 0 4px 30px rgba(0,0,0,0.03); 
+    z-index: 1000; display: flex; justify-content: center; 
+}
+
+/* --- FALLBACK: KUN HVIS HARDWARE ACCELERATION ER SLÅET FRA --- */
+body.no-hw-accel .glass-header {
+    background: #FFFFFF !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-bottom: 1px solid var(--border);
+}
+
+body.no-hw-accel .wizard-bar,
+body.no-hw-accel .card {
+    background: #FFFFFF !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+/* ------------------------------------------------------------- */
+
 .header-container { width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; padding: 0 1.5rem; }
 .logo { display: flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 900; color: var(--brand); text-decoration: none; letter-spacing: -0.5px; }
 .logo img { width: 36px; height: 36px; border-radius: 10px; }
