@@ -82,12 +82,12 @@
         
         .search-btn { flex-shrink: 0; background: var(--accent); color: white; border: none; padding: 12px 1.8rem; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; }
 
-        /* NYT DESIGN: Fleksibel kort-søgningsknap */
+        /* Fleksibel kort-søgningsknap */
         .map-search-btn-container { 
             max-width: 850px; 
             margin: 12px auto 0 auto; 
             display: flex; 
-            justify-content: flex-end; /* Placerer den til højre under Dato og Søg */
+            justify-content: flex-end; 
         }
         .map-search-btn { 
             background: rgba(255, 255, 255, 0.15); 
@@ -104,7 +104,7 @@
             gap: 8px;
             backdrop-filter: blur(5px);
             transition: 0.2s;
-            width: 260px; /* Ca. bredden på 'Dato' + 'Søg' for at flugte pænt */
+            width: 260px; 
         }
         .map-search-btn:hover { 
             background: rgba(255, 255, 255, 0.25); 
@@ -196,10 +196,13 @@
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: white; z-index: 3000; display: none; flex-direction: column;
         }
-        #bigMap { flex: 1; width: 100%; background: #E2E8F0; z-index: 1;}
+        
+        /* RETTET: Dette sikrer at kortet altid har fuld højde og ikke bliver en hvid skærm */
+        #bigMap { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #E2E8F0; z-index: 1;}
+        
         .map-header {
             padding: 15px 20px; background: white; border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center; z-index: 2;
+            display: flex; justify-content: space-between; align-items: center; z-index: 2; position: relative;
         }
         .close-map-btn {
             background: none; border: none; font-size: 1.5rem; font-weight: bold; color: var(--brand); cursor: pointer; padding: 5px;
@@ -425,6 +428,7 @@
         let isUserLoggedIn = false;
         let leafletMap = null;
         let currentPreviewRideId = null;
+        let cityCoordsCache = {}; // RETTELSE: Gemmer byers placering så vi ikke blokerer kort-API'en
 
         function toggleMobileFilters() {
             if (window.innerWidth <= 950) {
@@ -675,13 +679,12 @@
                     attribution: '&copy; OpenStreetMap'
                 }).addTo(leafletMap);
 
-                // Klik på selve kortet lukker popup'en
                 leafletMap.on('click', () => {
                     document.getElementById('mapRidePreview').classList.remove('active');
                 });
             }
             
-            // Tvinger kortet til at genberegne sin størrelse
+            // Tvinger kortet til at genberegne sin størrelse, ellers bliver den hvid.
             setTimeout(() => { leafletMap.invalidateSize(); }, 200);
             
             leafletMap.eachLayer((layer) => {
@@ -690,16 +693,23 @@
             document.getElementById('mapRidePreview').classList.remove('active');
 
             let bounds = [];
+            
             for (let ride of filteredRidesForMap) {
                 const destCity = ride.destination_city.split(',')[0]; 
                 
                 try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destCity)} Denmark`);
-                    const data = await res.json();
+                    // RETTELSE: Tjekker cachen før vi spørger serveren (undgår at vi bliver blokeret)
+                    if (!cityCoordsCache[destCity]) {
+                        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destCity)} Denmark`);
+                        const data = await res.json();
+                        if(data.length > 0) {
+                            cityCoordsCache[destCity] = { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+                        }
+                    }
                     
-                    if(data.length > 0) {
-                        const lat = parseFloat(data[0].lat);
-                        const lon = parseFloat(data[0].lon);
+                    if(cityCoordsCache[destCity]) {
+                        const lat = cityCoordsCache[destCity].lat;
+                        const lon = cityCoordsCache[destCity].lon;
                         bounds.push([lat, lon]);
 
                         const customIcon = L.divIcon({
@@ -711,7 +721,6 @@
 
                         const marker = L.marker([lat, lon], {icon: customIcon}).addTo(leafletMap);
                         
-                        // Når de klikker på prikken -> Vis pop-up i bunden
                         marker.on('click', (e) => {
                             L.DomEvent.stopPropagation(e); 
                             showRidePreview(ride);
@@ -721,7 +730,8 @@
             }
 
             if(bounds.length > 0) {
-                leafletMap.fitBounds(L.latLngBounds(bounds), { padding: [50, 50] });
+                // Sørg for at den har zoomet helt ud hvis der kun er ét punkt
+                leafletMap.fitBounds(L.latLngBounds(bounds), { padding: [50, 50], maxZoom: 10 });
             }
         }
 
