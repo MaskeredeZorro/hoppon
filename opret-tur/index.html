@@ -11,6 +11,9 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <link rel="stylesheet" href="/style.css">
     <script src="/supabase.js"></script>
     <script src="/components.js" defer></script>
@@ -165,12 +168,44 @@
         .info-row span:first-child { color: var(--text-muted); font-weight: 600;}
         .info-row span:last-child { font-weight: 800; color: var(--brand); }
         
-        .editable-time { font-family: inherit; font-size: 1rem; font-weight: 900; color: var(--brand); background: transparent; border: 1px solid transparent; border-bottom: 2px dashed var(--accent); padding: 0 2px; width: auto; text-align: right; cursor: pointer; outline: none; transition: 0.2s; }
-        .editable-time:hover, .editable-time:focus { background: #EEF2FF; border-bottom: 2px solid var(--accent); border-radius: 6px 6px 0 0; }
+        /* NYT MILITARY TIME INPUT FELT DESIGN (Tvinger 24t format) */
+        .military-time-input {
+            display: flex;
+            align-items: center;
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 8px 12px;
+            width: fit-content;
+            transition: 0.2s;
+        }
+        .military-time-input:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            background: white;
+        }
+        .military-time-input input {
+            width: 45px;
+            padding: 4px;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--brand);
+            outline: none;
+            box-shadow: none;
+        }
+        .military-time-input input:focus { box-shadow: none; background: transparent; border: none; }
+        .military-time-input span { font-size: 1.1rem; font-weight: 800; color: var(--brand); margin: 0 2px;}
+
+        /* Styling til Ankomst tid (som man kan rette) */
+        .editable-time-container { display: flex; align-items: center; gap: 2px;}
+        .editable-time-input { font-family: inherit; font-size: 1rem; font-weight: 900; color: var(--brand); background: transparent; border: none; border-bottom: 2px dashed var(--accent); width: 28px; text-align: center; cursor: pointer; outline: none; transition: 0.2s; padding: 0;}
+        .editable-time-input:focus { background: #EEF2FF; border-bottom: 2px solid var(--accent); }
         
         .payout-highlight { margin-top: 12px; padding: 16px; border-radius: 14px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05)); border: 1px solid rgba(16, 185, 129, 0.3); text-align: center; }
         
-        /* Opdateret til brand-farven for gebyr */
         .payout-highlight .gebyr-badge { display: inline-block; background: var(--brand); color: white; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 16px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;}
         .payout-highlight .amount { font-size: 1.8rem; font-weight: 900; color: var(--brand); letter-spacing: -1px;}
         .payout-highlight .sub { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; font-weight: 500;}
@@ -272,7 +307,11 @@
                             <div class="section-title">Afgangstidspunkt</div>
                             <div class="form-group">
                                 <label>Hvornår kører du fra din start-destination?</label>
-                                <input type="time" id="rideTime" style="max-width: 200px;" onchange="updateTimes()">
+                                <div class="military-time-input">
+                                    <input type="text" id="rideTimeHour" value="12" maxlength="2" oninput="validateTimeInput(this, 23); updateTimes();" onfocus="this.select()">
+                                    <span>:</span>
+                                    <input type="text" id="rideTimeMin" value="00" maxlength="2" oninput="validateTimeInput(this, 59); updateTimes();" onfocus="this.select()">
+                                </div>
                             </div>
 
                             <div class="nav-buttons">
@@ -354,7 +393,11 @@
                             
                             <div class="info-row" style="align-items: center;">
                                 <span>Est. ankomst (klik for at rette):</span>
-                                <input type="time" id="arrivalTimeInput" class="editable-time">
+                                <div class="editable-time-container">
+                                    <input type="text" id="arrTimeHour" class="editable-time-input" value="00" maxlength="2" oninput="validateTimeInput(this, 23)" onfocus="this.select()">
+                                    <span style="font-weight:900;">:</span>
+                                    <input type="text" id="arrTimeMin" class="editable-time-input" value="00" maxlength="2" oninput="validateTimeInput(this, 59)" onfocus="this.select()">
+                                </div>
                             </div>
                             
                             <div class="info-row">
@@ -404,13 +447,18 @@
     <hoppon-footer></hoppon-footer>
 
     <script>
-        // Bemærk: _supabase initialiseres automatisk via /supabase.js i toppen
         const MAPBOX_TOKEN = 'pk.eyJ1IjoiaG9wcG9uIiwiYSI6ImNtbGpxd2dvNDAybmkzZXBnMnE3emFtY3oifQ.125QBf3ZNc7sCVxuBwnCnA';
         mapboxgl.accessToken = MAPBOX_TOKEN;
 
         let currentUser = null;
         let currentUserCarDetails = null;
+        
         let map = null;
+        // LEAFLET FALLBACK VARIABLER
+        let leafletMap = null;
+        let leafletRouteLayer = null;
+        let leafletMarkerLayers = [];
+
         let currentPrice = 0;
         let recommendedPrice = 0;
         let cachedDistanceKm = 0;
@@ -441,12 +489,13 @@
                 initMap();
                 
                 const now = new Date();
-                
-                // Ny kode: Tvinger 24 timers format (HH:MM)
                 const defaultTime = new Date(now.getTime() + 3600000);
                 const hours = defaultTime.getHours().toString().padStart(2, '0');
                 const minutes = defaultTime.getMinutes().toString().padStart(2, '0');
-                document.getElementById('rideTime').value = `${hours}:${minutes}`;
+                
+                // Opdater de nye custom input felter
+                document.getElementById('rideTimeHour').value = hours;
+                document.getElementById('rideTimeMin').value = minutes;
                 
                 const todayStr = now.toISOString().split('T')[0];
                 selectedDates.push(todayStr);
@@ -457,6 +506,31 @@
             }
             setLoading(false);
         };
+
+        // --- CUSTOM 24H TIME LOGIK ---
+        function validateTimeInput(input, maxVal) {
+            input.value = input.value.replace(/[^0-9]/g, '');
+            if (input.value !== '') {
+                let val = parseInt(input.value);
+                if (val > maxVal) input.value = maxVal;
+            }
+            // Tilføj det foranstillede 0, når brugeren forlader feltet (håndteres af blur hvis nødvendigt, men holdes simpelt her)
+            if (input.value.length === 1 && parseInt(input.value) > (maxVal > 23 ? 5 : 2)) {
+                input.value = '0' + input.value;
+            }
+        }
+        
+        // Henter værdien fra vores nye 24h felter
+        function getDepartureTimeStr() {
+            let h = document.getElementById('rideTimeHour').value || "00";
+            let m = document.getElementById('rideTimeMin').value || "00";
+            return `${h.padStart(2, '0')}:${m.padStart(2, '0')}`;
+        }
+        function getArrivalTimeStr() {
+            let h = document.getElementById('arrTimeHour').value || "00";
+            let m = document.getElementById('arrTimeMin').value || "00";
+            return `${h.padStart(2, '0')}:${m.padStart(2, '0')}`;
+        }
 
         // --- WIZARD & UI NAVIGATION ---
         function goToStep(step) {
@@ -475,13 +549,16 @@
             const rightCol = document.getElementById('rightColumn');
             const mainGrid = document.getElementById('mainGrid');
             const infoCard = document.getElementById('infoCard');
-            const mapContainer = document.getElementById('map');
             
             if (step === 1) {
                 mainGrid.classList.remove('full-width');
                 infoCard.style.display = 'none';
                 rightCol.style.display = 'block';
-                setTimeout(() => { rightCol.style.opacity = '1'; if(map) map.resize(); }, 50);
+                setTimeout(() => { 
+                    rightCol.style.opacity = '1'; 
+                    if(map) map.resize(); 
+                    if(leafletMap) leafletMap.invalidateSize(); 
+                }, 50);
             } else if (step === 2) {
                 rightCol.style.opacity = '0';
                 setTimeout(() => { rightCol.style.display = 'none'; mainGrid.classList.add('full-width'); }, 300);
@@ -489,7 +566,11 @@
                 mainGrid.classList.remove('full-width');
                 infoCard.style.display = 'block';
                 rightCol.style.display = 'block';
-                setTimeout(() => { rightCol.style.opacity = '1'; if(map) map.resize(); }, 50);
+                setTimeout(() => { 
+                    rightCol.style.opacity = '1'; 
+                    if(map) map.resize(); 
+                    if(leafletMap) leafletMap.invalidateSize();
+                }, 50);
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -532,10 +613,10 @@
 
         // --- TIDER & CO2 ---
         function updateTimes() {
-            const timeStr = document.getElementById('rideTime').value;
+            const timeStr = getDepartureTimeStr();
             if(!timeStr) return;
             
-            document.getElementById('departureText').innerText = timeStr; // Her står nu f.eks. 23:00
+            document.getElementById('departureText').innerText = timeStr; 
         
             if(cachedDurationMin > 0) {
                 const [hours, mins] = timeStr.split(':').map(Number);
@@ -543,13 +624,11 @@
                 const ferryExtraMins = (isFerry && crossesSeaGlobal) ? 90 : 0; 
                 const totalMins = (hours * 60) + mins + cachedDurationMin + ferryExtraMins;
         
-                // Tvinger 24-timers format i beregningen
                 const arrivalHours = Math.floor(totalMins / 60) % 24;
                 const arrivalMins = totalMins % 60;
                 
-                // padStart(2, '0') sikrer at det hedder 09:05 og ikke 9:5
-                const formattedArrival = `${arrivalHours.toString().padStart(2, '0')}:${arrivalMins.toString().padStart(2, '0')}`;
-                document.getElementById('arrivalTimeInput').value = formattedArrival;
+                document.getElementById('arrTimeHour').value = arrivalHours.toString().padStart(2, '0');
+                document.getElementById('arrTimeMin').value = arrivalMins.toString().padStart(2, '0');
                 
                 const totalDurH = Math.floor((cachedDurationMin + ferryExtraMins) / 60);
                 const totalDurM = (cachedDurationMin + ferryExtraMins) % 60;
@@ -594,10 +673,9 @@
 
         function setLoading(isLoading, text = "Arbejder...") { 
             const loader = document.getElementById('globalLoader');
-            document.getElementById('loadingText').innerHTML = text; // Tillader HTML tags til success-besked
+            document.getElementById('loadingText').innerHTML = text; 
             loader.style.display = isLoading ? 'flex' : 'none'; 
             
-            // Hvis det er success-beskeden, skjuler vi standard-spinneren
             if(text.includes('Succes')) {
                 document.getElementById('loaderSpinner').style.display = 'none';
             } else {
@@ -618,16 +696,38 @@
             }
         }
 
-        // --- MAPBOX ---
+        // --- MAPBOX & FALLBACK ---
         function initMap() {
-            if(map) return;
-            map = new mapboxgl.Map({
-                container: 'map',
-                style: 'mapbox://styles/mapbox/streets-v12',
-                center: [10.2039, 56.1629],
-                zoom: 6
-            });
-            setTimeout(() => map.resize(), 500);
+            // TJEK: Har browseren WebGL? (Mapbox GL JS kræver WebGL for at virke)
+            if (mapboxgl.supported()) {
+                // Mapbox understøttes - brug det primære kort!
+                if(map) return;
+                try {
+                    map = new mapboxgl.Map({
+                        container: 'map',
+                        style: 'mapbox://styles/mapbox/streets-v12',
+                        center: [10.2039, 56.1629],
+                        zoom: 6
+                    });
+                    setTimeout(() => map.resize(), 500);
+                } catch(e) {
+                    console.error("Mapbox fejlede, starter Leaflet fallback...", e);
+                    initLeafletFallback();
+                }
+            } else {
+                // Mapbox understøttes IKKE (Hardware Acceleration er slået fra) - brug Leaflet!
+                initLeafletFallback();
+            }
+        }
+
+        function initLeafletFallback() {
+            if(leafletMap) return;
+            leafletMap = L.map('map', { zoomControl: false }).setView([56.1629, 10.2039], 6);
+            L.control.zoom({ position: 'topright' }).addTo(leafletMap);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(leafletMap);
+            setTimeout(() => leafletMap.invalidateSize(), 500);
         }
 
         function addWaypointInput() {
@@ -706,6 +806,7 @@
         async function calculateRoute() {
             if (!originCoords || !destCoords) return;
             if(map) map.resize();
+            if(leafletMap) leafletMap.invalidateSize();
 
             const isFerry = document.getElementById('swFerry').checked;
             crossesSeaGlobal = (originCoords.lng < 10.8 && destCoords.lng > 10.8) || (originCoords.lng > 10.8 && destCoords.lng < 10.8);
@@ -788,29 +889,65 @@
         }
 
         function drawRouteOnMap(routeGeojson, points, showFerryLine) {
-            if (map.getLayer('route')) map.removeLayer('route');
-            if (map.getLayer('ferry-line')) map.removeLayer('ferry-line');
-            if (map.getSource('route')) map.removeSource('route');
-            if (map.getSource('ferry-line')) map.removeSource('ferry-line');
-            
-            document.querySelectorAll('.mapboxgl-marker').forEach(m => m.remove());
+            // Håndter hvis brugeren kører Mapbox
+            if (map) {
+                if (map.getLayer('route')) map.removeLayer('route');
+                if (map.getLayer('ferry-line')) map.removeLayer('ferry-line');
+                if (map.getSource('route')) map.removeSource('route');
+                if (map.getSource('ferry-line')) map.removeSource('ferry-line');
+                
+                document.querySelectorAll('.mapboxgl-marker').forEach(m => m.remove());
 
-            map.addSource('route', { type: 'geojson', data: routeGeojson });
-            map.addLayer({ id: 'route', type: 'line', source: 'route', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#0F172A', 'line-width': 4 } });
+                map.addSource('route', { type: 'geojson', data: routeGeojson });
+                map.addLayer({ id: 'route', type: 'line', source: 'route', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#0F172A', 'line-width': 4 } });
 
-            if (showFerryLine) {
-                map.addSource('ferry-line', { type: 'geojson', data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [FERRY_AARHUS, FERRY_ODDEN] } } });
-                map.addLayer({ id: 'ferry-line', type: 'line', source: 'ferry-line', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#3B82F6', 'line-width': 4, 'line-dasharray': [2, 2] } });
+                if (showFerryLine) {
+                    map.addSource('ferry-line', { type: 'geojson', data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [FERRY_AARHUS, FERRY_ODDEN] } } });
+                    map.addLayer({ id: 'ferry-line', type: 'line', source: 'ferry-line', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#3B82F6', 'line-width': 4, 'line-dasharray': [2, 2] } });
+                }
+
+                points.forEach((p, idx) => {
+                    const color = idx === 0 ? '#10B981' : (idx === points.length - 1 ? '#EF4444' : '#6366F1');
+                    new mapboxgl.Marker({ color: color }).setLngLat([p.lng, p.lat]).addTo(map);
+                });
+
+                const bounds = new mapboxgl.LngLatBounds(points[0], points[0]);
+                points.forEach(p => bounds.extend([p.lng, p.lat]));
+                map.fitBounds(bounds, { padding: 40 });
+            } 
+            // Håndter Fallback (Leaflet)
+            else if (leafletMap) {
+                if (leafletRouteLayer) leafletMap.removeLayer(leafletRouteLayer);
+                leafletMarkerLayers.forEach(m => leafletMap.removeLayer(m));
+                leafletMarkerLayers = [];
+
+                leafletRouteLayer = L.geoJSON(routeGeojson, {
+                    style: function() { return { color: '#0F172A', weight: 4 }; }
+                }).addTo(leafletMap);
+
+                if (showFerryLine) {
+                    const ferryLine = L.polyline([
+                        [FERRY_AARHUS[1], FERRY_AARHUS[0]], 
+                        [FERRY_ODDEN[1], FERRY_ODDEN[0]]
+                    ], { color: '#3B82F6', weight: 4, dashArray: '5, 10' }).addTo(leafletMap);
+                    leafletMarkerLayers.push(ferryLine);
+                }
+
+                points.forEach((p, idx) => {
+                    const color = idx === 0 ? '#10B981' : (idx === points.length - 1 ? '#EF4444' : '#6366F1');
+                    const customIcon = L.divIcon({
+                        className: '',
+                        html: `<div style="background-color: ${color}; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
+                        iconSize: [16, 16],
+                        iconAnchor: [8, 8]
+                    });
+                    const marker = L.marker([p.lat, p.lng], {icon: customIcon}).addTo(leafletMap);
+                    leafletMarkerLayers.push(marker);
+                });
+
+                const bounds = L.latLngBounds(points.map(p => [p.lat, p.lng]));
+                leafletMap.fitBounds(bounds, { padding: [40, 40] });
             }
-
-            points.forEach((p, idx) => {
-                const color = idx === 0 ? '#10B981' : (idx === points.length - 1 ? '#EF4444' : '#6366F1');
-                new mapboxgl.Marker({ color: color }).setLngLat([p.lng, p.lat]).addTo(map);
-            });
-
-            const bounds = new mapboxgl.LngLatBounds(points[0], points[0]);
-            points.forEach(p => bounds.extend([p.lng, p.lat]));
-            map.fitBounds(bounds, { padding: 40 });
         }
 
         function adjustPrice(amt) { 
@@ -840,8 +977,8 @@
 
             const waypointsData = waypoints.filter(wp => wp.coords).map(wp => ({ city: wp.name, lat: wp.coords.lat, lng: wp.coords.lng }));
             
-            const depTimeStr = document.getElementById('rideTime').value;
-            const arrTimeStr = document.getElementById('arrivalTimeInput').value;
+            const depTimeStr = getDepartureTimeStr();
+            const arrTimeStr = getArrivalTimeStr();
 
             const payloadsToInsert = selectedDates.map(dateStr => {
                 const depDateTimeString = `${dateStr}T${depTimeStr}:00Z`;
@@ -884,18 +1021,15 @@
                 alert("Fejl ved oprettelse: " + error.message);
                 setLoading(false);
             } else { 
-                // Skyd konfetti af med canvas-confetti scriptet
                 confetti({
                     particleCount: 150,
                     spread: 80,
                     origin: { y: 0.6 },
-                    zIndex: 3000 // Sørg for at den ligger over overlayet
+                    zIndex: 3000 
                 });
                 
-                // Vis success-skærm
                 setLoading(true, `🎉 Succes!<br><br><span style="font-size:1.1rem; font-weight:500; color:var(--text-main);">Du har oprettet ${selectedDates.length} tur(e). Sender dig videre...</span>`); 
                 
-                // Gå til /lift efter 2.5 sekunder
                 setTimeout(() => {
                     window.location.href = "/lift"; 
                 }, 2500);
