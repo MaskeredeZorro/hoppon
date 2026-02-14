@@ -1,20 +1,19 @@
-// components.js
-
 class HoppOnHeader extends HTMLElement {
     async connectedCallback() {
-        // Tjek om brugeren er logget ind via din globale _supabase klient
+        // Standard knapper (hvis man IKKE er logget ind)
         let authButtons = `
             <a href="/login/" class="btn-ghost">Log ind</a>
             <a href="/opret-profil/" class="btn-primary-small">Opret profil</a>
         `;
 
-        // Hvis _supabase er tilgængelig, kan vi tjekke session
+        // Tjek om brugeren er logget ind via Supabase
         if (window._supabase) {
             const { data: { session } } = await window._supabase.auth.getSession();
             if (session) {
+                // Opdaterede knapper (hvis man ER logget ind)
                 authButtons = `
-                    <button onclick="window._supabase.auth.signOut().then(() => location.reload())" class="btn-ghost">Log ud</button>
-                    <a href="/lift/" class="btn-primary-small">Find lift</a>
+                    <button onclick="window._supabase.auth.signOut().then(() => location.reload())" class="btn-ghost" style="cursor:pointer; border:none; background:none; font-family:inherit; font-weight:600; font-size:1rem;">Log ud</button>
+                    <a href="/opret-tur/" class="btn-primary-small">Min Profil</a>
                 `;
             }
         }
@@ -45,30 +44,35 @@ class HoppOnFooter extends HTMLElement {
         this.innerHTML = `
             <footer class="site-footer">
                 <div class="footer-grid">
+                    
                     <div class="footer-brand">
                         <img src="https://i.imgur.com/32NBOeO.png" alt="HoppOn Ikon" class="footer-logo">
                         <h3>HoppOn Samkørsel</h3>
-                        <p>Danmarks nye, gebyrfrie samkørselsplatform. Rejs grønnere, billigere og sjovere - uden mellemmænd der tager en bid af kagen.</p>
+                        <p>Danmarks nye, gennemsigtige samkørselsplatform. Rejs grønnere, billigere og sjovere – uden skjulte gebyrer eller mellemmænd der tager en uretfærdig bid af kagen.</p>
                     </div>
                     
                     <div class="footer-links">
                         <h4>Kør med HoppOn</h4>
-                        <a href="/lift/">Find et lift</a>
+                        <a href="/lift/">Søg efter et lift</a>
                         <a href="/opret-tur/">Tilbyd et lift</a>
-                        <a href="/support/">Hjælp til samkørsel</a>
+                        <a href="/passagerer/">For passagerer</a>
+                        <a href="/bilister/">For chauffører</a>
                     </div>
 
                     <div class="footer-links">
                         <h4>Populære Ruter</h4>
-                        <a href="/lift/?fra=Aarhus&til=København">Samkørsel Aarhus - København</a>
-                        <a href="/lift/?fra=Aalborg&til=Odense">Samkørsel Aalborg - Odense</a>
-                        <a href="/lift/?fra=København&til=Odense">Samkørsel København - Odense</a>
-                        <a href="/lift/?fra=Esbjerg&til=Aarhus">Samkørsel Esbjerg - Aarhus</a>
+                        <a href="/samkoersel/aarhus-koebenhavn">Aarhus ➔ København</a>
+                        <a href="/samkoersel/aalborg-aarhus">Aalborg ➔ Aarhus</a>
+                        <a href="/samkoersel/odense-koebenhavn">Odense ➔ København</a>
+                        <a href="/samkoersel/esbjerg-aarhus">Esbjerg ➔ Aarhus</a>
                     </div>
 
                     <div class="footer-links">
-                        <h4>Hjælp & Vilkår</h4>
+                        <h4>Hurtige links</h4>
+                        <a href="/alternativer-til-gomore/">GoMore Alternativer</a>
+                        <a href="/dsb-alternativ/">Billigere end DSB</a>
                         <a href="/support/">Support & FAQ</a>
+                        <a href="/sikkerhed/">Sikkerhed på turen</a>
                         <a href="/toc/">Handelsbetingelser</a>
                         <a href="/privacy_policy/">Privatlivspolitik</a>
                     </div>
@@ -76,7 +80,7 @@ class HoppOnFooter extends HTMLElement {
                 
                 <div class="footer-bottom">
                     <p>&copy; 2026 HoppOn ApS. Alle rettigheder forbeholdes. CVR: 40151079</p>
-                    <div class="tech-stack">Powered by Stripe & Mapbox</div>
+                    <div class="tech-stack">Platform udviklet til og for pendlere i Danmark.</div>
                 </div>
             </footer>
         `;
