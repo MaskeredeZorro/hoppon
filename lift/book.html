@@ -8,6 +8,9 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script src="https://js.stripe.com/v3/"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="/style.css">
@@ -80,19 +83,17 @@
         .receipt-row strong { color: var(--brand); font-weight: 800; }
         .receipt-total { display: flex; justify-content: space-between; font-size: 1.4rem; color: var(--brand); font-weight: 900; margin-top: 15px; padding-top: 15px; border-top: 2px dashed var(--border); }
 
-        /* FAKE KORT MODUL (Klar til Stripe) */
-        .payment-module { background: #F8FAFC; border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-top: 1.5rem; position: relative; overflow: hidden;}
+        /* STRIPE KORT MODUL */
+        .payment-module { background: #F8FAFC; border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-top: 1.5rem; position: relative; min-height: 120px;}
         .pm-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; display: block; }
-        .pm-input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: white; font-size: 1rem; font-family: monospace; outline: none; margin-bottom: 10px;}
-        .pm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .secure-badge { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.8rem; color: var(--success); font-weight: 700; margin-top: 15px; }
 
         .btn-book { width: 100%; background: var(--accent); color: white; border: none; padding: 18px; border-radius: 14px; font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: 0.2s; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3); margin-top: 1.5rem; display: flex; justify-content: center; align-items: center; gap: 10px;}
         .btn-book:hover { transform: translateY(-2px); box-shadow: 0 15px 20px -3px rgba(99, 102, 241, 0.4); }
         .btn-book:disabled { background: var(--text-muted); transform: none; box-shadow: none; cursor: not-allowed; }
 
-        /* Mærkater */
         .instant-badge { background: #FEF3C7; color: #B45309; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 15px;}
+        .error-message { color: #DC2626; font-size: 0.9rem; font-weight: 600; margin-top: 10px; text-align: center; display: none;}
 
         /* LOADERS */
         #globalLoader { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg-color); display: flex; flex-direction:column; justify-content: center; align-items: center; z-index: 2000; }
@@ -180,13 +181,13 @@
 
                     <div class="payment-module">
                         <span class="pm-label">Kortoplysninger</span>
-                        <div id="stripe-element-placeholder">
-                            <input type="text" class="pm-input" placeholder="Kortnummer (1234 5678 ...)" disabled style="background:#F1F5F9; cursor:not-allowed;">
-                            <div class="pm-grid">
-                                <input type="text" class="pm-input" placeholder="MM/ÅÅ" disabled style="background:#F1F5F9; cursor:not-allowed;">
-                                <input type="text" class="pm-input" placeholder="CVC" disabled style="background:#F1F5F9; cursor:not-allowed;">
-                            </div>
+                        
+                        <div id="payment-element">
+                            <div style="text-align:center; padding:20px; color:var(--text-muted);">Indlæser sikker betaling...</div>
                         </div>
+
+                        <div class="error-message" id="payment-error"></div>
+
                         <div class="secure-badge">
                             🔒 Sikker og krypteret betaling
                         </div>
@@ -212,6 +213,12 @@
         let pricePerSeat = 0;
         let maxSeats = 1;
 
+        // Stripe Variabler
+        let stripe = null;
+        let elements = null;
+        let currentPaymentIntentId = null;
+        let debounceTimer = null;
+
         window.onload = async () => {
             const urlParams = new URLSearchParams(window.location.search);
             let rideId = urlParams.get('id');
@@ -222,10 +229,8 @@
                 return;
             }
 
-            // Tjek Login
             const { data: { session } } = await _supabase.auth.getSession();
             if (!session) {
-                // Sender dem tilbage hertil efter login
                 window.location.href = '/login?redirect=/lift/book.html?id=' + rideId;
                 return;
             }
@@ -266,6 +271,9 @@
                 populateUI();
                 updateReceipt();
                 
+                // Kald Edge Function for at initialisere Stripe!
+                await initStripePayment(seatsSelected * pricePerSeat);
+
                 document.getElementById('globalLoader').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
 
@@ -314,6 +322,16 @@
                 document.getElementById('btnPlus').disabled = (seatsSelected === maxSeats);
                 
                 updateReceipt();
+
+                // Når de skifter pladser, skal vi bygge et nyt PaymentIntent med det nye beløb
+                // Vi bruger en timeout så vi ikke spammer API'en, hvis de klikker hurtigt
+                clearTimeout(debounceTimer);
+                document.getElementById('payment-element').innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">Opdaterer pris...</div>';
+                document.getElementById('bookBtn').disabled = true;
+
+                debounceTimer = setTimeout(() => {
+                    initStripePayment(seatsSelected * pricePerSeat);
+                }, 800);
             }
         }
 
@@ -324,65 +342,148 @@
             document.getElementById('uiTotal').innerText = `${total} kr.`;
         }
 
+        // --- STRIPE INTEGRATION ---
+        async function initStripePayment(amountDKK) {
+            try {
+                // Kalder din Edge Function
+                const { data, error } = await _supabase.functions.invoke('payment-sheet', {
+                    body: { 
+                        amount: amountDKK, 
+                        currency: 'dkk', 
+                        instant_booking: currentRide.instant_booking 
+                    }
+                });
+
+                if (error) throw error;
+                if (!data || !data.publishableKey) throw new Error("Mangler Stripe konfiguration");
+
+                // Hvis vi ikke har initialiseret det overordnede Stripe objekt endnu, gør vi det nu
+                if (!stripe) {
+                    stripe = Stripe(data.publishableKey);
+                }
+
+                currentPaymentIntentId = data.paymentIntentId;
+
+                const appearance = {
+                    theme: 'stripe',
+                    variables: {
+                        colorPrimary: '#6366F1', // Vores HoppOn lilla farve
+                        colorBackground: '#ffffff',
+                        colorText: '#0F172A',
+                        colorDanger: '#DC2626',
+                        fontFamily: 'Inter, system-ui, sans-serif',
+                        spacingUnit: '4px',
+                        borderRadius: '8px',
+                    }
+                };
+
+                // Byg Elementet
+                elements = stripe.elements({ clientSecret: data.paymentIntent, appearance });
+                const paymentElement = elements.create('payment', { layout: 'tabs' });
+
+                // Ryd placeholderen og indsæt
+                document.getElementById('payment-element').innerHTML = '';
+                paymentElement.mount('#payment-element');
+                
+                document.getElementById('bookBtn').disabled = false;
+
+            } catch (err) {
+                console.error("Fejl ved Stripe setup:", err);
+                document.getElementById('payment-element').innerHTML = '';
+                const errorBox = document.getElementById('payment-error');
+                errorBox.innerText = "Kunne ikke oprette forbindelse til betalingstjenesten. Prøv at opdatere siden.";
+                errorBox.style.display = 'block';
+            }
+        }
+
         async function processBooking() {
+            if (!stripe || !elements) return;
+
             const loader = document.getElementById('globalLoader');
             const loaderText = document.getElementById('loaderText');
             const spinner = document.getElementById('loaderSpinner');
+            const errorBox = document.getElementById('payment-error');
             
+            errorBox.style.display = 'none';
+            document.getElementById('bookBtn').disabled = true;
+
             loaderText.innerText = "Behandler betaling...";
             spinner.style.display = 'block';
             loader.style.display = 'flex';
 
-            // --- HER VILLE DIN STRIPE LOGIK LIGGE ---
-            // await stripe.confirmCardPayment(...)
-            // Men vi simulerer et "kald til banken" med et delay:
-            await new Promise(r => setTimeout(r, 1500));
-
-            try {
-                // Indsæt booking i databasen
-                const statusToSet = currentRide.instant_booking ? 'approved' : 'pending';
-
-                const { error } = await _supabase
-                    .from('bookings')
-                    .insert({
-                        ride_id: currentRide.id,
-                        passenger_id: currentUser.id,
-                        seats_booked: seatsSelected,
-                        status: statusToSet,
-                        total_price: seatsSelected * pricePerSeat
-                        // Du kan gemme et Stripe PaymentIntent ID her også fremadrettet
-                    });
-
-                if (error) throw error;
-
-                // Hvis det var lynbooking, skal vi også trække pladsen fra turen!
-                if(statusToSet === 'approved') {
-                    await _supabase
-                        .from('rides')
-                        .update({ seats_available: currentRide.seats_available - seatsSelected })
-                        .eq('id', currentRide.id);
+            // 1. Gennemfør betaling med Stripe Elements
+            const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
+                elements,
+                redirect: 'if_required', // VIGTIGT! Vi styrer selv redirect her på siden
+                confirmParams: {
+                    // Vi kan ikke bruge return_url til direkte redirection, da vi skal gemme bookingen i databasen først!
                 }
+            });
 
-                // Betaling og booking gik igennem! 🎉
-                spinner.style.display = 'none';
-                
-                if (statusToSet === 'approved') {
-                    loaderText.innerHTML = `🎉 Betaling gennemført!<br><br><span style="font-size:1rem; font-weight:500;">Din plads er booket og bekræftet. Pak tasken!</span>`;
-                } else {
-                    loaderText.innerHTML = `✅ Anmodning sendt!<br><br><span style="font-size:1rem; font-weight:500;">Vi har reserveret beløbet. Vi giver besked så snart chaufføren godkender!</span>`;
-                }
-
-                confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, zIndex: 3000 });
-
-                // Send brugeren til "Mine Ture" efter lidt tid
-                setTimeout(() => {
-                    window.location.href = "/mine-ture"; // Ændr dette link til dit dashboard
-                }, 3500);
-
-            } catch (err) {
-                console.error(err);
+            if (stripeError) {
+                // Fejl i kortoplysninger etc.
                 loader.style.display = 'none';
-                alert("Noget gik galt med bookingen. Prøv venligst igen.");
+                document.getElementById('bookBtn').disabled = false;
+                errorBox.innerText = stripeError.message;
+                errorBox.style.display = 'block';
+                return;
+            }
+
+            // 2. Tjek om reserveringen er gået igennem (requires_capture betyder at din Edge Function manual capture virkede!)
+            if (paymentIntent && (paymentIntent.status === 'requires_capture' || paymentIntent.status === 'succeeded')) {
+                try {
+                    // 3. Indsæt booking i Supabase Databasen
+                    const statusToSet = currentRide.instant_booking ? 'approved' : 'pending';
+
+                    const { error: dbError } = await _supabase
+                        .from('bookings')
+                        .insert({
+                            ride_id: currentRide.id,
+                            passenger_id: currentUser.id,
+                            seats_booked: seatsSelected,
+                            status: statusToSet,
+                            total_price: seatsSelected * pricePerSeat,
+                            // Din Flutter app bruger denne kolonne til at udbetale senere!
+                            stripe_payment_id: currentPaymentIntentId 
+                        });
+
+                    if (dbError) throw dbError;
+
+                    // Hvis Lynbooking, fjern pladsen fra databasen med det samme
+                    if(statusToSet === 'approved') {
+                        await _supabase
+                            .from('rides')
+                            .update({ seats_available: currentRide.seats_available - seatsSelected })
+                            .eq('id', currentRide.id);
+                    }
+
+                    // Alt er fantastisk! 🎉
+                    spinner.style.display = 'none';
+                    if (statusToSet === 'approved') {
+                        loaderText.innerHTML = `🎉 Betaling gennemført!<br><br><span style="font-size:1rem; font-weight:500;">Din plads er booket og bekræftet. Pak tasken!</span>`;
+                    } else {
+                        loaderText.innerHTML = `✅ Anmodning sendt!<br><br><span style="font-size:1rem; font-weight:500;">Vi har reserveret beløbet. Vi giver besked så snart chaufføren godkender!</span>`;
+                    }
+
+                    confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, zIndex: 3000 });
+
+                    // Gå til "Mine Ture" / Dashboard efter et par sekunder
+                    setTimeout(() => {
+                        window.location.href = "/mine-ture"; // Skift dette link til hvor passageren skal hen efter booking
+                    }, 3500);
+
+                } catch (err) {
+                    console.error("Database Fejl:", err);
+                    loader.style.display = 'none';
+                    document.getElementById('bookBtn').disabled = false;
+                    errorBox.innerText = "Betalingen gik igennem, men der skete en fejl i oprettelsen af turen. Kontakt support.";
+                    errorBox.style.display = 'block';
+                }
+            } else {
+                loader.style.display = 'none';
+                document.getElementById('bookBtn').disabled = false;
+                errorBox.innerText = "Betalingen kunne ikke gennemføres. Prøv venligst igen.";
+                errorBox.style.display = 'block';
             }
         }
     </script>
