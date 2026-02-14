@@ -240,7 +240,7 @@
 
                 populateUI();
                 updateReceipt();
-                await initStripePayment((seatsSelected * pricePerSeat) * SERVICE_FEE);
+                await initStripePayment((seatsSelected * pricePerSeat) * 1.05);
 
                 document.getElementById('globalLoader').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
@@ -274,24 +274,38 @@
                 document.getElementById('uiSeatsSelected').innerText = seatsSelected;
                 document.getElementById('btnMinus').disabled = (seatsSelected === 1);
                 document.getElementById('btnPlus').disabled = (seatsSelected === maxSeats);
+                
+                // Opdaterer teksten i oversigten
                 updateReceipt();
-
+        
                 clearTimeout(debounceTimer);
                 document.getElementById('payment-element').innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">Opdaterer pris...</div>';
                 document.getElementById('bookBtn').disabled = true;
-
+        
                 debounceTimer = setTimeout(() => {
-                    initStripePayment((seatsSelected * pricePerSeat) * SERVICE_FEE);
+                    // HER BEREGNES DEN NYE TOTAL (Subtotal + 5%)
+                    const subtotal = seatsSelected * pricePerSeat;
+                    const totalWithFee = subtotal * 1.05; 
+                    
+                    initStripePayment(totalWithFee);
                 }, 800);
             }
         }
 
         function updateReceipt() {
             const subtotal = seatsSelected * pricePerSeat;
-            const total = subtotal + SERVICE_FEE;
+            
+            // NY BEREGNING:
+            const calculatedFee = subtotal * 0.05; 
+            const total = subtotal + calculatedFee;
+            
             document.getElementById('uiCalculation').innerText = `${seatsSelected} x ${pricePerSeat} kr.`;
             document.getElementById('uiSubtotal').innerText = `${subtotal} kr.`;
-            document.getElementById('uiTotal').innerText = `${total} kr.`;
+            
+            // Opdater gebyr-feltet med det nye tal (f.eks. 7,5 kr.)
+            document.getElementById('uiServiceFee').innerText = `${calculatedFee.toFixed(2).replace('.', ',')} kr.`;
+            
+            document.getElementById('uiTotal').innerText = `${total.toFixed(2).replace('.', ',')} kr.`;
         }
 
         async function initStripePayment(amountDKK) {
