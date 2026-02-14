@@ -40,7 +40,6 @@
 
         main-content { display: block; padding-top: 100px; min-height: 100vh; padding-bottom: 60px;}
 
-        /* --- LAYOUT --- */
         .checkout-container {
             max-width: 1000px;
             margin: 0 auto;
@@ -57,7 +56,6 @@
         .card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 1.8rem; margin-bottom: 1.5rem; }
         h2 { font-size: 1.3rem; font-weight: 800; margin: 0 0 1.2rem 0; letter-spacing: -0.5px; border-bottom: 1px solid var(--border); padding-bottom: 10px;}
 
-        /* --- TUR OPSUMMERING (Venstre) --- */
         .ride-summary { display: flex; gap: 20px; align-items: center; margin-bottom: 1.5rem; background: #F8FAFC; padding: 15px; border-radius: 16px; border: 1px solid var(--border);}
         .rs-date { text-align: center; padding-right: 20px; border-right: 1px solid var(--border); }
         .rs-month { font-size: 0.85rem; font-weight: 700; color: var(--accent); text-transform: uppercase; }
@@ -71,19 +69,16 @@
         .driver-name { font-weight: 800; font-size: 1rem; }
         .driver-meta { font-size: 0.85rem; color: var(--text-muted); font-weight: 500;}
 
-        /* --- SÆDE VÆLGER --- */
         .seat-selector { display: flex; align-items: center; justify-content: space-between; background: #F8FAFC; border: 1px solid var(--border); border-radius: 16px; padding: 10px; margin-top: 1rem;}
         .seat-btn { width: 45px; height: 45px; border-radius: 12px; border: none; background: white; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 1.5rem; font-weight: bold; color: var(--brand); transition: 0.2s;}
         .seat-btn:hover:not(:disabled) { background: var(--border); }
         .seat-btn:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
         .seat-value { font-weight: 900; font-size: 1.3rem; color: var(--brand); width: 40px; text-align: center;}
 
-        /* --- BETALING (Højre) --- */
         .receipt-row { display: flex; justify-content: space-between; font-size: 1rem; color: var(--text-muted); font-weight: 500; margin-bottom: 12px; }
         .receipt-row strong { color: var(--brand); font-weight: 800; }
         .receipt-total { display: flex; justify-content: space-between; font-size: 1.4rem; color: var(--brand); font-weight: 900; margin-top: 15px; padding-top: 15px; border-top: 2px dashed var(--border); }
 
-        /* STRIPE KORT MODUL */
         .payment-module { background: #F8FAFC; border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-top: 1.5rem; position: relative; min-height: 120px;}
         .pm-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; display: block; }
         .secure-badge { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.8rem; color: var(--success); font-weight: 700; margin-top: 15px; }
@@ -95,12 +90,10 @@
         .instant-badge { background: #FEF3C7; color: #B45309; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 15px;}
         .error-message { color: #DC2626; font-size: 0.9rem; font-weight: 600; margin-top: 10px; text-align: center; display: none;}
 
-        /* LOADERS */
         #globalLoader { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg-color); display: flex; flex-direction:column; justify-content: center; align-items: center; z-index: 2000; }
         .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;}
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* MOBIL */
         @media (max-width: 900px) {
             .checkout-container { grid-template-columns: 1fr; gap: 1.5rem; }
             .card { padding: 1.5rem; }
@@ -125,9 +118,7 @@
 
                 <div class="card">
                     <h2>Din rejse</h2>
-                    
                     <div id="instantBadgeContainer"></div>
-
                     <div class="ride-summary">
                         <div class="rs-date">
                             <div class="rs-month" id="uiMonth">--</div>
@@ -138,7 +129,6 @@
                             <div class="rs-route" id="uiRoute">Henter rute...</div>
                         </div>
                     </div>
-
                     <div class="driver-info">
                         <div class="driver-avatar" id="uiDriverAvatar">👤</div>
                         <div>
@@ -151,7 +141,6 @@
                 <div class="card">
                     <h2>Antal passagerer</h2>
                     <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 5px;">Hvor mange pladser vil du booke?</p>
-                    
                     <div class="seat-selector">
                         <button class="seat-btn" onclick="adjustSeats(-1)" id="btnMinus" disabled>-</button>
                         <div class="seat-value" id="uiSeatsSelected">1</div>
@@ -164,16 +153,14 @@
             <aside>
                 <div class="card" style="position: sticky; top: 100px;">
                     <h2>Betalingsoversigt</h2>
-                    
                     <div class="receipt-row">
                         <span id="uiCalculation">1 x 0 kr.</span>
                         <strong id="uiSubtotal">0 kr.</strong>
                     </div>
-                    <div class="receipt-row" style="color: var(--success); font-size: 0.85rem;">
-                        <span>HoppOn bookinggebyr</span>
-                        <strong>0 kr.</strong>
+                    <div class="receipt-row">
+                        <span>Servicegebyr</span>
+                        <strong id="uiServiceFee">5 kr.</strong>
                     </div>
-
                     <div class="receipt-total">
                         <span>Total (DKK)</span>
                         <span id="uiTotal">0 kr.</span>
@@ -181,28 +168,19 @@
 
                     <div class="payment-module">
                         <span class="pm-label">Kortoplysninger</span>
-                        
                         <div id="payment-element">
                             <div style="text-align:center; padding:20px; color:var(--text-muted);">Indlæser sikker betaling...</div>
                         </div>
-
                         <div class="error-message" id="payment-error"></div>
-
-                        <div class="secure-badge">
-                            🔒 Sikker og krypteret betaling
-                        </div>
+                        <div class="secure-badge">🔒 Sikker og krypteret betaling</div>
                     </div>
 
-                    <button class="btn-book" id="bookBtn" onclick="processBooking()">
-                        Betal og anmod
-                    </button>
-                    
+                    <button class="btn-book" id="bookBtn" onclick="processBooking()">Betal og anmod</button>
                     <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 15px; line-height: 1.4;">
                         Ved at klikke accepterer du HoppOns handelsbetingelser. Pengene reserveres på dit kort og trækkes først, når chaufføren godkender.
                     </p>
                 </div>
             </aside>
-
         </div>
     </main-content>
 
@@ -212,9 +190,8 @@
         let seatsSelected = 1;
         let pricePerSeat = 0;
         let maxSeats = 1;
-        const PLATFORM_FEE = 15; // Vi matcher dit app-gebyr her
+        const SERVICE_FEE = 5; // Servicegebyret vi har talt om
 
-        // Stripe Variabler
         let stripe = null;
         let elements = null;
         let currentPaymentIntentId = null;
@@ -236,7 +213,6 @@
                 return;
             }
             currentUser = session.user;
-
             await loadRideData(rideId);
         };
 
@@ -244,21 +220,14 @@
             try {
                 const isUUID = rideId.length > 20;
                 const column = isUUID ? 'id' : 'ride_number';
-
-                const { data: ride, error } = await _supabase
-                    .from('rides')
-                    .select('*, driver:profiles!driver_id(*)')
-                    .eq(column, rideId)
-                    .single();
+                const { data: ride, error } = await _supabase.from('rides').select('*, driver:profiles!driver_id(*)').eq(column, rideId).single();
 
                 if (error || !ride) throw new Error("Turen findes ikke");
-                
                 if (ride.driver_id === currentUser.id) {
                     alert("Du kan ikke booke din egen tur!");
                     window.location.href = '/lift/view.html?id=' + rideId;
                     return;
                 }
-
                 if (ride.seats_available < 1) {
                     alert("Turen er desværre udsolgt!");
                     window.location.href = '/lift/view.html?id=' + rideId;
@@ -271,13 +240,10 @@
 
                 populateUI();
                 updateReceipt();
-                
-                // Initialiser Stripe med det samme for 1 sæde
-                await initStripePayment(seatsSelected * pricePerSeat);
+                await initStripePayment((seatsSelected * pricePerSeat) + SERVICE_FEE);
 
                 document.getElementById('globalLoader').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
-
             } catch (error) {
                 console.error(error);
                 alert("Noget gik galt ved indlæsning af turen.");
@@ -290,22 +256,14 @@
             document.getElementById('uiMonth').innerText = depDate.toLocaleDateString('da-DK', { month: 'short' });
             document.getElementById('uiDay').innerText = depDate.getDate();
             document.getElementById('uiTime').innerText = depDate.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
-            
-            const origin = currentRide.origin_city.split(',')[0];
-            const dest = currentRide.destination_city.split(',')[0];
-            document.getElementById('uiRoute').innerText = `${origin} → ${dest}`;
-
+            document.getElementById('uiRoute').innerText = `${currentRide.origin_city.split(',')[0]} → ${currentRide.destination_city.split(',')[0]}`;
             document.getElementById('uiDriverName').innerText = currentRide.driver?.full_name || "Chauffør";
-            if(currentRide.driver?.avatar_url) {
-                document.getElementById('uiDriverAvatar').innerHTML = `<img src="${currentRide.driver.avatar_url}" alt="Driver">`;
-            }
-
+            if(currentRide.driver?.avatar_url) document.getElementById('uiDriverAvatar').innerHTML = `<img src="${currentRide.driver.avatar_url}">`;
             if(currentRide.instant_booking) {
                 document.getElementById('instantBadgeContainer').innerHTML = `<div class="instant-badge">⚡ Lynbooking: Godkendes automatisk</div>`;
                 document.getElementById('bookBtn').innerText = "Betal og book nu";
             }
-
-            document.getElementById('uiSeatsAvailable').innerText = `✔️ ${maxSeats} pladser tilbage i bilen`;
+            document.getElementById('uiSeatsAvailable').innerText = `✔️ ${maxSeats} pladser tilbage`;
             if(maxSeats === 1) document.getElementById('btnPlus').disabled = true;
         }
 
@@ -316,71 +274,50 @@
                 document.getElementById('uiSeatsSelected').innerText = seatsSelected;
                 document.getElementById('btnMinus').disabled = (seatsSelected === 1);
                 document.getElementById('btnPlus').disabled = (seatsSelected === maxSeats);
-                
                 updateReceipt();
 
-                // Opdater Stripe PaymentIntent når antal sæder ændres
                 clearTimeout(debounceTimer);
                 document.getElementById('payment-element').innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">Opdaterer pris...</div>';
                 document.getElementById('bookBtn').disabled = true;
 
                 debounceTimer = setTimeout(() => {
-                    initStripePayment(seatsSelected * pricePerSeat);
+                    initStripePayment((seatsSelected * pricePerSeat) + SERVICE_FEE);
                 }, 800);
             }
         }
 
         function updateReceipt() {
             const subtotal = seatsSelected * pricePerSeat;
-            // Hvis gebyret er inkluderet i prisen (ligesom i din app), viser vi det her
+            const total = subtotal + SERVICE_FEE;
             document.getElementById('uiCalculation').innerText = `${seatsSelected} x ${pricePerSeat} kr.`;
             document.getElementById('uiSubtotal').innerText = `${subtotal} kr.`;
-            document.getElementById('uiTotal').innerText = `${subtotal} kr.`;
+            document.getElementById('uiTotal').innerText = `${total} kr.`;
         }
 
-        // --- STRIPE INTEGRATION ---
         async function initStripePayment(amountDKK) {
             try {
                 const { data: { session } } = await _supabase.auth.getSession();
                 if (!session) throw new Error("Log venligst ind igen.");
 
                 const { data, error } = await _supabase.functions.invoke('web-payment-sheet', {
-                    body: { 
-                        amount: amountDKK, 
-                        currency: 'dkk', 
-                        instant_booking: currentRide.instant_booking 
-                    },
-                    headers: {
-                        Authorization: `Bearer ${session.access_token}`
-                    }
+                    body: { amount: amountDKK, currency: 'dkk', instant_booking: currentRide.instant_booking },
+                    headers: { Authorization: `Bearer ${session.access_token}` }
                 });
 
                 if (error) throw error;
                 if (data && data.error) throw new Error(data.error);
 
                 if (!stripe) stripe = Stripe(data.publishableKey);
-
                 currentPaymentIntentId = data.paymentIntentId;
 
-                const appearance = {
-                    theme: 'stripe',
-                    variables: {
-                        colorPrimary: '#6366F1', 
-                        colorBackground: '#ffffff',
-                        colorText: '#0F172A',
-                        borderRadius: '12px',
-                    }
-                };
-
+                const appearance = { theme: 'stripe', variables: { colorPrimary: '#6366F1', borderRadius: '12px' } };
                 elements = stripe.elements({ clientSecret: data.paymentIntent, appearance });
                 const paymentElement = elements.create('payment', { layout: 'tabs' });
 
                 document.getElementById('payment-element').innerHTML = '';
                 paymentElement.mount('#payment-element');
                 document.getElementById('bookBtn').disabled = false;
-
             } catch (err) {
-                console.error("Stripe Error:", err);
                 document.getElementById('payment-error').innerText = "SYSTEM FEJL: " + err.message;
                 document.getElementById('payment-error').style.display = 'block';
             }
@@ -388,7 +325,6 @@
 
         async function processBooking() {
             if (!stripe || !elements) return;
-
             const loader = document.getElementById('globalLoader');
             const loaderText = document.getElementById('loaderText');
             const errorBox = document.getElementById('payment-error');
@@ -414,36 +350,24 @@
             if (paymentIntent && (paymentIntent.status === 'requires_capture' || paymentIntent.status === 'succeeded')) {
                 try {
                     const statusToSet = currentRide.instant_booking ? 'approved' : 'pending';
-
-                    const { error: dbError } = await _supabase
-                        .from('bookings')
-                        .insert({
-                            ride_id: currentRide.id,
-                            passenger_id: currentUser.id,
-                            seats_booked: seatsSelected,
-                            status: statusToSet,
-                            total_price: seatsSelected * pricePerSeat,
-                            stripe_payment_id: currentPaymentIntentId 
-                        });
+                    const { error: dbError } = await _supabase.from('bookings').insert({
+                        ride_id: currentRide.id,
+                        passenger_id: currentUser.id,
+                        seats_booked: seatsSelected,
+                        status: statusToSet,
+                        total_price: (seatsSelected * pricePerSeat) + SERVICE_FEE,
+                        stripe_payment_id: currentPaymentIntentId 
+                    });
 
                     if (dbError) throw dbError;
-
                     if(statusToSet === 'approved') {
-                        await _supabase
-                            .from('rides')
-                            .update({ seats_available: currentRide.seats_available - seatsSelected })
-                            .eq('id', currentRide.id);
+                        await _supabase.from('rides').update({ seats_available: currentRide.seats_available - seatsSelected }).eq('id', currentRide.id);
                     }
 
                     document.getElementById('loaderSpinner').style.display = 'none';
-                    loaderText.innerHTML = statusToSet === 'approved' 
-                        ? `🎉 Booket!<br><span style="font-size:0.9rem;">Turen er bekræftet.</span>`
-                        : `✅ Anmodning sendt!<br><span style="font-size:0.9rem;">Vi har reserveret pengene.</span>`;
-
+                    loaderText.innerHTML = statusToSet === 'approved' ? `🎉 Booket!` : `✅ Anmodning sendt!`;
                     confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
-
                     setTimeout(() => { window.location.href = "/mine-ture"; }, 3000);
-
                 } catch (err) {
                     errorBox.innerText = "Fejl ved oprettelse i database. Kontakt support.";
                     errorBox.style.display = 'block';
