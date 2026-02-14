@@ -342,22 +342,30 @@
             document.getElementById('uiTotal').innerText = `${total} kr.`;
         }
 
-        // --- STRIPE INTEGRATION ---
-        async function initStripePayment(amountDKK) {
+        // --- STRIPE INTEGRATION ---async function
+        initStripePayment(amountDKK) {
             try {
-                // Kalder din Edge Function
+                // 1. Hent brugerens aktuelle "adgangskort" (Token)
+                const { data: { session } } = await _supabase.auth.getSession();
+                
+                if (!session) throw new Error("Du er ikke logget ind!");
+
+                // 2. Kald Edge Function og vis adgangskortet til dørmanden!
                 const { data, error } = await _supabase.functions.invoke('web-payment-sheet', {
                     body: { 
                         amount: amountDKK, 
                         currency: 'dkk', 
                         instant_booking: currentRide.instant_booking 
+                    },
+                    headers: {
+                        Authorization: `Bearer ${session.access_token}` // <--- HER ER MAGIEN!
                     }
                 });
 
                 if (error) throw error;
-                if (!data || !data.publishableKey) throw new Error("Mangler Stripe konfiguration");
+                if (data && data.error) throw new Error("Edge Function siger: " + data.error);
+                if (!data || !data.publishableKey) throw new Error("Fik uventet svar fra serveren: " + JSON.stringify(data));
 
-                // Hvis vi ikke har initialiseret det overordnede Stripe objekt endnu, gør vi det nu
                 if (!stripe) {
                     stripe = Stripe(data.publishableKey);
                 }
@@ -367,7 +375,7 @@
                 const appearance = {
                     theme: 'stripe',
                     variables: {
-                        colorPrimary: '#6366F1', // Vores HoppOn lilla farve
+                        colorPrimary: '#6366F1', 
                         colorBackground: '#ffffff',
                         colorText: '#0F172A',
                         colorDanger: '#DC2626',
@@ -377,11 +385,9 @@
                     }
                 };
 
-                // Byg Elementet
                 elements = stripe.elements({ clientSecret: data.paymentIntent, appearance });
                 const paymentElement = elements.create('payment', { layout: 'tabs' });
 
-                // Ryd placeholderen og indsæt
                 document.getElementById('payment-element').innerHTML = '';
                 paymentElement.mount('#payment-element');
                 
@@ -392,9 +398,7 @@
                 document.getElementById('payment-element').innerHTML = '';
                 const errorBox = document.getElementById('payment-error');
                 
-                // Trækker den faktiske server-fejl ud, så vi kan se hvad Edge Function brokker sig over:
                 let errorMsg = err.message || JSON.stringify(err);
-                
                 errorBox.innerText = "SYSTEM FEJL: " + errorMsg;
                 errorBox.style.display = 'block';
             }
