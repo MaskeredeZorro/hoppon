@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bedste Alternativer til GoMore (2026) | Tjen mere med HoppOn</title>
-    <meta name="description" content="Leder du efter et billigere alternativ til GoMore? Sammenlign HoppOn og HandyHand her og se hvor meget mere du kan tjene som chauffør.">
+    <title>Bedste Alternativer til GoMore (2026) | Tjen 100% på dit lift</title>
+    <meta name="description" content="Leder du efter et GoMore alternativ? Sammenlign HoppOn, HandyHand, Nabogo og BlaBlaCar. Få 0 kr. i chaufførgebyr og behold hele din indtjening.">
     
     <link rel="icon" href="https://i.imgur.com/4oGYz8n.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -33,10 +33,9 @@
             position: relative;
         }
 
-        .hero-alt h1 { font-size: 3rem; font-weight: 900; margin-bottom: 1rem; letter-spacing: -1.5px; line-height: 1.1; }
-        .hero-alt p { font-size: 1.25rem; color: #cbd5e1; max-width: 700px; margin: 0 auto; }
+        .hero-alt h1 { font-size: 3.2rem; font-weight: 900; margin-bottom: 1rem; letter-spacing: -1.5px; line-height: 1.1; }
+        .hero-alt p { font-size: 1.25rem; color: #cbd5e1; max-width: 750px; margin: 0 auto; line-height: 1.6;}
 
-        /* NY KLASSE TIL TEKST-HIGHLIGHT */
         .text-highlight {
             background-color: var(--accent);
             color: white;
@@ -46,9 +45,9 @@
         }
 
         /* CONTAINER */
-        .dsb-container { max-width: 1000px; margin: -7rem auto 4rem auto; padding: 0 1.5rem; position: relative; z-index: 10; width: 100%; }
+        .dsb-container { max-width: 1200px; margin: -7rem auto 4rem auto; padding: 0 1.5rem; position: relative; z-index: 10; width: 100%; }
 
-        /* CALCULATOR CARD (Glassmorphism) */
+        /* CALCULATOR CARD */
         .calculator-card {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
@@ -62,8 +61,8 @@
         }
 
         .calc-title { text-align: center; margin-bottom: 2.5rem; }
-        .calc-title h2 { font-size: 1.8rem; font-weight: 900; color: var(--brand); letter-spacing: -0.5px; }
-        .calc-title p { color: var(--text-muted); font-weight: 500; font-size: 1.1rem;}
+        .calc-title h2 { font-size: 2rem; font-weight: 900; color: var(--brand); letter-spacing: -0.5px; margin-bottom: 10px;}
+        .calc-title p { color: var(--text-muted); font-weight: 500; font-size: 1.1rem; margin: 0;}
 
         .slider-container { margin-bottom: 3.5rem; text-align: center; }
         
@@ -74,14 +73,14 @@
             margin-bottom: 0.5rem;
             display: inline-block;
             background: #EEF2FF;
-            padding: 0.5rem 2rem;
+            padding: 0.5rem 2.5rem;
             border-radius: 20px;
             letter-spacing: -1px;
         }
 
         input[type=range] {
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             height: 10px;
             border-radius: 5px;
             background: #E2E8F0;
@@ -102,12 +101,13 @@
             border: 3px solid white;
         }
 
-        .comparison-results { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        /* 3 KOLONNER I BEREGNEREN */
+        .comparison-results { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
         
         .result-box {
             background: white;
             border-radius: 24px;
-            padding: 2.5rem 2rem;
+            padding: 2.5rem 1.5rem;
             text-align: center;
             border: 2px solid var(--border);
             transition: transform 0.3s ease;
@@ -119,6 +119,7 @@
             transform: scale(1.05);
             position: relative;
             box-shadow: 0 15px 30px -10px rgba(16, 185, 129, 0.2);
+            z-index: 2;
         }
 
         .badge {
@@ -134,45 +135,62 @@
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
+            white-space: nowrap;
         }
 
-        .provider-name { font-size: 1.6rem; font-weight: 900; margin-bottom: 1rem; display: block; letter-spacing: -0.5px; }
+        .provider-name { font-size: 1.5rem; font-weight: 900; margin-bottom: 1rem; display: block; letter-spacing: -0.5px; }
         .hoppon-text { color: var(--brand); }
-        .handy-text { color: #64748B; }
+        .handy-text, .blabla-text { color: #64748B; }
 
-        .earnings { font-size: 3.5rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: -1px; }
+        .earnings { font-size: 3rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: -1px; }
         .winner .earnings { color: #166534; }
         .loser .earnings { color: #64748B; }
         
-        .fee-details { font-size: 0.95rem; color: var(--text-muted); font-weight: 500; line-height: 1.4; }
-        .fee-highlight { color: #EF4444; font-weight: 700; }
+        .fee-details { font-size: 0.95rem; color: var(--text-muted); font-weight: 500; line-height: 1.5; }
+        .fee-highlight { color: #EF4444; font-weight: 800; }
 
-        /* REVIEWS / PRO-CON */
-        .reviews-section { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        /* REVIEWS / PRO-CON (2x2 GRID) */
+        .reviews-section { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 4rem;}
         
         .review-card {
             background: white;
-            padding: 3rem 2.5rem;
+            padding: 2.5rem;
             border-radius: 32px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
             border: 1px solid var(--border);
         }
 
-        .review-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; border-bottom: 1px solid #F1F5F9; padding-bottom: 1.5rem; }
-        .review-title { font-size: 1.8rem; font-weight: 900; letter-spacing: -0.5px; }
+        .review-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; border-bottom: 1px solid #F1F5F9; padding-bottom: 1rem; }
+        .review-title { font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px; }
 
         .pro-con-list { list-style: none; padding: 0; margin: 0; }
-        .pro-con-list li { margin-bottom: 1.2rem; display: flex; align-items: flex-start; gap: 14px; font-size: 1rem; line-height: 1.5; color: var(--brand); }
+        .pro-con-list li { margin-bottom: 1rem; display: flex; align-items: flex-start; gap: 12px; font-size: 1rem; line-height: 1.5; color: var(--brand); font-weight: 500;}
         .pro-con-list li div { flex: 1; }
 
         .icon { width: 22px; height: 22px; flex-shrink: 0; margin-top: 2px; }
         .icon-check { color: #10B981; }
         .icon-cross { color: #EF4444; }
 
+        /* GORILLA SEO SECTION */
+        .gorilla-seo {
+            background: white;
+            border-radius: 32px;
+            padding: 4rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+            border: 1px solid var(--border);
+            color: var(--brand);
+            line-height: 1.8;
+            margin-bottom: 4rem;
+        }
+        .gorilla-seo h2 { font-size: 2.2rem; font-weight: 900; margin-bottom: 1.5rem; letter-spacing: -1px; }
+        .gorilla-seo h3 { font-size: 1.5rem; font-weight: 800; margin-top: 2.5rem; margin-bottom: 1rem; }
+        .gorilla-seo p { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+        .gorilla-seo ul { margin-bottom: 2rem; padding-left: 1.5rem; }
+        .gorilla-seo li { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+
         /* CTA SECTION */
         .cta-box {
             text-align: center;
-            margin: 5rem 0;
             background: var(--brand);
             color: white;
             padding: 5rem 2rem;
@@ -202,11 +220,15 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        @media (max-width: 950px) {
+            .comparison-results { grid-template-columns: 1fr; }
+            .result-box.winner { transform: none; margin-bottom: 1rem; }
+        }
         @media (max-width: 768px) {
-            .comparison-results, .reviews-section { grid-template-columns: 1fr; }
+            .reviews-section { grid-template-columns: 1fr; }
             .hero-alt h1 { font-size: 2.2rem; }
             .earnings { font-size: 2.5rem; }
-            .result-box.winner { transform: none; }
+            .gorilla-seo { padding: 2rem; }
         }
     </style>
 </head>
@@ -216,8 +238,8 @@
 
     <main>
         <section class="hero-alt">
-            <h1>Bedste Alternativer til GoMore</h1>
-            <p>Er du træt af at betale urimelige summer til platformen? Vi har sammenlignet markedet for dig.</p>
+            <h1>Bedste Alternativer til GoMore (2026)</h1>
+            <p>Er du træt af at betale urimelige summer til platformen? Vi har sammenlignet markedet for dig, så du som chauffør kan beholde dine egne penge.</p>
         </section>
 
         <div class="dsb-container">
@@ -225,108 +247,191 @@
             <div class="calculator-card">
                 <div class="calc-title">
                     <h2>Tjek din fortjeneste som chauffør</h2>
-                    <p>Indstil det beløb, du ønsker at få udbetalt for ét sæde:</p>
+                    <p>Hvor meget vil du have udbetalt pr. ledigt sæde?</p>
                 </div>
 
                 <div class="slider-container">
-                    <div class="price-display"><span id="ticketPrice">100</span> kr.</div>
-                    <div style="font-weight: 600; color: var(--text-muted);">Din ønskede pris pr. passager</div>
-                    <input type="range" min="30" max="400" value="100" step="5" id="priceSlider">
+                    <div class="price-display"><span id="ticketPrice">150</span> kr.</div>
+                    <div style="font-weight: 600; color: var(--text-muted); margin-top: 5px;">Din ønskede pris pr. passager</div>
+                    <input type="range" min="30" max="400" value="150" step="5" id="priceSlider">
                 </div>
 
                 <div class="comparison-results">
                     <div class="result-box winner">
-                        <div class="badge">Bedst i test</div>
+                        <div class="badge">Bedst til chauffører</div>
                         <span class="provider-name hoppon-text">HoppOn</span>
-                        <div class="earnings"><span id="hopponEarnings">100</span> kr.</div>
+                        <div class="earnings"><span id="hopponEarnings">150</span> kr.</div>
                         <div class="fee-details">
-                            <span style="color: #166534; font-weight: 800; font-size: 1.1rem;">Du får 100% af beløbet.</span><br><br>
-                            Vi lægger automatisk vores 5% gebyr oveni prisen, så passageren betaler gebyret. Det betyder 0 kr. i omkostninger for dig.
+                            <span style="color: #166534; font-weight: 800; font-size: 1.1rem;">Du beholder hver en krone.</span><br><br>
+                            Ingen provisioner og ingen fradrag i din indtjening. Du sætter prisen, og vi udbetaler <strong>præcis</strong> det beløb direkte til din konto.
                         </div>
                     </div>
 
                     <div class="result-box loser">
                         <span class="provider-name handy-text">HandyHand</span>
-                        <div class="earnings"><span id="handyEarnings">79</span> kr.</div>
+                        <div class="earnings"><span id="handyEarnings">123</span> kr.</div>
                         <div class="fee-details">
-                            Gebyr: <span class="fee-highlight" id="handyFee">21</span> kr.<br>
-                            (12% + 9 kr. i servicegebyr)<br><br>
-                            For at du kan få 100 kr., trækker platformen over 20% af din fortjeneste før udbetaling.
+                            Gebyret tages fra <span class="fee-highlight">DIN</span> lomme:<br>
+                            <span style="font-weight: 800; font-size: 1.2rem; color: var(--brand);" id="handyFee">27</span> kr.<br><br>
+                            Før pengene overhovedet rammer din konto, snupper platformen deres kommission (12% + 9 kr.).
+                        </div>
+                    </div>
+
+                    <div class="result-box loser">
+                        <span class="provider-name blabla-text">BlaBlaCar</span>
+                        <div class="earnings"><span id="blablaEarnings">127</span> kr.</div>
+                        <div class="fee-details">
+                            Gebyret tages fra <span class="fee-highlight">DIN</span> lomme:<br>
+                            <span style="font-weight: 800; font-size: 1.2rem; color: var(--brand);" id="blablaFee">23</span> kr.<br><br>
+                            Høje internationale servicegebyrer (op mod 15%) udhuler din reelle indtjening på turen.
                         </div>
                     </div>
                 </div>
                 
-                <p style="text-align:center; margin-top: 2.5rem; font-size: 1.1rem; color: var(--brand); font-weight: 600;">
-                    <span id="savingText">Du mister over 20 kr. pr. passager ved at bruge konkurrenterne.</span>
+                <p style="text-align:center; margin-top: 2.5rem; font-size: 1.15rem; color: var(--brand); font-weight: 700;">
+                    <span id="savingText">Konkurrenterne tager over 25 kr. fra dig pr. passager. Hos HoppOn får du 100%.</span>
                 </p>
             </div>
 
             <div class="reviews-section">
                 
-                <div class="review-card">
+                <div class="review-card" style="border-color: var(--accent); box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);">
                     <div class="review-header">
                         <div class="review-title" style="color: var(--accent);">HoppOn</div>
                         <div style="background:#DCFCE7; color:#166534; padding:6px 12px; border-radius:10px; font-size:0.8rem; font-weight:900; letter-spacing:0.5px;">ANBEFALET</div>
                     </div>
-                    <h3>Fordele</h3>
+                    <h3 style="margin-bottom:1rem; font-size:1.1rem;">Fordele</h3>
                     <ul class="pro-con-list">
                         <li>
                             <svg class="icon icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            <div><span class="text-highlight">Chaufføren betaler 0 kr. i gebyr:</span> Du får udbetalt hele din pris.</div>
+                            <div><span class="text-highlight">0 kr. i chaufførgebyr:</span> Du får udbetalt hele din pris uden skjulte fradrag.</div>
                         </li>
                         <li>
                             <svg class="icon icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            <div><span class="text-highlight">100% gennemsigtige priser:</span> Passageren betaler præcis det, der står.</div>
-                        </li>
-                        <li>
-                            <svg class="icon icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            <div><span class="text-highlight">Læs anmeldelser:</span> Tjek passagerens profil og anmeldelser, før du godkender.</div>
-                        </li>
-                        <li>
-                            <svg class="icon icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            <div>Tag <span class="text-highlight">færgen</span> eller brug <span class="text-highlight">Lynbooking</span> for at få fyldt bilen hurtigere.</div>
+                            <div><span class="text-highlight">Dansk fokus:</span> Indbygget støtte til færge-ruter og lynbooking for pendlere.</div>
                         </li>
                     </ul>
-
-                    <h3 style="margin-top: 2rem;">Ulemper</h3>
+                    <h3 style="margin-top:1.5rem; margin-bottom:1rem; font-size:1.1rem;">Ulemper</h3>
                     <ul class="pro-con-list">
                         <li>
-                            <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                            <div>Nyere platform, hvilket betyder færre brugere end de helt store spillere – endnu!</div>
+                            <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                            <div>Nyere netværk, hvilket betyder færre historiske anmeldelser end gigant-platformene.</div>
+                        </li>
+                        <li>
+                            <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                            <div>Fungerer primært bedst inden for Danmarks grænser.</div>
                         </li>
                     </ul>
                 </div>
 
                 <div class="review-card">
                     <div class="review-header">
-                        <div class="review-title" style="color: var(--text-muted);">HandyHand</div>
+                        <div class="review-title" style="color: var(--brand);">HandyHand</div>
                     </div>
-                    <h3>Fordele</h3>
+                    <h3 style="margin-bottom:1rem; font-size:1.1rem;">Fordele</h3>
                     <ul class="pro-con-list">
                         <li>
-                            <svg class="icon icon-check" viewBox="0 0 24 24" style="color: #64748B;"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            <div>God platform hvis du skal have hjælp til håndværk, rengøring eller store flytninger.</div>
+                            <svg class="icon icon-check" viewBox="0 0 24 24" style="color: #10B981;"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            <div>Stort netværk og god platform, hvis du skal have hjælp til store flytninger og fragt.</div>
+                        </li>
+                        <li>
+                            <svg class="icon icon-check" viewBox="0 0 24 24" style="color: #10B981;"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            <div>Mulighed for at kombinere kørsel med andre tjenester (som rengøring).</div>
                         </li>
                     </ul>
-
-                    <h3 style="margin-top: 2rem;">Ulemper</h3>
+                    <h3 style="margin-top:1.5rem; margin-bottom:1rem; font-size:1.1rem;">Ulemper</h3>
                     <ul class="pro-con-list">
                         <li>
                             <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                            <div>Urimeligt dyrt: Tager både faste gebyrer og procenter af din indtjening.</div>
+                            <div>Tager et enormt højt gebyr på 12% + 9 kr. direkte fra din indtjening.</div>
                         </li>
                         <li>
                             <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                            <div>Er ikke skabt til samkørsel, hvilket gør det svært for passagerer at finde dit lift.</div>
+                            <div>Er ikke bygget til daglig samkørsel, hvilket gør rutesøgning besværlig for passagerer.</div>
                         </li>
                     </ul>
                 </div>
+
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-title" style="color: var(--brand);">Nabogo</div>
+                    </div>
+                    <h3 style="margin-bottom:1rem; font-size:1.1rem;">Fordele</h3>
+                    <ul class="pro-con-list">
+                        <li>
+                            <svg class="icon icon-check" viewBox="0 0 24 24" style="color: #10B981;"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            <div>Helt gratis at bruge på helt korte, lokale ture (ofte subsidieret af kommunen).</div>
+                        </li>
+                        <li>
+                            <svg class="icon icon-check" viewBox="0 0 24 24" style="color: #10B981;"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            <div>Fremragende til den daglige pendlertur på under 10-15 km til uddannelse/arbejde.</div>
+                        </li>
+                    </ul>
+                    <h3 style="margin-top:1.5rem; margin-bottom:1rem; font-size:1.1rem;">Ulemper</h3>
+                    <ul class="pro-con-list">
+                        <li>
+                            <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                            <div>Ubrugelig til lange ruter (f.eks. Aalborg til København) da den er låst til zoner.</div>
+                        </li>
+                        <li>
+                            <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                            <div>Du kan ikke selv styre og justere din faste sædepris frit.</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-title" style="color: var(--brand);">BlaBlaCar</div>
+                    </div>
+                    <h3 style="margin-bottom:1rem; font-size:1.1rem;">Fordele</h3>
+                    <ul class="pro-con-list">
+                        <li>
+                            <svg class="icon icon-check" viewBox="0 0 24 24" style="color: #10B981;"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            <div>Gigantisk internationalt netværk. Perfekt hvis du kører til Tyskland eller Sverige.</div>
+                        </li>
+                        <li>
+                            <svg class="icon icon-check" viewBox="0 0 24 24" style="color: #10B981;"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            <div>Meget professionel app med mange brugere i udlandet.</div>
+                        </li>
+                    </ul>
+                    <h3 style="margin-top:1.5rem; margin-bottom:1rem; font-size:1.1rem;">Ulemper</h3>
+                    <ul class="pro-con-list">
+                        <li>
+                            <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                            <div>Mangler forståelse for det danske marked (fx Molslinjen og Storebæltsbroen).</div>
+                        </li>
+                        <li>
+                            <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                            <div>Tager et enormt servicegebyr for at formidle turen, hvilket presser dine priser.</div>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="gorilla-seo">
+                <h2>Hvorfor lede efter et alternativ til GoMore i 2026?</h2>
+                <p>Det danske samkørselsmarked har i mange år været domineret af få, store aktører. Mens konceptet om at dele en bil og spare på CO2-udledningen er fantastisk, er omkostningerne for at bruge platformene eksploderet. Chauffører oplever, at de mister en betydelig del af deres indtjening, mens passagererne mødes af høje, uigennemskuelige bookinggebyrer ved kassen.</p>
+                
+                <p>Når du som pendler kører mellem de store danske byer – f.eks. Aarhus til København, Odense til Aalborg, eller Esbjerg til Kolding – forventer du en fair handel. Det er trods alt dig, der betaler for bilen, forsikringen, benzinen og sliddet. Hos HoppOn har vi skåret mellemmanden væk for chaufførerne.</p>
+
+                <h3>Tjen mere på de populære danske ruter</h3>
+                <p>Hvis du ofte kører over Storebælt eller tager Molslinjen, ved du, hvor dyrt det kan være at køre alene. Ved at udbyde dine tomme sæder kan du køre helt gratis, hvis bilen er fyldt op. Vores platform er skræddersyet til det danske marked og understøtter funktioner som "Via Færge" og "Lynbooking".</p>
+                <ul>
+                    <li><strong>Samkørsel fra Aalborg til Aarhus:</strong> En klassisk pendlertur, hvor konkurrenterne snupper op mod 20 kr. i gebyr pr. sæde.</li>
+                    <li><strong>Lift fra Odense til København:</strong> Den dyre tur over broen. Med HoppOn udbetaler vi 100% af din fastsatte sædepris direkte til dig.</li>
+                    <li><strong>Find lift i hele landet:</strong> Uanset om turen går til Herning, Holstebro, Vejle, Randers eller Næstved, sikrer HoppOn Danmarks mest gennemsigtige priser.</li>
+                </ul>
+
+                <h3>Fremtiden for samkørsel (Delebils-økonomien)</h3>
+                <p>HoppOn, Nabogo, BlaBlaCar og HandyHand løser forskellige behov. Nabogo er genialt til den lille, lokale tur i kommunen under 10 km. HandyHand kan hjælpe dig med at flytte et køleskab. BlaBlaCar er din ven på turen til Berlin. Men når det kommer til landsdækkende, økonomisk og lynhurtig samkørsel mellem Danmarks byer, er HoppOn skabt til at maksimere din indtjening og minimere passagerens udgift.</p>
             </div>
 
             <div class="cta-box">
                 <h2>Klar til at tjene mere på dine ture?</h2>
-                <p>Opret en tur på HoppOn i dag. Det er 100% gratis og tager kun 2 minutter.</p>
-                <a href="/opret-tur" class="btn-large">Udbyd et lift nu</a>
+                <p>Opret en profil på HoppOn i dag. Det er 100% gratis og tager kun 2 minutter.</p>
+                <a href="/opret-profil" class="btn-large">Opret profil nu</a>
             </div>
 
         </div>
@@ -356,31 +461,38 @@
 
         const slider = document.getElementById('priceSlider');
         const ticketDisplay = document.getElementById('ticketPrice');
+        
         const hopponDisplay = document.getElementById('hopponEarnings');
         const handyDisplay = document.getElementById('handyEarnings');
+        const blablaDisplay = document.getElementById('blablaEarnings');
+        
         const handyFeeDisplay = document.getElementById('handyFee');
+        const blablaFeeDisplay = document.getElementById('blablaFee');
         const savingText = document.getElementById('savingText');
 
         function calculate() {
             const desiredPrice = parseInt(slider.value);
             ticketDisplay.innerText = desiredPrice;
 
-            // HoppOn: Chaufføren får 100% (Passageren betaler ekstra 5% som lagt oveni)
+            // HOPPON: Chaufføren får 100%
             const hopponEarnings = desiredPrice;
             hopponDisplay.innerText = hopponEarnings;
 
-            // Konkurrent (HandyHand style): Gebyret trækkes fra chaufførens pris
-            // Hvis de tager 12% + 9 kr. af det beløb chaufføren kræver:
-            const variableFee = desiredPrice * 0.12;
-            const fixedFee = 9;
-            const totalHandyFee = Math.round(variableFee + fixedFee);
-            const handyEarnings = Math.round(desiredPrice - totalHandyFee);
-
+            // HANDYHAND: 12% + 9 kr
+            const handyFee = Math.round(desiredPrice * 0.12 + 9);
+            const handyEarnings = desiredPrice - handyFee;
             handyDisplay.innerText = handyEarnings;
-            handyFeeDisplay.innerText = totalHandyFee;
+            handyFeeDisplay.innerText = handyFee;
 
-            const diff = hopponEarnings - handyEarnings;
-            savingText.innerHTML = `Konkurrenten stjæler <strong>${diff} kr.</strong> fra dig pr. passager. Få hele beløbet hos os.`;
+            // BLABLACAR: Ca. 15% gebyr
+            const blablaFee = Math.round(desiredPrice * 0.15);
+            const blablaEarnings = desiredPrice - blablaFee;
+            blablaDisplay.innerText = blablaEarnings;
+            blablaFeeDisplay.innerText = blablaFee;
+
+            // Find største tab
+            const maxLost = hopponEarnings - Math.min(handyEarnings, blablaEarnings);
+            savingText.innerHTML = `Konkurrenterne snupper op til <strong>${maxLost} kr.</strong> fra din lomme pr. passager. Hos HoppOn får du 100%.`;
         }
 
         slider.addEventListener('input', calculate);
