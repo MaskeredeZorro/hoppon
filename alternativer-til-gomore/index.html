@@ -239,14 +239,14 @@
     <main>
         <section class="hero-alt">
             <h1>Bedste Alternativer til GoMore (2026)</h1>
-            <p>Er du træt af at betale urimelige summer til platformen? Vi har sammenlignet markedet for dig, så du som chauffør kan beholde dine egne penge.</p>
+            <p>Er du træt af at betale urimelige summer til platformen? Vi har sammenlignet markedet for dig, så du som chauffør kan <span class="text-highlight">beholde dine egne penge</span>.</p>
         </section>
 
         <div class="dsb-container">
             
             <div class="calculator-card">
                 <div class="calc-title">
-                    <h2>Tjek din fortjeneste som chauffør</h2>
+                    <h2>Tjek din <span class="text-highlight">fortjeneste som chauffør</span></h2>
                     <p>Hvor meget vil du have udbetalt pr. ledigt sæde?</p>
                 </div>
 
@@ -263,7 +263,7 @@
                         <div class="earnings"><span id="hopponEarnings">150</span> kr.</div>
                         <div class="fee-details">
                             <span style="color: #166534; font-weight: 800; font-size: 1.1rem;">Du beholder hver en krone.</span><br><br>
-                            Ingen provisioner og ingen fradrag i din indtjening. Du sætter prisen, og vi udbetaler <strong>præcis</strong> det beløb direkte til din konto.
+                            Ingen provisioner og ingen fradrag i din indtjening. Du sætter prisen, og vi udbetaler <span class="text-highlight">præcis det beløb</span> direkte til din konto.
                         </div>
                     </div>
 
@@ -304,11 +304,11 @@
                     <ul class="pro-con-list">
                         <li>
                             <svg class="icon icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            <div><span class="text-highlight">0 kr. i chaufførgebyr:</span> Du får udbetalt hele din pris uden skjulte fradrag.</div>
+                            <div><span class="text-highlight">0 kr. i chaufførgebyr:</span> Du får udbetalt <span class="text-highlight">hele din pris</span> uden skjulte fradrag.</div>
                         </li>
                         <li>
                             <svg class="icon icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            <div><span class="text-highlight">Dansk fokus:</span> Indbygget støtte til færge-ruter og lynbooking for pendlere.</div>
+                            <div>Dansk fokus: Indbygget støtte til færge-ruter og lynbooking for pendlere.</div>
                         </li>
                     </ul>
                     <h3 style="margin-top:1.5rem; margin-bottom:1rem; font-size:1.1rem;">Ulemper</h3>
@@ -343,11 +343,11 @@
                     <ul class="pro-con-list">
                         <li>
                             <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                            <div>Tager et enormt højt gebyr på <span class="text-highlight">12% + 9 kr. direkte fra din indtjening.</span></div>
+                            <div>Tager et enormt højt gebyr på 12% + 9 kr. direkte fra din indtjening.</div>
                         </li>
                         <li>
                             <svg class="icon icon-cross" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                            <div>Er ikke bygget til daglig samkørsel, hvilket gør rutesøgning besværlig for passagerer.</div>
+                            <div>Deres hovedfokus er på at løse opgaver i dit hjem.</div>
                         </li>
                     </ul>
                 </div>
@@ -420,7 +420,7 @@
                 <p>Hvis du ofte kører over Storebælt eller tager Molslinjen, ved du, hvor dyrt det kan være at køre alene. Ved at udbyde dine tomme sæder kan du køre helt gratis, hvis bilen er fyldt op. Vores platform er skræddersyet til det danske marked og understøtter funktioner som "Via Færge" og "Lynbooking".</p>
                 <ul>
                     <li><strong>Samkørsel fra Aalborg til Aarhus:</strong> En klassisk pendlertur, hvor konkurrenterne snupper op mod 20 kr. i gebyr pr. sæde.</li>
-                    <li><strong>Lift fra Odense til København:</strong> Den dyre tur over broen. Med HoppOn udbetaler vi 100% af din fastsatte sædepris direkte til dig.</li>
+                    <li><strong>Lift fra Odense til København:</strong> Den dyre tur over broen. Med HoppOn udbetaler vi <span class="text-highlight">100% af din fastsatte sædepris</span> direkte til dig.</li>
                     <li><strong>Find lift i hele landet:</strong> Uanset om turen går til Herning, Holstebro, Vejle, Randers eller Næstved, sikrer HoppOn Danmarks mest gennemsigtige priser.</li>
                 </ul>
 
@@ -492,7 +492,7 @@
 
             // Find største tab
             const maxLost = hopponEarnings - Math.min(handyEarnings, blablaEarnings);
-            savingText.innerHTML = `Konkurrenterne snupper op til <strong>${maxLost} kr.</strong> fra din lomme pr. passager. Hos HoppOn får du 100%.`;
+            savingText.innerHTML = `Konkurrenterne snupper op til <strong>${maxLost} kr.</strong> fra din lomme pr. passager. Hos <span class="text-highlight">HoppOn får du 100%</span>.`;
         }
 
         slider.addEventListener('input', calculate);
