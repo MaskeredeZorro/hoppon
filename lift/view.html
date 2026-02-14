@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>Lift Detaljer | HoppOn Samkørsel</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/style.css">
+    <script src="/supabase.js"></script>
+    <script src="/components.js" defer></script>
+
+    <style>
+        :root {
+            --brand: #0F172A; /* Slate 900 */
+            --accent: #6366F1; /* Indigo 500 */
+            --surface: #FFFFFF;
+            --bg-color: #F8FAFC;
+            --border: #E2E8F0;
+            --text-muted: #64748B;
+            --success: #10B981;
+            --pink: #BE185D;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background: var(--bg-color); 
+            font-family: 'Inter', sans-serif; 
+            color: var(--brand);
+            overflow-x: hidden;
+        }
+
+        main-content { display: block; padding-top: 80px; min-height: 100vh; padding-bottom: 100px;}
+
+        /* --- LAYOUT --- */
+        .page-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        /* --- GENERISKE KORT --- */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 { font-size: 1.4rem; font-weight: 800; margin: 0 0 1.2rem 0; letter-spacing: -0.5px; }
+        
+        /* --- RUTE OVERBLIK --- */
+        .date-title { font-size: 1rem; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 1rem; display: block; }
+        
+        .route-timeline { display: flex; flex-direction: column; position: relative; gap: 1.5rem; }
+        .route-timeline::before {
+            content: ''; position: absolute; left: 9px; top: 15px; bottom: 15px; width: 3px; background: var(--border); border-radius: 3px;
+        }
+        .stop { display: flex; gap: 15px; position: relative; z-index: 2; align-items: flex-start;}
+        .stop-dot { width: 20px; height: 20px; background: white; border: 4px solid var(--brand); border-radius: 50%; margin-top: 2px;}
+        .stop-dot.accent { border-color: var(--accent); }
+        .stop-info .time { font-size: 1.4rem; font-weight: 900; line-height: 1; margin-bottom: 4px; display: block;}
+        .stop-info .city { font-size: 1rem; font-weight: 600; color: var(--text-muted); }
+        .stop-info .address { font-size: 0.85rem; color: #94A3B8; margin-top: 2px; }
+
+        /* --- PREFERENCES & BADGES --- */
+        .badge-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.5rem; }
+        .badge { padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; border: 1px solid var(--border); background: var(--bg-color); color: var(--text-muted); display: flex; align-items: center; gap: 6px;}
+        .b-ferry { background: #E0F2FE; color: #0284C7; border-color: #BAE6FD; }
+        .b-pink { background: #FCE7F3; color: #BE185D; border-color: #FBCFE8; }
+        .b-instant { background: #FEF3C7; color: #B45309; border-color: #FDE68A; }
+
+        .driver-comment { background: #F1F5F9; padding: 1rem; border-radius: 12px; font-style: italic; color: #475569; font-size: 0.95rem; border-left: 4px solid var(--accent); }
+
+        /* --- CHAUFFØR PROFIL --- */
+        .driver-header { display: flex; align-items: center; gap: 15px; margin-bottom: 1.5rem; }
+        .avatar-lg { width: 60px; height: 60px; border-radius: 50%; background: #E2E8F0; object-fit: cover; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; overflow: hidden; }
+        .avatar-lg img { width: 100%; height: 100%; object-fit: cover; }
+        .driver-name { font-size: 1.3rem; font-weight: 800; margin: 0; }
+        .driver-meta { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; display: flex; align-items: center; gap: 5px; margin-top: 4px;}
+        
+        .stat-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.95rem; font-weight: 500;}
+        .stat-row:last-child { border-bottom: none; }
+        
+        .gomore-badge { background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); padding: 15px; border-radius: 16px; display: flex; gap: 15px; align-items: center; margin-bottom: 1.5rem; }
+        .gomore-icon { background: var(--success); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;}
+
+        .co2-box { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 1rem;}
+
+        /* --- REVIEWS --- */
+        .rating-overview { display: flex; gap: 20px; align-items: center; margin-bottom: 1.5rem; }
+        .big-rating { text-align: center; }
+        .big-rating h3 { font-size: 3rem; margin: 0; font-weight: 900; line-height: 1; }
+        .big-rating p { margin: 5px 0 0 0; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+        
+        .rating-bars { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .rating-bar-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s;}
+        .rating-bar-row:hover { opacity: 0.8; }
+        .progress-bg { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--brand); border-radius: 4px; transition: width 0.3s ease; }
+        .rating-bar-row.active .progress-fill { background: var(--accent); }
+        .rating-bar-row.faded { opacity: 0.3; }
+
+        .review-card { padding: 15px; border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; }
+        .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .reviewer-info { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 0.9rem;}
+        .reviewer-info img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover;}
+        .review-comment { font-size: 0.9rem; color: var(--text-muted); line-height: 1.4;}
+
+        /* --- BOOKING BOKS (Højre kolonne) --- */
+        .booking-card { position: sticky; top: 100px; text-align: center; }
+        .price-huge { font-size: 2.5rem; font-weight: 900; color: var(--brand); letter-spacing: -1px; margin-bottom: 5px; }
+        .seats-left { color: var(--success); font-weight: 700; font-size: 0.95rem; margin-bottom: 1.5rem; display: block; }
+        .btn-book { width: 100%; background: var(--accent); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: 0.2s; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3); }
+        .btn-book:hover { transform: translateY(-2px); box-shadow: 0 15px 20px -3px rgba(99, 102, 241, 0.4); }
+
+        /* LOADERS */
+        #globalLoader { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg-color); display: flex; flex-direction:column; justify-content: center; align-items: center; z-index: 2000; }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;}
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* MOBILE FIXES */
+        .mobile-booking-bar { display: none; }
+
+        @media (max-width: 900px) {
+            .page-container { padding: 1rem; }
+            .booking-card { display: none; /* Skjules på mobil, erstattes af bund-bar */ }
+            
+            /* Sticky bund-bar på mobil */
+            .mobile-booking-bar {
+                display: flex;
+                position: fixed;
+                bottom: 0; left: 0; width: 100%;
+                background: white;
+                border-top: 1px solid var(--border);
+                padding: 15px 20px;
+                box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+                z-index: 1000;
+                align-items: center;
+                justify-content: space-between;
+                padding-bottom: calc(15px + env(safe-area-inset-bottom));
+            }
+            .mb-price { font-size: 1.8rem; font-weight: 900; color: var(--brand); line-height: 1;}
+            .mb-seats { font-size: 0.8rem; color: var(--success); font-weight: 700;}
+            .btn-book-mobile { background: var(--accent); color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 800; font-size: 1rem;}
+        }
+    </style>
+</head>
+<body>
+
+    <div id="globalLoader">
+        <div class="spinner"></div>
+        <div style="font-weight: 700; color: var(--text-muted);">Henter lift...</div>
+    </div>
+
+    <hoppon-header></hoppon-header>
+
+    <main-content id="mainContent" style="display: none;">
+        <div class="page-container">
+            
+            <div class="left-col">
+                
+                <div class="card">
+                    <span class="date-title" id="rDate">Læser dato...</span>
+                    <div class="route-timeline">
+                        <div class="stop">
+                            <div class="stop-dot"></div>
+                            <div class="stop-info">
+                                <span class="time" id="rDepTime">--:--</span>
+                                <span class="city" id="rDepCity">Henter...</span>
+                                <div class="address" id="rDepAddr"></div>
+                            </div>
+                        </div>
+                        <div class="stop">
+                            <div class="stop-dot accent"></div>
+                            <div class="stop-info">
+                                <span class="time" id="rArrTime">--:--</span>
+                                <span class="city" id="rArrCity">Henter...</span>
+                                <div class="address" id="rArrAddr"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Detaljer om turen</h2>
+                    <div class="badge-list" id="rBadges"></div>
+                    
+                    <div class="stat-row">
+                        <span>🎒 Bagage pr. person:</span>
+                        <strong style="margin-left:auto" id="rLuggage">Mellem</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>🚗 Bil:</span>
+                        <strong style="margin-left:auto" id="rCar">Henter...</strong>
+                    </div>
+
+                    <div id="rCommentBox" style="display:none; margin-top: 1.5rem;">
+                        <div style="font-weight: 700; margin-bottom: 8px; font-size: 0.9rem;">Chaufførens note:</div>
+                        <div class="driver-comment" id="rCommentText"></div>
+                    </div>
+                </div>
+
+                <div class="card" id="driverSection">
+                    <h2>Om chaufføren</h2>
+                    <div class="driver-header">
+                        <div class="avatar-lg" id="dAvatar">👤</div>
+                        <div>
+                            <h3 class="driver-name" id="dName">Henter...</h3>
+                            <div class="driver-meta">
+                                ⭐ <span id="dRatingMini">--</span> (<span id="dReviewsMini">0</span>) • <span id="dAge">Nyligt medlem</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="gomoreBadgeContainer"></div>
+
+                    <div class="stat-row">
+                        <span style="display:flex; align-items:center; gap:8px;">✅ Telefonnummer verificeret</span>
+                    </div>
+                    <div class="stat-row">
+                        <span style="display:flex; align-items:center; gap:8px;">🚗 <span id="dTotalRides">0</span> samkørsler gennemført</span>
+                    </div>
+
+                    <div class="co2-box" id="co2Box" style="display:none;">
+                        <span style="font-size: 1.5rem;">🌱</span>
+                        <div>
+                            <div style="font-weight: 800; color: var(--success);" id="dCo2">0 kg CO₂</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">Sparet ved samkørsel</div>
+                        </div>
+                    </div>
+
+                    <div id="dBioBox" style="margin-top: 1.5rem; display:none;">
+                        <div style="font-weight: 700; margin-bottom: 5px; font-size: 0.9rem;">Om mig:</div>
+                        <p style="margin:0; font-size:0.95rem; color: var(--text-muted); line-height: 1.5;" id="dBio"></p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Anmeldelser</h2>
+                    <div class="rating-overview">
+                        <div class="big-rating">
+                            <h3 id="revAvg">0.0</h3>
+                            <p>Ud af 5</p>
+                        </div>
+                        <div class="rating-bars" id="ratingBarsContainer">
+                            </div>
+                    </div>
+
+                    <div id="reviewsContainer">
+                        <div style="text-align:center; padding: 2rem; color: var(--text-muted); font-weight: 500;">Ingen anmeldelser endnu.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="right-col">
+                <div class="card booking-card">
+                    <div style="font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 5px;">Pris pr. plads</div>
+                    <div class="price-huge" id="bPrice">-- kr</div>
+                    <div class="seats-left" id="bSeats">✔️ -- pladser tilbage</div>
+                    <button class="btn-book" onclick="handleBooking()">Book plads</button>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 15px;">Du betaler først når anmodningen er godkendt.</div>
+                </div>
+            </aside>
+
+        </div>
+    </main-content>
+
+    <div class="mobile-booking-bar" id="mobileBookingBar">
+        <div>
+            <div class="mb-price" id="mbPrice">-- kr</div>
+            <div class="mb-seats" id="mbSeats">-- pladser</div>
+        </div>
+        <button class="btn-book-mobile" onclick="handleBooking()">Book Nu</button>
+    </div>
+
+    <script>
+        let currentRide = null;
+        let driverProfile = null;
+        let allReviews = [];
+        let ratingDist = {5:0, 4:0, 3:0, 2:0, 1:0};
+        let activeFilter = null;
+
+        window.onload = async () => {
+            // Vi leder efter URL'en for at se hvilket lift ID vi skal indlæse.
+            // Fordi linket er: /lift/view.html?id=HOP-1004
+            const urlParams = new URLSearchParams(window.location.search);
+            let rideId = urlParams.get('id');
+
+            if (!rideId) {
+                alert("Kunne ikke finde turen.");
+                window.location.href = "/lift";
+                return;
+            }
+
+            await loadRideData(rideId);
+        };
+
+        async function loadRideData(rideId) {
+            try {
+                // Tjek om id'et er et UUID eller et HOP-nummer
+                const isUUID = rideId.length > 20;
+                const column = isUUID ? 'id' : 'ride_number';
+
+                const { data: ride, error: rideErr } = await _supabase
+                    .from('rides')
+                    .select('*, driver:profiles!driver_id(*)')
+                    .eq(column, rideId)
+                    .single();
+
+                if (rideErr || !ride) throw new Error("Turen findes ikke");
+                currentRide = ride;
+                driverProfile = ride.driver;
+
+                // 2. Hent Reviews for chaufføren
+                const { data: reviews } = await _supabase
+                    .from('reviews')
+                    .select('*, reviewer:profiles!reviewer_id(full_name, avatar_url)')
+                    .eq('reviewee_id', driverProfile.id)
+                    .order('created_at', { ascending: false });
+                
+                allReviews = reviews || [];
+
+                // 3. Hent antal kørte ture som chauffør
+                const { count: ridesAsDriver } = await _supabase
+                    .from('rides')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('driver_id', driverProfile.id)
+                    .eq('status', 'completed');
+                    
+                let totalRides = ridesAsDriver || 0;
+                if(driverProfile.manual_ride_count) totalRides += parseInt(driverProfile.manual_ride_count);
+                
+                populateUI(totalRides);
+                document.getElementById('globalLoader').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+
+            } catch (error) {
+                console.error(error);
+                alert("Turen kunne ikke indlæses.");
+                window.location.href = "/lift";
+            }
+        }
+
+        function populateUI(totalRides) {
+            // Tider & Rute
+            const depDate = new Date(currentRide.departure_time);
+            const arrDate = currentRide.arrival_time ? new Date(currentRide.arrival_time) : null;
+
+            document.getElementById('rDate').innerText = depDate.toLocaleDateString('da-DK', { weekday:'long', day:'numeric', month:'long' });
+            
+            document.getElementById('rDepTime').innerText = depDate.toLocaleTimeString('da-DK', { hour:'2-digit', minute:'2-digit' });
+            document.getElementById('rDepCity').innerText = currentRide.origin_city.split(',')[0];
+            document.getElementById('rDepAddr').innerText = currentRide.origin_city;
+
+            if(arrDate) {
+                document.getElementById('rArrTime').innerText = arrDate.toLocaleTimeString('da-DK', { hour:'2-digit', minute:'2-digit' });
+            }
+            document.getElementById('rArrCity').innerText = currentRide.destination_city.split(',')[0];
+            document.getElementById('rArrAddr').innerText = currentRide.destination_city;
+
+            // Badges
+            let bHTML = '';
+            if (currentRide.is_ferry) bHTML += `<span class="badge b-ferry">⛴️ Via Færge</span>`;
+            if (currentRide.instant_booking) bHTML += `<span class="badge b-instant">⚡ Lynbooking</span>`;
+            if (currentRide.ladies_only) bHTML += `<span class="badge b-pink">🌸 Ladies Only</span>`;
+            if (currentRide.comfort_guarantee) bHTML += `<span class="badge">🛋️ Komfort (Max 2 bagved)</span>`;
+            if (currentRide.detour_flex) bHTML += `<span class="badge">🛣️ Flexibel rute</span>`;
+            if (currentRide.pref_pets) bHTML += `<span class="badge">🐾 Dyr tilladt</span>`;
+            if (currentRide.pref_kids) bHTML += `<span class="badge">👶 Børn tilladt</span>`;
+            if (currentRide.pref_music) bHTML += `<span class="badge">🎵 Musik i bilen</span>`;
+            if (currentRide.pref_smoking) bHTML += `<span class="badge">🚬 Rygning tilladt</span>`;
+            
+            document.getElementById('rBadges').innerHTML = bHTML;
+            document.getElementById('rLuggage').innerText = currentRide.luggage_size || "Ikke angivet";
+
+            // Bil
+            let carStr = "Biloplysninger skjult";
+            try {
+                const car = typeof currentRide.car_model === 'string' ? JSON.parse(currentRide.car_model) : currentRide.car_model;
+                carStr = `${car.make} ${car.model} (${car.color})`;
+            } catch(e){}
+            document.getElementById('rCar').innerText = carStr;
+
+            // Comment
+            if(currentRide.comment) {
+                document.getElementById('rCommentBox').style.display = 'block';
+                document.getElementById('rCommentText').innerText = `"${currentRide.comment}"`;
+            }
+
+            // Booking Info
+            document.getElementById('bPrice').innerText = `${currentRide.price_dkk} kr`;
+            document.getElementById('bSeats').innerText = `✔️ ${currentRide.seats_available} pladser tilbage`;
+            document.getElementById('mbPrice').innerText = `${currentRide.price_dkk} kr`;
+            document.getElementById('mbSeats').innerText = `✔️ ${currentRide.seats_available} pladser`;
+
+            // Driver Info
+            document.getElementById('dName').innerText = driverProfile.full_name || "Anonym";
+            if(driverProfile.avatar_url) {
+                document.getElementById('dAvatar').innerHTML = `<img src="${driverProfile.avatar_url}" alt="Profilbillede">`;
+            } else {
+                document.getElementById('dAvatar').innerText = driverProfile.full_name ? driverProfile.full_name[0] : "👤";
+            }
+            document.getElementById('dTotalRides').innerText = totalRides;
+
+            if(driverProfile.created_at) {
+                const created = new Date(driverProfile.created_at);
+                document.getElementById('dAge').innerText = "Medlem siden " + created.toLocaleDateString('da-DK', {month:'short', year:'numeric'});
+            }
+
+            if(driverProfile.bio) {
+                document.getElementById('dBioBox').style.display = 'block';
+                document.getElementById('dBio').innerText = driverProfile.bio;
+            }
+
+            if(driverProfile.co2_saved_kg && driverProfile.co2_saved_kg > 0) {
+                document.getElementById('co2Box').style.display = 'flex';
+                document.getElementById('dCo2').innerText = `${driverProfile.co2_saved_kg} kg CO₂`;
+            }
+
+            // GoMore Badge (Manuel data)
+            if(driverProfile.manual_ride_count != null && driverProfile.manual_rating != null) {
+                document.getElementById('gomoreBadgeContainer').innerHTML = `
+                    <div class="gomore-badge">
+                        <div class="gomore-icon">😊</div>
+                        <div>
+                            <div style="font-weight: 800; font-size: 1rem;">Verificeret historik</div>
+                            <div style="font-size: 0.85rem; color: #166534; margin-top: 3px;">
+                                ${driverProfile.manual_ride_count}+ tidligere verificerede samkørsler<br>
+                                Gns. ${parseFloat(driverProfile.manual_rating).toFixed(1)} stjerner.
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            calculateAndRenderReviews();
+        }
+
+        function calculateAndRenderReviews() {
+            let sum = 0;
+            ratingDist = {5:0, 4:0, 3:0, 2:0, 1:0};
+
+            allReviews.forEach(r => {
+                sum += r.rating;
+                if(ratingDist[r.rating] !== undefined) ratingDist[r.rating]++;
+            });
+
+            const total = allReviews.length;
+            const avg = total > 0 ? (sum / total) : 0;
+
+            document.getElementById('revAvg').innerText = avg > 0 ? avg.toFixed(1) : "Ny";
+            document.getElementById('dRatingMini').innerText = avg > 0 ? avg.toFixed(1) : "Ny";
+            document.getElementById('dReviewsMini').innerText = total;
+
+            renderRatingBars(total);
+            renderReviewList();
+        }
+
+        function renderRatingBars(total) {
+            const container = document.getElementById('ratingBarsContainer');
+            container.innerHTML = '';
+
+            [5, 4, 3, 2, 1].forEach(star => {
+                const count = ratingDist[star];
+                const pct = total > 0 ? (count / total) * 100 : 0;
+                
+                const isActive = activeFilter === star;
+                const isFaded = activeFilter !== null && activeFilter !== star;
+
+                const row = document.createElement('div');
+                row.className = `rating-bar-row ${isActive ? 'active' : ''} ${isFaded ? 'faded' : ''}`;
+                row.onclick = () => {
+                    activeFilter = activeFilter === star ? null : star; 
+                    renderRatingBars(total); 
+                    renderReviewList(); 
+                };
+
+                row.innerHTML = `
+                    <span style="width: 12px;">${star}</span>
+                    <div class="progress-bg">
+                        <div class="progress-fill" style="width: ${pct}%"></div>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function renderReviewList() {
+            const container = document.getElementById('reviewsContainer');
+            container.innerHTML = '';
+
+            let visibleReviews = allReviews;
+            if(activeFilter !== null) {
+                visibleReviews = allReviews.filter(r => r.rating === activeFilter);
+            }
+
+            if(visibleReviews.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--text-muted); background: #F8FAFC; border-radius:12px;">Ingen anmeldelser at vise.</div>`;
+                return;
+            }
+
+            visibleReviews.forEach(r => {
+                const date = new Date(r.created_at).toLocaleDateString('da-DK', { month:'short', year:'numeric' });
+                const name = r.reviewer?.full_name || "Slettet bruger";
+                const avatar = r.reviewer?.avatar_url ? `<img src="${r.reviewer.avatar_url}">` : `<div style="width:30px;height:30px;border-radius:50%;background:#E2E8F0;display:flex;align-items:center;justify-content:center;">👤</div>`;
+                
+                let starsHTML = '';
+                for(let i=1; i<=5; i++) {
+                    starsHTML += `<span style="color: ${i <= r.rating ? '#F59E0B' : '#E2E8F0'}">★</span>`;
+                }
+
+                container.innerHTML += `
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="reviewer-info">
+                                ${avatar}
+                                <div>
+                                    <div style="line-height:1;">${name}</div>
+                                    <span style="font-size:0.75rem; color:var(--text-muted); font-weight:500;">${date}</span>
+                                </div>
+                            </div>
+                            <div style="font-size: 0.9rem;">${starsHTML}</div>
+                        </div>
+                        ${r.comment ? `<div class="review-comment">${r.comment}</div>` : ''}
+                    </div>
+                `;
+            });
+
+            if (activeFilter !== null) {
+                container.innerHTML += `
+                    <button style="width:100%; padding:10px; border:none; background:none; color:var(--accent); font-weight:700; cursor:pointer;" onclick="activeFilter=null; calculateAndRenderReviews();">
+                        Fjern filter (Vis alle)
+                    </button>
+                `;
+            }
+        }
+
+        async function handleBooking() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (!session) {
+                alert("Du skal være logget ind for at booke turen. Opret en profil nemt og hurtigt!");
+                window.location.href = '/login?redirect=' + window.location.pathname + window.location.search;
+                return;
+            }
+            
+            if (session.user.id === driverProfile.id) {
+                alert("Du kan ikke booke din egen tur!");
+                return;
+            }
+
+            alert("Booking flow starter her!");
+        }
+    </script>
+</body>
+</html>
