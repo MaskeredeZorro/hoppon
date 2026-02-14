@@ -391,7 +391,11 @@
                 console.error("Fejl ved Stripe setup:", err);
                 document.getElementById('payment-element').innerHTML = '';
                 const errorBox = document.getElementById('payment-error');
-                errorBox.innerText = "Kunne ikke oprette forbindelse til betalingstjenesten. Prøv at opdatere siden.";
+                
+                // Trækker den faktiske server-fejl ud, så vi kan se hvad Edge Function brokker sig over:
+                let errorMsg = err.message || JSON.stringify(err);
+                
+                errorBox.innerText = "SYSTEM FEJL: " + errorMsg;
                 errorBox.style.display = 'block';
             }
         }
