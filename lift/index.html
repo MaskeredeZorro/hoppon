@@ -16,6 +16,10 @@
     <script src="/components.js" defer></script>
 
     <style>
+        /* GLOBAL RESET FOR AT FORHINDRE "ZOOMET IND" FEJL PÅ MOBIL */
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; overflow-x: hidden; width: 100%; }
+
         /* DYNAMISK HEADER SØGNING (Svæver over den globale header) */
         .header-search { 
             position: fixed; 
@@ -49,22 +53,31 @@
         .search-bar { background: var(--surface); padding: 0.5rem; border-radius: 18px; max-width: 850px; width: 100%; margin: 0 auto; display: flex; gap: 0.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); align-items: center; }
         .search-input { flex: 1; min-width: 0; padding: 12px 16px; border: 1px solid transparent; border-radius: 12px; background: #F1F5F9; font-size: 1rem; color: var(--brand); font-weight: 500; outline: none; }
         .search-input:focus { border-color: var(--accent); background: white; }
-        #searchDate { max-width: 150px; } /* Desktop max-bredde styres nu her i CSS */
+        #searchDate { max-width: 150px; }
         .search-btn { flex-shrink: 0; background: var(--accent); color: white; border: none; padding: 12px 1.8rem; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; }
 
-        /* MOBIL-DESIGN FOR SØGEBAREN */
+        /* MOBIL-DESIGN FOR SØGEBAREN (2 Kolonner / 2 Rækker) */
         @media (max-width: 768px) {
             .search-bar { 
-                flex-direction: column; 
+                display: grid; 
+                grid-template-columns: 1fr 1fr; /* Deler op i 2 lige store kolonner */
                 padding: 1.2rem; 
-                background: rgba(255, 255, 255, 0.15); /* Glass-look der passer til hero */
+                background: rgba(255, 255, 255, 0.15); 
                 backdrop-filter: blur(10px);
                 border: 1px solid rgba(255, 255, 255, 0.2);
                 gap: 0.8rem;
             }
-            .search-input { width: 100%; padding: 14px 16px; font-size: 1.05rem; box-sizing: border-box; }
-            #searchDate { max-width: 100%; } /* Dato fylder fuld bredde på mobil */
-            .search-btn { width: 100%; padding: 14px; font-size: 1.1rem; }
+            .search-input { 
+                width: 100%; 
+                padding: 12px 10px; 
+                font-size: 16px !important; /* VIGTIGT: Forhindrer iOS i at auto-zoome */
+            }
+            #searchDate { max-width: 100%; } 
+            .search-btn { 
+                width: 100%; 
+                padding: 12px; 
+                font-size: 1.1rem; 
+            }
         }
 
         .main-container { max-width: 1200px; margin: 1.5rem auto; padding: 0 1rem; display: grid; grid-template-columns: 280px 1fr; gap: 2rem; }
@@ -75,7 +88,7 @@
         
         .filter-header { font-size: 1.1rem; font-weight: 800; margin-bottom: 1.2rem; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease; }
         .filter-chevron { display: none; font-size: 0.8rem; transition: transform 0.3s ease; }
-        .filter-content { display: block; } /* Synlig på computer */
+        .filter-content { display: block; }
 
         .filter-group { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
         .filter-label { font-weight: 700; font-size: 0.8rem; margin-bottom: 0.8rem; display: block; color: var(--text-muted); text-transform: uppercase; }
@@ -137,7 +150,6 @@
             
             .filters { position: relative; top: 0; max-height: none; margin-bottom: 1rem; padding: 1rem 1.2rem; } 
             
-            /* Gør filter-header klikbar og skjul indholdet */
             .filter-header { cursor: pointer; margin-bottom: 0; padding-bottom: 0; }
             .filter-header.open { margin-bottom: 1.2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
             .filter-chevron { display: inline-block; margin-left: 8px;}
@@ -261,7 +273,6 @@
         let allRides = [];
         let isUserLoggedIn = false;
 
-        // Toggles mobil-menuen
         function toggleMobileFilters() {
             if (window.innerWidth <= 950) {
                 document.getElementById('filterContent').classList.toggle('open');
@@ -463,7 +474,6 @@
 
         function updatePriceLabel() { document.getElementById('priceOutput').innerText = document.getElementById('filterPrice').value + " kr"; }
         
-        // Modtager 'event' og forhindrer at klikket åbner/lukker menuen
         function resetFilters(event) {
             if (event) event.stopPropagation(); 
             document.getElementById('searchFrom').value = ''; 
