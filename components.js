@@ -66,7 +66,7 @@ class HoppOnFooter extends HTMLElement {
                         <a href="/samkoersel/odense-koebenhavn">Odense ➔ København</a>
                         <a href="/samkoersel/esbjerg-aarhus">Esbjerg ➔ Aarhus</a>
                     </div>
-
+            
                     <div class="footer-links">
                         <h4>Hurtige links</h4>
                         <a href="/alternativer-til-gomore/">GoMore Alternativer</a>
@@ -75,6 +75,7 @@ class HoppOnFooter extends HTMLElement {
                         <a href="/sikkerhed/">Sikkerhed på turen</a>
                         <a href="/toc/">Handelsbetingelser</a>
                         <a href="/privacy_policy/">Privatlivspolitik</a>
+                        <a href="/gomore-lukker-samkoersel/" style="color: var(--accent); font-weight: bold;">GoMore lukker samkørsel</a>
                     </div>
                 </div>
                 
