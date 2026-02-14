@@ -388,7 +388,7 @@
                     <div class="filter-group" style="padding-top: 0.5rem;">
                         <span class="filter-label">Maks pris pr. plads</span>
                         <span class="price-display" id="priceOutput">500 kr</span>
-                        <input type="range" id="filterPrice" min="20" max="500" value="200" step="10" oninput="updatePriceLabel(); filterRides()">
+                        <input type="range" id="filterPrice" min="20" max="500" value="500" step="10" oninput="updatePriceLabel(); filterRides()">
                     </div>
 
                     <div class="filter-group">
@@ -547,7 +547,11 @@
                 if (from && !rawOrigin.toLowerCase().includes(from)) return false;
                 if (to && !rawDest.toLowerCase().includes(to)) return false;
                 if (qDate && new Date(r.departure_time).toISOString().split('T')[0] !== qDate) return false;
-                if (r.price_dkk > maxP) return false;
+                
+                // --- KORREKT PRIS FILTRERING MED 5% INKLUDERET ---
+                const finalRidePrice = Math.ceil(r.price_dkk * 1.05);
+                if (finalRidePrice > maxP) return false;
+                
                 if (r.seats_available < reqSeats) return false;
                 if (reqLuggage) {
                     if (reqLuggage === 'Stor' && r.luggage_size !== 'Stor') return false;
@@ -568,8 +572,12 @@
             });
 
             const sortBy = document.getElementById('sortSelect').value;
-            if (sortBy === 'price') filtered.sort((a, b) => a.price_dkk - b.price_dkk);
-            else filtered.sort((a, b) => new Date(a.departure_time) - new Date(b.departure_time));
+            // --- KORREKT SORTERING MED 5% INKLUDERET ---
+            if (sortBy === 'price') {
+                filtered.sort((a, b) => Math.ceil(a.price_dkk * 1.05) - Math.ceil(b.price_dkk * 1.05));
+            } else {
+                filtered.sort((a, b) => new Date(a.departure_time) - new Date(b.departure_time));
+            }
 
             filteredRidesForMap = filtered; 
             renderRides(filtered);
@@ -611,6 +619,9 @@
                 if (ride.pref_music) bHTML += `<span class="badge">🎵 Musik</span>`;
                 if (ride.pref_smoking) bHTML += `<span class="badge">🚬 Rygning</span>`;
                 if (ride.ladies_only) bHTML += `<span class="badge b-pink">🌸 Ladies</span>`;
+                
+                // --- KORREKT PRIS BEREGNING TIL KORTET ---
+                const finalPrice = Math.ceil(ride.price_dkk * 1.05);
 
                 const card = document.createElement('div');
                 card.className = 'ride-card';
@@ -646,7 +657,7 @@
                         <div class="badge-group">${bHTML}</div>
                     </div>
                     <div class="card-footer">
-                        <div class="price">${ride.price_dkk}<span> kr</span></div>
+                        <div class="price">${finalPrice}<span> kr</span></div>
                         <div class="seats-left">✔️ ${ride.seats_available} pladser</div>
                     </div>
                 `;
@@ -666,11 +677,14 @@
             const driverName = ride.driver?.full_name || 'Chauffør';
             const avatarHtml = ride.driver?.avatar_url ? `<img src="${ride.driver.avatar_url}">` : `👤`;
             const destCity = ride.destination_city.split(',')[0];
+            
+            // --- KORREKT PRIS BEREGNING TIL MAP PREVIEW ---
+            const finalPrice = Math.ceil(ride.price_dkk * 1.05);
 
             document.getElementById('mapPreviewTime').innerText = timeStr;
             document.getElementById('mapPreviewDate').innerText = dateStr;
             document.getElementById('mapPreviewDest').innerText = `Til ${destCity}`;
-            document.getElementById('mapPreviewPrice').innerText = `${ride.price_dkk} kr`;
+            document.getElementById('mapPreviewPrice').innerText = `${finalPrice} kr`;
             document.getElementById('mapPreviewSeats').innerText = `✔️ ${ride.seats_available} pladser`;
             
             document.getElementById('mapPreviewDriver').innerHTML = `
