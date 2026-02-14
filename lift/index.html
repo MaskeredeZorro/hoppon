@@ -178,17 +178,44 @@
             @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         }
 
-        /* SMÅ MOBILER (MAX 480px) */
-        @media (max-width: 480px) {
+/* MOBIL & IPHONE FIX (MAX 768px) - Påvirker IKKE computer */
+        @media (max-width: 768px) {
+            .ride-card {
+                padding: 1rem 0.8rem; /* Lidt mindre side-padding giver mere plads til teksten */
+            }
+            
+            /* Tillader lange bynavne og bil-info at gå på to linjer i stedet for at forsvinde */
+            .city, .car-info, .driver-name { 
+                white-space: normal; 
+                word-wrap: break-word;
+            }
+            
             .time { font-size: 1.25rem; } 
             
-            /* Sørger for at indholdet brydes korrekt på meget smalle skærme */
-            .card-mid { flex-direction: column; align-items: flex-start; gap: 10px; }
-            .badge-group { justify-content: flex-start; margin-left: 0; }
-            .driver { width: 100%; }
+            /* Stabler chauffør og badges ovenpå hinanden, så intet presses ud til siden */
+            .card-mid { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 12px; 
+            }
+            .driver { 
+                width: 100%; 
+            }
+            .badge-group { 
+                justify-content: flex-start; 
+                margin-left: 0; 
+                width: 100%; 
+            }
             
-            .card-footer { flex-direction: column; align-items: flex-start; gap: 4px; }
-            .price { font-size: 1.4rem; }
+            /* Stabler pris og ledige pladser */
+            .card-footer { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 6px; 
+            }
+            .price { 
+                font-size: 1.4rem; 
+            }
         }
     </style>
 </head>
