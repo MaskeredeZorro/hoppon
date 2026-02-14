@@ -83,23 +83,32 @@
         .search-btn { flex-shrink: 0; background: var(--accent); color: white; border: none; padding: 12px 1.8rem; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; }
 
         /* NYT DESIGN: Fleksibel kort-søgningsknap */
-        .map-search-btn-container { max-width: 850px; margin: -15px auto 0 auto; display: flex; justify-content: center; position: relative; z-index: 1;}
+        .map-search-btn-container { 
+            max-width: 850px; 
+            margin: 12px auto 0 auto; 
+            display: flex; 
+            justify-content: flex-end; /* Placerer den til højre under Dato og Søg */
+        }
         .map-search-btn { 
-            background: white; 
-            color: var(--brand); 
-            padding: 14px 30px 10px 30px; /* Lidt asymmetrisk padding for at glide ind under søgebaren */
-            border-radius: 0 0 20px 20px; 
+            background: rgba(255, 255, 255, 0.15); 
+            color: white; 
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px; 
+            border-radius: 12px; 
             font-size: 0.95rem; 
-            font-weight: 800; 
-            border: none;
+            font-weight: 700; 
             cursor: pointer; 
             display: flex; 
-            align-items: flex-end; 
+            align-items: center; 
+            justify-content: center;
             gap: 8px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            backdrop-filter: blur(5px);
             transition: 0.2s;
+            width: 260px; /* Ca. bredden på 'Dato' + 'Søg' for at flugte pænt */
         }
-        .map-search-btn:hover { color: var(--accent); padding-bottom: 15px; }
+        .map-search-btn:hover { 
+            background: rgba(255, 255, 255, 0.25); 
+        }
 
         /* MOBIL SØGEBAR */
         @media (max-width: 768px) {
@@ -119,9 +128,8 @@
                 height: 50px; 
                 margin: 0; 
             }
-            .map-search-btn-container { justify-content: stretch; margin: 0; margin-top: 15px;}
-            .map-search-btn { width: 100%; justify-content: center; align-items: center; border-radius: 12px; padding: 15px;}
-            .map-search-btn:hover { padding-bottom: 15px; }
+            .map-search-btn-container { justify-content: stretch; margin-top: 12px;}
+            .map-search-btn { width: 100%; padding: 12px;}
         }
 
         .main-container { max-width: 1200px; margin: 1.5rem auto; padding: 0 1rem; display: grid; grid-template-columns: 280px 1fr; gap: 2rem; }
@@ -261,7 +269,7 @@
             .card-footer { flex-direction: column; align-items: flex-start; gap: 6px; }
             .price { font-size: 1.4rem; }
             
-            #mapRidePreview { width: 95%; bottom: env(safe-area-inset-bottom, 20px); } /* iPhone safe area i bunden */
+            #mapRidePreview { width: 95%; bottom: env(safe-area-inset-bottom, 20px); }
         }
     </style>
 </head>
@@ -673,7 +681,7 @@
                 });
             }
             
-            // Tvinger kortet til at genberegne sin størrelse, da display var 'none'
+            // Tvinger kortet til at genberegne sin størrelse
             setTimeout(() => { leafletMap.invalidateSize(); }, 200);
             
             leafletMap.eachLayer((layer) => {
@@ -705,7 +713,7 @@
                         
                         // Når de klikker på prikken -> Vis pop-up i bunden
                         marker.on('click', (e) => {
-                            L.DomEvent.stopPropagation(e); // Undgår at map 'click' event fanger den
+                            L.DomEvent.stopPropagation(e); 
                             showRidePreview(ride);
                         });
                     }
