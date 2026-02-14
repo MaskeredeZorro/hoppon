@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HoppOn | Danmarks Billigste Samkørsel (0 kr. i gebyr)</title>
-    <meta name="description" content="Kør med fra 0 kr. i platformsgebyr. HoppOn er Danmarks nye samkørsels-app. Find billige lift mellem Aarhus, København, Odense og Aalborg, eller udbyd dine tomme sæder.">
+    <title>HoppOn | Gennemsigtig Samkørsel (0 kr. i chaufførgebyr)</title>
+    <meta name="description" content="Find Danmarks billigste lift med HoppOn. Vi har droppet de høje gebyrer, så chaufføren beholder 100% og passageren sparer penge.">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
@@ -17,10 +17,13 @@
         
         .hero-section { background: linear-gradient(135deg, var(--brand) 0%, #1e293b 100%); padding: 6rem 1rem 8rem 1rem; text-align: center; color: white; position: relative; overflow: hidden; }
         .hero-content { max-width: 800px; margin: 0 auto; position: relative; z-index: 2; }
-        .hero-title { font-size: 3.5rem; font-weight: 900; margin-bottom: 1rem; letter-spacing: -1.5px; line-height: 1.1; }
-        .hero-subtitle { font-size: 1.25rem; color: #cbd5e1; margin-bottom: 3rem; font-weight: 400; }
         
-        .search-box { background: white; padding: 1rem; border-radius: 24px; display: flex; gap: 0.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4); max-width: 900px; margin: 0 auto; }
+        /* CSS FIX: Strammer mellemrum op i toppen */
+        .hero-top-text { margin-bottom: 0 !important; padding-bottom: 0; color: #cbd5e1; font-size: 1.25rem; font-weight: 500; }
+        .hero-title { font-size: 3.5rem; font-weight: 900; margin-top: 0 !important; margin-bottom: 5px !important; letter-spacing: -1.5px; line-height: 1.1; }
+        .hero-highlight { background-color: var(--accent); color: white; padding: 4px 12px; border-radius: 6px; font-weight: 800; display: inline-block; margin-top: 5px; font-size: 1.1rem;}
+        
+        .search-box { background: white; padding: 1rem; border-radius: 24px; display: flex; gap: 0.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4); max-width: 900px; margin: 3rem auto 0 auto; }
         .search-input { flex: 1; padding: 16px 20px; border: none; background: #F1F5F9; border-radius: 16px; font-size: 1.1rem; font-weight: 600; color: var(--brand); outline: none; }
         .search-input:focus { box-shadow: 0 0 0 2px var(--accent) inset; }
         .search-btn { background: var(--accent); color: white; border: none; padding: 16px 3rem; border-radius: 16px; font-weight: 800; font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
@@ -67,8 +70,9 @@
     <main>
         <section class="hero-section">
             <div class="hero-content">
-                <h1 class="hero-title">Samkørsel gjort simpelt.<br>0 kr. i gebyr.</h1>
-                <p class="hero-subtitle">Rejs billigere gennem Danmark, eller dæk dine egne brændstofudgifter ved at tage passagerer med. Chaufføren får 100% af beløbet.</p>
+                <p class="hero-top-text">Samkørsel i hele Danmark.</p>
+                <h1 class="hero-title">Find dit næste lift</h1>
+                <span class="hero-highlight">Altid gennemsigtige priser. 0 kr i chaufførgebyr.</span>
                 
                 <div class="search-box">
                     <input type="text" id="frontFrom" class="search-input" placeholder="Hvorfra? (f.eks. Aarhus)">
@@ -81,8 +85,8 @@
         <section class="value-props">
             <div class="prop-card">
                 <div class="prop-icon">💸</div>
-                <h3>Ingen Skjulte Gebyrer</h3>
-                <p>I modsætning til andre platforme tager vi IKKE 9kr + 12% af din betaling. Det motiverer chaufføren til at tilbyde markedets laveste priser!</p>
+                <h3>Gennemsigtige priser</h3>
+                <p>Vi tager kun 5% i servicegebyr (mod normalt 12% + 9 kr). Det betyder, at prisen du ser i søgningen, altid er den pris du betaler. Ingen overraskelser!</p>
             </div>
             <div class="prop-card">
                 <div class="prop-icon">🛡️</div>
