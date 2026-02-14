@@ -49,18 +49,34 @@
         .search-bar { background: var(--surface); padding: 0.5rem; border-radius: 18px; max-width: 850px; width: 100%; margin: 0 auto; display: flex; gap: 0.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); align-items: center; }
         .search-input { flex: 1; min-width: 0; padding: 12px 16px; border: 1px solid transparent; border-radius: 12px; background: #F1F5F9; font-size: 1rem; color: var(--brand); font-weight: 500; outline: none; }
         .search-input:focus { border-color: var(--accent); background: white; }
+        #searchDate { max-width: 150px; } /* Desktop max-bredde styres nu her i CSS */
         .search-btn { flex-shrink: 0; background: var(--accent); color: white; border: none; padding: 12px 1.8rem; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; }
 
+        /* MOBIL-DESIGN FOR SØGEBAREN */
         @media (max-width: 768px) {
-            .search-bar { flex-direction: column; padding: 0.8rem; }
-            .search-btn { width: 100%; }
+            .search-bar { 
+                flex-direction: column; 
+                padding: 1.2rem; 
+                background: rgba(255, 255, 255, 0.15); /* Glass-look der passer til hero */
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                gap: 0.8rem;
+            }
+            .search-input { width: 100%; padding: 14px 16px; font-size: 1.05rem; box-sizing: border-box; }
+            #searchDate { max-width: 100%; } /* Dato fylder fuld bredde på mobil */
+            .search-btn { width: 100%; padding: 14px; font-size: 1.1rem; }
         }
 
         .main-container { max-width: 1200px; margin: 1.5rem auto; padding: 0 1rem; display: grid; grid-template-columns: 280px 1fr; gap: 2rem; }
         
+        /* FILTRE */
         .filters { background: var(--surface); padding: 1.2rem; border-radius: 20px; border: 1px solid var(--border); position: sticky; top: 90px; height: fit-content; max-height: calc(100vh - 110px); overflow-y: auto; }
         .filters::-webkit-scrollbar { width: 5px; } .filters::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .filter-header { font-size: 1.1rem; font-weight: 800; margin-bottom: 1.2rem; display: flex; justify-content: space-between; }
+        
+        .filter-header { font-size: 1.1rem; font-weight: 800; margin-bottom: 1.2rem; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease; }
+        .filter-chevron { display: none; font-size: 0.8rem; transition: transform 0.3s ease; }
+        .filter-content { display: block; } /* Synlig på computer */
+
         .filter-group { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
         .filter-label { font-weight: 700; font-size: 0.8rem; margin-bottom: 0.8rem; display: block; color: var(--text-muted); text-transform: uppercase; }
         
@@ -115,15 +131,21 @@
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* FIX AF MOBILVISNING */
+        /* FIX AF MOBILVISNING INKL. FOLD-UD FILTRE */
         @media (max-width: 950px) { 
             .main-container { grid-template-columns: 1fr; } 
-            .filters { 
-                position: relative; 
-                top: 0; 
-                max-height: none; 
-                margin-bottom: 2rem; 
-            } 
+            
+            .filters { position: relative; top: 0; max-height: none; margin-bottom: 1rem; padding: 1rem 1.2rem; } 
+            
+            /* Gør filter-header klikbar og skjul indholdet */
+            .filter-header { cursor: pointer; margin-bottom: 0; padding-bottom: 0; }
+            .filter-header.open { margin-bottom: 1.2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+            .filter-chevron { display: inline-block; margin-left: 8px;}
+            .filter-chevron.open { transform: rotate(180deg); }
+            
+            .filter-content { display: none; }
+            .filter-content.open { display: block; animation: fadeIn 0.3s ease; }
+            @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         }
 
         @media (max-width: 480px) {
@@ -155,52 +177,60 @@
             <div class="search-bar">
                 <input type="text" class="search-input" id="searchFrom" placeholder="Fra (f.eks. Aarhus)" oninput="syncInputs('searchFrom', 'hsFrom'); filterRides();">
                 <input type="text" class="search-input" id="searchTo" placeholder="Til (f.eks. Valby)" oninput="syncInputs('searchTo', 'hsTo'); filterRides();">
-                <input type="date" class="search-input" id="searchDate" onchange="filterRides()" style="max-width: 150px;">
+                <input type="date" class="search-input" id="searchDate" onchange="filterRides()">
                 <button class="search-btn" onclick="filterRides()">Søg</button>
             </div>
         </section>
 
         <div class="main-container">
             <aside class="filters">
-                <div class="filter-header">Filtre <button style="background:none; border:none; color:var(--accent); font-size:0.75rem; cursor:pointer;" onclick="resetFilters()">Nulstil alt</button></div>
+                <div class="filter-header" id="mobileFilterHeader" onclick="toggleMobileFilters()">
+                    <span>Filtre</span> 
+                    <div style="display:flex; align-items:center;">
+                        <button style="background:none; border:none; color:var(--accent); font-size:0.75rem; cursor:pointer;" onclick="resetFilters(event)">Nulstil alt</button>
+                        <span class="filter-chevron" id="filterChevron">▼</span>
+                    </div>
+                </div>
                 
-                <div class="filter-group">
-                    <span class="filter-label">Maks pris pr. plads</span>
-                    <span class="price-display" id="priceOutput">500 kr</span>
-                    <input type="range" id="filterPrice" min="20" max="500" value="500" step="10" oninput="updatePriceLabel(); filterRides()">
-                </div>
+                <div class="filter-content" id="filterContent">
+                    <div class="filter-group" style="padding-top: 0.5rem;">
+                        <span class="filter-label">Maks pris pr. plads</span>
+                        <span class="price-display" id="priceOutput">500 kr</span>
+                        <input type="range" id="filterPrice" min="20" max="500" value="500" step="10" oninput="updatePriceLabel(); filterRides()">
+                    </div>
 
-                <div class="filter-group">
-                    <span class="filter-label">Detaljer</span>
-                    <select id="f-seats" class="select-input" onchange="filterRides()">
-                        <option value="1">Søger mindst 1 plads</option>
-                        <option value="2">Søger mindst 2 pladser</option>
-                        <option value="3">Søger 3+ pladser</option>
-                    </select>
-                    
-                    <select id="f-luggage" class="select-input" onchange="filterRides()">
-                        <option value="">Al Bagage (Ligegyldigt)</option>
-                        <option value="Lille">Mindst Lille (Taske)</option>
-                        <option value="Mellem">Mindst Mellem (Kuffert)</option>
-                        <option value="Stor">Stor (Kuffert + ekstra)</option>
-                    </select>
-                </div>
+                    <div class="filter-group">
+                        <span class="filter-label">Detaljer</span>
+                        <select id="f-seats" class="select-input" onchange="filterRides()">
+                            <option value="1">Søger mindst 1 plads</option>
+                            <option value="2">Søger mindst 2 pladser</option>
+                            <option value="3">Søger 3+ pladser</option>
+                        </select>
+                        
+                        <select id="f-luggage" class="select-input" onchange="filterRides()">
+                            <option value="">Al Bagage (Ligegyldigt)</option>
+                            <option value="Lille">Mindst Lille (Taske)</option>
+                            <option value="Mellem">Mindst Mellem (Kuffert)</option>
+                            <option value="Stor">Stor (Kuffert + ekstra)</option>
+                        </select>
+                    </div>
 
-                <div class="filter-group">
-                    <span class="filter-label">Køre-muligheder</span>
-                    <label class="filter-toggle"><span>⚡ Lynbooking (Auto)</span><input type="checkbox" id="f-instant" onchange="filterRides()"><div class="checkbox-custom"></div></label>
-                    <label class="filter-toggle"><span>🛋️ Komfort (Max 2 bagved)</span><input type="checkbox" id="f-comfort" onchange="filterRides()"><div class="checkbox-custom"></div></label>
-                    <label class="filter-toggle"><span>⛴️ Via Færge</span><input type="checkbox" id="f-ferry" onchange="filterRides()"><div class="checkbox-custom"></div></label>
-                    <label class="filter-toggle"><span>🛣️ Flex (Op til 5 min omvej)</span><input type="checkbox" id="f-flex" onchange="filterRides()"><div class="checkbox-custom"></div></label>
-                    <label class="filter-toggle" style="color: var(--pink); display: none;" id="filterLadiesOnlyRow"><span>🌸 Ladies Only</span><input type="checkbox" id="f-ladies" onchange="filterRides()"><div class="checkbox-custom" style="border-color: #fbcfe8;"></div></label>
-                </div>
+                    <div class="filter-group">
+                        <span class="filter-label">Køre-muligheder</span>
+                        <label class="filter-toggle"><span>⚡ Lynbooking (Auto)</span><input type="checkbox" id="f-instant" onchange="filterRides()"><div class="checkbox-custom"></div></label>
+                        <label class="filter-toggle"><span>🛋️ Komfort (Max 2 bagved)</span><input type="checkbox" id="f-comfort" onchange="filterRides()"><div class="checkbox-custom"></div></label>
+                        <label class="filter-toggle"><span>⛴️ Via Færge</span><input type="checkbox" id="f-ferry" onchange="filterRides()"><div class="checkbox-custom"></div></label>
+                        <label class="filter-toggle"><span>🛣️ Flex (Op til 5 min omvej)</span><input type="checkbox" id="f-flex" onchange="filterRides()"><div class="checkbox-custom"></div></label>
+                        <label class="filter-toggle" style="color: var(--pink); display: none;" id="filterLadiesOnlyRow"><span>🌸 Ladies Only</span><input type="checkbox" id="f-ladies" onchange="filterRides()"><div class="checkbox-custom" style="border-color: #fbcfe8;"></div></label>
+                    </div>
 
-                <div class="filter-group" style="border:none; padding:0; margin:0;">
-                    <span class="filter-label">Tilladt i bilen</span>
-                    <label class="filter-toggle"><span>🐾 Kæledyr tilladt</span><input type="checkbox" id="f-pets" onchange="filterRides()"><div class="checkbox-custom"></div></label>
-                    <label class="filter-toggle"><span>🚬 Rygning tilladt</span><input type="checkbox" id="f-smoking" onchange="filterRides()"><div class="checkbox-custom"></div></label>
-                    <label class="filter-toggle"><span>👶 Børn i bilen</span><input type="checkbox" id="f-kids" onchange="filterRides()"><div class="checkbox-custom"></div></label>
-                    <label class="filter-toggle"><span>🎵 Musik tilladt</span><input type="checkbox" id="f-music" onchange="filterRides()"><div class="checkbox-custom"></div></label>
+                    <div class="filter-group" style="border:none; padding:0; margin:0;">
+                        <span class="filter-label">Tilladt i bilen</span>
+                        <label class="filter-toggle"><span>🐾 Kæledyr tilladt</span><input type="checkbox" id="f-pets" onchange="filterRides()"><div class="checkbox-custom"></div></label>
+                        <label class="filter-toggle"><span>🚬 Rygning tilladt</span><input type="checkbox" id="f-smoking" onchange="filterRides()"><div class="checkbox-custom"></div></label>
+                        <label class="filter-toggle"><span>👶 Børn i bilen</span><input type="checkbox" id="f-kids" onchange="filterRides()"><div class="checkbox-custom"></div></label>
+                        <label class="filter-toggle"><span>🎵 Musik tilladt</span><input type="checkbox" id="f-music" onchange="filterRides()"><div class="checkbox-custom"></div></label>
+                    </div>
                 </div>
             </aside>
 
@@ -228,11 +258,18 @@
     <hoppon-footer></hoppon-footer>
 
     <script>
-        // BEMÆRK: _supabase initialiseres automatisk via supabase.js i <head>
         let allRides = [];
         let isUserLoggedIn = false;
 
-        // SCROLL LISTENER (Viser svævende search bar oven på global header)
+        // Toggles mobil-menuen
+        function toggleMobileFilters() {
+            if (window.innerWidth <= 950) {
+                document.getElementById('filterContent').classList.toggle('open');
+                document.getElementById('filterChevron').classList.toggle('open');
+                document.getElementById('mobileFilterHeader').classList.toggle('open');
+            }
+        }
+
         window.addEventListener('scroll', () => {
             const hero = document.getElementById('heroSection');
             const headerSearch = document.getElementById('headerSearch');
@@ -254,7 +291,6 @@
                 const { data: profile } = await _supabase.from('profiles').select('*').eq('id', session.user.id).single();
                 if (profile?.gender === 'Kvinde') document.getElementById('filterLadiesOnlyRow').style.display = 'flex';
                 
-                // Opdaterer bruger-knappen i den GLOBALE header (hvis den findes i komponentet)
                 const loginBtn = document.querySelector('.nav-btn-login');
                 if(loginBtn) {
                     loginBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Log ud`;
@@ -262,7 +298,6 @@
                 }
             }
 
-            // Aflæs URL parametre og indsæt dem i søgefelterne
             const urlParams = new URLSearchParams(window.location.search);
             const fraParam = urlParams.get('fra');
             const tilParam = urlParams.get('til');
@@ -427,12 +462,15 @@
         }
 
         function updatePriceLabel() { document.getElementById('priceOutput').innerText = document.getElementById('filterPrice').value + " kr"; }
-        function resetFilters() {
+        
+        // Modtager 'event' og forhindrer at klikket åbner/lukker menuen
+        function resetFilters(event) {
+            if (event) event.stopPropagation(); 
             document.getElementById('searchFrom').value = ''; 
             document.getElementById('hsFrom').value = '';
             document.getElementById('searchTo').value = ''; 
             document.getElementById('hsTo').value = '';
-            document.getElementById('searchDate').value = ''; // <--- TILFØJ DENNE LINJE
+            document.getElementById('searchDate').value = '';
             document.getElementById('filterPrice').value = 500;
             document.getElementById('f-seats').value = "1";
             document.getElementById('f-luggage').value = "";
