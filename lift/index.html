@@ -11,6 +11,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <link rel="stylesheet" href="/style.css">
     <script src="/supabase.js"></script>
     <script src="/components.js" defer></script>
@@ -19,9 +22,9 @@
         /* --- GLOBAL RESET: SIKRER AT INTET SKUBBES UD AF SKÆRMEN --- */
         *, *::before, *::after { box-sizing: border-box; }
         html, body { 
-            width: 100%; /* Ændret fra 100vw for at undgå usynlig scrollbar-margin på mobiler */
+            width: 100%; 
             max-width: 100%; 
-            overflow-x: hidden; /* Forhindrer scroll til siden */
+            overflow-x: hidden; 
             margin: 0; 
             padding: 0; 
             -webkit-text-size-adjust: 100%; 
@@ -63,6 +66,15 @@
         .hero h1 { font-size: 2.5rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: -1px; }
         .hero p { color: #cbd5e1; font-size: 1.1rem; margin-bottom: 2rem; }
         
+        /* NYT: Baggrund bag 0 kr i gebyr */
+        .hero-highlight {
+            background-color: var(--accent); /* Samme lilla som din søge-knap */
+            color: white;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-weight: 800;
+        }
+        
         .search-bar { background: var(--surface); padding: 0.5rem; border-radius: 18px; max-width: 850px; width: 100%; margin: 0 auto; display: flex; gap: 0.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); align-items: center; }
         .search-input { flex: 1; min-width: 0; padding: 12px 16px; border: 1px solid transparent; border-radius: 12px; background: #F1F5F9; font-size: 16px; color: var(--brand); font-weight: 500; outline: none; }
         .search-input:focus { border-color: var(--accent); background: white; }
@@ -72,6 +84,24 @@
         #searchDate { max-width: 150px; }
         
         .search-btn { flex-shrink: 0; background: var(--accent); color: white; border: none; padding: 12px 1.8rem; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; }
+
+        /* NYT: Fleksibel kort-søgningsknap under søgebaren */
+        .map-search-btn-container { max-width: 850px; margin: 10px auto 0 auto; display: flex; justify-content: flex-end; }
+        .map-search-btn { 
+            background: rgba(255,255,255,0.1); 
+            border: 1px solid rgba(255,255,255,0.2); 
+            color: white; 
+            padding: 8px 16px; 
+            border-radius: 12px; 
+            font-size: 0.9rem; 
+            font-weight: 600; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px;
+            transition: 0.2s;
+        }
+        .map-search-btn:hover { background: rgba(255,255,255,0.2); }
 
         /* MOBIL SØGEBAR - 2x2 GRID */
         @media (max-width: 768px) {
@@ -91,6 +121,8 @@
                 height: 50px; 
                 margin: 0; 
             }
+            .map-search-btn-container { justify-content: stretch; }
+            .map-search-btn { width: 100%; justify-content: center; height: 50px;}
         }
 
         .main-container { max-width: 1200px; margin: 1.5rem auto; padding: 0 1rem; display: grid; grid-template-columns: 280px 1fr; gap: 2rem; }
@@ -117,7 +149,7 @@
         input[type="checkbox"]:checked + .checkbox-custom { background: var(--accent); border-color: var(--accent); }
         input[type="checkbox"]:checked + .checkbox-custom::after { content: "✓"; color: white; position: absolute; left: 2px; top: -1px; font-size: 13px; font-weight: bold; }
 
-        /* KORT-STYLING (TÆT LUKKET FOR AT UNDGÅ OVERFLOW) */
+        /* KORT-STYLING */
         .ride-list { display: flex; flex-direction: column; gap: 0.8rem; }
         .ride-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 1rem 1.2rem; transition: 0.2s; cursor: pointer; overflow: hidden; max-width: 100%; }
         .ride-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 15px -5px rgba(0,0,0,0.05); }
@@ -126,7 +158,6 @@
         
         .timeline { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; width: 100%; }
         
-        /* City / Time boxes er nu låst, så de korter teksten af med ... hvis for lange */
         .time-box { display: flex; flex-direction: column; flex: 1; min-width: 0; overflow: hidden; }
         .time-box.right { align-items: flex-end; text-align: right; }
         .time { font-size: 1.4rem; font-weight: 900; color: var(--brand); letter-spacing: -0.5px; }
@@ -162,60 +193,51 @@
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        /* --- FULD SKÆRMS KORTVISNING (Skjult by default) --- */
+        #mapOverlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: white; z-index: 3000; display: none; flex-direction: column;
+        }
+        #bigMap { flex: 1; width: 100%; background: #E2E8F0; }
+        .map-header {
+            padding: 15px 20px; background: white; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .close-map-btn {
+            background: none; border: none; font-size: 1.5rem; font-weight: bold; color: var(--brand); cursor: pointer;
+        }
+        
+        /* Map Cluster Ikon */
+        .map-cluster-icon {
+            background-color: var(--brand); color: white; border: 3px solid white;
+            border-radius: 50%; width: 35px; height: 35px; display: flex;
+            align-items: center; justify-content: center; font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 14px;
+        }
+
         /* MOBILVISNING (MAX 950px) */
         @media (max-width: 950px) { 
             .main-container { grid-template-columns: 1fr; } 
-            
             .filters { position: relative; top: 0; max-height: none; margin-bottom: 1rem; padding: 1rem 1.2rem; } 
-            
             .filter-header { cursor: pointer; margin-bottom: 0; padding-bottom: 0; }
             .filter-header.open { margin-bottom: 1.2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
             .filter-chevron { display: inline-block; margin-left: 8px;}
             .filter-chevron.open { transform: rotate(180deg); }
-            
             .filter-content { display: none; }
             .filter-content.open { display: block; animation: fadeIn 0.3s ease; }
             @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         }
 
-        /* MOBIL & IPHONE FIX (MAX 768px) - Påvirker IKKE computer */
+        /* MOBIL & IPHONE FIX (MAX 768px) */
         @media (max-width: 768px) {
-            .ride-card {
-                padding: 1rem 0.8rem; /* Lidt mindre side-padding giver mere plads til teksten */
-            }
-            
-            /* Tillader lange bynavne og bil-info at gå på to linjer i stedet for at forsvinde */
-            .city, .car-info, .driver-name { 
-                white-space: normal; 
-                word-wrap: break-word;
-            }
-            
+            .ride-card { padding: 1rem 0.8rem; }
+            .city, .car-info, .driver-name { white-space: normal; word-wrap: break-word; }
             .time { font-size: 1.25rem; } 
-            
-            /* Stabler chauffør og badges ovenpå hinanden, så intet presses ud til siden */
-            .card-mid { 
-                flex-direction: column; 
-                align-items: flex-start; 
-                gap: 12px; 
-            }
-            .driver { 
-                width: 100%; 
-            }
-            .badge-group { 
-                justify-content: flex-start; 
-                margin-left: 0; 
-                width: 100%; 
-            }
-            
-            /* Stabler pris og ledige pladser */
-            .card-footer { 
-                flex-direction: column; 
-                align-items: flex-start; 
-                gap: 6px; 
-            }
-            .price { 
-                font-size: 1.4rem; 
-            }
+            .card-mid { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .driver { width: 100%; }
+            .badge-group { justify-content: flex-start; margin-left: 0; width: 100%; }
+            .card-footer { flex-direction: column; align-items: flex-start; gap: 6px; }
+            .price { font-size: 1.4rem; }
         }
     </style>
 </head>
@@ -231,10 +253,22 @@
         <button class="hs-btn" onclick="window.scrollTo({top: 300, behavior: 'smooth'})">⚙️ Filtre</button>
     </div>
 
+    <div id="mapOverlay">
+        <div class="map-header">
+            <div>
+                <div style="font-size: 1.2rem; font-weight: 800; color: var(--brand);" id="mapOverlayTitle">Kortvisning</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Klik på cirklerne for at se ture</div>
+            </div>
+            <button class="close-map-btn" onclick="closeMap()">×</button>
+        </div>
+        <div id="bigMap"></div>
+    </div>
+
     <main-content>
         <section class="hero" id="heroSection">
             <h1>Find dit næste lift</h1>
-            <p>Samkørsel i hele Danmark. 0 kr i gebyr.</p>
+            <p>Samkørsel i hele Danmark. <span class="hero-highlight">0 kr i gebyr.</span></p>
+            
             <div class="search-bar">
                 <input type="text" class="search-input" id="searchFrom" placeholder="Fra (f.eks. Aarhus)" oninput="syncInputs('searchFrom', 'hsFrom'); filterRides();">
                 <input type="text" class="search-input" id="searchTo" placeholder="Til (f.eks. København)" oninput="syncInputs('searchTo', 'hsTo'); filterRides();">
@@ -246,6 +280,13 @@
                        
                 <button class="search-btn" onclick="filterRides()">Søg</button>
             </div>
+            
+            <div class="map-search-btn-container">
+                <button class="map-search-btn" onclick="openMapSearch()">
+                    📍 Se muligheder på kort
+                </button>
+            </div>
+
         </section>
 
         <div class="main-container">
@@ -325,7 +366,9 @@
 
     <script>
         let allRides = [];
+        let filteredRidesForMap = [];
         let isUserLoggedIn = false;
+        let leafletMap = null;
 
         function toggleMobileFilters() {
             if (window.innerWidth <= 950) {
@@ -350,7 +393,6 @@
         }
 
         window.onload = async () => {
-            // Sæt Dags Dato ind i placeholder feltet, så det ser pænt ud
             const today = new Date();
             const dd = String(today.getDate()).padStart(2, '0');
             const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -371,16 +413,13 @@
             }
 
             const urlParams = new URLSearchParams(window.location.search);
-            const fraParam = urlParams.get('fra');
-            const tilParam = urlParams.get('til');
-
-            if (fraParam) {
-                document.getElementById('searchFrom').value = fraParam;
-                document.getElementById('hsFrom').value = fraParam;
+            if (urlParams.get('fra')) {
+                document.getElementById('searchFrom').value = urlParams.get('fra');
+                document.getElementById('hsFrom').value = urlParams.get('fra');
             }
-            if (tilParam) {
-                document.getElementById('searchTo').value = tilParam;
-                document.getElementById('hsTo').value = tilParam;
+            if (urlParams.get('til')) {
+                document.getElementById('searchTo').value = urlParams.get('til');
+                document.getElementById('hsTo').value = urlParams.get('til');
             }
 
             await fetchRides();
@@ -397,7 +436,6 @@
 
             if (!error) {
                 allRides = data || [];
-                renderRides(allRides);
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('rideListContainer').style.display = 'flex';
                 filterRides(); 
@@ -407,8 +445,6 @@
         function filterRides() {
             const from = document.getElementById('searchFrom').value.toLowerCase();
             const to = document.getElementById('searchTo').value.toLowerCase();
-            
-            // Dato felt logik: Hvis den er type='text', har brugeren IKKE valgt dato
             const dateInput = document.getElementById('searchDate');
             let qDate = "";
             if(dateInput.type === 'date') { qDate = dateInput.value; }
@@ -424,10 +460,8 @@
                 if (from && !rawOrigin.toLowerCase().includes(from)) return false;
                 if (to && !rawDest.toLowerCase().includes(to)) return false;
                 if (qDate && new Date(r.departure_time).toISOString().split('T')[0] !== qDate) return false;
-                
                 if (r.price_dkk > maxP) return false;
                 if (r.seats_available < reqSeats) return false;
-                
                 if (reqLuggage) {
                     if (reqLuggage === 'Stor' && r.luggage_size !== 'Stor') return false;
                     if (reqLuggage === 'Mellem' && r.luggage_size === 'Lille') return false;
@@ -450,6 +484,7 @@
             if (sortBy === 'price') filtered.sort((a, b) => a.price_dkk - b.price_dkk);
             else filtered.sort((a, b) => new Date(a.departure_time) - new Date(b.departure_time));
 
+            filteredRidesForMap = filtered; // Gemmer filtreret liste til kortet
             renderRides(filtered);
         }
 
@@ -492,19 +527,11 @@
 
                 const card = document.createElement('div');
                 card.className = 'ride-card';
-                
                 card.onclick = () => {
-                    if (!isUserLoggedIn) {
-                        alert("Log ind for at booke turen! 🚀");
-                        window.location.href = '/login';
-                    } else {
-                        const urlId = ride.ride_number || ride.id;
-                        // HER ER DEN ENESTE ÆNDRING: Den peger nu på view.html
-                        window.location.href = '/lift/view.html?id=' + urlId;
-                    }
+                    const urlId = ride.ride_number || ride.id;
+                    window.location.href = '/lift/view.html?id=' + urlId;
                 };
 
-                // Opdateret HTML til at håndtere overflow
                 card.innerHTML = `
                     <span class="card-date">${depDate.toLocaleDateString('da-DK', {weekday:'short', day:'numeric', month:'short'})}</span>
                     <div class="timeline">
@@ -540,6 +567,91 @@
             });
         }
 
+        // --- MAP SØGNING ---
+        function parsePostGISHex(hexStr) {
+            if (!hexStr || hexStr.length < 42) return null;
+            try {
+                // Konverterer simpel Hex representation til LatLng (Som i din Flutter kode)
+                // Denne simple version virker kun for bestemt data format, så vi prøver en sikker konvertering:
+                // Note: I web er det nemmest at bruge en API, men hvis databasen sender hex, skal det decodes.
+                // DA DETTE KAN VÆRE KOMPLEKST I JS UDEN BIBLIOTEKER, ANBEFALES DET AT BRUGE EN GEO-API, 
+                // eller at gemme lat/lng som rene tal (float) i databasen fremadrettet.
+                
+                // For nu bruger vi OpenStreetMap (Nominatim) gratis til at finde koordinaten ud fra bynavnet:
+                return null; 
+            } catch(e) { return null; }
+        }
+
+        async function openMapSearch() {
+            const fromCity = document.getElementById('searchFrom').value.trim();
+            if (!fromCity) {
+                alert("Indtast venligst en by i 'Fra' feltet for at se kortet.");
+                document.getElementById('searchFrom').focus();
+                return;
+            }
+
+            document.getElementById('mapOverlay').style.display = 'flex';
+            document.getElementById('mapOverlayTitle').innerText = `Ture fra ${fromCity}`;
+            document.body.style.overflow = 'hidden'; // Forhindrer baggrundsscroll
+
+            if (!leafletMap) {
+                leafletMap = L.map('bigMap').setView([56.0, 10.0], 6);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; OpenStreetMap'
+                }).addTo(leafletMap);
+            }
+            
+            // Rens kortet for gamle markers
+            leafletMap.eachLayer((layer) => {
+                if (layer instanceof L.Marker) leafletMap.removeLayer(layer);
+            });
+
+            // Vis alle mulige destinationer fra den valgte startby
+            let bounds = [];
+            for (let ride of filteredRidesForMap) {
+                // Vi bruger Nominatim (OSM) til lynhurtigt at finde byens placering 
+                // da PostGIS Hex konvertering kræver tunge biblioteker i JS.
+                const destCity = ride.destination_city.split(',')[0]; 
+                
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destCity)} Denmark`);
+                    const data = await res.json();
+                    
+                    if(data.length > 0) {
+                        const lat = parseFloat(data[0].lat);
+                        const lon = parseFloat(data[0].lon);
+                        bounds.push([lat, lon]);
+
+                        // Opret en custom markør, ligesom i din Flutter kode
+                        const customIcon = L.divIcon({
+                            className: 'map-cluster-icon',
+                            html: `<span>1</span>`, // I en rigtig app ville man tælle ture pr by her
+                            iconSize: [35, 35],
+                            iconAnchor: [17, 17]
+                        });
+
+                        const marker = L.marker([lat, lon], {icon: customIcon}).addTo(leafletMap);
+                        
+                        // Når de klikker, hop til turen!
+                        marker.on('click', () => {
+                            const urlId = ride.ride_number || ride.id;
+                            window.location.href = '/lift/view.html?id=' + urlId;
+                        });
+                    }
+                } catch(e) { console.log(e); }
+            }
+
+            // Zoom kortet ind så alle prikker kan ses
+            if(bounds.length > 0) {
+                leafletMap.fitBounds(L.latLngBounds(bounds), { padding: [50, 50] });
+            }
+        }
+
+        function closeMap() {
+            document.getElementById('mapOverlay').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
         function updatePriceLabel() { document.getElementById('priceOutput').innerText = document.getElementById('filterPrice').value + " kr"; }
         
         function resetFilters(event) {
@@ -551,7 +663,7 @@
             
             const dateInput = document.getElementById('searchDate');
             dateInput.value = '';
-            dateInput.type = 'text'; // Gør det tilbage til tekst så placeholderen vises igen
+            dateInput.type = 'text';
 
             document.getElementById('filterPrice').value = 500;
             document.getElementById('f-seats').value = "1";
