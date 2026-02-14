@@ -2,7 +2,8 @@
 <html lang="da">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
     <title>Find et lift | HoppOn Samkørsel</title>
     <meta name="description" content="Rejs billigere, grønnere og sjovere med HoppOn. Find samkørsel i hele Danmark uden skjulte gebyrer. Book dit sæde i dag!">
     <meta name="keywords" content="samkørsel, lift, køre sammen, delebil, billig rejse, danmark, færge">
@@ -15,9 +16,23 @@
     <script src="/components.js" defer></script>
 
     <style>
-        /* --- GLOBAL RESET: DETTE FIKSER "SVØMNING" --- */
-        * { box-sizing: border-box; }
-        html, body { overflow-x: hidden; width: 100%; margin: 0; padding: 0; }
+        /* --- GLOBAL RESET: DETTE FIKSER "SVØMNING" PÅ IPHONE --- */
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { 
+            width: 100vw; 
+            max-width: 100%; 
+            overflow-x: hidden; /* Forhindrer scroll til siden */
+            margin: 0; 
+            padding: 0; 
+            -webkit-text-size-adjust: 100%; /* Forhindrer iPhone font-zooming */
+        }
+
+        /* Fjerner Apples stædige standard-design på knapper og felter */
+        input, select, button {
+            -webkit-appearance: none;
+            appearance: none;
+            font-family: inherit;
+        }
 
         /* DYNAMISK HEADER SØGNING */
         .header-search { 
@@ -37,7 +52,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
         .header-search.active { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
-        .hs-input { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; background: #F1F5F9; outline: none; width: 130px; font-weight: 500;}
+        .hs-input { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 16px; background: #F1F5F9; outline: none; width: 130px; font-weight: 500;}
         .hs-btn { background: var(--brand); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem;}
 
         @media (max-width: 900px) { .header-search { display: none !important; } }
@@ -49,65 +64,29 @@
         .hero h1 { font-size: 2.5rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: -1px; }
         .hero p { color: #cbd5e1; font-size: 1.1rem; margin-bottom: 2rem; }
         
-        /* DESKTOP SEARCH BAR (Standard Flex) */
-        .search-bar { 
-            background: var(--surface); 
-            padding: 0.5rem; 
-            border-radius: 18px; 
-            max-width: 850px; 
-            width: 100%; 
-            margin: 0 auto; 
-            display: flex; 
-            gap: 0.5rem; 
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); 
-            align-items: center; 
-        }
-        .search-input { 
-            flex: 1; 
-            min-width: 0; 
-            padding: 12px 16px; 
-            border: 1px solid transparent; 
-            border-radius: 12px; 
-            background: #F1F5F9; 
-            font-size: 1rem; 
-            color: var(--brand); 
-            font-weight: 500; 
-            outline: none; 
-        }
+        .search-bar { background: var(--surface); padding: 0.5rem; border-radius: 18px; max-width: 850px; width: 100%; margin: 0 auto; display: flex; gap: 0.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); align-items: center; }
+        .search-input { flex: 1; min-width: 0; padding: 12px 16px; border: 1px solid transparent; border-radius: 12px; background: #F1F5F9; font-size: 16px; color: var(--brand); font-weight: 500; outline: none; }
         .search-input:focus { border-color: var(--accent); background: white; }
-        
-        /* Dato felt max-bredde på computer så den ikke fylder for meget */
-        #searchDate { max-width: 150px; } 
-
+        #searchDate { max-width: 150px; }
         .search-btn { flex-shrink: 0; background: var(--accent); color: white; border: none; padding: 12px 1.8rem; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; }
 
-        /* MOBIL SEARCH BAR (2x2 Grid) */
+        /* MOBIL SØGEBAR - 2x2 GRID (Lige brede, ingen overlap) */
         @media (max-width: 768px) {
             .search-bar { 
-                display: grid;              /* Skifter til Grid layout */
-                grid-template-columns: 1fr 1fr; /* 2 lige store kolonner */
-                grid-template-rows: auto auto;  /* 2 rækker */
-                padding: 1rem; 
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); /* Tvinger lige bredde */
+                gap: 12px; 
+                padding: 1.2rem; 
                 background: rgba(255, 255, 255, 0.15); 
                 backdrop-filter: blur(10px);
                 border: 1px solid rgba(255, 255, 255, 0.2);
-                gap: 10px;
             }
-            
-            /* Sørger for at inputtene fylder deres 'celle' helt ud */
-            .search-input { 
+            .search-input, .search-btn { 
                 width: 100%; 
-                font-size: 16px; /* VIGTIGT: 16px forhindrer iPhone i at zoome ind automatisk */
-                padding: 12px;
-            }
-            
-            /* Dato feltet skal nu fylde hele sin celle på mobil, ikke kun 150px */
-            #searchDate { max-width: 100% !important; }
-            
-            .search-btn { 
-                width: 100%; 
-                padding: 12px; 
-                font-size: 1rem; 
+                min-width: 0; /* Magic bullet der forhindrer felter i at bryde grid'et */
+                max-width: none !important; 
+                height: 50px; /* God touch-størrelse */
+                margin: 0; 
             }
         }
 
@@ -127,7 +106,7 @@
         .price-display { font-weight: 800; color: var(--accent); font-size: 1.1rem; margin-bottom: 0.4rem; display: block; }
         input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; margin-bottom: 10px; }
 
-        .select-input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; margin-bottom: 10px; background: #F1F5F9; outline: none; font-weight: 500;}
+        .select-input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 16px; margin-bottom: 10px; background: #F1F5F9; outline: none; font-weight: 500;}
 
         .filter-toggle { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
         .checkbox-custom { width: 18px; height: 18px; border: 2px solid #cbd5e1; border-radius: 5px; position: relative; flex-shrink: 0; transition: 0.2s;}
@@ -136,29 +115,29 @@
         input[type="checkbox"]:checked + .checkbox-custom::after { content: "✓"; color: white; position: absolute; left: 2px; top: -1px; font-size: 13px; font-weight: bold; }
 
         .ride-list { display: flex; flex-direction: column; gap: 0.8rem; }
-        .ride-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 1rem 1.2rem; transition: 0.2s; cursor: pointer; }
+        .ride-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 1rem 1.2rem; transition: 0.2s; cursor: pointer; overflow: hidden; }
         .ride-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 15px -5px rgba(0,0,0,0.05); }
         
         .card-date { font-size: 0.75rem; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; display: block; }
         
-        .timeline { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-        .time-box { display: flex; flex-direction: column; min-width: 120px; }
-        .time-box.right { text-align: right; }
+        .timeline { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; width: 100%; }
+        .time-box { display: flex; flex-direction: column; min-width: 100px; overflow: hidden; }
+        .time-box.right { align-items: flex-end; text-align: right; }
         .time { font-size: 1.4rem; font-weight: 900; color: var(--brand); letter-spacing: -0.5px; }
-        .city { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .city { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
         
-        .route-path { flex: 1; margin: 0 1.5rem; position: relative; display: flex; flex-direction: column; align-items: center; }
+        .route-path { flex: 1; margin: 0 1.5rem; position: relative; display: flex; flex-direction: column; align-items: center; min-width: 50px; }
         .duration-line { width: 100%; height: 2px; background: #E2E8F0; position: relative; }
         .duration-line::before, .duration-line::after { content: ''; position: absolute; width: 8px; height: 8px; border-radius: 50%; background: white; border: 2px solid #cbd5e1; top: -3px; }
         .duration-line::before { left: -4px; } .duration-line::after { right: -4px; }
-        .duration-text { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); background: var(--surface); padding: 0 6px; position: relative; top: -11px; }
+        .duration-text { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); background: var(--surface); padding: 0 6px; position: relative; top: -11px; white-space: nowrap; }
 
         .card-mid { display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 0; border-top: 1px dashed var(--border); border-bottom: 1px dashed var(--border); margin-bottom: 0.7rem; }
-        .driver { display: flex; align-items: center; gap: 10px; flex-shrink: 0;}
-        .avatar { width: 35px; height: 35px; border-radius: 50%; background: #F1F5F9; overflow: hidden; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--border); }
+        .driver { display: flex; align-items: center; gap: 10px; flex-shrink: 0; min-width: 0;}
+        .avatar { width: 35px; height: 35px; border-radius: 50%; background: #F1F5F9; overflow: hidden; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--border); flex-shrink: 0; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .driver-name { font-weight: 700; font-size: 0.85rem; }
-        .car-info { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
+        .driver-name { font-weight: 700; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .car-info { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .badge-group { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
         .badge { padding: 2px 8px; border-radius: 20px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; border: 1px solid var(--border); background: var(--bg-color); color: var(--text-muted);}
@@ -175,7 +154,7 @@
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* FIX AF MOBILVISNING INKL. FOLD-UD FILTRE */
+        /* FIX AF MOBILVISNING INKL. FOLD-UD FILTRE & KORT OVERFLOW */
         @media (max-width: 950px) { 
             .main-container { grid-template-columns: 1fr; } 
             
@@ -192,12 +171,16 @@
         }
 
         @media (max-width: 480px) {
-            .time-box { min-width: 80px; } 
-            .time { font-size: 1.1rem; } 
-            .route-path { margin: 0 0.5rem; }
-            .driver { flex-wrap: wrap; } 
-            .card-footer { flex-direction: column; align-items: flex-start; gap: 8px; }
-            .price { font-size: 1.3rem; }
+            /* Tillader at kortets tider bliver på skærmen uden at bryde designet */
+            .time-box { min-width: 0; flex: 1; } 
+            .route-path { margin: 0 10px; flex: 0 0 50px; }
+            .time { font-size: 1.2rem; } 
+            
+            .card-mid { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .badge-group { justify-content: flex-start; }
+            
+            .card-footer { flex-direction: column; align-items: flex-start; gap: 4px; }
+            .price { font-size: 1.4rem; }
         }
     </style>
 </head>
@@ -218,8 +201,8 @@
             <h1>Find dit næste lift</h1>
             <p>Samkørsel i hele Danmark. 0 kr i gebyr.</p>
             <div class="search-bar">
-                <input type="text" class="search-input" id="searchFrom" placeholder="Fra (f.eks. Aarhus)" oninput="syncInputs('searchFrom', 'hsFrom'); filterRides();">
-                <input type="text" class="search-input" id="searchTo" placeholder="Til (f.eks. Valby)" oninput="syncInputs('searchTo', 'hsTo'); filterRides();">
+                <input type="text" class="search-input" id="searchFrom" placeholder="Fra (Aarhus)" oninput="syncInputs('searchFrom', 'hsFrom'); filterRides();">
+                <input type="text" class="search-input" id="searchTo" placeholder="Til (København)" oninput="syncInputs('searchTo', 'hsTo'); filterRides();">
                 <input type="date" class="search-input" id="searchDate" onchange="filterRides()">
                 <button class="search-btn" onclick="filterRides()">Søg</button>
             </div>
@@ -230,7 +213,7 @@
                 <div class="filter-header" id="mobileFilterHeader" onclick="toggleMobileFilters()">
                     <span>Filtre</span> 
                     <div style="display:flex; align-items:center;">
-                        <button style="background:none; border:none; color:var(--accent); font-size:0.75rem; cursor:pointer;" onclick="resetFilters(event)">Nulstil alt</button>
+                        <button style="background:none; border:none; color:var(--accent); font-size:0.75rem; cursor:pointer; padding: 10px;" onclick="resetFilters(event)">Nulstil alt</button>
                         <span class="filter-chevron" id="filterChevron">▼</span>
                     </div>
                 </div>
