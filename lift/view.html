@@ -40,32 +40,15 @@
 
         main-content { display: block; padding-top: 80px; min-height: 100vh; padding-bottom: 100px;}
 
-        /* --- LAYOUT (Opdateret så titel er øverst) --- */
-        .page-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem 1.5rem;
-        }
+        /* --- LAYOUT --- */
+        .page-container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
 
         .page-title { font-size: 2.2rem; font-weight: 900; margin: 0 0 5px 0; letter-spacing: -1px; }
         .page-subtitle { font-size: 1.1rem; color: var(--accent); font-weight: 800; text-transform: uppercase; margin-bottom: 2rem; }
 
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 380px; /* Venstre side flexibel, højre er 380px */
-            gap: 2.5rem;
-            align-items: start;
-        }
-
+        .content-grid { display: grid; grid-template-columns: 1fr 380px; gap: 2.5rem; align-items: start; }
         .left-col { display: flex; flex-direction: column; gap: 1.5rem; }
-        
-        .right-sidebar {
-            position: sticky;
-            top: 90px;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
+        .right-sidebar { position: sticky; top: 90px; display: flex; flex-direction: column; gap: 1.5rem; }
 
         /* --- GENERISKE KORT --- */
         .card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; }
@@ -81,12 +64,8 @@
         .stop-info .city { font-size: 1rem; font-weight: 600; color: var(--text-muted); }
         .stop-info .address { font-size: 0.85rem; color: #94A3B8; margin-top: 2px; }
 
-        /* --- SPLIT GRID (Kompakt layout til Chauffør + Detaljer) --- */
-        .details-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
+        /* --- SPLIT GRID --- */
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
 
         /* --- PREFERENCES & BADGES --- */
         .badge-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.5rem; }
@@ -99,15 +78,16 @@
         .stat-row:last-child { border-bottom: none; }
 
         /* --- CHAUFFØR PROFIL --- */
-        .driver-header { display: flex; align-items: center; gap: 15px; margin-bottom: 1.5rem; }
+        .driver-header-wrap { cursor: pointer; transition: 0.2s; padding: 10px; margin: -10px; border-radius: 16px;}
+        .driver-header-wrap:hover { background: #F8FAFC; }
+        .driver-header { display: flex; align-items: center; gap: 15px; margin-bottom: 1rem;}
         .avatar-lg { width: 55px; height: 55px; border-radius: 50%; background: #E2E8F0; object-fit: cover; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; overflow: hidden; flex-shrink: 0;}
         .avatar-lg img { width: 100%; height: 100%; object-fit: cover; }
         .driver-name { font-size: 1.2rem; font-weight: 800; margin: 0; }
         .driver-meta { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; display: flex; align-items: center; gap: 5px; margin-top: 4px;}
         
-        .gomore-badge { background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px; border-radius: 16px; display: flex; gap: 15px; align-items: center; margin-bottom: 1.2rem; }
+        .gomore-badge { background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px; border-radius: 16px; display: flex; gap: 15px; align-items: center; margin-bottom: 1.2rem; margin-top: 0.5rem;}
         .gomore-icon { background: var(--success); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;}
-
         .co2-box { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 1rem;}
 
         /* --- MAP & BOOKING BOKS (Højre kolonne) --- */
@@ -130,25 +110,12 @@
 
         @media (max-width: 900px) {
             .page-container { padding: 1rem; }
-            .content-grid { grid-template-columns: 1fr; } /* Skifter til 1 kolonne på mobil */
-            .details-grid { grid-template-columns: 1fr; } /* Stabler chauffør og detaljer på mobil */
+            .content-grid { grid-template-columns: 1fr; }
+            .details-grid { grid-template-columns: 1fr; }
             .right-sidebar { position: static; } 
             .booking-card { display: none; }
             
-            /* Sticky bund-bar på mobil */
-            .mobile-booking-bar {
-                display: flex;
-                position: fixed;
-                bottom: 0; left: 0; width: 100%;
-                background: white;
-                border-top: 1px solid var(--border);
-                padding: 15px 20px;
-                box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
-                z-index: 1000;
-                align-items: center;
-                justify-content: space-between;
-                padding-bottom: calc(15px + env(safe-area-inset-bottom));
-            }
+            .mobile-booking-bar { display: flex; position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid var(--border); padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 1000; align-items: center; justify-content: space-between; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
             .mb-price { font-size: 1.8rem; font-weight: 900; color: var(--brand); line-height: 1;}
             .mb-seats { font-size: 0.8rem; color: var(--success); font-weight: 700;}
             .btn-book-mobile { background: var(--accent); color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 800; font-size: 1rem;}
@@ -201,14 +168,18 @@
                         
                         <div class="card" id="driverSection" style="margin: 0;">
                             <h2>Chauffør</h2>
-                            <div class="driver-header">
-                                <div class="avatar-lg" id="dAvatar">👤</div>
-                                <div>
-                                    <h3 class="driver-name" id="dName">Henter...</h3>
-                                    <div class="driver-meta">
-                                        ⭐ <span id="dRatingMini">--</span> (<span id="dReviewsMini">0</span>)
+                            
+                            <div class="driver-header-wrap" onclick="goToDriverProfile()" title="Se fuld profil">
+                                <div class="driver-header">
+                                    <div class="avatar-lg" id="dAvatar">👤</div>
+                                    <div>
+                                        <h3 class="driver-name" id="dName">Henter...</h3>
+                                        <div class="driver-meta">
+                                            ⭐ <span id="dRatingMini">--</span> (<span id="dReviewsMini">0</span>)
+                                        </div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top:2px;" id="dAge"></div>
                                     </div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top:2px;" id="dAge"></div>
+                                    <div style="margin-left:auto; color:var(--text-muted);"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
                                 </div>
                             </div>
 
@@ -301,6 +272,13 @@
             await loadRideData(rideId);
         };
 
+        // --- NAVIGATION TIL PROFIL ---
+        function goToDriverProfile() {
+            if(driverProfile && driverProfile.id) {
+                window.location.href = "/bruger?id=" + driverProfile.id;
+            }
+        }
+
         async function loadRideData(rideId) {
             try {
                 const isUUID = rideId.length > 20;
@@ -316,13 +294,14 @@
                 currentRide = ride;
                 driverProfile = ride.driver;
 
-                // Hent reviews for at udregne gennemsnit til det lille stjerne-ikon
+                // Hent reviews
                 const { data: reviews } = await _supabase
                     .from('reviews')
                     .select('rating')
                     .eq('reviewee_id', driverProfile.id);
                 allReviews = reviews || [];
 
+                // Ture i alt
                 const { count: ridesAsDriver } = await _supabase
                     .from('rides')
                     .select('id', { count: 'exact', head: true })
@@ -336,7 +315,6 @@
                 document.getElementById('globalLoader').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
 
-                // Initialiser kortet når siden er synlig
                 initMap(currentRide.origin_city, currentRide.destination_city);
 
             } catch (error) {
@@ -392,7 +370,6 @@
                 document.getElementById('rCommentText').innerText = `"${currentRide.comment}"`;
             }
 
-            // --- KORREKT PRIS BEREGNING (INKL. 5% GEBYR) ---
             const finalPrice = Math.ceil(currentRide.price_dkk * 1.05);
 
             document.getElementById('bPrice').innerText = `${finalPrice} kr`;
@@ -450,7 +427,6 @@
             document.getElementById('dReviewsMini').innerText = total;
         }
 
-        // KORT LOGIK (Leaflet)
         async function initMap(originStr, destStr) {
             const map = L.map('map').setView([56.0, 10.0], 6);
             
@@ -492,7 +468,6 @@
                 return;
             }
             
-            // HER ER RETTELSEN: Sendes til den nye checkout side
             window.location.href = '/lift/book.html?id=' + (currentRide.ride_number || currentRide.id);
         }
     </script>
