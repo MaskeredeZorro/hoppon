@@ -224,7 +224,6 @@
             background: white; z-index: 3000; display: none; flex-direction: column;
         }
         
-        /* RETTET: Dette sikrer at kortet altid har fuld højde og ikke bliver en hvid skærm */
         #bigMap { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #E2E8F0; z-index: 1;}
         
         .map-header {
@@ -235,7 +234,6 @@
             background: none; border: none; font-size: 1.5rem; font-weight: bold; color: var(--brand); cursor: pointer; padding: 5px;
         }
         
-        /* Map Cluster Ikon */
         .map-cluster-icon {
             background-color: var(--brand); color: white; border: 3px solid white;
             border-radius: 50%; width: 35px; height: 35px; display: flex;
@@ -243,7 +241,7 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 14px;
         }
 
-        /* --- PREVIEW BOTTOM SHEET (Visning af tur på kort) --- */
+        /* --- PREVIEW BOTTOM SHEET --- */
         #mapRidePreview {
             position: absolute;
             bottom: 30px;
@@ -275,7 +273,7 @@
         .preview-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .preview-btn { color: var(--accent); font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; gap: 4px; }
 
-        /* MOBILVISNING (MAX 950px) */
+        /* MOBILVISNING */
         @media (max-width: 950px) { 
             .main-container { grid-template-columns: 1fr; } 
             .filters { position: relative; top: 0; max-height: none; margin-bottom: 1rem; padding: 1rem 1.2rem; } 
@@ -288,7 +286,6 @@
             @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         }
 
-        /* MOBIL & IPHONE FIX (MAX 768px) */
         @media (max-width: 768px) {
             .ride-card { padding: 1rem 0.8rem; }
             .city, .car-info, .driver-name { white-space: normal; word-wrap: break-word; }
@@ -439,10 +436,17 @@
                 <div id="loader" style="text-align:center; padding: 3rem; font-weight:bold; color:var(--accent);">Henter de bedste lift... 🚗💨</div>
                 <div class="ride-list" id="rideListContainer" style="display: none;"></div>
                 
-                <div id="emptyState" style="display:none; text-align:center; padding: 4rem; background:var(--surface); border-radius:20px; border:1px dashed #cbd5e1;">
-                    <h3 style="color:var(--brand); margin-bottom:5px;">Ingen ture fundet 🏜️</h3>
-                    <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:15px;">Prøv at ændre dine filtre for at se flere resultater.</p>
-                    <button class="btn-primary" onclick="resetFilters()">Ryd alle filtre</button>
+                <div id="emptyState" style="display:none; text-align:center; padding: 4rem 2rem; background:var(--surface); border-radius:20px; border:1px dashed #cbd5e1;">
+                    <h3 style="color:var(--brand); margin-bottom:10px;">Ingen ture fundet 🏜️</h3>
+                    <p style="font-size:1rem; color:var(--text-muted); margin-bottom:20px;">Vil du have besked, når en chauffør opretter en tur på denne rute?</p>
+                    
+                    <div id="alertForm" style="max-width: 400px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px;">
+                        <input type="email" id="alertEmail" placeholder="Din e-mailadresse" style="padding: 12px; border-radius: 12px; border: 1px solid var(--border); font-size: 1rem; outline: none; width: 100%;">
+                        <button class="btn-submit" onclick="subscribeToAlert()" id="alertBtn" style="padding: 12px; border-radius: 12px; background: var(--brand); color: white; font-weight: 800; border: none; cursor: pointer;">Giv mig besked 🔔</button>
+                        <div id="alertMsg" style="font-size: 0.9rem; font-weight: 600; margin-top: 5px; display: none;"></div>
+                    </div>
+
+                    <button style="background:none; border:none; color:var(--accent); font-weight:700; font-size:0.9rem; margin-top: 20px; cursor:pointer;" onclick="resetFilters()">Ryd alle filtre</button>
                 </div>
             </main>
         </div>
@@ -456,7 +460,7 @@
         let isUserLoggedIn = false;
         let leafletMap = null;
         let currentPreviewRideId = null;
-        let cityCoordsCache = {}; // RETTELSE: Gemmer byers placering så vi ikke blokerer kort-API'en
+        let cityCoordsCache = {}; 
 
         function toggleMobileFilters() {
             if (window.innerWidth <= 950) {
@@ -549,7 +553,6 @@
                 if (to && !rawDest.toLowerCase().includes(to)) return false;
                 if (qDate && new Date(r.departure_time).toISOString().split('T')[0] !== qDate) return false;
                 
-                // --- KORREKT PRIS FILTRERING MED 5% INKLUDERET ---
                 const finalRidePrice = Math.ceil(r.price_dkk * 1.05);
                 if (finalRidePrice > maxP) return false;
                 
@@ -573,7 +576,6 @@
             });
 
             const sortBy = document.getElementById('sortSelect').value;
-            // --- KORREKT SORTERING MED 5% INKLUDERET ---
             if (sortBy === 'price') {
                 filtered.sort((a, b) => Math.ceil(a.price_dkk * 1.05) - Math.ceil(b.price_dkk * 1.05));
             } else {
@@ -590,7 +592,10 @@
             container.innerHTML = '';
             document.getElementById('resultsCount').innerText = `${rides.length} tur(e)`;
 
-            if (rides.length === 0) { empty.style.display = 'block'; return; }
+            if (rides.length === 0) { 
+                empty.style.display = 'block'; 
+                return; 
+            }
             empty.style.display = 'none';
 
             rides.forEach(ride => {
@@ -621,7 +626,6 @@
                 if (ride.pref_smoking) bHTML += `<span class="badge">🚬 Rygning</span>`;
                 if (ride.ladies_only) bHTML += `<span class="badge b-pink">🌸 Ladies</span>`;
                 
-                // --- KORREKT PRIS BEREGNING TIL KORTET ---
                 const finalPrice = Math.ceil(ride.price_dkk * 1.05);
 
                 const card = document.createElement('div');
@@ -666,8 +670,57 @@
             });
         }
 
+        // --- SUBSCRIBE TIL ALARM (GROWTH HACK) ---
+        async function subscribeToAlert() {
+            const email = document.getElementById('alertEmail').value.trim();
+            const from = document.getElementById('searchFrom').value.trim();
+            const to = document.getElementById('searchTo').value.trim();
+            const dateInput = document.getElementById('searchDate').value;
+            const btn = document.getElementById('alertBtn');
+            const msg = document.getElementById('alertMsg');
+
+            if (!email || !from || !to || !dateInput) {
+                msg.style.display = 'block';
+                msg.style.color = '#EF4444';
+                msg.innerText = "Udfyld venligst e-mail, fra, til og dato i søgningen.";
+                return;
+            }
+
+            // Tjekker om det er en fredag (0 = Søndag, 5 = Fredag)
+            const travelDate = new Date(dateInput);
+            const isFriday = travelDate.getDay() === 5;
+
+            btn.disabled = true;
+            btn.innerText = "Tilmælder...";
+
+            try {
+                const { error } = await _supabase.from('ride_alerts').insert({
+                    email: email,
+                    origin_city: from,
+                    destination_city: to,
+                    travel_date: dateInput,
+                    is_friday: isFriday
+                });
+
+                if (error) throw error;
+
+                msg.style.display = 'block';
+                msg.style.color = '#10B981';
+                msg.innerText = "✅ Du får en mail, når turen oprettes!";
+                document.getElementById('alertEmail').value = '';
+                
+            } catch (err) {
+                msg.style.display = 'block';
+                msg.style.color = '#EF4444';
+                msg.innerText = "❌ Der skete en fejl. Prøv igen.";
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Giv mig besked 🔔";
+            }
+        }
+
         // --- MAP SØGNING LOGIK ---
-        
         function showRidePreview(ride) {
             currentPreviewRideId = ride.ride_number || ride.id;
             
@@ -679,7 +732,6 @@
             const avatarHtml = ride.driver?.avatar_url ? `<img src="${ride.driver.avatar_url}">` : `👤`;
             const destCity = ride.destination_city.split(',')[0];
             
-            // --- KORREKT PRIS BEREGNING TIL MAP PREVIEW ---
             const finalPrice = Math.ceil(ride.price_dkk * 1.05);
 
             document.getElementById('mapPreviewTime').innerText = timeStr;
@@ -726,7 +778,6 @@
                 });
             }
             
-            // Tvinger kortet til at genberegne sin størrelse, ellers bliver den hvid.
             setTimeout(() => { leafletMap.invalidateSize(); }, 200);
             
             leafletMap.eachLayer((layer) => {
@@ -740,7 +791,6 @@
                 const destCity = ride.destination_city.split(',')[0]; 
                 
                 try {
-                    // RETTELSE: Tjekker cachen før vi spørger serveren (undgår at vi bliver blokeret)
                     if (!cityCoordsCache[destCity]) {
                         const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destCity)} Denmark`);
                         const data = await res.json();
@@ -772,7 +822,6 @@
             }
 
             if(bounds.length > 0) {
-                // Sørg for at den har zoomet helt ud hvis der kun er ét punkt
                 leafletMap.fitBounds(L.latLngBounds(bounds), { padding: [50, 50], maxZoom: 10 });
             }
         }
