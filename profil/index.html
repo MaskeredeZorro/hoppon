@@ -15,14 +15,20 @@
 
     <style>
         main { padding-top: 100px; padding-bottom: 5rem; background: #F8FAFC; min-height: 100vh; }
-        
         .dashboard-container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; display: grid; grid-template-columns: 320px 1fr; gap: 2rem; }
 
-        /* SIDEBAR (Venstre Kolonne) */
+        /* SIDEBAR */
         .sidebar { background: white; border-radius: 24px; padding: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid var(--border); height: fit-content; }
-        
         .profile-header { text-align: center; margin-bottom: 2rem; }
-        .avatar { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; background: #E2E8F0; margin: 0 auto 1rem auto; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        /* AVATAR UPLOAD STYLES */
+        .avatar-container { position: relative; width: 110px; height: 110px; margin: 0 auto 1rem auto; cursor: pointer; }
+        .avatar { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; background: #E2E8F0; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .avatar-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.2s; color: white; font-size: 1.5rem; }
+        .avatar-container:hover .avatar-overlay { opacity: 1; }
+        .avatar-loading { position: absolute; inset: 0; background: rgba(255,255,255,0.8); border-radius: 50%; display: none; align-items: center; justify-content: center; z-index: 10; }
+        .spinner { width: 30px; height: 30px; border: 3px solid #E2E8F0; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+
         .profile-name { font-size: 1.5rem; font-weight: 800; color: var(--brand); margin-bottom: 0.2rem; }
         .profile-phone { color: var(--text-muted); font-size: 0.95rem; font-weight: 500; }
         .badge-verified { display: inline-flex; align-items: center; gap: 5px; background: #DCFCE7; color: #166534; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-top: 10px; }
@@ -38,15 +44,12 @@
         .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: 500; color: var(--brand); }
         .stat-value { font-weight: 800; color: var(--accent); }
 
-        /* CONTENT (Højre Kolonne) */
-        .content-area { display: flex; flex-direction: column; gap: 1.5rem; }
-
         /* TABS */
-        .tabs { display: flex; gap: 1rem; background: white; padding: 0.5rem; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid var(--border); }
-        .tab-btn { flex: 1; padding: 12px 20px; border: none; background: transparent; font-weight: 700; font-size: 1rem; color: var(--text-muted); cursor: pointer; border-radius: 12px; transition: 0.2s; }
+        .tabs { display: flex; gap: 0.5rem; background: white; padding: 0.5rem; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid var(--border); overflow-x: auto;}
+        .tab-btn { flex: 1; padding: 12px 15px; border: none; background: transparent; font-weight: 700; font-size: 0.95rem; color: var(--text-muted); cursor: pointer; border-radius: 12px; transition: 0.2s; white-space: nowrap;}
         .tab-btn.active { background: var(--brand); color: white; }
 
-        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; margin-top: 1.5rem;}
         .tab-content.active { display: block; }
 
         /* FORM & CARDS */
@@ -54,11 +57,11 @@
         .card h2 { font-size: 1.8rem; font-weight: 900; color: var(--brand); margin-bottom: 0.5rem; letter-spacing: -0.5px; }
         .card > p { color: var(--text-muted); margin-bottom: 2rem; font-size: 1.05rem; }
 
-        .form-group { margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1.5rem; position: relative; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
         label { display: block; font-weight: 700; color: var(--brand); margin-bottom: 0.5rem; font-size: 0.95rem; }
-        input, select { width: 100%; padding: 14px 16px; border: 1px solid #E2E8F0; border-radius: 12px; background: #F8FAFC; font-size: 1rem; font-family: inherit; font-weight: 500; outline: none; transition: 0.2s; }
-        input:focus, select:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+        input, select, textarea { width: 100%; padding: 14px 16px; border: 1px solid #E2E8F0; border-radius: 12px; background: #F8FAFC; font-size: 1rem; font-family: inherit; font-weight: 500; outline: none; transition: 0.2s; box-sizing: border-box;}
+        input:focus, select:focus, textarea:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
         input[readonly] { background: #E2E8F0; color: #64748B; cursor: not-allowed; }
         .helper-text { font-size: 0.85rem; color: #64748B; margin-top: 5px; }
 
@@ -66,25 +69,14 @@
         .btn-submit:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(99,102,241,0.2); }
         .btn-submit:disabled { background: #94A3B8; cursor: not-allowed; transform: none; box-shadow: none; }
 
-        /* SECURITY BANNER */
-        .security-banner { display: flex; align-items: flex-start; gap: 1rem; background: #EFF6FF; border: 1px solid #DBEAFE; padding: 1.5rem; border-radius: 16px; margin-bottom: 2rem; }
-        .security-icon { color: #2563EB; font-size: 2rem; }
-        .security-text h4 { color: #1E40AF; margin: 0 0 5px 0; font-size: 1.1rem; }
-        .security-text p { color: #1E3A8A; margin: 0 0 10px 0; font-size: 0.95rem; line-height: 1.5; }
-        .stripe-badge { display: inline-block; background: white; color: #374151; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; border: 1px solid #E5E7EB; }
-
-        /* FAQ */
-        .faq-item { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; }
-        .faq-item h4 { color: var(--brand); margin: 0 0 0.5rem 0; font-size: 1.05rem; }
-        .faq-item p { color: var(--text-main); margin: 0; line-height: 1.5; font-size: 0.95rem; }
+        .suggestions-box { display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; max-height: 200px; overflow-y: auto; margin-top: 5px;}
+        .suggestion-item { padding: 12px 16px; cursor: pointer; font-size: 0.95rem; border-bottom: 1px solid #F1F5F9; color: var(--brand); display: flex; align-items: center; gap: 10px;}
+        .suggestion-item:hover { background: #F8FAFC; color: var(--accent); }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        @media (max-width: 900px) {
-            .dashboard-container { grid-template-columns: 1fr; }
-            .form-row { grid-template-columns: 1fr; gap: 0; }
-            .card { padding: 1.5rem; }
-        }
+        @media (max-width: 900px) { .dashboard-container { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; gap: 0; } .card { padding: 1.5rem; } }
     </style>
 </head>
 <body>
@@ -96,8 +88,14 @@
             
             <aside class="sidebar">
                 <div class="profile-header">
-                    <img src="" alt="Profilbillede" class="avatar" id="ui-avatar" style="display: none;">
-                    <div class="avatar" id="ui-avatar-placeholder" style="display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #94A3B8;">👤</div>
+                    <div class="avatar-container" onclick="document.getElementById('avatarUpload').click()">
+                        <img src="" alt="Profilbillede" class="avatar" id="ui-avatar" style="display: none;">
+                        <div class="avatar" id="ui-avatar-placeholder" style="display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #94A3B8;">👤</div>
+                        <div class="avatar-overlay">📷</div>
+                        <div class="avatar-loading" id="avatar-loading"><div class="spinner"></div></div>
+                    </div>
+                    <input type="file" id="avatarUpload" accept="image/*" style="display: none;" onchange="uploadAvatar(event)">
+
                     <div class="profile-name" id="ui-name">Henter...</div>
                     <div class="profile-phone" id="ui-phone">--</div>
                     <div id="ui-badges"></div>
@@ -134,6 +132,7 @@
                 
                 <div class="tabs">
                     <button class="tab-btn active" onclick="switchTab('tab-ture', this)">Dine Ture</button>
+                    <button class="tab-btn" onclick="switchTab('tab-profil', this)">Personlige Oplysninger</button>
                     <button class="tab-btn" onclick="switchTab('tab-skat', this)">Udbetaling & Skat</button>
                 </div>
 
@@ -141,106 +140,67 @@
                     <div class="card">
                         <h2>Dine planlagte ture</h2>
                         <p>Her kan du se og administrere de ture, du udbyder, samt de sæder, du har booket hos andre.</p>
-                        
                         <div style="text-align: center; padding: 3rem 1rem; background: #F8FAFC; border-radius: 16px; border: 2px dashed #E2E8F0;">
                             <span style="font-size: 3rem;">🚗</span>
                             <h3 style="color: var(--brand); margin-top: 1rem;">Ingen aktive ture lige nu</h3>
-                            <p style="color: var(--text-muted);">Gå til "Find lift" for at booke et sæde, eller "Udbyd tur" for at køre selv.</p>
+                            <p style="color: var(--text-muted);">Ture administreres nemmest direkte i HoppOn Appen.</p>
                         </div>
                     </div>
                 </div>
 
-                <div id="tab-skat" class="tab-content">
-                    
+                <div id="tab-profil" class="tab-content">
                     <div class="card">
-                        <h2>Skatteoplysninger (DAC7)</h2>
-                        <p>Lovpligtige oplysninger for at vi kan udbetale dine penge via Stripe.</p>
+                        <h2>Personlige oplysninger</h2>
+                        <p>Opdater dit navn, telefonnummer og andre detaljer. Du kan ændre dit billede ved at trykke på det.</p>
 
-                        <div class="security-banner">
-                            <div class="security-icon">🔒</div>
-                            <div class="security-text">
-                                <h4>Bank-niveau sikkerhed</h4>
-                                <p>Dine oplysninger behandles fortroligt og sendes krypteret direkte til vores betalingspartner. HoppOn gemmer ikke dine følsomme data ukrypteret.</p>
-                                <div class="stripe-badge">✓ Secured by Stripe Identity</div>
+                        <form id="profileForm" onsubmit="updateProfileInfo(event)">
+                            <div class="form-group">
+                                <label>Fulde navn</label>
+                                <input type="text" id="prof-fullname" required>
                             </div>
-                        </div>
-
-                        <form id="taxForm" onsubmit="submitTaxInfo(event)">
+                            
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label>Fornavn</label>
-                                    <input type="text" id="fName" required placeholder="F.eks. Jens">
+                                    <label>Telefonnummer</label>
+                                    <input type="tel" id="prof-phone" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Efternavn</label>
-                                    <input type="text" id="lName" required placeholder="F.eks. Jensen">
-                                </div>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Fødselsdato</label>
-                                    <input type="date" id="dob" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Land</label>
-                                    <select id="country" required>
-                                        <option value="Danmark">Danmark</option>
+                                    <label>Køn</label>
+                                    <select id="prof-gender">
+                                        <option value="Mand">Mand</option>
+                                        <option value="Kvinde">Kvinde</option>
+                                        <option value="Andet">Andet / Ønsker ikke at oplyse</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label>Hjemstedsadresse</label>
-                                <input type="text" id="address" required placeholder="F.eks. Thyregodsvej 18">
-                                <div class="helper-text">Din folkeregisteradresse (Påkrævet jf. Hvidvaskloven)</div>
+                                <label>Kort Bio (Valgfri)</label>
+                                <textarea id="prof-bio" rows="3" placeholder="Fortæl lidt om dig selv... f.eks. 'Jeg elsker at høre podcasts på turen'"></textarea>
                             </div>
 
-                            <div class="form-group">
-                                <label>Etage, dør (valgfri)</label>
-                                <input type="text" id="floorDoor" placeholder="F.eks. st. tv. eller 2. sal nr. 4">
-                            </div>
-
-                            <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 2rem 0;">
-
-                            <div class="form-group">
-                                <label style="display: flex; justify-content: space-between;">
-                                    <span>CPR-nummer</span>
-                                    <span style="font-weight: 500; font-size: 0.8rem; color: #64748B;">Hvorfor? Vi indberetter auto. til SKAT</span>
-                                </label>
-                                <input type="text" id="cpr" required placeholder="DDMMÅÅXXXX" maxlength="10" pattern="[0-9]{10}">
-                                <div class="helper-text">Sendes krypteret. Indtast uden bindestreg.</div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Bank IBAN-nummer</label>
-                                <input type="text" id="iban" required placeholder="DK0000000000000000" maxlength="18" style="text-transform: uppercase;">
-                                <div class="helper-text">Her udbetaler vi din fortjeneste. Find det i din netbank.</div>
-                            </div>
-
-                            <div id="formMessage" style="margin-bottom: 1rem; font-weight: bold; text-align: center; display: none;"></div>
-
-                            <button type="submit" class="btn-submit" id="submitBtn">Gem & Krypter Oplysninger</button>
+                            <div id="profileMessage" style="margin-bottom: 1rem; font-weight: bold; text-align: center; display: none;"></div>
+                            <button type="submit" class="btn-submit" id="prof-submitBtn">Gem ændringer</button>
                         </form>
-                    </div>
 
+                        <div style="margin-top: 3rem; text-align: center; border-top: 1px solid #F1F5F9; padding-top: 2rem;">
+                            <p style="color: #64748B; font-size: 0.95rem; margin-bottom: 0.5rem;">Ønsker du ikke længere at bruge HoppOn?</p>
+                            <a href="/gdpr" style="color: #EF4444; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                                Slet min konto
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-skat" class="tab-content">
                     <div class="card">
-                        <h2>Ofte stillede spørgsmål</h2>
-                        
-                        <div class="faq-item">
-                            <h4>Skal jeg betale skat af pengene?</h4>
-                            <p>Som hovedregel er samkørsel i Danmark skattefrit, så længe beløbet kun dækker dine omkostninger til bilen (benzin, vedligehold, osv.). Vi indberetter automatisk til SKAT for dig, så du slipper for bøvlet, men det betyder sjældent, at du skal betale skat.</p>
-                        </div>
-                        <div class="faq-item">
-                            <h4>Hvorfor skal I bruge mit CPR-nummer?</h4>
-                            <p>Det er et lovkrav fra EU (DAC7-direktivet). For at vi må udbetale penge til dig via Stripe, skal vi kunne identificere dig over for myndighederne. Vi bruger det ALDRIG til andet.</p>
-                        </div>
-                        <div class="faq-item">
-                            <h4>Kan I trække penge fra min konto?</h4>
-                            <p>Nej, aldrig. Dit IBAN-nummer fungerer kun én vej: Vi kan sætte dine optjente penge ind på din konto. Vi har ingen fuldmagt til at hæve penge.</p>
+                        <h2>Skatteoplysninger (DAC7)</h2>
+                        <p>Brug appen eller kontakt support, hvis dine skatte- eller bankoplysninger skal opdateres.</p>
+                        <div style="background: #F0FDF4; border: 1px solid #10B981; padding: 1.5rem; border-radius: 12px; color: #166534; font-weight: 600;">
+                            ✅ Din udbetaling og Stripe Connect er sat op.
                         </div>
                     </div>
-
                 </div>
 
             </div>
@@ -251,9 +211,7 @@
 
     <script>
         let currentUser = null;
-        let isCprLocked = false;
 
-        // Fane-styring
         function switchTab(tabId, btnElement) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -261,178 +219,106 @@
             btnElement.classList.add('active');
         }
 
-        // --- INIT PROFIL DATA ---
         window.onload = async () => {
             if (typeof _supabase === 'undefined') return;
-
             const { data: { session } } = await _supabase.auth.getSession();
-            if (!session) {
-                window.location.href = '/login'; // Tving login
-                return;
-            }
+            if (!session) { window.location.href = '/login'; return; }
             currentUser = session.user;
-
             await loadProfileData();
-            await loadTaxData();
         };
 
-        // Hent data fra 'profiles' tabellen
         async function loadProfileData() {
             try {
-                const { data: profile, error } = await _supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', currentUser.id)
-                    .single();
-
+                const { data: profile, error } = await _supabase.from('profiles').select('*').eq('id', currentUser.id).single();
                 if (error) throw error;
 
-                // Udfyld Sidebar DOM
                 document.getElementById('ui-name').innerText = profile.full_name || 'Bruger';
                 document.getElementById('ui-phone').innerText = profile.phone_number || 'Intet nummer';
-                
                 if (profile.avatar_url) {
                     document.getElementById('ui-avatar').src = profile.avatar_url;
                     document.getElementById('ui-avatar').style.display = 'block';
                     document.getElementById('ui-avatar-placeholder').style.display = 'none';
                 }
-
-                document.getElementById('ui-balance').innerText = profile.balance || '0.00';
-                document.getElementById('ui-pending').innerText = profile.pending_balance || '0.00';
-                document.getElementById('ui-co2').innerText = profile.co2_saved_kg || '0';
-                document.getElementById('ui-rides').innerText = profile.manual_ride_count || '0';
-
-                // Badges
-                let badgesHTML = '';
-                if (profile.is_verified_mitid) badgesHTML += '<span class="badge-verified">✓ MitID</span>';
-                if (profile.phone_verified) badgesHTML += '<span class="badge-verified">✓ Telefon</span>';
-                document.getElementById('ui-badges').innerHTML = badgesHTML;
-
-                // Bil-info
-                if (profile.is_driver && profile.car_details) {
-                    try {
-                        const car = JSON.parse(profile.car_details);
-                        document.getElementById('ui-car-name').innerText = car.display_name || `${car.make} ${car.model}`;
-                        document.getElementById('ui-car-plate').innerText = car.plate || profile.license_plate;
-                        document.getElementById('ui-car-section').style.display = 'block';
-                    } catch (e) { console.error("Kunne ikke parse bil-data", e); }
-                }
-
-            } catch (err) {
-                console.error("Fejl ved hentning af profil:", err);
-            }
+                
+                document.getElementById('prof-fullname').value = profile.full_name || "";
+                document.getElementById('prof-phone').value = profile.phone_number || "";
+                document.getElementById('prof-gender').value = profile.gender || "Andet";
+                document.getElementById('prof-bio').value = profile.bio || "";
+            } catch (err) { console.error("Fejl:", err); }
         }
 
-        // Hent data fra 'tax_identities' tabellen
-        async function loadTaxData() {
-            try {
-                const { data: taxData, error } = await _supabase
-                    .from('tax_identities')
-                    .select('full_name, address, country')
-                    .eq('user_id', currentUser.id)
-                    .maybeSingle();
-
-                if (taxData) {
-                    // Split navn
-                    const names = (taxData.full_name || "").split(" ");
-                    if (names.length > 0) {
-                        document.getElementById('fName').value = names[0];
-                        if (names.length > 1) {
-                            document.getElementById('lName').value = names.slice(1).join(" ");
-                        }
-                    }
-
-                    // Split adresse (simpel håndtering)
-                    let fullAddress = taxData.address || "";
-                    if (fullAddress.includes(",")) {
-                        let parts = fullAddress.split(",");
-                        document.getElementById('address').value = parts[0].trim();
-                        document.getElementById('floorDoor').value = parts.slice(1).join(",").trim();
-                    } else {
-                        document.getElementById('address').value = fullAddress;
-                    }
-
-                    // Lås CPR felt visuelt hvis data findes
-                    document.getElementById('cpr').value = "**********";
-                    document.getElementById('cpr').readOnly = true;
-                    isCprLocked = true;
-                }
-            } catch (err) {
-                console.error("Fejl ved hentning af tax info:", err);
-            }
-        }
-
-        // --- SUBMIT KYC / DAC7 FORMULAR ---
-        async function submitTaxInfo(e) {
+        async function updateProfileInfo(e) {
             e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            const msg = document.getElementById('formMessage');
-            
-            btn.disabled = true;
-            btn.innerText = "Arbejder...";
-            msg.style.display = 'none';
+            const btn = document.getElementById('prof-submitBtn');
+            const msg = document.getElementById('profileMessage');
+            btn.disabled = true; btn.innerText = "Gemmer..."; msg.style.display = 'none';
 
             try {
-                // Saml data
-                const firstName = document.getElementById('fName').value.trim();
-                const lastName = document.getElementById('lName').value.trim();
-                let address = document.getElementById('address').value.trim();
-                const floorDoor = document.getElementById('floorDoor').value.trim();
-                if (floorDoor) address += `, ${floorDoor}`;
-                
-                const dob = document.getElementById('dob').value; // Format: YYYY-MM-DD
-                const country = document.getElementById('country').value;
-                const cpr = isCprLocked ? "" : document.getElementById('cpr').value.trim();
-                const iban = document.getElementById('iban').value.toUpperCase().replace(/\s/g, '');
+                const updates = {
+                    full_name: document.getElementById('prof-fullname').value.trim(),
+                    phone_number: document.getElementById('prof-phone').value.trim(),
+                    gender: document.getElementById('prof-gender').value,
+                    bio: document.getElementById('prof-bio').value.trim(),
+                    updated_at: new Date().toISOString()
+                };
 
-                if (!dob) throw new Error("Du skal vælge en fødselsdato.");
+                const { error } = await _supabase.from('profiles').update(updates).eq('id', currentUser.id);
+                if (error) throw error;
 
-                // 1. Gem i Databasen via RPC (gemmer CPR og IBAN krypteret)
-                const { error: rpcError } = await _supabase.rpc('submit_tax_info', {
-                    p_full_name: `${firstName} ${lastName}`,
-                    p_address: address,
-                    p_country: country,
-                    p_cpr: cpr,
-                    p_bank_iban: iban
-                });
+                msg.style.display = 'block'; msg.style.color = '#166534'; msg.innerText = "✅ Din profil er blevet opdateret.";
+                document.getElementById('ui-name').innerText = updates.full_name;
+                document.getElementById('ui-phone').innerText = updates.phone_number;
+            } catch (err) {
+                msg.style.display = 'block'; msg.style.color = '#DC2626'; msg.innerText = "❌ Fejl ved gem.";
+            } finally {
+                btn.disabled = false; btn.innerText = "Gem ændringer";
+            }
+        }
 
-                if (rpcError) throw rpcError;
+        // --- AVATAR UPLOAD LOGIC ---
+        async function uploadAvatar(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-                // 2. Kald Edge Function til Stripe Connect (hvis det er sat op)
-                const [year, month, day] = dob.split('-');
-                
-                const { error: funcError } = await _supabase.functions.invoke('create-stripe-account', {
-                    body: {
-                        user_id: currentUser.id,
-                        email: currentUser.email,
-                        dob_day: parseInt(day),
-                        dob_month: parseInt(month),
-                        dob_year: parseInt(year),
-                        client_ip: '0.0.0.0' // Web fallback
-                    }
-                });
+            const loader = document.getElementById('avatar-loading');
+            loader.style.display = 'flex';
 
-                if (funcError) {
-                    console.warn("Stripe account fejl (Måske findes den allerede):", funcError);
-                    // Vi kaster ikke en hård fejl her, da databasen ER opdateret.
-                }
+            try {
+                // Skab unikt filnavn (bruger ID + timestamp)
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${currentUser.id}_${Date.now()}.${fileExt}`;
 
-                // Succes!
-                msg.style.display = 'block';
-                msg.style.color = '#166534';
-                msg.innerText = "✅ Oplysninger gemt succesfuldt! Udbetaling er aktiveret.";
-                isCprLocked = true;
-                document.getElementById('cpr').value = "**********";
-                document.getElementById('cpr').readOnly = true;
+                // Upload til 'avatars' bucket
+                const { error: uploadError } = await _supabase.storage
+                    .from('avatars')
+                    .upload(fileName, file, { upsert: true });
+
+                if (uploadError) throw uploadError;
+
+                // Få offentlig URL
+                const { data: publicUrlData } = _supabase.storage
+                    .from('avatars')
+                    .getPublicUrl(fileName);
+
+                const publicUrl = publicUrlData.publicUrl;
+
+                // Opdater profilen i databasen
+                const { error: updateError } = await _supabase.from('profiles')
+                    .update({ avatar_url: publicUrl })
+                    .eq('id', currentUser.id);
+
+                if (updateError) throw updateError;
+
+                // Visuel opdatering
+                document.getElementById('ui-avatar').src = publicUrl;
+                document.getElementById('ui-avatar').style.display = 'block';
+                document.getElementById('ui-avatar-placeholder').style.display = 'none';
 
             } catch (err) {
-                console.error(err);
-                msg.style.display = 'block';
-                msg.style.color = '#DC2626';
-                msg.innerText = "❌ Fejl: " + (err.message || "Kunne ikke gemme oplysningerne. Tjek dit IBAN og CPR.");
+                alert("Fejl ved upload: " + err.message);
             } finally {
-                btn.disabled = false;
-                btn.innerText = "Gem & Krypter Oplysninger";
+                loader.style.display = 'none';
+                event.target.value = ""; // Nulstil input
             }
         }
     </script>
