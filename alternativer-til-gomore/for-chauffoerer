@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alternativ til GoMore for Chauffører | Behold 100% af prisen | HoppOn</title>
+    <meta name="description" content="GoMore lukker samkørslen d. 1. marts. Flyt dine ture til HoppOn, hvor vi tager 0 kr. i gebyr fra chaufføren. Tjen hele beløbet selv.">
+    <meta name="keywords" content="gomore alternativ chauffør, udbyd samkørsel, 0 kr gebyr, gomore lukker, kør sammen, delebil, hoppon">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://hoppon.dk/alternativ-til-gomore/for-chauffoerer.html" />
+    
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Træt af at betale 25% i gebyr for at tage folk med?" />
+    <meta property="og:description" content="Kør med HoppOn og behold 100% af din indtjening. Danmarks nye samkørselsplatform er klar til dig." />
+    <meta property="og:image" content="https://i.imgur.com/4oGYz8n.png" />
+    <meta property="og:site_name" content="HoppOn" />
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/supabase.js"></script>
+    <script src="/components.js" defer></script>
+
+    <style>
+        :root { 
+            --brand: #0F172A; 
+            --accent: #6366F1; 
+            --surface: #FFFFFF; 
+            --bg-color: #F8FAFC; 
+            --border: #E2E8F0; 
+            --text-main: #334155; 
+            --text-muted: #64748B; 
+            --success: #10B981; 
+            --warning: #F59E0B;
+        }
+
+        body { background: var(--bg-color); font-family: 'Inter', sans-serif; color: var(--brand); margin: 0; overflow-x: hidden; }
+        main { padding-top: 80px; min-height: 100vh; }
+        
+        /* HERO SECTION */
+        .hero { background: var(--brand); color: white; padding: 6rem 1.5rem 10rem 1.5rem; text-align: center; position: relative; }
+        .hero::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; background: var(--bg-color); border-radius: 40px 40px 0 0; }
+        .highlight-pill { background: rgba(16, 185, 129, 0.2); color: #34D399; padding: 6px 16px; border-radius: 20px; font-size: 0.95rem; font-weight: 800; display: inline-block; margin-bottom: 1.5rem; border: 1px solid rgba(16, 185, 129, 0.4);}
+        .hero h1 { font-size: 3.5rem; font-weight: 900; letter-spacing: -1.5px; margin: 0 0 1.5rem 0; line-height: 1.1; }
+        .hero p { font-size: 1.25rem; color: #94A3B8; max-width: 700px; margin: 0 auto 2.5rem; line-height: 1.6; font-weight: 500;}
+
+        /* BEREGNER KORT (MATH SHOWCASE) */
+        .math-container { max-width: 900px; margin: -5rem auto 4rem; padding: 0 1.5rem; position: relative; z-index: 10; }
+        .math-card { background: var(--surface); border-radius: 24px; padding: 3rem; box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15); border: 2px solid var(--accent); text-align: center;}
+        .math-card h2 { font-size: 2rem; font-weight: 900; margin: 0 0 0.5rem 0; color: var(--brand); letter-spacing: -0.5px;}
+        .math-card p { color: var(--text-muted); font-size: 1.1rem; margin: 0 0 2.5rem 0;}
+        
+        .math-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; align-items: center; margin-bottom: 2.5rem;}
+        .math-step { background: #F8FAFC; padding: 1.5rem; border-radius: 16px; border: 1px dashed var(--border); }
+        .math-step h4 { margin: 0 0 10px 0; font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;}
+        .math-step .value { font-size: 2.5rem; font-weight: 900; color: var(--brand); line-height: 1;}
+        .math-step .value.green { color: var(--success); }
+        .math-operator { font-size: 2rem; font-weight: 900; color: var(--text-muted); }
+
+        .btn-primary { display: inline-block; background: var(--accent); color: white; padding: 18px 40px; border-radius: 14px; font-weight: 800; font-size: 1.1rem; text-decoration: none; transition: 0.2s; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3); }
+        .btn-primary:hover { transform: translateY(-2px); background: #4F46E5; box-shadow: 0 15px 25px rgba(99, 102, 241, 0.4); }
+
+        /* FEATURES KORT */
+        .features-container { max-width: 1100px; margin: 0 auto 5rem; padding: 0 1.5rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+        .feature-card { background: white; border-radius: 20px; padding: 2.5rem 2rem; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.02); text-align: left;}
+        .feature-icon { width: 60px; height: 60px; background: #DCFCE7; color: #166534; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 1.5rem; font-weight: bold;}
+        .feature-card h3 { font-size: 1.3rem; font-weight: 800; margin: 0 0 1rem 0; color: var(--brand); letter-spacing: -0.5px;}
+        .feature-card p { font-size: 1rem; color: var(--text-muted); line-height: 1.6; margin: 0;}
+
+        /* TESTIMONIAL / TRUST SECTION */
+        .trust-section { max-width: 900px; margin: 0 auto 5rem; padding: 3rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%); border-radius: 24px; border: 1px solid var(--border); text-align: center;}
+        .trust-section h2 { font-size: 2rem; font-weight: 900; margin: 0 0 1rem; color: var(--brand); letter-spacing: -0.5px;}
+        .trust-section p { font-size: 1.1rem; color: var(--text-main); line-height: 1.7; max-width: 700px; margin: 0 auto;}
+        
+        .check-list { list-style: none; padding: 0; margin: 2rem auto 0; max-width: 500px; text-align: left;}
+        .check-list li { margin-bottom: 1rem; display: flex; gap: 12px; font-weight: 600; color: var(--brand); align-items: center; font-size: 1.05rem;}
+        .check-icon { color: var(--success); font-size: 1.3rem; font-weight: 900;}
+
+        /* FAQ */
+        .faq-section { max-width: 800px; margin: 0 auto 5rem; padding: 0 1.5rem;}
+        .faq-section h2 { font-size: 2rem; font-weight: 900; text-align: center; margin-bottom: 3rem; color: var(--brand); letter-spacing: -0.5px;}
+        .faq-item { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem; transition: 0.2s;}
+        .faq-item:hover { border-color: #CBD5E1; }
+        .faq-item h4 { font-size: 1.15rem; font-weight: 800; margin: 0 0 10px 0; color: var(--brand);}
+        .faq-item p { font-size: 1rem; color: var(--text-muted); line-height: 1.6; margin: 0;}
+
+        @media (max-width: 900px) {
+            .math-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .math-operator { transform: rotate(90deg); margin: 0.5rem 0; }
+            .features-container { grid-template-columns: 1fr; gap: 1.5rem; }
+            .hero { padding: 4rem 1.5rem 8rem 1.5rem; }
+            .hero h1 { font-size: 2.5rem; }
+            .trust-section { padding: 2rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <hoppon-header></hoppon-header>
+
+    <main>
+        <section class="hero">
+            <div class="highlight-pill">GoMore samkørsel lukker d. 1. marts</div>
+            <h1>Klar til at slippe for 25% i gebyr?</h1>
+            <p>At GoMore lukker for samkørsel er faktisk gode nyheder for dig som chauffør. Hos HoppOn tager vi 0 kr. i gebyr, når du udbyder et lift. Du beholder hver en krone, passageren betaler.</p>
+        </section>
+
+        <div class="math-container">
+            <div class="math-card">
+                <h2>Regnestykket er simpelt</h2>
+                <p>Når du sætter din pris, er det din pris. Punktum.</p>
+                
+                <div class="math-grid">
+                    <div class="math-step">
+                        <h4>Din pris pr. sæde</h4>
+                        <div class="value">150<span style="font-size: 1.5rem;">kr</span></div>
+                    </div>
+                    <div class="math-operator">-</div>
+                    <div class="math-step">
+                        <h4>HoppOn Gebyr</h4>
+                        <div class="value" style="color: var(--text-muted);">0<span style="font-size: 1.5rem;">kr</span></div>
+                    </div>
+                    <div class="math-operator">=</div>
+                    <div class="math-step" style="background: #ECFDF5; border-color: #34D399;">
+                        <h4>Din udbetaling</h4>
+                        <div class="value green">150<span style="font-size: 1.5rem; color: #10B981;">kr</span></div>
+                    </div>
+                </div>
+                
+                <a href="/opret-tur/" class="btn-primary">Opret din første tur gratis</a>
+            </div>
+        </div>
+
+        <div class="features-container">
+            <div class="feature-card">
+                <div class="feature-icon" style="background: #EEF2FF; color: var(--accent);">💸</div>
+                <h3>Behold 100% af din indtjening</h3>
+                <p>Det er dig, der slider på bilen, og dig, der betaler for brændstoffet og brobilletten. Vi synes, det er mest fair, at du beholder 100% af din indtjening. Driften dækkes i stedet af et minimalt gebyr, passageren betaler ved booking.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon" style="background: #FEF3C7; color: #B45309;">⚡</div>
+                <h3>Smarte funktioner</h3>
+                <p>Slå "Lynbooking" til for at godkende passagerer automatisk, vælg om du vil køre via Færge, eller aktivér "Ladies Only". HoppOn giver dig fuld kontrol over din bil og dine passagerer.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>Sikker og tryg udbetaling</h3>
+                <p>Via vores partnerskab med Stripe (som også håndterer betalinger for Wolt og Booking.com), overføres pengene automatisk til din tilknyttede konto, så snart turen er gennemført. Ingen manuelle fakturaer.</p>
+            </div>
+        </div>
+
+        <section class="trust-section">
+            <h2>Kør trygt med HoppOn</h2>
+            <p>Vi ved, at det kan føles usikkert at skifte platform. Derfor har vi bygget HoppOn med samme høje sikkerhedsstandarder, som du er vant til.</p>
+            
+            <ul class="check-list">
+                <li><span class="check-icon">✓</span> <strong>MitID Validering:</strong> Alle passagerer skal godkendes med MitID.</li>
+                <li><span class="check-icon">✓</span> <strong>Sikret betaling:</strong> Pengene reserveres, før passageren sætter sig ind.</li>
+                <li><span class="check-icon">✓</span> <strong>Anmeldelsessystem:</strong> Læs om dine passagerer, før du godkender.</li>
+                <li><span class="check-icon">✓</span> <strong>Automatiske aflysninger:</strong> Vi refunderer dig, hvis passageren bliver væk.</li>
+            </ul>
+        </section>
+
+        <section class="faq-section">
+            <h2>Ofte stillede spørgsmål</h2>
+            
+            <div class="faq-item">
+                <h4>Hvordan får jeg mine penge?</h4>
+                <p>Når du opretter en profil, beder vi dig tilknytte dit udbetalings-kort eller konto via Stripe (kræves af hvidvaskloven). Så snart turen er færdig, og du trykker "Afslut tur", bliver pengene sendt direkte til din konto.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h4>Er der overhovedet nogen passagerer på HoppOn?</h4>
+                <p>Ja! Lige nu vokser vi eksplosivt, da tusindvis af tidligere GoMore-brugere rykker over. Vores smarte "Tur-Alarm" betyder, at hundredevis af passagerer ligger i kø og venter på, at en chauffør som dig opretter en tur på deres rute.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h4>Hvordan kan platformen køre rundt uden gebyr fra mig?</h4>
+                <p>Når passageren booker et sæde, tilføjer vi et lille servicegebyr (blot 5%) på deres side. Det dækker vores serverudgifter og Stripe-betalingsgebyrer. Passagererne får stadig et meget billigt lift, og du får en fair betaling. Alle vinder.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h4>Kan jeg tage passagerer med i en firmabil/leasingbil?</h4>
+                <p>Ja, så længe du har lov af din arbejdsgiver/leasingselskab, og din forsikring dækker passagerer. Skattefritagelsen gælder også for samkørsel i de fleste biler, så længe du ikke kører med decideret overskud (men blot får dækket dine omkostninger).</p>
+            </div>
+        </section>
+    </main>
+
+    <hoppon-footer></hoppon-footer>
+</body>
+</html>
