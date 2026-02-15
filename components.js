@@ -1,3 +1,27 @@
+// components.js
+
+// --- GORILLA FAVICON SETUP (Kører automatisk på alle sider) ---
+(function() {
+    const head = document.head;
+    const version = "?v=3"; // Versionering tvinger browseren til at opdatere ikonet
+
+    const iconData = [
+        { rel: 'icon', type: 'image/png', sizes: '96x96', href: 'https://i.imgur.com/IAgoHYd.png' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: 'https://i.imgur.com/SaDK8T1.png' }
+    ];
+
+    iconData.forEach(data => {
+        let link = document.createElement('link');
+        link.rel = data.rel;
+        if (data.type) link.type = data.type;
+        if (data.sizes) link.sizes = data.sizes;
+        link.href = data.href + version;
+        head.appendChild(link);
+    });
+})();
+
+// --- EKSISTERENDE COMPONENTS ---
+
 class HoppOnHeader extends HTMLElement {
     async connectedCallback() {
         // Standard knapper (hvis man IKKE er logget ind)
@@ -13,7 +37,7 @@ class HoppOnHeader extends HTMLElement {
                 // Opdaterede knapper (hvis man ER logget ind)
                 authButtons = `
                     <button onclick="window._supabase.auth.signOut().then(() => location.reload())" class="btn-ghost" style="cursor:pointer; border:none; background:none; font-family:inherit; font-weight:600; font-size:1rem;">Log ud</button>
-                    <a href="/opret-tur/" class="btn-primary-small">Min Profil</a>
+                    <a href="/profil/" class="btn-primary-small">Min Profil</a>
                 `;
             }
         }
@@ -66,7 +90,7 @@ class HoppOnFooter extends HTMLElement {
                         <a href="/samkoersel/odense-koebenhavn">Odense ➔ København</a>
                         <a href="/samkoersel/esbjerg-aarhus">Esbjerg ➔ Aarhus</a>
                     </div>
-            
+
                     <div class="footer-links">
                         <h4>Hurtige links</h4>
                         <a href="/alternativer-til-gomore/">GoMore Alternativer</a>
