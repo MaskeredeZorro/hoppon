@@ -393,7 +393,7 @@
                     document.getElementById('loaderSpinner').style.display = 'none';
                     loaderText.innerHTML = statusToSet === 'approved' ? `🎉 Booket!` : `✅ Anmodning sendt!`;
                     confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
-                    setTimeout(() => { window.location.href = "/mine-ture"; }, 3000);
+                    setTimeout(() => { window.location.href = "/profil/"; }, 3000);
                 } catch (err) {
                     errorBox.innerText = "Fejl ved oprettelse i database. Kontakt support.";
                     errorBox.style.display = 'block';
