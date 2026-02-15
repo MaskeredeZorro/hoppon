@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brugerprofil | HoppOn</title>
+    
+    <link rel="icon" href="https://i.imgur.com/4oGYz8n.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/supabase.js"></script>
+    <script src="/components.js" defer></script>
+
+    <style>
+        main { padding-top: 100px; padding-bottom: 5rem; background: #F8FAFC; min-height: 100vh; }
+        
+        .profile-container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; }
+
+        /* KORT STYLES */
+        .card { background: white; border-radius: 24px; padding: 2.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid var(--border); }
+        
+        /* VENSTRE: BRUGERINFO */
+        .user-card { text-align: center; height: fit-content; }
+        .avatar { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; background: #E2E8F0; margin: 0 auto 1.5rem auto; border: 4px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .user-name { font-size: 1.8rem; font-weight: 900; color: var(--brand); margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+        .user-gender { color: var(--text-muted); font-size: 1rem; font-weight: 500; margin-bottom: 1.5rem; }
+        
+        .badges-container { display: flex; flex-direction: column; gap: 8px; align-items: center; margin-bottom: 2rem; }
+        .badge-verified { display: inline-flex; align-items: center; gap: 6px; background: #DCFCE7; color: #166534; padding: 6px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: 700; width: fit-content;}
+
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: center; border-top: 1px solid #F1F5F9; padding-top: 1.5rem; }
+        .stat-item h4 { margin: 0; font-size: 1.5rem; font-weight: 900; color: var(--brand); }
+        .stat-item p { margin: 0; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-top: 5px;}
+
+        /* HØJRE: BIO & BIL */
+        .detail-card h3 { font-size: 1.4rem; font-weight: 800; color: var(--brand); margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+        .bio-text { font-size: 1.1rem; line-height: 1.6; color: var(--text-main); margin-bottom: 2.5rem; white-space: pre-wrap; background: #F8FAFC; padding: 1.5rem; border-radius: 16px; border: 1px solid #E2E8F0; }
+        
+        .car-box { display: flex; align-items: center; gap: 1.5rem; background: var(--brand); color: white; padding: 1.5rem 2rem; border-radius: 20px; }
+        .car-icon { font-size: 3rem; background: rgba(255,255,255,0.1); width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; border-radius: 16px; }
+        .car-details h4 { margin: 0 0 5px 0; font-size: 1.4rem; font-weight: 800; }
+        .car-details p { margin: 0; color: #CBD5E1; font-size: 1rem; }
+
+        /* LOADING / ERROR STATE */
+        #loading-state, #error-state { text-align: center; padding: 5rem 1rem; grid-column: 1 / -1; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #E2E8F0; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem auto; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .profile-container { grid-template-columns: 1fr; }
+            .car-box { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <hoppon-header></hoppon-header>
+
+    <main>
+        
+        <div id="loading-state">
+            <div class="spinner"></div>
+            <h2 style="color: var(--brand);">Henter profil...</h2>
+        </div>
+
+        <div id="error-state" style="display: none;">
+            <span style="font-size: 4rem;">🔍</span>
+            <h2 style="color: var(--brand); margin-top: 1rem;">Bruger ikke fundet</h2>
+            <p style="color: var(--text-muted); font-size: 1.1rem;">Denne profil eksisterer ikke, eller også er linket ugyldigt.</p>
+            <a href="/" style="display: inline-block; background: var(--accent); color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: bold; margin-top: 1.5rem;">Gå til forsiden</a>
+        </div>
+
+        <div class="profile-container" id="profile-content" style="display: none;">
+            
+            <div class="card user-card">
+                <img src="" alt="Avatar" class="avatar" id="pub-avatar" style="display: none;">
+                <div class="avatar" id="pub-avatar-placeholder" style="display: flex; align-items: center; justify-content: center; font-size: 3.5rem; color: #94A3B8;">👤</div>
+                
+                <h1 class="user-name" id="pub-name">Navn</h1>
+                <div class="user-gender" id="pub-gender">Køn</div>
+
+                <div class="badges-container" id="pub-badges">
+                    </div>
+
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <h4 id="pub-rides">0</h4>
+                        <p>Kørte ture</p>
+                    </div>
+                    <div class="stat-item">
+                        <h4><span id="pub-co2">0</span> <span style="font-size: 0.9rem;">kg</span></h4>
+                        <p>CO2 Sparet</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card detail-card">
+                
+                <div id="bio-section">
+                    <h3>Om mig</h3>
+                    <div class="bio-text" id="pub-bio">Denne bruger har ikke skrevet en beskrivelse endnu.</div>
+                </div>
+
+                <div id="car-section" style="display: none;">
+                    <h3>Min bil</h3>
+                    <div class="car-box">
+                        <div class="car-icon">🚗</div>
+                        <div class="car-details">
+                            <h4 id="pub-car-name">Bilmærke</h4>
+                            <p id="pub-car-color">Farve • Årgang</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <hoppon-footer></hoppon-footer>
+
+    <script>
+        window.onload = async () => {
+            if (typeof _supabase === 'undefined') return showError();
+
+            // Hent 'id' parameteren fra URL'en
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetId = urlParams.get('id');
+
+            if (!targetId) {
+                showError();
+                return;
+            }
+
+            try {
+                // Hent offentlig profil data
+                const { data: profile, error } = await _supabase
+                    .from('profiles')
+                    .select('full_name, avatar_url, bio, gender, manual_ride_count, co2_saved_kg, is_driver, car_details, is_verified_mitid, phone_verified')
+                    .eq('id', targetId)
+                    .single();
+
+                if (error || !profile) throw error;
+
+                // GEM LOADING
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('profile-content').style.display = 'grid';
+
+                // UDFYLD DATA
+                document.getElementById('pub-name').innerText = profile.full_name || 'Ukendt Bruger';
+                document.getElementById('pub-gender').innerText = profile.gender || 'Andet';
+
+                if (profile.avatar_url) {
+                    document.getElementById('pub-avatar').src = profile.avatar_url;
+                    document.getElementById('pub-avatar').style.display = 'block';
+                    document.getElementById('pub-avatar-placeholder').style.display = 'none';
+                }
+
+                document.getElementById('pub-rides').innerText = profile.manual_ride_count || '0';
+                document.getElementById('pub-co2').innerText = profile.co2_saved_kg || '0';
+
+                if (profile.bio) {
+                    document.getElementById('pub-bio').innerText = profile.bio;
+                }
+
+                // BADGES
+                let badges = '';
+                if (profile.is_verified_mitid) badges += '<div class="badge-verified"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> MitID Verificeret</div>';
+                if (profile.phone_verified) badges += '<div class="badge-verified"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> Telefon Verificeret</div>';
+                document.getElementById('pub-badges').innerHTML = badges;
+
+                // BIL INFO
+                if (profile.is_driver && profile.car_details) {
+                    try {
+                        const car = JSON.parse(profile.car_details);
+                        document.getElementById('pub-car-name').innerText = car.display_name || `${car.make} ${car.model}`;
+                        document.getElementById('pub-car-color').innerText = `${car.color || ''} • Årgang ${car.year || ''}`;
+                        document.getElementById('car-section').style.display = 'block';
+                    } catch(e) {}
+                }
+
+            } catch (err) {
+                console.error("Fejl ved indlæsning af profil:", err);
+                showError();
+            }
+        };
+
+        function showError() {
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('error-state').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
