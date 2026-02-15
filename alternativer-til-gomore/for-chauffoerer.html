@@ -76,6 +76,93 @@
         .check-list li { margin-bottom: 1rem; display: flex; gap: 12px; font-weight: 600; color: var(--brand); align-items: center; font-size: 1.05rem;}
         .check-icon { color: var(--success); font-size: 1.3rem; font-weight: 900;}
 
+        /* TRUST SECTION OPGRADERING */
+        .trust-section {
+            max-width: 900px;
+            margin: 0 auto 5rem;
+            padding: 4rem 2rem;
+            background: white; /* Rent look */
+            border-radius: 32px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        }
+        
+        .trust-section h2 {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .trust-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 3.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .trust-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        .trust-item {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start; /* Ikon flugter med toppen */
+            padding: 1.5rem;
+            background: var(--bg-color);
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+        
+        .trust-item:hover {
+            transform: scale(1.01);
+            background: #f1f5f9;
+        }
+        
+        .check-wrapper {
+            width: 32px;
+            height: 32px;
+            background: var(--success);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0; /* Undgår at cirklen bliver mast */
+            margin-top: 4px;
+            font-weight: 900;
+        }
+        
+        .trust-content strong {
+            display: block;
+            font-size: 1.15rem;
+            margin-bottom: 0.5rem;
+            color: var(--brand);
+            font-weight: 800;
+        }
+        
+        .trust-content p {
+            margin: 0;
+            line-height: 1.6;
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+        
+        /* Mobil-tilpasning */
+        @media (max-width: 600px) {
+            .trust-section {
+                padding: 2rem 1.5rem;
+                border-radius: 24px;
+            }
+            .trust-item {
+                padding: 1.2rem;
+            }
+        }
+        
         /* FAQ */
         .faq-section { max-width: 800px; margin: 0 auto 5rem; padding: 0 1.5rem;}
         .faq-section h2 { font-size: 2rem; font-weight: 900; text-align: center; margin-bottom: 3rem; color: var(--brand); letter-spacing: -0.5px;}
@@ -152,14 +239,39 @@
 
         <section class="trust-section">
             <h2>Kør trygt med HoppOn</h2>
-            <p>Vi ved, at det kan føles usikkert at skifte platform. Derfor har vi bygget HoppOn med samme høje sikkerhedsstandarder, som du er vant til.</p>
+            <p class="trust-subtitle">Vi ved, at det kan føles usikkert at skifte platform. Derfor har vi bygget HoppOn med de højeste sikkerhedsstandarder.</p>
             
-            <ul class="check-list">
-                <li><span class="check-icon">✓</span> <strong>MitID Validering:</strong> Alle passagerer skal godkendes med MitID.</li>
-                <li><span class="check-icon">✓</span> <strong>Sikret betaling:</strong> Pengene reserveres, før passageren sætter sig ind.</li>
-                <li><span class="check-icon">✓</span> <strong>Anmeldelsessystem:</strong> Læs om dine passagerer, før du godkender.</li>
-                <li><span class="check-icon">✓</span> <strong>Automatiske aflysninger:</strong> Vi refunderer dig, hvis passageren bliver væk.</li>
-            </ul>
+            <div class="trust-grid">
+                <div class="trust-item">
+                    <div class="check-wrapper">
+                        <span class="check-icon">✓</span>
+                    </div>
+                    <div class="trust-content">
+                        <strong>Sikret betaling</strong>
+                        <p>Pengene reserveres altid på passagerens kort, før de sætter sig ind. Du er garanteret din betaling, så snart turen er slut.</p>
+                    </div>
+                </div>
+        
+                <div class="trust-item">
+                    <div class="check-wrapper">
+                        <span class="check-icon">✓</span>
+                    </div>
+                    <div class="trust-content">
+                        <strong>Anmeldelsessystem</strong>
+                        <p>Ingen blinde passagerer. Du kan læse bedømmelser og se tidligere kørselshistorik på alle brugere, før du godkender dem.</p>
+                    </div>
+                </div>
+        
+                <div class="trust-item">
+                    <div class="check-wrapper">
+                        <span class="check-icon">✓</span>
+                    </div>
+                    <div class="trust-content">
+                        <strong>Beskyttelse ved aflysning</strong>
+                        <p>Vi dækker dit tab ved sene afbud: Du får <strong>50% af prisen</strong>, hvis passageren aflyser mellem 24 og 3 timer før afgang, og <strong>100% udbetalt</strong>, hvis de aflyser under 3 timer før start.</p>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <section class="faq-section">
