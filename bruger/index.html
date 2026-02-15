@@ -25,23 +25,73 @@
         .user-card { text-align: center; height: fit-content; }
         .avatar { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; background: #E2E8F0; margin: 0 auto 1.5rem auto; border: 4px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .user-name { font-size: 1.8rem; font-weight: 900; color: var(--brand); margin-bottom: 0.5rem; letter-spacing: -0.5px; }
-        .user-gender { color: var(--text-muted); font-size: 1rem; font-weight: 500; margin-bottom: 1.5rem; }
+        .user-meta { color: var(--text-muted); font-size: 0.95rem; font-weight: 500; margin-bottom: 5px; }
         
-        .badges-container { display: flex; flex-direction: column; gap: 8px; align-items: center; margin-bottom: 2rem; }
-        .badge-verified { display: inline-flex; align-items: center; gap: 6px; background: #DCFCE7; color: #166534; padding: 6px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: 700; width: fit-content;}
+        .badges-container { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; margin: 1.5rem 0; padding-top: 1.5rem; border-top: 1px solid #F1F5F9;}
+        .badge-verified { display: inline-flex; align-items: center; gap: 6px; color: var(--brand); font-size: 0.95rem; font-weight: 600;}
+        .badge-verified svg { color: #10B981; }
 
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: center; border-top: 1px solid #F1F5F9; padding-top: 1.5rem; }
-        .stat-item h4 { margin: 0; font-size: 1.5rem; font-weight: 900; color: var(--brand); }
-        .stat-item p { margin: 0; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-top: 5px;}
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: center; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 16px; padding: 1.5rem; margin-top: 2rem; }
+        .stat-item h4 { margin: 0 0 5px 0; font-size: 1.5rem; font-weight: 900; color: var(--brand); display: flex; justify-content: center; align-items: center; gap: 5px;}
+        .stat-item p { margin: 0; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600;}
 
-        /* HØJRE: BIO & BIL */
-        .detail-card h3 { font-size: 1.4rem; font-weight: 800; color: var(--brand); margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
-        .bio-text { font-size: 1.1rem; line-height: 1.6; color: var(--text-main); margin-bottom: 2.5rem; white-space: pre-wrap; background: #F8FAFC; padding: 1.5rem; border-radius: 16px; border: 1px solid #E2E8F0; }
+        /* HØJRE: BIO, BIL & REVIEWS */
+        .detail-card h3 { font-size: 1.3rem; font-weight: 800; color: var(--brand); margin-bottom: 1rem; }
+        .bio-text { font-size: 1.05rem; line-height: 1.6; color: var(--text-main); margin-bottom: 2.5rem; white-space: pre-wrap;}
         
-        .car-box { display: flex; align-items: center; gap: 1.5rem; background: var(--brand); color: white; padding: 1.5rem 2rem; border-radius: 20px; }
-        .car-icon { font-size: 3rem; background: rgba(255,255,255,0.1); width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; border-radius: 16px; }
-        .car-details h4 { margin: 0 0 5px 0; font-size: 1.4rem; font-weight: 800; }
-        .car-details p { margin: 0; color: #CBD5E1; font-size: 1rem; }
+        .gomore-badge { background: #F0FDF4; border: 1px solid #10B981; padding: 1rem 1.5rem; border-radius: 16px; display: flex; align-items: center; gap: 15px; margin-bottom: 2rem;}
+        .gomore-badge .icon-box { background: #10B981; color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;}
+        .gomore-badge h4 { color: #166534; margin: 0 0 5px 0; font-weight: 800; }
+        .gomore-badge p { color: #15803D; margin: 0; font-size: 0.9rem; font-weight: 500;}
+
+        /* RATINGS BREAKDOWN */
+        .rating-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .btn-text { color: var(--accent); font-weight: 800; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 1rem; padding: 0;}
+        .btn-text:hover { opacity: 0.8; }
+        
+        .rating-grid { display: flex; gap: 2rem; align-items: center; margin-bottom: 2rem; }
+        .rating-bars { flex: 1; display: flex; flex-direction: column; gap: 8px;}
+        .rating-bar-row { display: flex; align-items: center; gap: 10px; cursor: pointer; opacity: 1; transition: 0.2s;}
+        .rating-bar-row.faded { opacity: 0.3; }
+        .rating-bar-row.selected { font-weight: bold; }
+        .rating-num { width: 15px; font-size: 0.9rem; font-weight: 700; color: var(--text-muted); }
+        .rating-bar-row.selected .rating-num { color: var(--accent); }
+        .bar-bg { flex: 1; height: 6px; background: #F1F5F9; border-radius: 4px; overflow: hidden; }
+        .bar-fill { height: 100%; background: var(--brand); border-radius: 4px; }
+        .rating-bar-row.selected .bar-fill { background: var(--accent); }
+        
+        .rating-score { text-align: center; width: 120px; }
+        .score-big { font-size: 3.5rem; font-weight: 900; color: var(--brand); line-height: 1; margin-bottom: 5px;}
+        .score-stars { color: #F59E0B; font-size: 1.2rem; margin-bottom: 5px;}
+        .score-total { color: var(--text-muted); font-size: 0.85rem; font-weight: 600;}
+
+        /* REVIEWS LIST */
+        .review-card { padding: 1.5rem; border: 1px solid #F1F5F9; border-radius: 16px; margin-bottom: 1rem; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .review-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .reviewer-info { display: flex; align-items: center; gap: 10px; }
+        .reviewer-avatar { width: 35px; height: 35px; border-radius: 50%; background: #E2E8F0; display: flex; align-items: center; justify-content: center; font-size: 1rem; overflow: hidden;}
+        .reviewer-name { font-weight: 700; color: var(--brand); font-size: 0.95rem; margin-bottom: 2px;}
+        .review-date { color: var(--text-muted); font-size: 0.8rem; }
+        .review-stars { color: #F59E0B; font-size: 0.9rem; letter-spacing: 2px;}
+        .review-comment { color: var(--text-main); font-size: 1rem; line-height: 1.5; margin: 0; }
+
+        .empty-state { text-align: center; padding: 2rem; background: #F8FAFC; border-radius: 16px; color: var(--text-muted); font-weight: 500; }
+
+        /* MODAL */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
+        .modal-box { background: white; padding: 2rem; border-radius: 24px; width: 90%; max-width: 450px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); text-align: center; }
+        .modal-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; }
+        .modal-text { color: var(--text-muted); margin-bottom: 1.5rem; }
+        
+        .star-rating-input { display: flex; justify-content: center; gap: 5px; margin-bottom: 1.5rem; font-size: 2.5rem; color: #E2E8F0; cursor: pointer; }
+        .star-rating-input span:hover, .star-rating-input span.active { color: #F59E0B; }
+        
+        .modal-box textarea { width: 100%; padding: 1rem; border: 1px solid #E2E8F0; border-radius: 12px; background: #F8FAFC; font-family: inherit; font-size: 1rem; margin-bottom: 1.5rem; resize: none; outline: none; box-sizing: border-box;}
+        .modal-box textarea:focus { border-color: var(--accent); background: white; }
+        
+        .modal-actions { display: flex; gap: 1rem; }
+        .btn-outline { flex: 1; border: 1px solid var(--border); background: white; padding: 14px; border-radius: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; }
+        .btn-submit { flex: 1; background: var(--brand); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 800; cursor: pointer; }
 
         /* LOADING / ERROR STATE */
         #loading-state, #error-state { text-align: center; padding: 5rem 1rem; grid-column: 1 / -1; }
@@ -50,7 +100,7 @@
 
         @media (max-width: 768px) {
             .profile-container { grid-template-columns: 1fr; }
-            .car-box { flex-direction: column; text-align: center; }
+            .rating-grid { flex-direction: column-reverse; gap: 1.5rem; }
         }
     </style>
 </head>
@@ -59,7 +109,6 @@
     <hoppon-header></hoppon-header>
 
     <main>
-        
         <div id="loading-state">
             <div class="spinner"></div>
             <h2 style="color: var(--brand);">Henter profil...</h2>
@@ -79,10 +128,7 @@
                 <div class="avatar" id="pub-avatar-placeholder" style="display: flex; align-items: center; justify-content: center; font-size: 3.5rem; color: #94A3B8;">👤</div>
                 
                 <h1 class="user-name" id="pub-name">Navn</h1>
-                <div class="user-gender" id="pub-gender">Køn</div>
-
-                <div class="badges-container" id="pub-badges">
-                    </div>
+                <div class="user-meta" id="pub-meta">Danmark</div>
 
                 <div class="stat-grid">
                     <div class="stat-item">
@@ -90,67 +136,178 @@
                         <p>Kørte ture</p>
                     </div>
                     <div class="stat-item">
-                        <h4><span id="pub-co2">0</span> <span style="font-size: 0.9rem;">kg</span></h4>
-                        <p>CO2 Sparet</p>
+                        <h4><span id="pub-co2">0</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></h4>
+                        <p>CO2 (kg)</p>
                     </div>
                 </div>
+
+                <div class="badges-container" id="pub-badges">
+                    </div>
+
+                <button class="btn-text" onclick="showReportDialog()" style="width: 100%; justify-content: center; color: #94A3B8; margin-top: 1rem;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> 
+                    Anmeld profil
+                </button>
             </div>
 
             <div class="card detail-card">
                 
-                <div id="bio-section">
-                    <h3>Om mig</h3>
-                    <div class="bio-text" id="pub-bio">Denne bruger har ikke skrevet en beskrivelse endnu.</div>
-                </div>
-
-                <div id="car-section" style="display: none;">
-                    <h3>Min bil</h3>
-                    <div class="car-box">
-                        <div class="car-icon">🚗</div>
-                        <div class="car-details">
-                            <h4 id="pub-car-name">Bilmærke</h4>
-                            <p id="pub-car-color">Farve • Årgang</p>
-                        </div>
+                <div id="gomore-badge" class="gomore-badge" style="display: none;">
+                    <div class="icon-box">😊</div>
+                    <div>
+                        <h4>Verificeret samkørselshistorik</h4>
+                        <p id="gomore-text">... tidligere ture • Gns. ... stjerner</p>
                     </div>
                 </div>
 
-            </div>
+                <div id="bio-section" style="margin-bottom: 2.5rem;">
+                    <h3>Om mig</h3>
+                    <div class="bio-text" id="pub-bio" style="margin-bottom: 0;">Brugeren har ikke skrevet en beskrivelse.</div>
+                </div>
 
+                <div class="rating-header">
+                    <h3>Anmeldelser</h3>
+                    <button class="btn-text" id="btn-write-review" style="display: none;" onclick="openReviewModal()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                        Skriv anmeldelse
+                    </button>
+                    <span id="txt-has-reviewed" style="display: none; color: #10B981; font-weight: 700; font-size: 0.9rem;">✓ Du har anmeldt</span>
+                </div>
+
+                <div class="rating-grid">
+                    <div class="rating-bars" id="ui-rating-bars">
+                        </div>
+                    <div class="rating-score">
+                        <div class="score-big" id="ui-avg-score">0.0</div>
+                        <div class="score-stars" id="ui-avg-stars">★★★★★</div>
+                        <div class="score-total" id="ui-total-reviews">0 anmeldelser</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <button id="btn-clear-filter" class="btn-text" style="display:none; color: #64748B; font-weight: 600;" onclick="setFilter(null)">× Fjern filter</button>
+                </div>
+
+                <div id="reviews-list">
+                    </div>
+                
+                <button id="btn-show-all" class="btn-text" style="display:none; width: 100%; justify-content: center; margin-top: 1rem; padding: 1rem; background: #F8FAFC; border-radius: 12px;" onclick="showAllReviews()">
+                    Se alle anmeldelser
+                </button>
+
+            </div>
         </div>
     </main>
 
     <hoppon-footer></hoppon-footer>
 
+    <div class="modal-overlay" id="reviewModal">
+        <div class="modal-box">
+            <h2 class="modal-title">Hvordan var turen?</h2>
+            <p class="modal-text">Giv en vurdering af din oplevelse.</p>
+            
+            <div class="star-rating-input" id="modal-stars">
+                <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span><span data-val="4">★</span><span data-val="5">★</span>
+            </div>
+            
+            <textarea id="modal-comment" rows="3" placeholder="Kommentar (valgfri)... f.eks. God kørestil, kom til tiden"></textarea>
+            
+            <div class="modal-actions">
+                <button class="btn-outline" onclick="closeModal()">Annuller</button>
+                <button class="btn-submit" onclick="submitReview()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="reportModal">
+        <div class="modal-box">
+            <h2 class="modal-title">Anmeld bruger</h2>
+            <p class="modal-text">Er du sikker på, at du vil anmelde denne profil for upassende adfærd?</p>
+            <div class="modal-actions">
+                <button class="btn-outline" onclick="document.getElementById('reportModal').style.display='none'">Annuller</button>
+                <button class="btn-submit" style="background: #EF4444;" onclick="submitReport()">Anmeld</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        let currentUserId = null;
+        let targetId = null;
+        
+        let allReviews = [];
+        let ratingDist = {5:0, 4:0, 3:0, 2:0, 1:0};
+        let avgRating = 0.0;
+        
+        let selectedFilter = null;
+        let isShowingAll = false;
+        let selectedInputStars = 5;
+
+        const months = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+
         window.onload = async () => {
             if (typeof _supabase === 'undefined') return showError();
 
-            // Hent 'id' parameteren fra URL'en
             const urlParams = new URLSearchParams(window.location.search);
-            const targetId = urlParams.get('id');
+            targetId = urlParams.get('id');
+            if (!targetId) return showError();
 
-            if (!targetId) {
-                showError();
-                return;
-            }
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) currentUserId = session.user.id;
 
+            await loadData();
+        };
+
+        async function loadData() {
             try {
-                // Hent offentlig profil data
-                const { data: profile, error } = await _supabase
-                    .from('profiles')
-                    .select('full_name, avatar_url, bio, gender, manual_ride_count, co2_saved_kg, is_driver, car_details, is_verified_mitid, phone_verified')
-                    .eq('id', targetId)
-                    .single();
-
+                // 1. Profil Data
+                const { data: profile, error } = await _supabase.from('profiles').select('*').eq('id', targetId).single();
                 if (error || !profile) throw error;
 
-                // GEM LOADING
+                // 2. Ture
+                const { count: driverRides } = await _supabase.from('rides').select('*', { count: 'exact', head: true }).eq('driver_id', targetId).eq('status', 'completed');
+                const { count: paxRides } = await _supabase.from('bookings').select('*', { count: 'exact', head: true }).eq('passenger_id', targetId).eq('status', 'approved');
+                const totalRides = (driverRides || 0) + (paxRides || 0);
+
+                // 3. Reviews
+                const { data: reviews } = await _supabase.from('reviews').select('*, profiles:reviewer_id(full_name, avatar_url)').eq('reviewee_id', targetId).order('created_at', { ascending: false });
+                allReviews = reviews || [];
+
+                // 4. Beregn Statistik
+                let sum = 0;
+                let alreadyReviewed = false;
+                ratingDist = {5:0, 4:0, 3:0, 2:0, 1:0};
+
+                allReviews.forEach(r => {
+                    sum += r.rating;
+                    ratingDist[r.rating]++;
+                    if(currentUserId && r.reviewer_id === currentUserId) alreadyReviewed = true;
+                });
+
+                avgRating = allReviews.length > 0 ? (sum / allReviews.length) : 0.0;
+
+                // 5. Kan jeg anmelde? (Har vi kørt sammen?)
+                let canReview = false;
+                if(currentUserId && currentUserId !== targetId && !alreadyReviewed) {
+                    const { data: shared } = await _supabase.from('bookings').select('id, rides!inner(driver_id)').eq('passenger_id', currentUserId).eq('status', 'approved').eq('rides.driver_id', targetId).limit(1);
+                    if(shared && shared.length > 0) canReview = true;
+                }
+
+                // ==========================================
+                // UDFYLD UI
+                // ==========================================
                 document.getElementById('loading-state').style.display = 'none';
                 document.getElementById('profile-content').style.display = 'grid';
 
-                // UDFYLD DATA
-                document.getElementById('pub-name').innerText = profile.full_name || 'Ukendt Bruger';
-                document.getElementById('pub-gender').innerText = profile.gender || 'Andet';
+                // Basis Info
+                document.getElementById('pub-name').innerText = profile.full_name || 'Ukendt';
+                document.getElementById('pub-rides').innerText = totalRides;
+                document.getElementById('pub-co2').innerText = profile.co2_saved_kg || '0';
+                
+                let locationText = profile.gender || 'Andet';
+                if(profile.address) locationText += ` • ${profile.address.split(',').pop().trim()}`;
+                let memberYear = profile.created_at ? new Date(profile.created_at).getFullYear() : '2026';
+                locationText += ` • Medlem siden ${memberYear}`;
+                document.getElementById('pub-meta').innerText = locationText;
 
                 if (profile.avatar_url) {
                     document.getElementById('pub-avatar').src = profile.avatar_url;
@@ -158,38 +315,190 @@
                     document.getElementById('pub-avatar-placeholder').style.display = 'none';
                 }
 
-                document.getElementById('pub-rides').innerText = profile.manual_ride_count || '0';
-                document.getElementById('pub-co2').innerText = profile.co2_saved_kg || '0';
-
                 if (profile.bio) {
                     document.getElementById('pub-bio').innerText = profile.bio;
                 }
 
-                // BADGES
+                // Badges
                 let badges = '';
-                if (profile.is_verified_mitid) badges += '<div class="badge-verified"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> MitID Verificeret</div>';
-                if (profile.phone_verified) badges += '<div class="badge-verified"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> Telefon Verificeret</div>';
+                if (profile.is_verified_mitid) badges += '<div class="badge-verified"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> MitID Verificeret</div>';
+                if (profile.phone_verified) badges += '<div class="badge-verified"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> Telefon Verificeret</div>';
                 document.getElementById('pub-badges').innerHTML = badges;
 
-                // BIL INFO
-                if (profile.is_driver && profile.car_details) {
-                    try {
-                        const car = JSON.parse(profile.car_details);
-                        document.getElementById('pub-car-name').innerText = car.display_name || `${car.make} ${car.model}`;
-                        document.getElementById('pub-car-color').innerText = `${car.color || ''} • Årgang ${car.year || ''}`;
-                        document.getElementById('car-section').style.display = 'block';
-                    } catch(e) {}
+                // GoMore Manuel Badge
+                if (profile.manual_ride_count != null && profile.manual_rating != null) {
+                    document.getElementById('gomore-text').innerText = `${profile.manual_ride_count}+ verificerede ture • Gns. ${parseFloat(profile.manual_rating).toFixed(1)} stjerner`;
+                    document.getElementById('gomore-badge').style.display = 'flex';
                 }
 
+                // Anmeld Knapper
+                if(canReview) document.getElementById('btn-write-review').style.display = 'flex';
+                if(alreadyReviewed) document.getElementById('txt-has-reviewed').style.display = 'inline-block';
+
+                // Ratings UI
+                document.getElementById('ui-avg-score').innerText = avgRating > 0 ? avgRating.toFixed(1) : "Ny";
+                document.getElementById('ui-avg-stars').innerText = getStarsHTML(Math.round(avgRating));
+                document.getElementById('ui-total-reviews').innerText = `${allReviews.length} anmeldelser`;
+
+                renderRatingBars();
+                renderReviews();
+
             } catch (err) {
-                console.error("Fejl ved indlæsning af profil:", err);
+                console.error(err);
                 showError();
             }
-        };
+        }
+
+        // ==========================================
+        // UI & FILTER LOGIK
+        // ==========================================
+        function getStarsHTML(num) {
+            let s = '';
+            for(let i=0; i<5; i++) { s += (i<num) ? '★' : '☆'; }
+            return s;
+        }
+
+        function setFilter(star) {
+            selectedFilter = selectedFilter === star ? null : star; // Toggle
+            isShowingAll = false;
+            document.getElementById('btn-clear-filter').style.display = selectedFilter ? 'flex' : 'none';
+            renderRatingBars();
+            renderReviews();
+        }
+
+        function showAllReviews() {
+            isShowingAll = true;
+            renderReviews();
+        }
+
+        function renderRatingBars() {
+            const container = document.getElementById('ui-rating-bars');
+            let html = '';
+            const total = allReviews.length;
+
+            [5,4,3,2,1].forEach(star => {
+                const count = ratingDist[star];
+                const pct = total === 0 ? 0 : (count / total) * 100;
+                
+                const isSelected = selectedFilter === star;
+                const isFaded = selectedFilter !== null && !isSelected;
+                
+                let cls = 'rating-bar-row';
+                if(isSelected) cls += ' selected';
+                if(isFaded) cls += ' faded';
+
+                html += `
+                    <div class="${cls}" onclick="setFilter(${star})">
+                        <div class="rating-num">${star}</div>
+                        <div class="bar-bg"><div class="bar-fill" style="width: ${pct}%"></div></div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderReviews() {
+            const container = document.getElementById('reviews-list');
+            const btnShowAll = document.getElementById('btn-show-all');
+            
+            let filtered = allReviews;
+            if(selectedFilter) {
+                filtered = allReviews.filter(r => r.rating === selectedFilter);
+            }
+
+            let toShow = filtered;
+            if(!isShowingAll && selectedFilter === null && filtered.length > 3) {
+                toShow = filtered.slice(0,3);
+                btnShowAll.style.display = 'flex';
+                btnShowAll.innerText = `Se alle ${allReviews.length} anmeldelser`;
+            } else {
+                btnShowAll.style.display = 'none';
+            }
+
+            if(toShow.length === 0) {
+                container.innerHTML = `<div class="empty-state">Ingen anmeldelser endnu.</div>`;
+                return;
+            }
+
+            let html = '';
+            toShow.forEach(r => {
+                const d = new Date(r.created_at);
+                const dateStr = `${months[d.getMonth()]} ${d.getFullYear()}`;
+                const name = r.profiles?.full_name || 'Bruger';
+                const avatar = r.profiles?.avatar_url;
+
+                html += `
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="reviewer-info">
+                                <div class="reviewer-avatar">
+                                    ${avatar ? `<img src="${avatar}" style="width:100%; height:100%; object-fit:cover;">` : '👤'}
+                                </div>
+                                <div>
+                                    <div class="reviewer-name">${name}</div>
+                                    <div class="review-date">${dateStr}</div>
+                                </div>
+                            </div>
+                            <div class="review-stars">${getStarsHTML(r.rating)}</div>
+                        </div>
+                        <p class="review-comment">${r.comment || ''}</p>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
 
         function showError() {
             document.getElementById('loading-state').style.display = 'none';
             document.getElementById('error-state').style.display = 'block';
+        }
+
+        // ==========================================
+        // MODALS (Anmeld & Rapport)
+        // ==========================================
+        function openReviewModal() {
+            selectedInputStars = 5;
+            updateModalStars();
+            document.getElementById('modal-comment').value = '';
+            document.getElementById('reviewModal').style.display = 'flex';
+        }
+        function closeModal() { document.getElementById('reviewModal').style.display = 'none'; }
+
+        // Star interaction i Modal
+        const starSpans = document.querySelectorAll('#modal-stars span');
+        starSpans.forEach(span => {
+            span.addEventListener('click', (e) => {
+                selectedInputStars = parseInt(e.target.getAttribute('data-val'));
+                updateModalStars();
+            });
+        });
+        function updateModalStars() {
+            starSpans.forEach(span => {
+                const val = parseInt(span.getAttribute('data-val'));
+                span.innerText = val <= selectedInputStars ? '★' : '☆';
+                if(val <= selectedInputStars) span.classList.add('active'); else span.classList.remove('active');
+            });
+        }
+
+        async function submitReview() {
+            const comment = document.getElementById('modal-comment').value.trim();
+            closeModal();
+            try {
+                await _supabase.from('reviews').insert({
+                    reviewer_id: currentUserId,
+                    reviewee_id: targetId,
+                    rating: selectedInputStars,
+                    comment: comment
+                });
+                alert("Tak for din anmeldelse!");
+                loadData(); // Genindlæs siden
+            } catch(e) { alert("Kunne ikke sende anmeldelse."); }
+        }
+
+        function showReportDialog() { document.getElementById('reportModal').style.display = 'flex'; }
+        function submitReport() {
+            document.getElementById('reportModal').style.display = 'none';
+            alert("Tak. Vi kigger på sagen.");
         }
     </script>
 </body>
