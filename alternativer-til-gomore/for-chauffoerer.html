@@ -67,30 +67,19 @@
         .feature-card h3 { font-size: 1.3rem; font-weight: 800; margin: 0 0 1rem 0; color: var(--brand); letter-spacing: -0.5px;}
         .feature-card p { font-size: 1rem; color: var(--text-muted); line-height: 1.6; margin: 0;}
 
-        /* TESTIMONIAL / TRUST SECTION */
-        .trust-section { max-width: 900px; margin: 0 auto 5rem; padding: 3rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%); border-radius: 24px; border: 1px solid var(--border); text-align: center;}
-        .trust-section h2 { font-size: 2rem; font-weight: 900; margin: 0 0 1rem; color: var(--brand); letter-spacing: -0.5px;}
-        .trust-section p { font-size: 1.1rem; color: var(--text-main); line-height: 1.7; max-width: 700px; margin: 0 auto;}
-        
-        .check-list { list-style: none; padding: 0; margin: 2rem auto 0; max-width: 500px; text-align: left;}
-        .check-list li { margin-bottom: 1rem; display: flex; gap: 12px; font-weight: 600; color: var(--brand); align-items: center; font-size: 1.05rem;}
-        .check-icon { color: var(--success); font-size: 1.3rem; font-weight: 900;}
-
-        /* TRUST SECTION OPGRADERING */
+        /* --- TRUST SECTION NYT RENT DESIGN --- */
         .trust-section {
             max-width: 900px;
             margin: 0 auto 5rem;
-            padding: 4rem 2rem;
-            background: white; /* Rent look */
-            border-radius: 32px;
-            border: 1px solid var(--border);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+            padding: 0 1.5rem; /* Fjernet hvid baggrund og kant fra yderste boks */
         }
         
         .trust-section h2 {
             text-align: center;
             font-size: 2.2rem;
             margin-bottom: 1rem;
+            color: var(--brand);
+            letter-spacing: -0.5px;
         }
         
         .trust-subtitle {
@@ -100,46 +89,56 @@
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
+            font-size: 1.1rem;
+            line-height: 1.6;
         }
         
         .trust-grid {
             display: flex;
             flex-direction: column;
-            gap: 2rem;
+            gap: 1.5rem;
         }
         
         .trust-item {
             display: flex;
             gap: 1.5rem;
-            align-items: flex-start; /* Ikon flugter med toppen */
-            padding: 1.5rem;
-            background: var(--bg-color);
-            border-radius: 20px;
+            align-items: center; /* Ikonet centreres pænt med teksten */
+            padding: 2rem;
+            background: #F8FAFC; /* Den flotte bløde grå baggrund */
+            border-radius: 24px; /* Runde hjørner */
             transition: 0.2s;
+            border: none;
         }
         
         .trust-item:hover {
-            transform: scale(1.01);
-            background: #f1f5f9;
+            transform: translateY(-2px);
+            background: #F1F5F9;
         }
         
         .check-wrapper {
-            width: 32px;
-            height: 32px;
-            background: var(--success);
+            width: 45px;
+            height: 45px;
+            background: #4ADE80; /* En blød, moderne grøn */
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0; /* Undgår at cirklen bliver mast */
-            margin-top: 4px;
-            font-weight: 900;
+            flex-shrink: 0; 
+        }
+
+        .check-wrapper svg {
+            width: 24px;
+            height: 24px;
         }
         
-        .trust-content strong {
+        .trust-content {
+            text-align: left; /* Venstrestillet tekst er lettere at læse */
+        }
+
+        .trust-item-title {
             display: block;
-            font-size: 1.15rem;
+            font-size: 1.25rem;
             margin-bottom: 0.5rem;
             color: var(--brand);
             font-weight: 800;
@@ -149,18 +148,13 @@
             margin: 0;
             line-height: 1.6;
             color: var(--text-main);
-            font-size: 1rem;
+            font-size: 1.05rem;
         }
-        
-        /* Mobil-tilpasning */
-        @media (max-width: 600px) {
-            .trust-section {
-                padding: 2rem 1.5rem;
-                border-radius: 24px;
-            }
-            .trust-item {
-                padding: 1.2rem;
-            }
+
+        .trust-content strong {
+            color: var(--brand);
+            font-weight: 800;
+            /* Ingen "display: block" her! */
         }
         
         /* FAQ */
@@ -177,7 +171,7 @@
             .features-container { grid-template-columns: 1fr; gap: 1.5rem; }
             .hero { padding: 4rem 1.5rem 8rem 1.5rem; }
             .hero h1 { font-size: 2.5rem; }
-            .trust-section { padding: 2rem 1.5rem; }
+            .trust-item { padding: 1.5rem; flex-direction: column; align-items: flex-start; gap: 1rem;}
         }
     </style>
 </head>
@@ -242,35 +236,37 @@
             <p class="trust-subtitle">Vi ved, at det kan føles usikkert at skifte platform. Derfor har vi bygget HoppOn med de højeste sikkerhedsstandarder.</p>
             
             <div class="trust-grid">
+                
                 <div class="trust-item">
                     <div class="check-wrapper">
-                        <span class="check-icon">✓</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     </div>
                     <div class="trust-content">
-                        <strong>Sikret betaling</strong>
+                        <span class="trust-item-title">Sikret betaling</span>
                         <p>Pengene reserveres altid på passagerens kort, før de sætter sig ind. Du er garanteret din betaling, så snart turen er slut.</p>
                     </div>
                 </div>
         
                 <div class="trust-item">
                     <div class="check-wrapper">
-                        <span class="check-icon">✓</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     </div>
                     <div class="trust-content">
-                        <strong>Anmeldelsessystem</strong>
+                        <span class="trust-item-title">Anmeldelsessystem</span>
                         <p>Ingen blinde passagerer. Du kan læse bedømmelser og se tidligere kørselshistorik på alle brugere, før du godkender dem.</p>
                     </div>
                 </div>
         
                 <div class="trust-item">
                     <div class="check-wrapper">
-                        <span class="check-icon">✓</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     </div>
                     <div class="trust-content">
-                        <strong>Beskyttelse ved aflysning</strong>
+                        <span class="trust-item-title">Beskyttelse ved aflysning</span>
                         <p>Vi dækker dit tab ved sene afbud: Du får <strong>50% af prisen</strong>, hvis passageren aflyser mellem 24 og 3 timer før afgang, og <strong>100% udbetalt</strong>, hvis de aflyser under 3 timer før start.</p>
                     </div>
                 </div>
+
             </div>
         </section>
 
