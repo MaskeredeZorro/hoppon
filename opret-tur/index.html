@@ -497,7 +497,10 @@
                 document.getElementById('rideTimeHour').value = hours;
                 document.getElementById('rideTimeMin').value = minutes;
                 
-                const todayStr = now.toISOString().split('T')[0];
+                const todayYear = now.getFullYear();
+                const todayMonth = String(now.getMonth() + 1).padStart(2, '0');
+                const todayDay = String(now.getDate()).padStart(2, '0');
+                const todayStr = `${todayYear}-${todayMonth}-${todayDay}`;
                 selectedDates.push(todayStr);
                 generateCalendar();
                 updateTimes();
@@ -587,7 +590,10 @@
                 const d = new Date(today);
                 d.setDate(today.getDate() + i);
                 
-                const dateStr = d.toISOString().split('T')[0]; 
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                const dateStr = `${year}-${month}-${day}`; 
                 const dayName = d.toLocaleDateString('da-DK', {weekday: 'short'}).replace('.', '');
                 const dayNum = d.getDate();
                 const monthName = d.toLocaleDateString('da-DK', {month: 'short'}).replace('.', '');
@@ -981,22 +987,31 @@
             const arrTimeStr = getArrivalTimeStr();
 
             const payloadsToInsert = selectedDates.map(dateStr => {
-                const depDateTimeString = `${dateStr}T${depTimeStr}:00Z`;
+                // 1. Split den lokale dato og tid
+                const [year, month, day] = dateStr.split('-').map(Number);
                 const [depH, depM] = depTimeStr.split(':').map(Number);
                 const [arrH, arrM] = arrTimeStr.split(':').map(Number);
                 
-                const arrDateObj = new Date(depDateTimeString);
-                if (arrH < depH || (arrH === depH && arrM < depM)) { arrDateObj.setDate(arrDateObj.getDate() + 1); }
-                arrDateObj.setUTCHours(arrH, arrM, 0, 0);
-
+                // 2. Opret Date-objekter i LOKAL dansk tid
+                const depDateObj = new Date(year, month - 1, day, depH, depM, 0);
+                const arrDateObj = new Date(year, month - 1, day, arrH, arrM, 0);
+            
+                // 3. Hvis ankomst er før afgang, betyder det at vi ankommer efter midnat (næste dag)
+                if (arrDateObj <= depDateObj) { 
+                    arrDateObj.setDate(arrDateObj.getDate() + 1); 
+                }
+            
                 return {
                     driver_id: currentUser.id,
                     origin_city: document.getElementById('originInput').value,
                     destination_city: document.getElementById('destInput').value,
                     origin_location: `POINT(${originCoords.lng} ${originCoords.lat})`,
                     destination_location: `POINT(${destCoords.lng} ${destCoords.lat})`,
-                    departure_time: new Date(depDateTimeString).toISOString(),
+                    
+                    // 4. Nu bruger vi .toISOString() - JS trækker SELV timerne fra til UTC!
+                    departure_time: depDateObj.toISOString(),
                     arrival_time: arrDateObj.toISOString(),
+                    
                     seats_available: parseInt(document.getElementById('seatsInput').value),
                     price_dkk: currentPrice,
                     car_model: currentUserCarDetails, 
