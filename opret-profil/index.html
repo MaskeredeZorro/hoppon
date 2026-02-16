@@ -6,6 +6,8 @@
     <title>Opret Profil | HoppOn</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="/style.css">
@@ -173,13 +175,50 @@
     <script>
         // Bemærk: _supabase defineres nu automatisk fra din /supabase.js fil i toppen!
 
-        function previewAvatar() {
-            const file = document.getElementById('avatarFile').files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = e => document.getElementById('previewImg').src = e.target.result;
-                reader.readAsDataURL(file);
+        // Vi opretter en variabel til at gemme det færdige billede
+        let processedAvatarFile = null;
+
+        async function previewAvatar() {
+            let file = document.getElementById('avatarFile').files[0];
+            if (!file) return;
+
+            // Tjek om det er et iPhone HEIC billede
+            if (file.type === "image/heic" || file.name.toLowerCase().endsWith(".heic")) {
+                // Skift teksten midlertidigt, så brugeren ved vi arbejder
+                document.querySelector('.avatar-section span').innerText = "Konverterer billede... ⏳";
+                document.querySelector('.avatar-section span').style.color = "var(--text-muted)";
+                
+                try {
+                    const convertedBlob = await heic2any({
+                        blob: file,
+                        toType: "image/jpeg",
+                        quality: 0.8
+                    });
+                    
+                    // Lav det om til en ny .jpg fil
+                    file = new File([convertedBlob], file.name.replace(/\.heic$/i, ".jpg"), {
+                        type: "image/jpeg"
+                    });
+                } catch (err) {
+                    console.error("Kunne ikke konvertere billedet:", err);
+                    alert("Der skete en fejl med billedet. Prøv et andet format.");
+                    document.querySelector('.avatar-section span').innerText = "Upload profilbillede *";
+                    document.querySelector('.avatar-section span').style.color = "var(--accent)";
+                    return;
+                }
             }
+
+            // Gem den færdige fil i vores variabel
+            processedAvatarFile = file;
+
+            // Vis billedet i den runde preview boks
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('previewImg').src = e.target.result;
+                document.querySelector('.avatar-section span').innerText = "Billede valgt ✔️";
+                document.querySelector('.avatar-section span').style.color = "var(--success)";
+            };
+            reader.readAsDataURL(file);
         }
 
         function toggleDriver() {
@@ -233,7 +272,9 @@
             const isDriver = document.getElementById('isDriver').checked;
             const phone = document.getElementById('regPhone').value.trim();
             const plate = document.getElementById('plateInput').value.trim();
-            const avatarFile = document.getElementById('avatarFile').files[0];
+            
+            // HER SKER MAGIEN: Vi bruger processedAvatarFile i stedet for filen fra input-feltet
+            const avatarFile = processedAvatarFile;
 
             if (!email || !pass || !name || !avatarFile) {
                 alert("Husk at udfylde navn, email, password og vælge et billede.");
