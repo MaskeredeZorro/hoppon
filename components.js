@@ -54,7 +54,7 @@ class HoppOnHeader extends HTMLElement {
                         <a href="/opret-tur/">Udbyd tur</a>
                         <a href="/support/">Support</a>
                         <a href="/alternativer-til-gomore/for-passagerer">For passagerer</a>
-                        <a href="alternativer-til-gomore/for-chauffoerer">For chauffører</a>
+                        <a href="/alternativer-til-gomore/for-chauffoerer">For chauffører</a>
                     </nav>
                     <div class="auth-buttons">
                         ${authButtons}
@@ -82,7 +82,7 @@ class HoppOnFooter extends HTMLElement {
                         <a href="/lift/">Søg efter et lift</a>
                         <a href="/opret-tur/">Tilbyd et lift</a>
                         <a href="/alternativer-til-gomore/for-passagerer">For passagerer</a>
-                        <a href="alternativer-til-gomore/for-chauffoerer">For chauffører</a>
+                        <a href="/alternativer-til-gomore/for-chauffoerer">For chauffører</a>
                     </div>
 
                     <div class="footer-links">
