@@ -27,22 +27,40 @@
         .profile-name { font-size: 1.5rem; font-weight: 800; color: var(--brand); margin-bottom: 0.2rem; }
         .profile-phone { color: var(--text-muted); font-size: 0.95rem; font-weight: 500; }
         .badge-verified { display: inline-flex; align-items: center; gap: 5px; background: #DCFCE7; color: #166534; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-top: 10px; }
+        
         .sidebar-section { border-top: 1px solid #F1F5F9; padding-top: 1.5rem; margin-top: 1.5rem; }
         .sidebar-section h4 { font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 1rem; }
+        
+        /* BALANCE & PAYOUT */
         .balance-box { background: var(--brand); color: white; padding: 1.5rem; border-radius: 16px; text-align: center; }
         .balance-amount { font-size: 2rem; font-weight: 900; margin: 5px 0; }
-        .pending-amount { font-size: 0.85rem; color: #94A3B8; }
+        .pending-amount { font-size: 0.85rem; color: #94A3B8; margin-bottom: 15px; }
+        
+        .btn-payout { 
+            width: 100%; 
+            background: white; 
+            color: var(--brand); 
+            border: none; 
+            padding: 10px; 
+            border-radius: 10px; 
+            font-weight: 800; 
+            cursor: pointer; 
+            transition: 0.2s;
+            font-size: 0.9rem;
+        }
+        .btn-payout:hover { background: #f1f5f9; transform: translateY(-1px); }
+        .btn-payout:disabled { background: rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); cursor: not-allowed; transform: none; }
+
         .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: 500; color: var(--brand); }
         .stat-value { font-weight: 800; color: var(--accent); }
 
-        /* TABS (Hoved) */
+        /* TABS */
         .tabs { display: flex; gap: 0.5rem; background: white; padding: 0.5rem; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid var(--border); overflow-x: auto;}
         .tab-btn { flex: 1; padding: 12px 15px; border: none; background: transparent; font-weight: 700; font-size: 0.95rem; color: var(--text-muted); cursor: pointer; border-radius: 12px; transition: 0.2s; white-space: nowrap;}
         .tab-btn.active { background: var(--brand); color: white; }
         .tab-content { display: none; animation: fadeIn 0.3s ease; margin-top: 1.5rem;}
         .tab-content.active { display: block; }
 
-        /* SUB-TABS (Ture: Jeg kører / Jeg rejser) */
         .sub-tabs { display: flex; background: #F1F5F9; border-radius: 25px; padding: 4px; margin-bottom: 1.5rem; }
         .sub-tab-btn { flex: 1; text-align: center; padding: 10px; border-radius: 25px; font-weight: 700; font-size: 0.95rem; cursor: pointer; color: #64748B; transition: 0.2s; border: none; background: transparent; }
         .sub-tab-btn.active { background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
@@ -62,7 +80,7 @@
         .btn-submit { background: var(--accent); color: white; width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: 0.2s; }
         .btn-submit:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(99,102,241,0.2); }
         
-        /* RIDE CARDS (Oversat fra Flutter) */
+        /* RIDE CARDS */
         .ride-card { background: white; border: 1px solid var(--border); border-radius: 16px; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.02); overflow: hidden; }
         .ride-header { padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .ride-header:hover { background: #F8FAFC; }
@@ -70,7 +88,6 @@
         .ride-meta { color: var(--text-muted); font-size: 0.95rem; font-weight: 500; }
         .ride-price { font-size: 1.3rem; font-weight: 900; color: var(--brand); }
         
-        /* TIMELINE */
         .ride-details { display: none; border-top: 1px solid #F1F5F9; padding: 1.5rem; }
         .timeline { margin-bottom: 1.5rem; }
         .timeline-row { display: flex; gap: 15px; margin-bottom: 15px; }
@@ -81,7 +98,6 @@
         .line { width: 2px; flex: 1; background: #E2E8F0; margin: 4px 0; min-height: 20px;}
         .city-col { font-weight: 600; color: var(--brand); flex: 1; padding-bottom: 10px; }
         
-        /* PASSENGERS */
         .passenger-list { margin-top: 1.5rem; }
         .passenger-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #F1F5F9; }
         .passenger-info { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--brand); }
@@ -91,7 +107,6 @@
         .btn-icon.red { color: #991B1B; background: #FEE2E2; }
         .btn-icon.blue { color: #1E40AF; background: #DBEAFE; }
 
-        /* RIDE BUTTONS */
         .action-bar { display: flex; gap: 10px; margin-top: 1.5rem; }
         .btn-outline { flex: 1; border: 1px solid var(--border); background: white; padding: 12px; border-radius: 12px; font-weight: 700; color: var(--brand); cursor: pointer; transition: 0.2s;}
         .btn-outline:hover { background: #F8FAFC; }
@@ -99,7 +114,6 @@
         .btn-action-main:disabled { background: #E2E8F0; color: #94A3B8; cursor: not-allowed; }
         .btn-danger { color: #EF4444; border-color: #FECACA; background: #FEF2F2; }
 
-        /* MODAL */
         .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
         .modal-box { background: white; padding: 2rem; border-radius: 24px; width: 90%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); text-align: center; }
         .modal-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; }
@@ -134,11 +148,14 @@
                     <div class="profile-phone" id="ui-phone">--</div>
                     <div id="ui-badges"></div>
                 </div>
+
                 <div class="balance-box">
                     <p>Tilgængelig saldo</p>
                     <div class="balance-amount"><span id="ui-balance">0.00</span> kr.</div>
-                    <div class="pending-amount">Afventer udbetaling: <span id="ui-pending">0.00</span> kr.</div>
+                    <div class="pending-amount">Afventer: <span id="ui-pending">0.00</span> kr.</div>
+                    <button class="btn-payout" id="ui-payout-btn" disabled onclick="payoutFunds()">Udbetal</button>
                 </div>
+
                 <div class="sidebar-section">
                     <h4>Kørsel & Statistik</h4>
                     <div class="stat-row"><span>Kørte ture</span><span class="stat-value" id="ui-rides">0</span></div>
@@ -147,7 +164,6 @@
             </aside>
 
             <div class="content-area">
-                
                 <div class="tabs">
                     <button class="tab-btn active" onclick="switchMainTab('tab-ture', this)">Dine Ture</button>
                     <button class="tab-btn" onclick="switchMainTab('tab-profil', this)">Indstillinger</button>
@@ -160,13 +176,11 @@
                             <button class="sub-tab-btn active" onclick="switchSubTab('sub-driver', this)">🚗 Jeg kører</button>
                             <button class="sub-tab-btn" onclick="switchSubTab('sub-passenger', this)">🎒 Jeg rejser</button>
                         </div>
-
                         <div id="sub-driver" class="sub-tab-content active">
                             <div id="driver-rides-list">
                                 <div style="text-align: center; padding: 2rem; color: var(--text-muted);">Henter ture...</div>
                             </div>
                         </div>
-
                         <div id="sub-passenger" class="sub-tab-content">
                             <div id="passenger-rides-list">
                                 <div style="text-align: center; padding: 2rem; color: var(--text-muted);">Henter rejser...</div>
@@ -213,18 +227,14 @@
                                 <div class="form-group"><label>Fødselsdato</label><input type="date" id="dob" required></div>
                                 <div class="form-group"><label>Land</label><select id="country"><option value="Danmark">Danmark</option></select></div>
                             </div>
-                            
                             <div class="form-group">
                                 <label>Hjemstedsadresse</label>
                                 <input type="text" id="address" required placeholder="Begynd at skrive for at søge..." oninput="searchAddress(this.value)" autocomplete="off">
                                 <div id="address-suggestions" class="suggestions-box"></div>
                                 <div class="helper-text">Din folkeregisteradresse (Påkrævet jf. Hvidvaskloven)</div>
                             </div>
-                            
                             <div class="form-group"><label>Etage, dør (valgfri)</label><input type="text" id="floorDoor" placeholder="f.eks. st. tv"></div>
-                            
                             <hr style="margin: 2rem 0;">
-                            
                             <div class="form-group">
                                 <label>CPR-nummer</label>
                                 <input type="text" id="cpr" required maxlength="10" placeholder="DDMMÅÅXXXX">
@@ -234,7 +244,6 @@
                                 <label>Bank IBAN-nummer</label>
                                 <input type="text" id="iban" required placeholder="DK00..." style="text-transform: uppercase;">
                             </div>
-                            
                             <div id="formMessage" style="text-align: center; display: none; margin-bottom: 15px; font-weight: 600;"></div>
                             <button type="submit" class="btn-submit" id="submitBtn">Gem & Krypter Oplysninger</button>
                         </form>
@@ -260,8 +269,8 @@
         let currentUser = null;
         let isCprLocked = false;
         let activeDriverRides = [];
+        let currentBalance = 0;
 
-        // INIT
         window.onload = async () => {
             if (typeof _supabase === 'undefined') return;
             const { data: { session } } = await _supabase.auth.getSession();
@@ -270,11 +279,82 @@
             
             await loadProfileData();
             await loadTaxData();
+            await checkStripeStatus();
             await fetchDriverRides();
             await fetchPassengerRides();
         };
 
-        // UI TABS
+        async function loadProfileData() {
+            try {
+                const { data: profile, error } = await _supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+                if (error) throw error;
+
+                document.getElementById('ui-name').innerText = profile.full_name || 'Bruger';
+                document.getElementById('ui-phone').innerText = profile.phone_number || 'Intet nummer';
+                if (profile.avatar_url) {
+                    document.getElementById('ui-avatar').src = profile.avatar_url;
+                    document.getElementById('ui-avatar').style.display = 'block';
+                    document.getElementById('ui-avatar-placeholder').style.display = 'none';
+                }
+                
+                currentBalance = profile.balance || 0;
+                document.getElementById('ui-balance').innerText = currentBalance.toFixed(2);
+                document.getElementById('ui-pending').innerText = (profile.pending_balance || 0).toFixed(2);
+                document.getElementById('ui-rides').innerText = profile.manual_ride_count || '0';
+                document.getElementById('ui-co2').innerText = profile.co2_saved_kg || '0';
+
+                document.getElementById('prof-fullname').value = profile.full_name || "";
+                document.getElementById('prof-phone').value = profile.phone_number || "";
+                document.getElementById('prof-gender').value = profile.gender || "Andet";
+                document.getElementById('prof-bio').value = profile.bio || "";
+            } catch (err) { console.error("Fejl ved load af profil:", err); }
+        }
+
+        async function checkStripeStatus() {
+            const { data } = await _supabase.from('user_stripe_data').select('onboarding_completed').eq('user_id', currentUser.id).maybeSingle();
+            const isReady = data && data.onboarding_completed === true;
+            const payoutBtn = document.getElementById('ui-payout-btn');
+            
+            if (isReady && currentBalance > 0) {
+                payoutBtn.disabled = false;
+                payoutBtn.innerText = "Udbetal nu";
+            } else if (!isReady) {
+                payoutBtn.innerText = "DAC7 mangler";
+                payoutBtn.title = "Udfyld skatteoplysninger for at udbetale";
+            } else {
+                payoutBtn.innerText = "Ingen balance";
+            }
+        }
+
+        async function payoutFunds() {
+            if (currentBalance <= 0) return;
+            const btn = document.getElementById('ui-payout-btn');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "Overfører...";
+
+            try {
+                const { error } = await _supabase.functions.invoke('payout', {
+                    body: { id: currentUser.id, amount: currentBalance }
+                });
+                if (error) throw error;
+
+                await _supabase.from('profiles').update({ balance: 0 }).eq('id', currentUser.id);
+                await _supabase.from('transactions').insert({
+                    user_id: currentUser.id, amount: -currentBalance, type: 'payout',
+                    description: 'Udbetaling til bankkonto', status: 'completed'
+                });
+
+                alert("Pengene er på vej til din bankkonto! 💸");
+                loadProfileData();
+            } catch (e) {
+                alert("Fejl ved udbetaling: " + (e.message || "Prøv igen senere"));
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        }
+
+        // TABS OG UI LOGIK
         function switchMainTab(tabId, btn) {
             document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(e => e.classList.remove('active'));
@@ -303,34 +383,6 @@
             return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
         }
 
-        // ==========================================
-        // 1. DATA LOAD (Profil & DAC7)
-        // ==========================================
-        async function loadProfileData() {
-            try {
-                const { data: profile, error } = await _supabase.from('profiles').select('*').eq('id', currentUser.id).single();
-                if (error) throw error;
-
-                // Sidebar
-                document.getElementById('ui-name').innerText = profile.full_name || 'Bruger';
-                document.getElementById('ui-phone').innerText = profile.phone_number || 'Intet nummer';
-                if (profile.avatar_url) {
-                    document.getElementById('ui-avatar').src = profile.avatar_url;
-                    document.getElementById('ui-avatar').style.display = 'block';
-                    document.getElementById('ui-avatar-placeholder').style.display = 'none';
-                }
-                document.getElementById('ui-balance').innerText = profile.balance || '0.00';
-                document.getElementById('ui-rides').innerText = profile.manual_ride_count || '0';
-                document.getElementById('ui-co2').innerText = profile.co2_saved_kg || '0';
-
-                // Profil Indstillinger Tab
-                document.getElementById('prof-fullname').value = profile.full_name || "";
-                document.getElementById('prof-phone').value = profile.phone_number || "";
-                document.getElementById('prof-gender').value = profile.gender || "Andet";
-                document.getElementById('prof-bio').value = profile.bio || "";
-            } catch (err) { console.error("Fejl ved load af profil:", err); }
-        }
-
         async function loadTaxData() {
             try {
                 const { data: taxData } = await _supabase.from('tax_identities').select('*').eq('user_id', currentUser.id).maybeSingle();
@@ -340,7 +392,6 @@
                         document.getElementById('fName').value = names[0];
                         if (names.length > 1) document.getElementById('lName').value = names.slice(1).join(" ");
                     }
-                    
                     let fullAddress = taxData.address || "";
                     if (fullAddress.includes(",")) {
                         let parts = fullAddress.split(",");
@@ -349,7 +400,6 @@
                     } else {
                         document.getElementById('address').value = fullAddress;
                     }
-
                     document.getElementById('cpr').value = "**********"; 
                     document.getElementById('cpr').readOnly = true; 
                     isCprLocked = true;
@@ -357,15 +407,11 @@
             } catch (err) { console.error("Fejl ved load af tax:", err); }
         }
 
-        // ==========================================
-        // 2. OPDATERINGER (Profil, Avatar, Mapbox)
-        // ==========================================
         async function updateProfileInfo(e) {
             e.preventDefault();
             const btn = document.getElementById('prof-submitBtn');
             const msg = document.getElementById('profileMessage');
             btn.disabled = true; btn.innerText = "Gemmer..."; msg.style.display = 'none';
-
             try {
                 const updates = {
                     full_name: document.getElementById('prof-fullname').value.trim(),
@@ -374,39 +420,29 @@
                     bio: document.getElementById('prof-bio').value.trim(),
                     updated_at: new Date().toISOString()
                 };
-
                 const { error } = await _supabase.from('profiles').update(updates).eq('id', currentUser.id);
                 if (error) throw error;
-
                 msg.style.display = 'block'; msg.style.color = '#166534'; msg.innerText = "✅ Din profil er blevet opdateret.";
                 document.getElementById('ui-name').innerText = updates.full_name;
                 document.getElementById('ui-phone').innerText = updates.phone_number;
             } catch (err) {
                 msg.style.display = 'block'; msg.style.color = '#DC2626'; msg.innerText = "❌ Fejl ved gemning.";
-            } finally {
-                btn.disabled = false; btn.innerText = "Gem ændringer";
-            }
+            } finally { btn.disabled = false; btn.innerText = "Gem ændringer"; }
         }
 
         async function uploadAvatar(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const loader = document.getElementById('avatar-loading');
             loader.style.display = 'flex';
-
             try {
                 const fileExt = file.name.split('.').pop();
                 const fileName = `${currentUser.id}_${Date.now()}.${fileExt}`;
                 const { error: uploadError } = await _supabase.storage.from('avatars').upload(fileName, file, { upsert: true });
                 if (uploadError) throw uploadError;
-
                 const { data: publicUrlData } = _supabase.storage.from('avatars').getPublicUrl(fileName);
                 const publicUrl = publicUrlData.publicUrl;
-
-                const { error: updateError } = await _supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', currentUser.id);
-                if (updateError) throw updateError;
-
+                await _supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', currentUser.id);
                 document.getElementById('ui-avatar').src = publicUrl;
                 document.getElementById('ui-avatar').style.display = 'block';
                 document.getElementById('ui-avatar-placeholder').style.display = 'none';
@@ -419,7 +455,6 @@
             const box = document.getElementById('address-suggestions');
             clearTimeout(debounceTimer);
             if (query.length < 3) { box.style.display = 'none'; return; }
-
             debounceTimer = setTimeout(async () => {
                 try {
                     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&country=dk&types=address&language=da&limit=5`;
@@ -431,10 +466,7 @@
                             const div = document.createElement('div');
                             div.className = 'suggestion-item';
                             div.innerHTML = `<span style="font-size:1.2rem; color:var(--accent);">📍</span> ${f.place_name}`;
-                            div.onclick = () => {
-                                document.getElementById('address').value = f.place_name;
-                                box.style.display = 'none';
-                            };
+                            div.onclick = () => { document.getElementById('address').value = f.place_name; box.style.display = 'none'; };
                             box.appendChild(div);
                         });
                         box.style.display = 'block';
@@ -442,14 +474,12 @@
                 } catch (e) { console.error(e); }
             }, 400);
         }
-        document.addEventListener('click', (e) => { if (e.target.id !== 'address') document.getElementById('address-suggestions').style.display = 'none'; });
 
         async function submitTaxInfo(e) {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
             const msg = document.getElementById('formMessage');
             btn.disabled = true; btn.innerText = "Arbejder..."; msg.style.display = 'none';
-
             try {
                 const firstName = document.getElementById('fName').value.trim();
                 const lastName = document.getElementById('lName').value.trim();
@@ -460,46 +490,36 @@
                 const country = document.getElementById('country').value;
                 const cpr = isCprLocked ? "" : document.getElementById('cpr').value.trim();
                 const iban = document.getElementById('iban').value.toUpperCase().replace(/\s/g, '');
-
                 if (!dob) throw new Error("Du skal vælge en fødselsdato.");
-
                 const { error: rpcError } = await _supabase.rpc('submit_tax_info', {
                     p_full_name: `${firstName} ${lastName}`, p_address: address, p_country: country, p_cpr: cpr, p_bank_iban: iban
                 });
                 if (rpcError) throw rpcError;
-
                 const [year, month, day] = dob.split('-');
                 await _supabase.functions.invoke('create-stripe-account', {
                     body: { user_id: currentUser.id, email: currentUser.email, dob_day: parseInt(day), dob_month: parseInt(month), dob_year: parseInt(year), client_ip: '0.0.0.0' }
                 });
-
                 msg.style.display = 'block'; msg.style.color = '#166534';
                 msg.innerText = "✅ Oplysninger gemt succesfuldt! Udbetaling er aktiveret.";
                 isCprLocked = true;
                 document.getElementById('cpr').value = "**********"; document.getElementById('cpr').readOnly = true;
+                checkStripeStatus();
             } catch (err) {
                 msg.style.display = 'block'; msg.style.color = '#DC2626';
                 msg.innerText = "❌ Fejl: " + err.message;
             } finally { btn.disabled = false; btn.innerText = "Gem & Krypter Oplysninger"; }
         }
 
-        // ==========================================
-        // 3. TURE LOGIK (Driver & Passenger)
-        // ==========================================
         async function fetchDriverRides() {
             try {
-                const { data: rides, error } = await _supabase
-                    .from('rides')
+                const { data: rides, error } = await _supabase.from('rides')
                     .select('*, bookings(id, passenger_id, status, seats_booked, profiles(full_name, avatar_url))')
-                    .eq('driver_id', currentUser.id)
-                    .order('departure_time', { ascending: true });
+                    .eq('driver_id', currentUser.id).order('departure_time', { ascending: true });
                 if(error) throw error;
-
                 const now = new Date();
                 activeDriverRides = rides.filter(r => {
                     const dep = new Date(r.departure_time);
-                    const isCompleted = r.status === 'completed';
-                    return !isCompleted && now < new Date(dep.getTime() + (24 * 60 * 60 * 1000));
+                    return r.status !== 'completed' && now < new Date(dep.getTime() + (24 * 60 * 60 * 1000));
                 });
                 renderDriverRides();
             } catch (err) { document.getElementById('driver-rides-list').innerHTML = `<p style="color:red;text-align:center;">Fejl: ${err.message}</p>`; }
@@ -508,49 +528,28 @@
         function renderDriverRides() {
             const container = document.getElementById('driver-rides-list');
             if (activeDriverRides.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding:3rem 1rem; background:#F8FAFC; border-radius:16px; border:2px dashed #E2E8F0;"><span style="font-size:3rem;">🚗</span><h3 style="color:var(--brand); margin-top:1rem;">Du har ingen kommende ture</h3><p style="color:var(--text-muted);"><a href="/opret-tur" style="color:var(--accent); font-weight:bold;">Udbyd en tur her</a></p></div>`;
+                container.innerHTML = `<div style="text-align:center; padding:3rem 1rem;"><h3 style="color:var(--brand);">Ingen kommende ture</h3></div>`;
                 return;
             }
             let html = '';
             activeDriverRides.forEach(ride => {
-                const dep = new Date(ride.departure_time);
                 const isPassed = new Date() > new Date(ride.arrival_time);
                 const activeBookings = (ride.bookings || []).filter(b => b.status === 'approved' || b.status === 'pending');
-                const totalCap = ride.seats_available || 3;
                 let passengersHTML = '';
-                let seatsFilled = 0;
-                
                 activeBookings.forEach(b => {
                     const name = b.profiles ? b.profiles.full_name : 'Ukendt';
-                    const seats = b.seats_booked || 1;
-                    seatsFilled += seats;
                     let actionsHTML = b.status === 'pending' 
-                        ? `<button class="btn-icon green" onclick="updateBooking('${b.id}', 'approved', '${name}')" title="Godkend">✓</button><button class="btn-icon red" onclick="updateBooking('${b.id}', 'rejected', '${name}')" title="Afvis">✕</button>`
-                        : `<button class="btn-icon red" onclick="driverCancelPassenger('${b.id}', '${name}')" title="Fjern">✕</button>`;
-
-                    passengersHTML += `
-                        <div class="passenger-item">
-                            <div class="passenger-info">👤 <a href="/bruger?id=${b.passenger_id}" style="color: inherit; text-decoration: none;">${name}</a> ${seats > 1 ? `(${seats} pladser)` : ''}</div>
-                            <div class="passenger-actions"><a href="/chat?id=${b.passenger_id}" class="btn-icon blue" title="Chat">💬</a>${actionsHTML}</div>
-                        </div>`;
+                        ? `<button class="btn-icon green" onclick="updateBooking('${b.id}', 'approved', '${name}')">✓</button><button class="btn-icon red" onclick="updateBooking('${b.id}', 'rejected', '${name}')">✕</button>`
+                        : `<button class="btn-icon red" onclick="driverCancelPassenger('${b.id}', '${name}')">✕</button>`;
+                    passengersHTML += `<div class="passenger-item"><div class="passenger-info">👤 ${name}</div><div class="passenger-actions">${actionsHTML}</div></div>`;
                 });
-
-                for(let i=seatsFilled; i<totalCap; i++) passengersHTML += `<div class="passenger-item"><div class="passenger-info" style="color:#94A3B8;">🪑 Ledigt sæde</div></div>`;
-
-                html += `
-                <div class="ride-card">
+                html += `<div class="ride-card">
                     <div class="ride-header" onclick="toggleExpand('details-${ride.id}')">
                         <div><div class="route-title">${ride.origin_city} ➝ ${ride.destination_city}</div><div class="ride-meta">${formatDateTime(ride.departure_time)}</div></div>
                         <div class="ride-price">${ride.price_dkk} kr.</div>
                     </div>
                     <div class="ride-details" id="details-${ride.id}">
-                        <div class="timeline">
-                            <h4 style="margin:0 0 10px 0;">Ruteplan</h4>
-                            <div class="timeline-row"><div class="time-col">${formatTimeOnly(ride.departure_time)}</div><div class="node-col"><div class="node filled"></div><div class="line"></div></div><div class="city-col">${ride.origin_city}</div></div>
-                            ${(ride.waypoints||[]).map(wp => `<div class="timeline-row"><div class="time-col">${wp.departure_time || '--:--'}</div><div class="node-col"><div class="node"></div><div class="line"></div></div><div class="city-col">${wp.city}</div></div>`).join('')}
-                            <div class="timeline-row"><div class="time-col">${formatTimeOnly(ride.arrival_time)}</div><div class="node-col"><div class="node filled"></div></div><div class="city-col">${ride.destination_city}</div></div>
-                        </div>
-                        <div class="passenger-list"><h4 style="margin:0 0 10px 0;">Passagerer</h4>${passengersHTML}</div>
+                        <div class="passenger-list">${passengersHTML}</div>
                         <div class="action-bar"><button class="btn-action-main" ${!isPassed ? 'disabled' : ''} onclick="completeTrip('${ride.id}')">${isPassed ? 'Afslut tur & Modtag penge' : 'Turen er ikke slut endnu'}</button></div>
                     </div>
                 </div>`;
@@ -560,55 +559,21 @@
 
         async function fetchPassengerRides() {
             try {
-                const { data: bookings, error } = await _supabase.from('bookings').select('id, ride_id, status, seats_booked, rides(*, profiles(full_name, avatar_url))').eq('passenger_id', currentUser.id).order('created_at', { ascending: false });
+                const { data: bookings, error } = await _supabase.from('bookings').select('*, rides(*, profiles(full_name))').eq('passenger_id', currentUser.id);
                 if(error) throw error;
-                const now = new Date();
-                const activeTrips = bookings.filter(b => {
-                    const ride = b.rides;
-                    if(!ride) return false;
-                    const isCancelled = b.status === 'rejected' || b.status.includes('cancel');
-                    return !isCancelled && ride.status !== 'completed' && now <= new Date(new Date(ride.departure_time).getTime() + (24 * 60 * 60 * 1000));
-                });
-                const container = document.getElementById('passenger-rides-list');
-                if (activeTrips.length === 0) { container.innerHTML = `<div style="text-align:center; padding:3rem 1rem; background:#F8FAFC; border-radius:16px; border:2px dashed #E2E8F0;"><span style="font-size:3rem;">🎒</span><h3 style="color:var(--brand); margin-top:1rem;">Ingen kommende rejser</h3></div>`; return; }
-
                 let html = '';
-                activeTrips.forEach(b => {
+                bookings.forEach(b => {
                     const ride = b.rides;
-                    const driver = ride.profiles;
-                    let statusColor = b.status === 'approved' ? '#DCFCE7' : '#E2E8F0';
-                    let statusColorText = b.status === 'approved' ? '#166534' : '#64748B';
-                    let statusText = b.status === 'approved' ? 'Godkendt' : 'Afventer';
-                    
-                    html += `
-                    <div class="ride-card" style="padding: 1.5rem;">
-                        <div style="display:flex; justify-content:space-between; align-items:start;">
-                            <div style="display:flex; gap:15px;">
-                                <div style="font-size:2.5rem;">👤</div>
-                                <div>
-                                    <div class="route-title">${ride.origin_city} ➝ ${ride.destination_city}</div>
-                                    <div class="ride-meta">Chauffør: <a href="/bruger?id=${ride.driver_id}" style="color: inherit; text-decoration: none;">${driver.full_name}</a></div>
-                                    <div style="color:var(--accent); font-weight:700; margin-top:5px;">${formatDateTime(ride.departure_time)}</div>
-                                </div>
-                            </div>
-                            <div style="text-align:right;">
-                                <div class="ride-price">${ride.price_dkk} kr.</div>
-                                <span style="display:inline-block; margin-top:5px; background:${statusColor}; color:${statusColorText}; padding:4px 8px; border-radius:6px; font-weight:700; font-size:0.8rem;">${statusText}</span>
-                            </div>
-                        </div>
-                        <div class="action-bar" style="margin-top: 20px;">
-                            <a href="/chat?id=${ride.driver_id}" class="btn-outline" style="text-align:center; text-decoration:none;">💬 Chat</a>
-                            <button class="btn-outline btn-danger" onclick="passengerCancelBooking('${b.id}', '${ride.departure_time}')">Aflys</button>
-                        </div>
+                    html += `<div class="ride-card" style="padding: 1.5rem;">
+                        <div class="route-title">${ride.origin_city} ➝ ${ride.destination_city}</div>
+                        <div class="ride-meta">${formatDateTime(ride.departure_time)}</div>
+                        <div style="margin-top:10px; font-weight:700;">Status: ${b.status}</div>
                     </div>`;
                 });
-                container.innerHTML = html;
-            } catch (err) { document.getElementById('passenger-rides-list').innerHTML = `<p style="color:red;text-align:center;">Fejl: ${err.message}</p>`; }
+                document.getElementById('passenger-rides-list').innerHTML = html || '<p style="text-align:center;">Ingen rejser fundet.</p>';
+            } catch (err) { console.error(err); }
         }
 
-        // ==========================================
-        // 4. API & MODAL HANDLERS
-        // ==========================================
         let modalConfirmCallback = null;
         function showModal(title, text, btnText, callback) {
             document.getElementById('modalTitle').innerText = title; document.getElementById('modalText').innerText = text;
@@ -618,102 +583,19 @@
         function closeModal() { document.getElementById('customModal').style.display = 'none'; }
         document.getElementById('modalConfirmBtn').addEventListener('click', () => { closeModal(); if(modalConfirmCallback) modalConfirmCallback(); });
 
-        async function updateBooking(bookingId, newStatus, passengerName) {
-            try {
-                await _supabase.from('bookings').update({status: newStatus}).eq('id', bookingId);
-                if (newStatus === 'rejected') {
-                    const { data } = await _supabase.from('bookings').select('stripe_payment_id').eq('id', bookingId).single();
-                    if (data && data.stripe_payment_id) await _supabase.functions.invoke('settle-payment', { body: { paymentIntentId: data.stripe_payment_id, action: 'cancel' }});
-                }
-                alert(`${newStatus === 'approved' ? 'Godkendt' : 'Afvist'}: ${passengerName}`);
-                fetchDriverRides();
-            } catch(e) { alert("Fejl: " + e.message); }
-        }
-
-        function driverCancelPassenger(bookingId, name) {
-            showModal("Fjern passager?", `Er du sikker på, at du vil fjerne ${name}?\nPassageren får alle sine penge tilbage.`, "Fjern passager", async () => {
-                try {
-                    await _supabase.functions.invoke('driver-cancel-booking', { body: { booking_id: bookingId }});
-                    fetchDriverRides();
-                } catch(e) { alert("Fejl: " + e.message); }
-            });
-        }
-
-        function passengerCancelBooking(bookingId, depTimeStr) {
-            const hoursUntil = (new Date(depTimeStr) - new Date()) / (1000 * 60 * 60);
-            if (hoursUntil < 0) return alert("Turen er startet.");
-            let title = "Gratis afmelding ✅"; let txt = "Du afmelder i god tid. Hele beløbet frigives på dit kort.";
-            if (hoursUntil < 3) { title = "100% Gebyr ⚠️"; txt = "Under 3 timer til afgang. Ingen refundering."; }
-            else if (hoursUntil < 24) { title = "50% Gebyr ⚠️"; txt = "Under 24 timer til afgang. Vi trækker halvdelen af prisen."; }
-            showModal(title, txt, "Bekræft Aflysning", async () => {
-                try {
-                    const session = (await _supabase.auth.getSession()).data.session;
-                    const res = await _supabase.functions.invoke('cancel-booking', { body: { booking_id: bookingId }, headers: { Authorization: `Bearer ${session.access_token}` } });
-                    if(res.error) throw res.error;
-                    alert("Din booking er aflyst."); fetchPassengerRides();
-                } catch(e) { alert("Fejl: " + e.message); }
-            });
-        }
-
-        // ==========================================
-        // 5. CO2 & AFREGNING
-        // ==========================================
-        function parseHexPoint(hex) {
-            if(!hex || typeof hex !== 'string') return {lng:0, lat:0};
-            const cleanHex = hex.replace('\\x', ''); if(cleanHex.length < 40) return {lng:0, lat:0}; 
-            let bytes = new Uint8Array(cleanHex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-            let view = new DataView(bytes.buffer); let littleEndian = view.getUint8(0) === 1;
-            return {lng: view.getFloat64(9, littleEndian), lat: view.getFloat64(17, littleEndian)};
-        }
-        async function fetchMapboxRoute(slng, slat, elng, elat, extraParams='') {
-            try {
-                const res = await fetch(`https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${slng},${slat};${elng},${elat}?access_token=${MAPBOX_TOKEN}${extraParams}`);
-                const data = await res.json();
-                if(data.routes && data.routes.length > 0) return data.routes.sort((a,b) => a.distance - b.distance)[0];
-            } catch(e) { console.error("Mapbox rute fejl:", e); }
-            return null;
-        }
-        async function distributeCO2(rideId) {
-            try {
-                const { data: ride } = await _supabase.from('rides').select('*').eq('id', rideId).single();
-                const { data: pax } = await _supabase.from('bookings').select('passenger_id').eq('ride_id', rideId).eq('status', 'approved');
-                if(!pax || pax.length === 0) return;
-
-                const start = parseHexPoint(ride.origin_location); const end = parseHexPoint(ride.destination_location);
-                let distKm = 0;
-
-                if (ride.is_ferry) {
-                    const isEast = start.lng < end.lng;
-                    const p1 = isEast ? {lng: 10.213, lat: 56.157} : {lng: 11.296, lat: 55.973};
-                    const p2 = isEast ? {lng: 11.296, lat: 55.973} : {lng: 10.213, lat: 56.157};
-                    const r1 = await fetchMapboxRoute(start.lng, start.lat, p1.lng, p1.lat);
-                    const r2 = await fetchMapboxRoute(p2.lng, p2.lat, end.lng, end.lat);
-                    if(r1 && r2) distKm = (r1.distance/1000) + (r2.distance/1000);
-                } else {
-                    const r = await fetchMapboxRoute(start.lng, start.lat, end.lng, end.lat, '&exclude=ferry');
-                    if(r) distKm = r.distance / 1000;
-                }
-                if(distKm === 0) return;
-
-                const share = ((distKm * 0.16) * pax.length) / (pax.length + 1); 
-                await _supabase.rpc('increment_co2', {user_id: ride.driver_id, amount: share});
-                for(let p of pax) await _supabase.rpc('increment_co2', {user_id: p.passenger_id, amount: share});
-            } catch(e) { console.error("CO2 fejlede:", e); }
-        }
-
         async function completeTrip(rideId) {
-            showModal("Afslut tur?", "Dette vil hæve pengene hos passagererne, udregne jeres CO2 og overføre beløbet til din Stripe-konto.", "Afslut nu", async () => {
+            showModal("Afslut tur?", "Dette vil hæve pengene hos passagererne og overføre beløbet til din konto.", "Afslut nu", async () => {
                 try {
                     const { data: pax } = await _supabase.from('bookings').select('stripe_payment_id').eq('ride_id', rideId).eq('status', 'approved');
                     for (let p of (pax||[])) {
                         if(p.stripe_payment_id) await _supabase.functions.invoke('settle-payment', { body: { paymentIntentId: p.stripe_payment_id, action: 'capture' }});
                     }
-                    await distributeCO2(rideId);
                     const session = (await _supabase.auth.getSession()).data.session;
                     const res = await _supabase.functions.invoke('complete-trip', { body: { trip_id: rideId }, headers: { Authorization: `Bearer ${session.access_token}` } });
                     if(res.error) throw res.error;
-                    alert("Turen er afsluttet og afregnet! 💸");
-                    window.location.href = `/review?id=${rideId}`; 
+                    alert("Turen er afsluttet! 💸");
+                    loadProfileData();
+                    fetchDriverRides();
                 } catch(e) { alert("Fejl: " + e.message); }
             });
         }
