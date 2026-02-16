@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nulstil adgangskode - HoppOn</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 400px; margin: 0 auto; }
+    input, button { width: 100%; padding: 15px; margin-top: 10px; font-size: 16px; }
+    button { background-color: #000; color: #fff; border: none; font-weight: bold; cursor: pointer; }
+    #besked { margin-top: 15px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h2>Lav en ny adgangskode</h2>
+  <p>Indtast din nye kode til HoppOn herunder:</p>
+
+  <input type="password" id="ny-kode" placeholder="Skriv ny adgangskode her" />
+  <button onclick="gemNyKode()">Gem kode & log ind</button>
+  
+  <div id="besked"></div>
+
+  <script>
+    // 1. Sæt dine rigtige nøgler ind her!
+    const supabaseUrl = 'https://xboklywxcozobvfrptpr.supabase.co';
+    const supabaseKey = 'DIN_SUPABASE_ANON_KEY_HER'; // Find denne i Supabase API settings
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // 2. Funktionen der kører, når man trykker på knappen
+    async function gemNyKode() {
+      const nyAdgangskode = document.getElementById('ny-kode').value;
+      const beskedFelt = document.getElementById('besked');
+
+      if (nyAdgangskode.length < 6) {
+        beskedFelt.innerText = "Koden skal være mindst 6 tegn.";
+        beskedFelt.style.color = "red";
+        return;
+      }
+
+      beskedFelt.innerText = "Gemmer...";
+      beskedFelt.style.color = "black";
+
+      // 3. Supabase magien: Opdaterer brugeren automatisk
+      const { data, error } = await supabase.auth.updateUser({
+        password: nyAdgangskode
+      });
+
+      if (error) {
+        beskedFelt.innerText = "Fejl: Linket er udløbet eller ugyldigt. Prøv at anmode om et nyt link i appen.";
+        beskedFelt.style.color = "red";
+      } else {
+        beskedFelt.innerText = "Succes! Din kode er nu ændret. Du kan lukke denne side og logge ind i HoppOn appen.";
+        beskedFelt.style.color = "green";
+      }
+    }
+  </script>
+
+</body>
+</html>
