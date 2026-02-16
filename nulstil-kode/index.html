@@ -9,12 +9,10 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
-    
     <script src="/supabase.js"></script>
     <script src="/components.js" defer></script>
 
     <style>
-        /* Samme design som login-siden for en rød tråd */
         main {
             flex: 1;
             display: flex;
@@ -24,7 +22,7 @@
         }
 
         .login-card {
-            background: var(--glass-bg);
+            background: var(--glass-bg, rgba(255,255,255,0.8));
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.6);
@@ -34,7 +32,6 @@
             box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
             padding: 3rem 2.5rem;
             animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
         }
 
         .login-card h1 {
@@ -42,13 +39,13 @@
             font-weight: 900;
             margin-bottom: 0.5rem;
             text-align: center;
-            color: var(--brand);
+            color: var(--brand, #1E293B);
             letter-spacing: -0.5px;
         }
 
         .subtitle {
             text-align: center;
-            color: var(--text-muted);
+            color: var(--text-muted, #64748B);
             margin-bottom: 2.5rem;
             font-size: 1rem;
         }
@@ -62,17 +59,17 @@
             font-size: 0.9rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
-            color: var(--text-main);
+            color: var(--text-main, #334155);
         }
 
         .form-group input {
             width: 100%;
             padding: 14px 16px;
-            border: 1px solid var(--border);
+            border: 1px solid var(--border, #E2E8F0);
             border-radius: 14px;
             font-size: 1rem;
             background: #F8FAFC;
-            color: var(--brand);
+            color: var(--brand, #1E293B);
             font-weight: 500;
             transition: all 0.2s;
             outline: none;
@@ -80,7 +77,7 @@
         }
 
         .form-group input:focus {
-            border-color: var(--accent);
+            border-color: var(--accent, #6366F1);
             background: white;
             box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
         }
@@ -89,7 +86,7 @@
             display: block;
             width: 100%;
             padding: 16px;
-            background: var(--brand);
+            background: var(--brand, #1E293B);
             color: white;
             border: none;
             border-radius: 16px;
@@ -101,9 +98,16 @@
         }
 
         .btn-submit:hover {
-            background: var(--accent);
+            background: var(--accent, #6366F1);
             transform: translateY(-2px);
             box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-submit:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         .message-box {
@@ -119,133 +123,100 @@
         .error-msg { color: #EF4444; background: #FEF2F2; border: 1px solid #FCA5A5; }
         .success-msg { color: #10B981; background: #ECFDF5; border: 1px solid #6EE7B7; }
 
-        .footer-link {
-            text-align: center;
-            margin-top: 2rem;
-            font-size: 0.95rem;
-            color: var(--text-muted);
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
-
-        .footer-link a {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 700;
-        }
-
-        /* Loading Overlay Global */
-        #globalLoader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.9); display: none;
-            justify-content: center; align-items: center; flex-direction: column; gap: 15px;
-            z-index: 2000; backdrop-filter: blur(5px);
-        }
-        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
-        .loading-text { font-weight: 700; color: var(--brand); font-size: 1.1rem;}
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(40px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
     </style>
 </head>
 <body>
-
-    <div id="globalLoader">
-        <div class="spinner"></div>
-        <div class="loading-text" id="loadingText">Opdaterer kode...</div>
-    </div>
 
     <hoppon-header></hoppon-header>
 
     <main>
         <div class="login-card">
-            <h1>Lav ny kode</h1>
-            <p class="subtitle">Indtast din nye adgangskode til HoppOn</p>
+            <h1>Ny adgangskode</h1>
+            <p class="subtitle">Indtast din nye adgangskode herunder.</p>
 
             <div class="form-group">
                 <label>Ny adgangskode</label>
-                <input type="password" id="nyKode" placeholder="Mindst 6 tegn" required>
+                <input type="password" id="newPassword" placeholder="Minimum 6 tegn" required>
             </div>
 
             <div class="form-group">
-                <label>Gentag ny adgangskode</label>
-                <input type="password" id="bekraeftKode" placeholder="Gentag adgangskode" required>
+                <label>Bekræft ny adgangskode</label>
+                <input type="password" id="confirmPassword" placeholder="Gentag koden" required>
             </div>
 
-            <div id="statusMessage" class="message-box"></div>
+            <div id="updateMessage" class="message-box"></div>
 
-            <button class="btn-submit" onclick="opdaterKode()">Gem ny kode</button>
-            
-            <div class="footer-link">
-                <a href="/login">Annuller og gå til log ind</a>
-            </div>
+            <button class="btn-submit" id="updateBtn" onclick="updateUserPassword()">Gem ny adgangskode</button>
         </div>
     </main>
 
     <hoppon-footer></hoppon-footer>
 
     <script>
-        function setLoading(isLoading, text = "Opdaterer...") {
-            document.getElementById('loadingText').innerText = text;
-            document.getElementById('globalLoader').style.display = isLoading ? 'flex' : 'none';
-        }
+        // Tjekker automatisk om linket er gyldigt, når siden loader
+        document.addEventListener("DOMContentLoaded", async () => {
+            setTimeout(async () => {
+                const { data: { session }, error } = await _supabase.auth.getSession();
+                
+                if (!session) {
+                    showMessage("Dette link er enten udløbet eller allerede brugt. Anmod venligst om et nyt link på login-siden.");
+                    document.getElementById('updateBtn').disabled = true;
+                    document.getElementById('newPassword').disabled = true;
+                    document.getElementById('confirmPassword').disabled = true;
+                }
+            }, 500);
+        });
 
         function showMessage(msg, isSuccess = false) {
-            const el = document.getElementById('statusMessage');
+            const el = document.getElementById('updateMessage');
             el.innerText = msg;
             el.className = isSuccess ? 'message-box success-msg' : 'message-box error-msg';
             el.style.display = 'block';
         }
 
-        async function opdaterKode() {
-            // Skjul gamle beskeder
-            document.getElementById('statusMessage').style.display = 'none';
-            
-            const nyKode = document.getElementById('nyKode').value.trim();
-            const bekraeftKode = document.getElementById('bekraeftKode').value.trim();
-            
-            // Validering
-            if (!nyKode || !bekraeftKode) { 
-                showMessage("Udfyld venligst begge felter."); 
-                return; 
-            }
-            if (nyKode.length < 6) { 
-                showMessage("Koden skal være mindst 6 tegn."); 
-                return; 
-            }
-            if (nyKode !== bekraeftKode) { 
-                showMessage("Adgangskoderne er ikke ens."); 
-                return; 
+        async function updateUserPassword() {
+            const newPass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+            const btn = document.getElementById('updateBtn');
+
+            if (newPass.length < 6) {
+                showMessage("Adgangskoden skal være på mindst 6 tegn.");
+                return;
             }
 
-            setLoading(true, "Gemmer ny kode...");
+            if (newPass !== confirmPass) {
+                showMessage("Adgangskoderne er ikke ens.");
+                return;
+            }
+
+            btn.innerText = "Gemmer...";
+            btn.disabled = true;
 
             try {
-                // Kalder Supabase for at opdatere brugerens adgangskode
-                // Dette virker, fordi brugeren har en midlertidig session fra det link de klikkede på i mailen
                 const { error } = await _supabase.auth.updateUser({
-                    password: nyKode
+                    password: newPass
                 });
 
                 if (error) throw error;
 
-                // Succes!
-                showMessage("Din adgangskode er nu opdateret!", true);
+                showMessage("Din adgangskode er opdateret! Sender dig til login...", true);
                 
-                // Vent et par sekunder, så de kan læse beskeden, og send dem så til login-siden
                 setTimeout(() => {
-                    window.location.href = '/login'; // Ret denne URL hvis din loginside hedder noget andet (fx /login.html)
-                }, 2500);
+                    // Ret dette link, hvis din loginside hedder noget andet
+                    window.location.href = '/login.html'; 
+                }, 2000);
 
             } catch (e) {
                 console.error(e);
-                showMessage("Fejl: Linket kan være udløbet. Prøv at anmode om et nyt link.");
-            } finally {
-                setLoading(false);
+                showMessage("Der skete en fejl: " + e.message);
+                btn.innerText = "Gem ny adgangskode";
+                btn.disabled = false;
             }
         }
-
-        // Gør det muligt at trykke "Enter" for at gemme
-        document.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') opdaterKode();
-        });
     </script>
 </body>
 </html>
