@@ -77,7 +77,7 @@
             font-weight: 500;
             transition: all 0.2s;
             outline: none;
-            box-sizing: border-box; /* Sikrer at padding ikke gør feltet bredere */
+            box-sizing: border-box;
         }
 
         .form-group input:focus {
@@ -86,7 +86,6 @@
             box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
         }
 
-        /* Glemt kode link styler */
         .forgot-password-link {
             position: absolute;
             right: 0;
@@ -171,12 +170,10 @@
             border: 1px solid #6EE7B7;
         }
 
-        /* Skjuler elementer */
         .hidden {
             display: none !important;
         }
 
-        /* Loading Overlay Global */
         #globalLoader {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -273,13 +270,11 @@
             document.getElementById('resetMessage').style.display = 'none';
         }
 
-        // Skift mellem Login og Glemt Kode visning
         function toggleView(viewId) {
             hideMessages();
             if (viewId === 'resetView') {
                 document.getElementById('loginView').classList.add('hidden');
                 document.getElementById('resetView').classList.remove('hidden');
-                // Kopier email fra login feltet hvis brugeren har tastet noget
                 document.getElementById('resetEmail').value = document.getElementById('loginEmail').value;
             } else {
                 document.getElementById('resetView').classList.add('hidden');
@@ -287,7 +282,6 @@
             }
         }
 
-        // ====== LOGIN LOGIK ======
         async function handleLogin() {
             hideMessages();
             const email = document.getElementById('loginEmail').value.trim();
@@ -336,7 +330,6 @@
             }
         }
 
-        // ====== GENDAN KODE LOGIK ======
         async function handleResetPassword() {
             hideMessages();
             const email = document.getElementById('resetEmail').value.trim();
@@ -346,19 +339,14 @@
             setLoading(true, "Sender link...");
 
             try {
-                // Kalder Supabase for at sende mailen.
-                // VIGTIGT: Husk at oprette filen 'nulstil-kode.html' på din server,
-                // og tilføj URL'en til "Redirect URLs" i Supabase settings!
                 const { error } = await _supabase.auth.resetPasswordForEmail(email, {
+                    // LINKET ER RETTET HER: Ingen skråstreg til sidst!
                     redirectTo: 'https://hoppon.dk/nulstil-kode', 
                 });
 
                 if (error) throw error;
 
-                // Vis succes besked
                 showMessage('resetMessage', "Vi har sendt et link til din mail. Husk at tjekke spam-mappen.", true);
-                
-                // Ryd feltet
                 document.getElementById('resetEmail').value = '';
 
             } catch (e) {
@@ -393,7 +381,6 @@
             window.location.href = '/verification';
         }
 
-        // Enter tast support (Tjekker hvilken view der er aktiv)
         document.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 if (document.getElementById('resetView').classList.contains('hidden')) {
