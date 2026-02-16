@@ -350,7 +350,7 @@
                 // VIGTIGT: Husk at oprette filen 'nulstil-kode.html' på din server,
                 // og tilføj URL'en til "Redirect URLs" i Supabase settings!
                 const { error } = await _supabase.auth.resetPasswordForEmail(email, {
-                    redirectTo: 'https://hoppon.dk/nulstil-kode.html', 
+                    redirectTo: 'https://hoppon.dk/nulstil-kode', 
                 });
 
                 if (error) throw error;
