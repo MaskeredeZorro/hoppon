@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beskeder | HoppOn</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="/style.css">
+    <script src="/supabase.js"></script>
+    <script src="/components.js" defer></script>
+
+    <style>
+        main {
+            flex: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 6rem 1rem 4rem 1rem;
+        }
+
+        .messages-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            width: 100%;
+            max-width: 600px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+            overflow: hidden;
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .header-section {
+            padding: 2rem 2rem 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-section h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--brand);
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        /* Liste Styles */
+        .chat-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .chat-item:last-child {
+            border-bottom: none;
+        }
+
+        .chat-item:hover {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        /* Avatar */
+        .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #E2E8F0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            flex-shrink: 0;
+            overflow: hidden;
+            color: #64748B;
+            font-size: 1.5rem;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .system-avatar {
+            background: var(--brand);
+            color: white;
+        }
+
+        /* Indhold */
+        .chat-content {
+            flex: 1;
+            min-width: 0; /* Forhindrer text-overflow i at bryde flexbox */
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 4px;
+        }
+
+        .chat-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-time {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-left: 8px;
+            white-space: nowrap;
+        }
+
+        .chat-preview-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chat-preview {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+
+        .unread {
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .unread-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        /* Empty & Loading States */
+        .state-container {
+            padding: 4rem 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .state-container i {
+            font-size: 3rem;
+            color: #CBD5E1;
+        }
+
+        .state-container p {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .spinner { width: 32px; height: 32px; border: 3px solid #f3f3f3; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <hoppon-header></hoppon-header>
+
+    <main>
+        <div class="messages-card">
+            <div class="header-section">
+                <h1>Beskeder</h1>
+            </div>
+
+            <div id="messagesContainer">
+                <div class="state-container" id="loadingState">
+                    <div class="spinner"></div>
+                    <p>Henter samtaler...</p>
+                </div>
+
+                <div class="state-container" id="emptyState" style="display: none;">
+                    <i class="fa-regular fa-comments"></i>
+                    <p>Ingen beskeder endnu</p>
+                </div>
+
+                <div class="state-container" id="errorState" style="display: none;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color: #EF4444;"></i>
+                    <p id="errorText">Der opstod en fejl.</p>
+                </div>
+
+                <ul class="chat-list" id="chatList" style="display: none;"></ul>
+            </div>
+        </div>
+    </main>
+
+    <hoppon-footer></hoppon-footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", initMessagesScreen);
+
+        async function initMessagesScreen() {
+            try {
+                // 1. Tjek om brugeren er logget ind
+                const { data: { session } } = await _supabase.auth.getSession();
+                if (!session) {
+                    window.location.href = '/login';
+                    return;
+                }
+                const myUserId = session.user.id;
+
+                // 2. Hent beskeder
+                const { data: messages, error } = await _supabase
+                    .from('messages')
+                    .select('*')
+                    .or(`sender_id.eq.${myUserId},receiver_id.eq.${myUserId}`)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                // 3. Gruppér beskeder til unikke samtaler
+                const uniqueChats = new Map();
+                const otherUserIds = new Set();
+
+                for (const msg of messages) {
+                    const isMeSender = msg.sender_id === myUserId;
+                    const isMeReceiver = msg.receiver_id === myUserId;
+                    
+                    if (!isMeSender && !isMeReceiver) continue; // Sikkerhedstjek
+
+                    let otherKey;
+                    if (msg.sender_id === null) {
+                        otherKey = 'system_hoppon';
+                    } else {
+                        otherKey = isMeSender ? msg.receiver_id : msg.sender_id;
+                    }
+
+                    // Gem kun den nyeste besked pr. samtale
+                    if (!uniqueChats.has(otherKey)) {
+                        uniqueChats.set(otherKey, msg);
+                        if (otherKey !== 'system_hoppon') {
+                            otherUserIds.add(otherKey); // Gem ID til profil-opslag
+                        }
+                    }
+                }
+
+                const chatsArray = Array.from(uniqueChats.values());
+
+                // Vis Empty State hvis der ikke er nogen beskeder
+                if (chatsArray.length === 0) {
+                    document.getElementById('loadingState').style.display = 'none';
+                    document.getElementById('emptyState').style.display = 'flex';
+                    return;
+                }
+
+                // 4. Hent profil-data for alle 'andre' brugere i én effektiv forespørgsel
+                const profilesMap = {};
+                if (otherUserIds.size > 0) {
+                    const { data: profiles, error: profileError } = await _supabase
+                        .from('profiles')
+                        .select('id, full_name, avatar_url')
+                        .in('id', Array.from(otherUserIds));
+                    
+                    if (!profileError && profiles) {
+                        profiles.forEach(p => profilesMap[p.id] = p);
+                    }
+                }
+
+                // 5. Render listen i UI'et
+                renderChatList(chatsArray, profilesMap, myUserId);
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('errorState').style.display = 'flex';
+                document.getElementById('errorText').innerText = "Fejl: " + err.message;
+            }
+        }
+
+        // --- Hjælpefunktioner ---
+
+        function renderChatList(chats, profilesMap, myUserId) {
+            const listEl = document.getElementById('chatList');
+            listEl.innerHTML = ""; // Tøm listen
+
+            chats.forEach(chatMsg => {
+                const isSystemMessage = chatMsg.sender_id === null;
+                const otherUserId = isSystemMessage ? 'system_hoppon' : (chatMsg.sender_id === myUserId ? chatMsg.receiver_id : chatMsg.sender_id);
+                
+                // Udled UI data
+                let displayName = "Slettet bruger";
+                let avatarHtml = `<div class="avatar"><i class="fa-solid fa-user"></i></div>`;
+                
+                if (isSystemMessage) {
+                    displayName = "HoppOn";
+                    avatarHtml = `<div class="avatar system-avatar"><i class="fa-solid fa-shield-halved"></i></div>`;
+                } else if (profilesMap[otherUserId]) {
+                    const p = profilesMap[otherUserId];
+                    displayName = p.full_name || "Bruger";
+                    if (p.avatar_url) {
+                        avatarHtml = `<div class="avatar"><img src="${p.avatar_url}" alt="${displayName}"></div>`;
+                    }
+                }
+
+                // Logik for ulæste beskeder (Kun ulæst hvis jeg er modtager og is_read er false)
+                const isUnread = (chatMsg.is_read === false && chatMsg.receiver_id === myUserId);
+                const isMeSender = chatMsg.sender_id === myUserId;
+                const replyIconHtml = isMeSender ? `<i class="fa-solid fa-reply" style="font-size: 12px; color: #94A3B8; margin-right: 4px;"></i>` : "";
+
+                // Byg HTML for list-item
+                const li = document.createElement('a');
+                li.className = 'chat-item';
+                // Peger på chat-detalje-siden. Du kan justere URL'en efter behov.
+                li.href = `/chat-detail.html?user=${otherUserId}${chatMsg.ride_id ? '&ride=' + chatMsg.ride_id : ''}`; 
+
+                li.innerHTML = `
+                    ${avatarHtml}
+                    <div class="chat-content">
+                        <div class="chat-header">
+                            <span class="chat-name">${displayName}</span>
+                            <span class="chat-time">${formatTime(chatMsg.created_at)}</span>
+                        </div>
+                        <div class="chat-preview-wrapper">
+                            ${replyIconHtml}
+                            <span class="chat-preview ${isUnread ? 'unread' : ''}">
+                                ${escapeHTML(chatMsg.content || '')}
+                            </span>
+                        </div>
+                    </div>
+                    ${isUnread ? '<div class="unread-dot"></div>' : ''}
+                `;
+
+                listEl.appendChild(li);
+            });
+
+            // Skift synlighed
+            document.getElementById('loadingState').style.display = 'none';
+            listEl.style.display = 'block';
+        }
+
+        function formatTime(timestamp) {
+            if (!timestamp) return "";
+            const date = new Date(timestamp);
+            const now = new Date();
+            
+            // Tjek om det er i dag
+            if (date.toDateString() === now.toDateString()) {
+                return date.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
+            } 
+            
+            // Tjek om det er indenfor de seneste 6 dage
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+            
+            if (diffDays <= 6) {
+                // Returnerer dagens navn (f.eks. "mandag")
+                let weekday = date.toLocaleDateString('da-DK', { weekday: 'long' });
+                return weekday.charAt(0).toUpperCase() + weekday.slice(1);
+            } 
+            
+            // Ældre end 6 dage (f.eks. "24/10")
+            return date.toLocaleDateString('da-DK', { day: '2-digit', month: '2-digit' });
+        }
+
+        // Sikkerhed: Undgå XSS i beskeder
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag])
+            );
+        }
+    </script>
+</body>
+</html>
