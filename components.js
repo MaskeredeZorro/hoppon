@@ -24,11 +24,6 @@
 
 class HoppOnHeader extends HTMLElement {
     async connectedCallback() {
-        // Sikrer at selve custom-elementet agerer som en fuldbredde-blok, 
-        // så header og banner stables vertikalt og ikke som kolonner.
-        this.style.display = 'block';
-        this.style.width = '100%';
-
         // Standard knapper (hvis man IKKE er logget ind)
         let authButtons = `
             <a href="/login/" class="btn-ghost">Log ind</a>
@@ -66,10 +61,6 @@ class HoppOnHeader extends HTMLElement {
                     </div>
                 </div>
             </header>
-            
-            <div class="indigo-banner" style="display: block; background-color: #4f46e5; color: #ffffff; text-align: center; padding: 6px 15px; font-size: 0.85rem; width: 100%; box-sizing: border-box;">
-                Flyt din samkørselshistorik og gode bedømmelser til os - <a href="mailto:hej@hoppon.dk" style="color: #ffffff; text-decoration: underline; font-weight: 600;">blot send os en mail.</a>
-            </div>
         `;
     }
 }
