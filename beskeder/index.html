@@ -333,8 +333,8 @@
                 // Byg HTML for list-item
                 const li = document.createElement('a');
                 li.className = 'chat-item';
-                // Peger på chat-detalje-siden. Du kan justere URL'en efter behov.
-                li.href = `/chat-detail?user=${otherUserId}${chatMsg.ride_id ? '&ride=' + chatMsg.ride_id : ''}`; 
+                // Peger på samtale-siden. Du kan justere URL'en efter behov.
+                li.href = `/samtale?user=${otherUserId}${chatMsg.ride_id ? '&ride=' + chatMsg.ride_id : ''}`; 
 
                 li.innerHTML = `
                     ${avatarHtml}
