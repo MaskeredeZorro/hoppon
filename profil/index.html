@@ -555,7 +555,7 @@
                         const paxId = b.passenger_id;
                         
                         // Det nye Chat-ikon knap (Linker til beskeder.html)
-                        const chatBtn = `<button class="btn-icon chat" onclick="event.stopPropagation(); window.location.href='/beskeder.html?user=${paxId}&ride=${ride.id}'" title="Skriv til passager"><i class="fa-regular fa-comment-dots"></i></button>`;
+                        const chatBtn = `<button class="btn-icon chat" onclick="event.stopPropagation(); window.location.href='/beskeder?user=${paxId}&ride=${ride.id}'" title="Skriv til passager"><i class="fa-regular fa-comment-dots"></i></button>`;
 
                         let actionsHTML = b.status === 'pending' 
                             ? `${chatBtn}<button class="btn-icon green" onclick="event.stopPropagation(); updateBooking('${b.id}', 'approved', '${name}')" title="Godkend">✓</button><button class="btn-icon red" onclick="event.stopPropagation(); updateBooking('${b.id}', 'rejected', '${name}')" title="Afvis">✕</button>`
@@ -616,7 +616,7 @@
                     const ride = b.rides;
                     
                     // Chat-ikon så passageren kan skrive til chaufføren
-                    const chatBtn = `<button class="btn-icon chat" style="position: absolute; right: 1.5rem; top: 1.5rem;" onclick="window.location.href='/beskeder.html?user=${ride.driver_id}&ride=${ride.id}'" title="Skriv til chauffør"><i class="fa-regular fa-comment-dots"></i></button>`;
+                    const chatBtn = `<button class="btn-icon chat" style="position: absolute; right: 1.5rem; top: 1.5rem;" onclick="window.location.href='/beskeder?user=${ride.driver_id}&ride=${ride.id}'" title="Skriv til chauffør"><i class="fa-regular fa-comment-dots"></i></button>`;
 
                     html += `<div class="ride-card" style="padding: 1.5rem; position: relative;">
                         ${chatBtn}
