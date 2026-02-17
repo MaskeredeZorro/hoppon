@@ -44,10 +44,6 @@ class HoppOnHeader extends HTMLElement {
 
         this.innerHTML = `
             <header class="glass-header">
-                <div class="top-announcement" style="background-color: var(--accent, #2c3e50); color: #ffffff; text-align: center; padding: 10px 15px; font-size: 0.9rem; width: 100%;">
-                    Flyt din samkørselshistorik og gode bedømmelser til os - <a href="mailto:kontakt@hoppon.dk" style="color: #ffffff; text-decoration: underline; font-weight: 600;">blot send os en mail.</a>
-                </div>
-                
                 <div class="header-container">
                     <a href="/" class="logo">
                         <img src="https://i.imgur.com/32NBOeO.png" alt="HoppOn Samkørsel Logo">
@@ -63,6 +59,10 @@ class HoppOnHeader extends HTMLElement {
                     <div class="auth-buttons">
                         ${authButtons}
                     </div>
+                </div>
+
+                <div class="sub-header-banner" style="background-color: rgba(243, 244, 246, 0.9); color: #333; text-align: center; padding: 6px 15px; font-size: 0.85rem; width: 100%; border-top: 1px solid rgba(229, 231, 235, 0.5);">
+                    Flyt din samkørselshistorik og gode bedømmelser til os - <a href="mailto:kontakt@hoppon.dk" style="color: #333; text-decoration: underline; font-weight: 600;">blot send os en mail.</a>
                 </div>
             </header>
         `;
