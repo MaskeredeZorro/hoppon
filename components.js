@@ -44,6 +44,10 @@ class HoppOnHeader extends HTMLElement {
 
         this.innerHTML = `
             <header class="glass-header">
+                <div class="top-announcement" style="background-color: var(--accent, #2c3e50); color: #ffffff; text-align: center; padding: 10px 15px; font-size: 0.9rem; width: 100%;">
+                    Flyt din samkørselshistorik og gode bedømmelser til os - <a href="mailto:kontakt@hoppon.dk" style="color: #ffffff; text-decoration: underline; font-weight: 600;">blot send os en mail.</a>
+                </div>
+                
                 <div class="header-container">
                     <a href="/" class="logo">
                         <img src="https://i.imgur.com/32NBOeO.png" alt="HoppOn Samkørsel Logo">
