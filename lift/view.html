@@ -82,13 +82,13 @@
         /* --- CHAUFFØR PROFIL --- */
         .driver-header-wrap { cursor: pointer; transition: 0.2s; padding: 10px; margin: -10px; border-radius: 16px;}
         .driver-header-wrap:hover { background: #F8FAFC; }
-        .driver-header { display: flex; align-items: center; gap: 15px; margin-bottom: 0.5rem;} /* Reduceret margin for plads til knap */
+        .driver-header { display: flex; align-items: center; gap: 15px; margin-bottom: 0.5rem;} 
         .avatar-lg { width: 55px; height: 55px; border-radius: 50%; background: #E2E8F0; object-fit: cover; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; overflow: hidden; flex-shrink: 0;}
         .avatar-lg img { width: 100%; height: 100%; object-fit: cover; }
         .driver-name { font-size: 1.2rem; font-weight: 800; margin: 0; }
         .driver-meta { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; display: flex; align-items: center; gap: 5px; margin-top: 4px;}
         
-        /* NY CHAT KNAP */
+        /* NY CHAT KNAP (Lille, under profil) */
         .btn-message-driver {
             display: inline-flex;
             align-items: center;
@@ -120,8 +120,33 @@
         .booking-card { text-align: center; }
         .price-huge { font-size: 2.5rem; font-weight: 900; color: var(--brand); letter-spacing: -1px; margin-bottom: 5px; }
         .seats-left { color: var(--success); font-weight: 700; font-size: 0.95rem; margin-bottom: 1.5rem; display: block; }
+        
+        /* Primær Book-knap */
         .btn-book { width: 100%; background: var(--accent); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: 0.2s; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3); }
         .btn-book:hover { transform: translateY(-2px); box-shadow: 0 15px 20px -3px rgba(99, 102, 241, 0.4); }
+
+        /* NY CHAT KNAP (Stor, under Book-knap) */
+        .btn-message-sidebar {
+            width: 100%;
+            background: #EEF2FF; /* Lys indigo */
+            color: var(--accent); 
+            border: 2px solid #E0E7FF;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 10px;
+            display: none; /* Skjult indtil vi ved brugeren ikke er chauffør */
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-message-sidebar:hover {
+            background: #E0E7FF;
+            border-color: #C7D2FE;
+        }
 
         /* LOADERS */
         #globalLoader { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg-color); display: flex; flex-direction:column; justify-content: center; align-items: center; z-index: 2000; }
@@ -263,7 +288,13 @@
                         <div style="font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 5px;">Pris pr. plads</div>
                         <div class="price-huge" id="bPrice">-- kr</div>
                         <div class="seats-left" id="bSeats">✔️ -- pladser tilbage</div>
+                        
                         <button class="btn-book" onclick="handleBooking()">Book plads</button>
+                        
+                        <button class="btn-message-sidebar" id="btnMessageSidebar" onclick="messageDriver()">
+                            <i class="fa-regular fa-comment-dots"></i> Spørg chauffør
+                        </button>
+
                         <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 15px;">Du betaler først når anmodningen er godkendt.</div>
                     </div>
 
@@ -316,7 +347,7 @@
             }
         }
 
-        // --- NY FUNKTION: Send besked ---
+        // --- FUNKTION: Send besked ---
         function messageDriver() {
             // Tjek om brugeren er logget ind
             if (!currentUserId) {
@@ -326,8 +357,8 @@
                 return;
             }
             
-            // Hvis de er logget ind, send dem til chat-siden med driver_id og ride_id
-            window.location.href = `/beskeder.html?user=${driverProfile.id}&ride=${currentRide.id}`;
+            // Send til chat-siden
+            window.location.href = `/chat-detail.html?user=${driverProfile.id}&ride=${currentRide.id}`;
         }
 
         async function loadRideData(rideId) {
@@ -345,9 +376,10 @@
                 currentRide = ride;
                 driverProfile = ride.driver;
 
-                // Hvis den besøgende IKKE er chaufføren selv, så vis "Spørg chauffør" knappen
+                // Vis "Spørg chauffør" knapper, hvis brugeren IKKE selv er chaufføren
                 if (currentUserId !== driverProfile.id) {
                     document.getElementById('btnMessageDriver').style.display = 'inline-flex';
+                    document.getElementById('btnMessageSidebar').style.display = 'flex'; // Den nye store knap
                 }
 
                 // Hent reviews
