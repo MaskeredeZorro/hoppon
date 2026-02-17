@@ -6,6 +6,9 @@
     <title>Min Profil | HoppOn</title>
     <link rel="icon" href="https://i.imgur.com/4oGYz8n.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="/style.css">
     <script src="/supabase.js"></script>
@@ -62,7 +65,7 @@
 
         .sub-tabs { display: flex; background: #F1F5F9; border-radius: 25px; padding: 4px; margin-bottom: 1.5rem; }
         .sub-tab-btn { flex: 1; text-align: center; padding: 10px; border-radius: 25px; font-weight: 700; font-size: 0.95rem; cursor: pointer; color: #64748B; transition: 0.2s; border: none; background: transparent; }
-        .sub-tab-btn.active { background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .sub-tab-btn.active { background: var(--accent); color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .sub-tab-content { display: none; }
         .sub-tab-content.active { display: block; animation: fadeIn 0.3s ease; }
 
@@ -80,7 +83,7 @@
         .btn-submit:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(99,102,241,0.2); }
         
         /* RIDE CARDS */
-        .ride-card { background: white; border: 1px solid var(--border); border-radius: 16px; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.02); overflow: hidden; }
+        .ride-card { background: white; border: 1px solid var(--border); border-radius: 16px; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.02); overflow: hidden; position: relative; }
         .ride-header { padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .ride-header:hover { background: #F8FAFC; }
         .route-title { font-weight: 800; color: var(--brand); font-size: 1.2rem; margin-bottom: 5px; }
@@ -92,10 +95,12 @@
         .passenger-list { margin-top: 1.5rem; }
         .passenger-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #F1F5F9; }
         .passenger-info { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--brand); }
-        .passenger-actions { display: flex; gap: 10px; }
-        .btn-icon { background: #F1F5F9; border: none; width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+        .passenger-actions { display: flex; gap: 10px; align-items: center; }
+        .btn-icon { background: #F1F5F9; border: none; width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; color: var(--text-muted); }
+        .btn-icon:hover { filter: brightness(0.95); }
         .btn-icon.green { color: #166534; background: #DCFCE7; }
         .btn-icon.red { color: #991B1B; background: #FEE2E2; }
+        .btn-icon.chat { color: #3B82F6; background: #EFF6FF; } /* Ny stil til chat ikonet */
         
         .action-bar { display: flex; gap: 10px; margin-top: 1.5rem; flex-wrap: wrap;}
         .btn-outline { flex: 1; min-width: 120px; border: 1px solid var(--border); background: white; padding: 12px; border-radius: 12px; font-weight: 700; color: var(--brand); cursor: pointer; transition: 0.2s;}
@@ -333,7 +338,7 @@
         let isCprLocked = false;
         let activeDriverRides = [];
         let currentBalance = 0;
-        let editCurrentPrice = 0; // Holder styr på prisen i edit modal
+        let editCurrentPrice = 0;
 
         window.onload = async () => {
             if (typeof _supabase === 'undefined') return;
@@ -547,9 +552,15 @@
                 if (!isCancelled) {
                     activeBookings.forEach(b => {
                         const name = b.profiles ? b.profiles.full_name : 'Ukendt';
+                        const paxId = b.passenger_id;
+                        
+                        // Det nye Chat-ikon knap (Linker til chat-detail.html)
+                        const chatBtn = `<button class="btn-icon chat" onclick="event.stopPropagation(); window.location.href='/chat-detail.html?user=${paxId}&ride=${ride.id}'" title="Skriv til passager"><i class="fa-regular fa-comment-dots"></i></button>`;
+
                         let actionsHTML = b.status === 'pending' 
-                            ? `<button class="btn-icon green" onclick="updateBooking('${b.id}', 'approved', '${name}')">✓</button><button class="btn-icon red" onclick="updateBooking('${b.id}', 'rejected', '${name}')">✕</button>`
-                            : `<button class="btn-icon red" onclick="driverCancelPassenger('${b.id}', '${name}')">✕</button>`;
+                            ? `${chatBtn}<button class="btn-icon green" onclick="event.stopPropagation(); updateBooking('${b.id}', 'approved', '${name}')" title="Godkend">✓</button><button class="btn-icon red" onclick="event.stopPropagation(); updateBooking('${b.id}', 'rejected', '${name}')" title="Afvis">✕</button>`
+                            : `${chatBtn}<button class="btn-icon red" onclick="event.stopPropagation(); driverCancelPassenger('${b.id}', '${name}')" title="Aflys passager">✕</button>`;
+                            
                         passengersHTML += `<div class="passenger-item"><div class="passenger-info">👤 ${name}</div><div class="passenger-actions">${actionsHTML}</div></div>`;
                     });
                 } else {
@@ -560,7 +571,6 @@
                 if (isCancelled) {
                     actionBarHTML = `<button class="btn-outline" disabled style="background:#F3F4F6; color:#6B7280; border:none; cursor:default;">🚫 Aflyst</button>`;
                 } else {
-                    // Hvis der er passagerer, disables edit-knappen og en forklaring tilføjes
                     let editBtnStr = '';
                     if (hasPassengers) {
                         editBtnStr = `<button class="btn-outline" disabled title="Du kan ikke ændre turen, når der er passagerer." style="background:#F3F4F6; color:#94A3B8; cursor:not-allowed;">Ændre tur 🔒</button>`;
@@ -604,8 +614,13 @@
                 let html = '';
                 bookings.forEach(b => {
                     const ride = b.rides;
-                    html += `<div class="ride-card" style="padding: 1.5rem;">
-                        <div class="route-title">${ride.origin_city} ➝ ${ride.destination_city}</div>
+                    
+                    // Chat-ikon så passageren kan skrive til chaufføren
+                    const chatBtn = `<button class="btn-icon chat" style="position: absolute; right: 1.5rem; top: 1.5rem;" onclick="window.location.href='/chat-detail.html?user=${ride.driver_id}&ride=${ride.id}'" title="Skriv til chauffør"><i class="fa-regular fa-comment-dots"></i></button>`;
+
+                    html += `<div class="ride-card" style="padding: 1.5rem; position: relative;">
+                        ${chatBtn}
+                        <div class="route-title" style="padding-right: 40px;">${ride.origin_city} ➝ ${ride.destination_city}</div>
                         <div class="ride-meta">${formatDateTime(ride.departure_time)}</div>
                         <div style="margin-top:10px; font-weight:700;">Status: ${b.status}</div>
                     </div>`;
@@ -758,7 +773,7 @@
 
                 alert("Turen er opdateret! ✅");
                 closeEditModal();
-                fetchDriverRides(); // Genindlæser listen med de nye data
+                fetchDriverRides(); 
             } catch (e) {
                 alert("Fejl ved opdatering: " + e.message);
             } finally {
