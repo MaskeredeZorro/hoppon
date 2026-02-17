@@ -534,23 +534,54 @@
             let html = '';
             activeDriverRides.forEach(ride => {
                 const isPassed = new Date() > new Date(ride.arrival_time);
+                const isCancelled = ride.status === 'cancelled'; // Tjek om turen er aflyst
+                
+                // Vi viser kun passagerer, hvis turen IKKE er aflyst (eller hvis du vil vise dem som 'afvist', kan du ændre dette)
                 const activeBookings = (ride.bookings || []).filter(b => b.status === 'approved' || b.status === 'pending');
                 let passengersHTML = '';
-                activeBookings.forEach(b => {
-                    const name = b.profiles ? b.profiles.full_name : 'Ukendt';
-                    let actionsHTML = b.status === 'pending' 
-                        ? `<button class="btn-icon green" onclick="updateBooking('${b.id}', 'approved', '${name}')">✓</button><button class="btn-icon red" onclick="updateBooking('${b.id}', 'rejected', '${name}')">✕</button>`
-                        : `<button class="btn-icon red" onclick="driverCancelPassenger('${b.id}', '${name}')">✕</button>`;
-                    passengersHTML += `<div class="passenger-item"><div class="passenger-info">👤 ${name}</div><div class="passenger-actions">${actionsHTML}</div></div>`;
-                });
-                html += `<div class="ride-card">
+                
+                if (!isCancelled) {
+                    activeBookings.forEach(b => {
+                        const name = b.profiles ? b.profiles.full_name : 'Ukendt';
+                        let actionsHTML = b.status === 'pending' 
+                            ? `<button class="btn-icon green" onclick="updateBooking('${b.id}', 'approved', '${name}')">✓</button><button class="btn-icon red" onclick="updateBooking('${b.id}', 'rejected', '${name}')">✕</button>`
+                            : `<button class="btn-icon red" onclick="driverCancelPassenger('${b.id}', '${name}')">✕</button>`;
+                        passengersHTML += `<div class="passenger-item"><div class="passenger-info">👤 ${name}</div><div class="passenger-actions">${actionsHTML}</div></div>`;
+                    });
+                } else {
+                    passengersHTML = `<div style="padding:10px; color:#991B1B; background:#FEF2F2; border-radius:8px; text-align:center; font-weight:600;">Denne tur er aflyst</div>`;
+                }
+                
+                // Bestem hvilke knapper der skal vises
+                let actionBarHTML = '';
+                if (isCancelled) {
+                    // Hvis aflyst: Vis en inaktiv knap
+                    actionBarHTML = `<button class="btn-outline" disabled style="background:#F3F4F6; color:#6B7280; border:none; cursor:default;">🚫 Aflyst</button>`;
+                } else {
+                    // Hvis aktiv: Vis de normale knapper
+                    actionBarHTML = `
+                        <button class="btn-outline btn-danger" onclick="deleteTrip('${ride.id}')">Aflys tur</button>
+                        <button class="btn-action-main" ${!isPassed ? 'disabled' : ''} onclick="completeTrip('${ride.id}')">${isPassed ? 'Afslut tur & Modtag penge' : 'Turen er ikke slut endnu'}</button>
+                    `;
+                }
+
+                // CSS styling: Gør kortet lidt gennemsigtigt/gråt hvis aflyst
+                const cardStyle = isCancelled ? 'opacity: 0.7; background: #FAFAFA;' : '';
+                const titleStyle = isCancelled ? 'text-decoration: line-through; color: #94A3B8;' : '';
+
+                html += `<div class="ride-card" style="${cardStyle}">
                     <div class="ride-header" onclick="toggleExpand('details-${ride.id}')">
-                        <div><div class="route-title">${ride.origin_city} ➝ ${ride.destination_city}</div><div class="ride-meta">${formatDateTime(ride.departure_time)}</div></div>
+                        <div>
+                            <div class="route-title" style="${titleStyle}">${ride.origin_city} ➝ ${ride.destination_city}</div>
+                            <div class="ride-meta">${formatDateTime(ride.departure_time)} ${isCancelled ? '<span style="color:#EF4444; font-weight:bold; margin-left:10px;">(AFLYST)</span>' : ''}</div>
+                        </div>
                         <div class="ride-price">${ride.price_dkk} kr.</div>
                     </div>
                     <div class="ride-details" id="details-${ride.id}">
                         <div class="passenger-list">${passengersHTML}</div>
-                        <div class="action-bar"><button class="btn-action-main" ${!isPassed ? 'disabled' : ''} onclick="completeTrip('${ride.id}')">${isPassed ? 'Afslut tur & Modtag penge' : 'Turen er ikke slut endnu'}</button></div>
+                        <div class="action-bar">
+                            ${actionBarHTML}
+                        </div>
                     </div>
                 </div>`;
             });
@@ -598,6 +629,31 @@
                     fetchDriverRides();
                 } catch(e) { alert("Fejl: " + e.message); }
             });
+        }
+
+        async function deleteTrip(rideId) {
+            showModal(
+                "Aflys tur?", 
+                "Er du sikker på, at du vil aflyse denne tur? Har du allerede passagerer, vil de automatisk få deres betaling refunderet.", 
+                "Ja, aflys", 
+                async () => {
+                    try {
+                        const session = (await _supabase.auth.getSession()).data.session;
+                        // Vi kalder en Edge Function for at håndtere Stripe refunds sikkert
+                        const res = await _supabase.functions.invoke('delete-trip', { 
+                            body: { trip_id: rideId }, 
+                            headers: { Authorization: `Bearer ${session.access_token}` } 
+                        });
+                        
+                        if (res.error) throw res.error;
+                        
+                        alert("Turen er nu aflyst.");
+                        fetchDriverRides(); // Opdaterer UI
+                    } catch(e) { 
+                        alert("Fejl ved aflysning: " + e.message); 
+                    }
+                }
+            );
         }
     </script>
 </body>
