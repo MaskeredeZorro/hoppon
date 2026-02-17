@@ -36,6 +36,7 @@ class HoppOnHeader extends HTMLElement {
             if (session) {
                 // Opdaterede knapper (hvis man ER logget ind)
                 authButtons = `
+                    <a href="https://hoppon.dk/beskeder" class="btn-ghost" style="display:inline-block; text-decoration:none; color:inherit; cursor:pointer; border:none; background:none; font-family:inherit; font-weight:600; font-size:1rem;">Beskeder</a>
                     <button onclick="window._supabase.auth.signOut().then(() => location.reload())" class="btn-ghost" style="cursor:pointer; border:none; background:none; font-family:inherit; font-weight:600; font-size:1rem;">Log ud</button>
                     <a href="/profil/" class="btn-primary-small">Min Profil</a>
                 `;
