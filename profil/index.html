@@ -100,7 +100,7 @@
         .btn-icon:hover { filter: brightness(0.95); }
         .btn-icon.green { color: #166534; background: #DCFCE7; }
         .btn-icon.red { color: #991B1B; background: #FEE2E2; }
-        .btn-icon.chat { color: #3B82F6; background: #EFF6FF; } /* Ny stil til chat ikonet */
+        .btn-icon.chat { color: #3B82F6; background: #EFF6FF; }
         
         .action-bar { display: flex; gap: 10px; margin-top: 1.5rem; flex-wrap: wrap;}
         .btn-outline { flex: 1; min-width: 120px; border: 1px solid var(--border); background: white; padding: 12px; border-radius: 12px; font-weight: 700; color: var(--brand); cursor: pointer; transition: 0.2s;}
@@ -205,7 +205,13 @@
                     <div class="card">
                         <h2>Personlige oplysninger</h2>
                         <form id="profileForm" onsubmit="updateProfileInfo(event)">
-                            <div class="form-group"><label>Fulde navn</label><input type="text" id="prof-fullname" required></div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Fulde navn</label><input type="text" id="prof-fullname" required></div>
+                                <div class="form-group">
+                                    <label>Email <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">(Kræver bekræftelse)</span></label>
+                                    <input type="email" id="prof-email" required>
+                                </div>
+                            </div>
                             <div class="form-row">
                                 <div class="form-group"><label>Telefonnummer</label><input type="tel" id="prof-phone" required></div>
                                 <div class="form-group">
@@ -218,7 +224,7 @@
                                 </div>
                             </div>
                             <div class="form-group"><label>Kort Bio</label><textarea id="prof-bio" rows="3" placeholder="Fortæl lidt om dig selv..."></textarea></div>
-                            <div id="profileMessage" style="text-align: center; display: none; margin-bottom: 15px; font-weight: 600;"></div>
+                            <div id="profileMessage" style="text-align: center; display: none; margin-bottom: 15px; font-weight: 600; padding: 10px; border-radius: 8px;"></div>
                             <button type="submit" class="btn-submit" id="prof-submitBtn">Gem ændringer</button>
                         </form>
                         <div style="margin-top: 3rem; text-align: center; border-top: 1px solid #F1F5F9; padding-top: 2rem;">
@@ -339,6 +345,7 @@
         let activeDriverRides = [];
         let currentBalance = 0;
         let editCurrentPrice = 0;
+        let originalEmail = ""; // Gemmer den originale e-mail til sammenligning
 
         window.onload = async () => {
             if (typeof _supabase === 'undefined') return;
@@ -376,6 +383,10 @@
                 document.getElementById('prof-phone').value = profile.phone_number || "";
                 document.getElementById('prof-gender').value = profile.gender || "Andet";
                 document.getElementById('prof-bio').value = profile.bio || "";
+                
+                // Udfyld e-mail fra Supabase Auth sessionen
+                originalEmail = currentUser.email;
+                document.getElementById('prof-email').value = originalEmail;
             } catch (err) { console.error("Fejl ved load af profil:", err); }
         }
 
@@ -446,11 +457,6 @@
             const d = new Date(isoString);
             return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')} • ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
         }
-        function formatTimeOnly(isoString) {
-            if(!isoString) return "--:--";
-            const d = new Date(isoString);
-            return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
-        }
 
         async function loadTaxData() {
             try {
@@ -481,7 +487,9 @@
             const btn = document.getElementById('prof-submitBtn');
             const msg = document.getElementById('profileMessage');
             btn.disabled = true; btn.innerText = "Gemmer..."; msg.style.display = 'none';
+            
             try {
+                // 1. Opdater Profil Tabellen (Navn, tlf, bio, køn)
                 const updates = {
                     full_name: document.getElementById('prof-fullname').value.trim(),
                     phone_number: document.getElementById('prof-phone').value.trim(),
@@ -489,14 +497,45 @@
                     bio: document.getElementById('prof-bio').value.trim(),
                     updated_at: new Date().toISOString()
                 };
-                const { error } = await _supabase.from('profiles').update(updates).eq('id', currentUser.id);
-                if (error) throw error;
-                msg.style.display = 'block'; msg.style.color = '#166534'; msg.innerText = "✅ Din profil er blevet opdateret.";
+                const { error: profileError } = await _supabase.from('profiles').update(updates).eq('id', currentUser.id);
+                if (profileError) throw profileError;
+
+                let successText = "✅ Din profil er blevet opdateret.";
+                let msgBg = "#DCFCE7";
+                let msgColor = "#166534";
+
+                // 2. Håndter E-mail ændring, hvis brugeren har skrevet en ny
+                const newEmail = document.getElementById('prof-email').value.trim();
+                if (newEmail !== originalEmail) {
+                    const { data, error: emailError } = await _supabase.auth.updateUser({ email: newEmail });
+                    if (emailError) {
+                        throw new Error("Kunne ikke ændre e-mail. Måske er den allerede i brug?");
+                    }
+                    
+                    // Supabase kræver nu at de bekræfter begge steder
+                    successText += "<br><br>⚠️ <b>Tjek din indbakke!</b> Vi har sendt et bekræftelseslink til din nye e-mail for at godkende ændringen.";
+                    msgBg = "#FEF9C3"; // Gult advarsels-look for at fange opmærksomheden
+                    msgColor = "#854D0E";
+                }
+
+                // Opdater UI
+                msg.style.display = 'block'; 
+                msg.style.backgroundColor = msgBg;
+                msg.style.color = msgColor; 
+                msg.innerHTML = successText;
+                
                 document.getElementById('ui-name').innerText = updates.full_name;
                 document.getElementById('ui-phone').innerText = updates.phone_number;
+
             } catch (err) {
-                msg.style.display = 'block'; msg.style.color = '#DC2626'; msg.innerText = "❌ Fejl ved gemning.";
-            } finally { btn.disabled = false; btn.innerText = "Gem ændringer"; }
+                msg.style.display = 'block'; 
+                msg.style.backgroundColor = '#FEF2F2';
+                msg.style.color = '#DC2626'; 
+                msg.innerText = "❌ Fejl: " + err.message;
+            } finally { 
+                btn.disabled = false; 
+                btn.innerText = "Gem ændringer"; 
+            }
         }
 
         async function uploadAvatar(event) {
@@ -554,8 +593,7 @@
                         const name = b.profiles ? b.profiles.full_name : 'Ukendt';
                         const paxId = b.passenger_id;
                         
-                        // Det nye Chat-ikon knap (Linker til samtale.html)
-                        const chatBtn = `<button class="btn-icon chat" onclick="event.stopPropagation(); window.location.href='/samtale?user=${paxId}&ride=${ride.id}'" title="Skriv til passager"><i class="fa-regular fa-comment-dots"></i></button>`;
+                        const chatBtn = `<button class="btn-icon chat" onclick="event.stopPropagation(); window.location.href='/chat-detail.html?user=${paxId}&ride=${ride.id}'" title="Skriv til passager"><i class="fa-regular fa-comment-dots"></i></button>`;
 
                         let actionsHTML = b.status === 'pending' 
                             ? `${chatBtn}<button class="btn-icon green" onclick="event.stopPropagation(); updateBooking('${b.id}', 'approved', '${name}')" title="Godkend">✓</button><button class="btn-icon red" onclick="event.stopPropagation(); updateBooking('${b.id}', 'rejected', '${name}')" title="Afvis">✕</button>`
@@ -614,9 +652,7 @@
                 let html = '';
                 bookings.forEach(b => {
                     const ride = b.rides;
-                    
-                    // Chat-ikon så passageren kan skrive til chaufføren
-                    const chatBtn = `<button class="btn-icon chat" style="position: absolute; right: 1.5rem; top: 1.5rem;" onclick="window.location.href='/samtale?user=${ride.driver_id}&ride=${ride.id}'" title="Skriv til chauffør"><i class="fa-regular fa-comment-dots"></i></button>`;
+                    const chatBtn = `<button class="btn-icon chat" style="position: absolute; right: 1.5rem; top: 1.5rem;" onclick="window.location.href='/chat-detail.html?user=${ride.driver_id}&ride=${ride.id}'" title="Skriv til chauffør"><i class="fa-regular fa-comment-dots"></i></button>`;
 
                     html += `<div class="ride-card" style="padding: 1.5rem; position: relative;">
                         ${chatBtn}
@@ -668,9 +704,7 @@
                             body: { trip_id: rideId }, 
                             headers: { Authorization: `Bearer ${session.access_token}` } 
                         });
-                        
                         if (res.error) throw res.error;
-                        
                         alert("Turen er nu aflyst.");
                         fetchDriverRides(); 
                     } catch(e) { 
@@ -687,33 +721,24 @@
 
             document.getElementById('editRideId').value = ride.id;
             
-            // Dato
             const depDate = new Date(ride.departure_time);
             document.getElementById('editDate').value = depDate.toISOString().split('T')[0];
-            
-            // Tid (Afgang)
             document.getElementById('editDepHour').value = depDate.getHours().toString().padStart(2, '0');
             document.getElementById('editDepMin').value = depDate.getMinutes().toString().padStart(2, '0');
             
-            // Tid (Ankomst)
             const arrDate = new Date(ride.arrival_time);
             document.getElementById('editArrHour').value = arrDate.getHours().toString().padStart(2, '0');
             document.getElementById('editArrMin').value = arrDate.getMinutes().toString().padStart(2, '0');
 
-            // Sæder & Pris
             document.getElementById('editSeats').value = ride.seats_available;
             editCurrentPrice = ride.price_dkk;
             document.getElementById('editPriceDisplay').innerText = editCurrentPrice;
-
-            // Kommentar
             document.getElementById('editComment').value = ride.comment || "";
 
             document.getElementById('editRideModal').style.display = 'flex';
         }
 
-        function closeEditModal() {
-            document.getElementById('editRideModal').style.display = 'none';
-        }
+        function closeEditModal() { document.getElementById('editRideModal').style.display = 'none'; }
 
         function validateTimeInput(input, maxVal) {
             input.value = input.value.replace(/[^0-9]/g, '');
@@ -740,23 +765,16 @@
             try {
                 const rideId = document.getElementById('editRideId').value;
                 const dateStr = document.getElementById('editDate').value;
-                
                 const dH = document.getElementById('editDepHour').value || "00";
                 const dM = document.getElementById('editDepMin').value || "00";
-                
                 const aH = document.getElementById('editArrHour').value || "00";
                 const aM = document.getElementById('editArrMin').value || "00";
 
                 const [year, month, day] = dateStr.split('-').map(Number);
-                
-                // Opret lokale Date objekter
                 const newDep = new Date(year, month - 1, day, parseInt(dH), parseInt(dM), 0);
                 const newArr = new Date(year, month - 1, day, parseInt(aH), parseInt(aM), 0);
                 
-                // Håndter ankomst efter midnat
-                if (newArr <= newDep) {
-                    newArr.setDate(newArr.getDate() + 1);
-                }
+                if (newArr <= newDep) newArr.setDate(newArr.getDate() + 1);
 
                 const seats = parseInt(document.getElementById('editSeats').value);
                 const comment = document.getElementById('editComment').value;
@@ -770,7 +788,6 @@
                 }).eq('id', rideId);
 
                 if (error) throw error;
-
                 alert("Turen er opdateret! ✅");
                 closeEditModal();
                 fetchDriverRides(); 
