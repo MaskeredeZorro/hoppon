@@ -8,6 +8,8 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -80,12 +82,33 @@
         /* --- CHAUFFØR PROFIL --- */
         .driver-header-wrap { cursor: pointer; transition: 0.2s; padding: 10px; margin: -10px; border-radius: 16px;}
         .driver-header-wrap:hover { background: #F8FAFC; }
-        .driver-header { display: flex; align-items: center; gap: 15px; margin-bottom: 1rem;}
+        .driver-header { display: flex; align-items: center; gap: 15px; margin-bottom: 0.5rem;} /* Reduceret margin for plads til knap */
         .avatar-lg { width: 55px; height: 55px; border-radius: 50%; background: #E2E8F0; object-fit: cover; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; overflow: hidden; flex-shrink: 0;}
         .avatar-lg img { width: 100%; height: 100%; object-fit: cover; }
         .driver-name { font-size: 1.2rem; font-weight: 800; margin: 0; }
         .driver-meta { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; display: flex; align-items: center; gap: 5px; margin-top: 4px;}
         
+        /* NY CHAT KNAP */
+        .btn-message-driver {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #EFF6FF;
+            color: #3B82F6;
+            border: 1px solid #BFDBFE;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 10px;
+            margin-left: 10px;
+        }
+        .btn-message-driver:hover {
+            background: #DBEAFE;
+        }
+
         .gomore-badge { background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px; border-radius: 16px; display: flex; gap: 15px; align-items: center; margin-bottom: 1.2rem; margin-top: 0.5rem;}
         .gomore-icon { background: var(--success); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;}
         .co2-box { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 1rem;}
@@ -183,9 +206,13 @@
                                 </div>
                             </div>
 
+                            <button class="btn-message-driver" id="btnMessageDriver" onclick="messageDriver()" style="display: none;">
+                                <i class="fa-regular fa-comment-dots"></i> Spørg chauffør
+                            </button>
+
                             <div id="gomoreBadgeContainer"></div>
 
-                            <div class="stat-row">
+                            <div class="stat-row" style="margin-top: 15px;">
                                 <span>✅ Telefon bekræftet</span>
                             </div>
                             <div class="stat-row">
@@ -255,11 +282,21 @@
     </div>
 
     <script>
+        const MAPBOX_TOKEN = "pk.eyJ1IjoiaG9wcG9uIiwiYSI6ImNtbDk0bDN3cTBiM3MzZnFzdThhOXRuZG4ifQ.9LP9GFe5zEvMjwhPtf6l0w";
         let currentRide = null;
         let driverProfile = null;
         let allReviews = [];
+        let currentUserId = null;
 
         window.onload = async () => {
+            // Hent brugerens session for at se om de er logget ind (og ikke er chaufføren)
+            if (typeof _supabase !== 'undefined') {
+                const { data: { session } } = await _supabase.auth.getSession();
+                if (session) {
+                    currentUserId = session.user.id;
+                }
+            }
+
             const urlParams = new URLSearchParams(window.location.search);
             let rideId = urlParams.get('id');
 
@@ -279,6 +316,20 @@
             }
         }
 
+        // --- NY FUNKTION: Send besked ---
+        function messageDriver() {
+            // Tjek om brugeren er logget ind
+            if (!currentUserId) {
+                if (confirm("Du skal være logget ind for at sende en besked. Vil du logge ind nu?")) {
+                    window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+                }
+                return;
+            }
+            
+            // Hvis de er logget ind, send dem til chat-siden med driver_id og ride_id
+            window.location.href = `/beskeder.html?user=${driverProfile.id}&ride=${currentRide.id}`;
+        }
+
         async function loadRideData(rideId) {
             try {
                 const isUUID = rideId.length > 20;
@@ -293,6 +344,11 @@
                 if (rideErr || !ride) throw new Error("Turen findes ikke");
                 currentRide = ride;
                 driverProfile = ride.driver;
+
+                // Hvis den besøgende IKKE er chaufføren selv, så vis "Spørg chauffør" knappen
+                if (currentUserId !== driverProfile.id) {
+                    document.getElementById('btnMessageDriver').style.display = 'inline-flex';
+                }
 
                 // Hent reviews
                 const { data: reviews } = await _supabase
@@ -457,13 +513,12 @@
         }
 
         async function handleBooking() {
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (!session) {
+            if (!currentUserId) {
                 alert("Du skal være logget ind for at booke turen. Opret en profil nemt og hurtigt!");
-                window.location.href = '/login?redirect=' + window.location.pathname + window.location.search;
+                window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
                 return;
             }
-            if (session.user.id === driverProfile.id) {
+            if (currentUserId === driverProfile.id) {
                 alert("Du kan ikke booke din egen tur!");
                 return;
             }
