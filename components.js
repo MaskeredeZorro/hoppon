@@ -60,11 +60,11 @@ class HoppOnHeader extends HTMLElement {
                         ${authButtons}
                     </div>
                 </div>
-
-                <div class="sub-header-banner" style="background-color: rgba(243, 244, 246, 0.9); color: #333; text-align: center; padding: 6px 15px; font-size: 0.85rem; width: 100%; border-top: 1px solid rgba(229, 231, 235, 0.5);">
-                    Flyt din samkørselshistorik og gode bedømmelser til os - <a href="mailto:kontakt@hoppon.dk" style="color: #333; text-decoration: underline; font-weight: 600;">blot send os en mail.</a>
-                </div>
             </header>
+            
+            <div class="indigo-banner" style="background-color: #4f46e5; color: #ffffff; text-align: center; padding: 6px 15px; font-size: 0.85rem; width: 100%; box-sizing: border-box;">
+                Flyt din samkørselshistorik og gode bedømmelser til os - <a href="mailto:hej@hoppon.dk" style="color: #ffffff; text-decoration: underline; font-weight: 600;">blot send os en mail.</a>
+            </div>
         `;
     }
 }
