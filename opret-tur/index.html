@@ -497,10 +497,6 @@
                 document.getElementById('rideTimeHour').value = hours;
                 document.getElementById('rideTimeMin').value = minutes;
                 
-                const todayYear = now.getFullYear();
-                const todayMonth = String(now.getMonth() + 1).padStart(2, '0');
-                const todayDay = String(now.getDate()).padStart(2, '0');
-                const todayStr = `${todayYear}-${todayMonth}-${todayDay}`;
                 selectedDates.push(todayStr);
                 generateCalendar();
                 updateTimes();
