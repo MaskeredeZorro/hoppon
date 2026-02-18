@@ -1,7 +1,7 @@
 // --- GORILLA FAVICON SETUP (Kører automatisk på alle sider) ---
 (function() {
     const head = document.head;
-    const version = "?v=3"; // Versionering tvinger browseren til at opdatere ikonet
+    const version = "?v=3"; 
 
     const iconData = [
         { rel: 'icon', type: 'image/png', sizes: '96x96', href: 'https://i.imgur.com/IAgoHYd.png' },
@@ -18,55 +18,167 @@
     });
 })();
 
-// --- EKSISTERENDE COMPONENTS ---
+// --- UPDATED COMPONENTS ---
 
 class HoppOnHeader extends HTMLElement {
     async connectedCallback() {
-        // Standard knapper (hvis man IKKE er logget ind)
+        // 1. Definer links (så vi ikke skal skrive dem to gange)
+        const navLinks = `
+            <a href="/lift/">Find lift</a>
+            <a href="/opret-tur/">Udbyd tur</a>
+            <a href="/support/">Support</a>
+            <a href="/alternativer-til-gomore/for-passagerer">For passagerer</a>
+            <a href="/alternativer-til-gomore/for-chauffoerer">For chauffører</a>
+        `;
+
+        // 2. Standard knapper (Ikke logget ind)
         let authButtons = `
             <a href="/login/" class="btn-ghost">Log ind</a>
             <a href="/opret-profil/" class="btn-primary-small">Opret profil</a>
         `;
 
-        // Tjek om brugeren er logget ind via Supabase
+        // 3. Tjek login status
         if (window._supabase) {
             const { data: { session } } = await window._supabase.auth.getSession();
             if (session) {
-                // Opdaterede knapper (hvis man ER logget ind)
                 authButtons = `
-                    <a href="https://hoppon.dk/beskeder" class="btn-ghost" style="display:inline-block; text-decoration:none; color:inherit; font-family:inherit; font-weight:600; font-size:1rem;">Beskeder</a>
-                    <a href="/profil/" class="btn-primary-small">Min Profil</a>
-                    <button onclick="window._supabase.auth.signOut().then(() => location.reload())" class="btn-ghost" style="cursor:pointer; border:none; background:none; font-family:inherit; font-weight:600; font-size:1rem;">Log ud</button>
+                    <a href="https://hoppon.dk/beskeder" class="btn-ghost mobile-link">Beskeder</a>
+                    <a href="/profil/" class="btn-primary-small mobile-btn">Min Profil</a>
+                    <button onclick="window._supabase.auth.signOut().then(() => location.reload())" class="btn-ghost mobile-link" style="cursor:pointer; border:none; background:none;">Log ud</button>
                 `;
             }
         }
 
+        // 4. Byg HTML med CSS og Mobil Menu struktur
         this.innerHTML = `
+            <style>
+                /* Integreret CSS for Headeren */
+                .glass-header {
+                    position: fixed; top: 0; left: 0; right: 0;
+                    background: rgba(255, 255, 255, 0.85);
+                    backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
+                    border-bottom: 1px solid rgba(0,0,0,0.05);
+                    z-index: 1000;
+                    padding: 0 1.5rem;
+                    height: 70px;
+                    display: flex; align-items: center;
+                }
+                .header-container {
+                    max-width: 1200px; margin: 0 auto; width: 100%;
+                    display: flex; justify-content: space-between; align-items: center;
+                }
+                .logo { 
+                    display: flex; align-items: center; gap: 10px; 
+                    font-weight: 800; font-size: 1.2rem; color: var(--brand, #0F172A); 
+                    text-decoration: none; 
+                }
+                .logo img { height: 35px; width: auto; }
+                
+                /* Desktop Navigation */
+                .desktop-nav { display: flex; gap: 20px; align-items: center; }
+                .desktop-nav a { text-decoration: none; color: var(--text-main, #334155); font-weight: 500; font-size: 0.95rem; transition: 0.2s; }
+                .desktop-nav a:hover { color: var(--accent, #6366F1); }
+                .auth-buttons { display: flex; gap: 10px; align-items: center; }
+
+                /* Knapper Styling */
+                .btn-ghost { color: var(--text-main, #334155); font-weight: 600; text-decoration: none; padding: 8px 12px; transition: 0.2s; }
+                .btn-ghost:hover { color: var(--accent, #6366F1); background: rgba(99, 102, 241, 0.05); border-radius: 8px; }
+                .btn-primary-small { background: var(--accent, #6366F1); color: white; padding: 8px 16px; border-radius: 10px; text-decoration: none; font-weight: 700; transition: 0.2s; font-size: 0.9rem; }
+                .btn-primary-small:hover { background: var(--brand, #0F172A); }
+
+                /* Burger Menu Ikon */
+                .burger-toggle { display: none; cursor: pointer; font-size: 1.5rem; background: none; border: none; color: var(--brand, #0F172A); }
+                
+                /* Mobil Menu Overlay */
+                .mobile-menu-overlay {
+                    position: fixed; top: 70px; left: 0; width: 100%; height: calc(100vh - 70px);
+                    background: white; transform: translateX(100%); transition: transform 0.3s ease-in-out;
+                    display: flex; flex-direction: column; padding: 2rem; gap: 1.5rem;
+                    box-shadow: -5px 0 15px rgba(0,0,0,0.05);
+                    border-top: 1px solid #eee;
+                }
+                .mobile-menu-overlay.active { transform: translateX(0); }
+                .mobile-nav-links { display: flex; flex-direction: column; gap: 1.5rem; font-size: 1.1rem; font-weight: 600; }
+                .mobile-nav-links a { text-decoration: none; color: var(--brand, #0F172A); border-bottom: 1px solid #f1f1f1; padding-bottom: 10px; }
+                .mobile-auth-section { margin-top: auto; display: flex; flex-direction: column; gap: 1rem; padding-bottom: 2rem; }
+                
+                /* Responsive Regler */
+                @media (max-width: 900px) {
+                    .desktop-nav, .auth-buttons { display: none; }
+                    .burger-toggle { display: block; }
+                }
+            </style>
+
             <header class="glass-header">
                 <div class="header-container">
                     <a href="/" class="logo">
                         <img src="https://i.imgur.com/32NBOeO.png" alt="HoppOn Samkørsel Logo">
                         HoppOn
                     </a>
+
                     <nav class="desktop-nav">
-                        <a href="/lift/">Find lift</a>
-                        <a href="/opret-tur/">Udbyd tur</a>
-                        <a href="/support/">Support</a>
-                        <a href="/alternativer-til-gomore/for-passagerer">For passagerer</a>
-                        <a href="/alternativer-til-gomore/for-chauffoerer">For chauffører</a>
+                        ${navLinks}
                     </nav>
                     <div class="auth-buttons">
                         ${authButtons}
                     </div>
+
+                    <button class="burger-toggle" id="burgerBtn" onclick="this.getRootNode().host.toggleMenu()">
+                        <i class="fa-solid fa-bars"></i>
+                        <span style="font-family: sans-serif;">☰</span>
+                    </button>
                 </div>
             </header>
+
+            <div class="mobile-menu-overlay" id="mobileMenu">
+                <nav class="mobile-nav-links">
+                    ${navLinks}
+                </nav>
+                <div class="mobile-auth-section">
+                    ${authButtons}
+                </div>
+            </div>
         `;
+    }
+
+    toggleMenu() {
+        const menu = this.querySelector('#mobileMenu');
+        const btn = this.querySelector('#burgerBtn span');
+        const isActive = menu.classList.contains('active');
+        
+        if (isActive) {
+            menu.classList.remove('active');
+            btn.innerHTML = '☰'; // Hamburger
+        } else {
+            menu.classList.add('active');
+            btn.innerHTML = '✕'; // Kryds
+        }
     }
 }
 
 class HoppOnFooter extends HTMLElement {
     connectedCallback() {
         this.innerHTML = `
+            <style>
+                /* Footer Styling integration */
+                .site-footer { background: white; padding: 4rem 1.5rem 2rem; border-top: 1px solid #E2E8F0; margin-top: auto; }
+                .footer-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+                .footer-brand h3 { font-size: 1.2rem; font-weight: 800; margin: 10px 0; color: #0F172A; }
+                .footer-brand p { color: #64748B; line-height: 1.6; font-size: 0.95rem; }
+                .footer-logo { width: 40px; height: 40px; }
+                .footer-links { display: flex; flex-direction: column; gap: 12px; }
+                .footer-links h4 { font-size: 1rem; font-weight: 700; color: #0F172A; margin-bottom: 0.5rem; }
+                .footer-links a { text-decoration: none; color: #64748B; font-size: 0.95rem; transition: 0.2s; }
+                .footer-links a:hover { color: #6366F1; transform: translateX(3px); display:inline-block; }
+                .footer-bottom { border-top: 1px solid #E2E8F0; padding-top: 2rem; text-align: center; color: #94A3B8; font-size: 0.9rem; max-width: 1200px; margin: 0 auto; }
+                
+                @media (max-width: 900px) {
+                    .footer-grid { grid-template-columns: 1fr; gap: 2rem; text-align: center; }
+                    .footer-brand { align-items: center; display: flex; flex-direction: column; }
+                }
+            </style>
+
             <footer class="site-footer">
                 <div class="footer-grid">
                     
@@ -100,7 +212,7 @@ class HoppOnFooter extends HTMLElement {
                         <a href="/sikkerhed/">Sikkerhed på turen</a>
                         <a href="/toc/">Handelsbetingelser</a>
                         <a href="/privacy_policy/">Privatlivspolitik</a>
-                        <a href="/gomore-lukker-samkoersel/" style="color: var(--accent); font-weight: bold;">GoMore lukker samkørsel</a>
+                        <a href="/gomore-lukker-samkoersel/" style="color: #6366F1; font-weight: bold;">GoMore lukker samkørsel</a>
                     </div>
                 </div>
                 
