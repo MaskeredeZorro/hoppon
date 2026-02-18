@@ -497,7 +497,8 @@
                 document.getElementById('rideTimeHour').value = hours;
                 document.getElementById('rideTimeMin').value = minutes;
                 
-                selectedDates.push(todayStr);
+                // SLET DENNE LINJE: selectedDates.push(todayStr); 
+                
                 generateCalendar();
                 updateTimes();
             } else {
