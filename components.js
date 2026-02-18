@@ -19,6 +19,7 @@
 })();
 
 // --- HOPPON HEADER COMPONENT ---
+// --- HOPPON HEADER COMPONENT ---
 class HoppOnHeader extends HTMLElement {
     async connectedCallback() {
         // 1. Definer links
@@ -67,6 +68,34 @@ class HoppOnHeader extends HTMLElement {
                     height: 70px;
                     display: flex; align-items: center;
                 }
+
+                /* Announcement Banner Styling */
+                .announcement-bar {
+                    position: fixed;
+                    top: 70px; /* Placeret lige under headeren */
+                    left: 0;
+                    width: 100%;
+                    background-color: #EEF2FF; /* Lys indigo baggrund */
+                    color: #1E293B;
+                    text-align: center;
+                    padding: 8px 1.5rem;
+                    font-size: 0.85rem;
+                    font-weight: 500;
+                    border-bottom: 1px solid #E0E7FF;
+                    z-index: 990; /* Lige under header og mobilmenu */
+                    font-family: 'Inter', sans-serif;
+                    box-sizing: border-box;
+                }
+
+                .announcement-bar a {
+                    color: #6366F1;
+                    text-decoration: none;
+                    font-weight: 700;
+                }
+                .announcement-bar a:hover {
+                    text-decoration: underline;
+                }
+
                 .header-container {
                     max-width: 1200px; margin: 0 auto; width: 100%;
                     display: flex; justify-content: space-between; align-items: center;
@@ -141,6 +170,10 @@ class HoppOnHeader extends HTMLElement {
                 </div>
             </header>
 
+            <div class="announcement-bar">
+                Flyt din tidligere samkørselshistorik til HoppOn - kontakt os på <a href="mailto:hej@hoppon.dk">hej@hoppon.dk</a>
+            </div>
+
             <div class="mobile-menu-overlay" id="mobileMenu">
                 <nav class="mobile-nav-links">
                     ${navLinks}
@@ -151,7 +184,7 @@ class HoppOnHeader extends HTMLElement {
             </div>
         `;
 
-        // 5. TILFØJ EVENT LISTENERS (Dette er fixet)
+        // 5. TILFØJ EVENT LISTENERS
         
         // Find elementerne
         const burgerBtn = this.querySelector('#burgerBtn');
