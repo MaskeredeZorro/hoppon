@@ -715,6 +715,55 @@
         }
 
         // --- EDIT RIDE LOGIC ---
+        // --- BOOKING LOGIK (Indsæt dette nederst i dit script) ---
+
+        async function updateBooking(bookingId, newStatus, passengerName) {
+            // Tekst til bekræftelsesboks
+            const actionText = newStatus === 'approved' ? 'godkende' : 'afvise';
+            
+            if (!confirm(`Er du sikker på, at du vil ${actionText} ${passengerName}?`)) return;
+
+            try {
+                // Vi opdaterer KUN status. Databasen klarer nu selv sæde-antallet!
+                const { error } = await _supabase
+                    .from('bookings')
+                    .update({ status: newStatus })
+                    .eq('id', bookingId);
+
+                if (error) throw error;
+
+                alert(`Succes: ${passengerName} er nu ${newStatus === 'approved' ? 'godkendt ✅' : 'afvist ❌'}.`);
+                
+                // Genindlæs listen for at se ændringen
+                fetchDriverRides();
+
+            } catch (err) {
+                console.error("Booking fejl:", err);
+                alert("Der opstod en fejl: " + err.message);
+            }
+        }
+
+        async function driverCancelPassenger(bookingId, passengerName) {
+            if (!confirm(`Er du sikker på, at du vil smide ${passengerName} af turen? \nPladsen bliver gjort ledig igen.`)) return;
+
+            try {
+                // Sæt status til rejected -> Triggeren sørger for at lægge sædet tilbage i puljen
+                const { error } = await _supabase
+                    .from('bookings')
+                    .update({ status: 'rejected' }) 
+                    .eq('id', bookingId);
+
+                if (error) throw error;
+
+                alert(`${passengerName} er fjernet fra turen.`);
+                fetchDriverRides();
+
+            } catch (err) {
+                console.error("Cancel fejl:", err);
+                alert("Fejl: " + err.message);
+            }
+        }
+        
         function openEditModal(rideId) {
             const ride = activeDriverRides.find(r => r.id === rideId);
             if (!ride) return;
