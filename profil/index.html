@@ -574,6 +574,13 @@
 
 
     <script>
+        // HJÆLPEFUNKTION SOM MANGLEDE!
+        function formatDateTime(isoString) {
+            if (!isoString) return "--/-- • --:--";
+            const d = new Date(isoString);
+            return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')} • ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+        }
+
         let currentUserId = null;
         let currentUser = null; 
         let targetId = null;
@@ -602,7 +609,7 @@
         const months = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
 
         // ==========================================
-        // INITIALISERING (LØSER BUGGEN)
+        // INITIALISERING
         // ==========================================
         window.onload = async () => {
             try {
@@ -634,7 +641,6 @@
                 const sd = document.getElementById('searchDate');
                 if(sd) sd.placeholder = `${dd}/${mm}/${yyyy}`;
 
-                // VIGTIGT: Vi loader den overordnede struktur FØRST
                 await loadData();
 
                 if (currentUserId === targetId) {
@@ -1012,7 +1018,7 @@
                 let html = '';
                 bookings.forEach(b => {
                     const ride = b.rides;
-                    if (!ride) return; // Beskytter mod slettede ture
+                    if (!ride) return; 
                     const chatBtn = `<button class="btn-icon chat" style="position: absolute; right: 1.5rem; top: 1.5rem;" onclick="window.location.href='/samtale?user=${ride.driver_id}&ride=${ride.id}'" title="Skriv til chauffør"><i class="fa-regular fa-comment-dots"></i></button>`;
 
                     html += `<div class="ride-card" style="padding: 1.5rem; position: relative;">
@@ -1196,6 +1202,7 @@
             }
         }
 
+
         // ==========================================
         // GÆSTE PROFIL TURE SØGNING
         // ==========================================
@@ -1337,6 +1344,7 @@
                 container.appendChild(card);
             });
         }
+
 
         // ==========================================
         // UI & FILTER LOGIK REVIEWS
@@ -1634,6 +1642,48 @@
         function submitReport() {
             document.getElementById('reportModal').style.display = 'none';
             alert("Tak. Vi kigger på sagen.");
+        }
+
+        async function lookupPlateProfile() {
+            const plateInput = document.getElementById('prof-plate');
+            const plate = plateInput.value.trim();
+            const badge = document.getElementById('carBadge');
+            const err = document.getElementById('plateError');
+            
+            if (!plate) return;
+
+            err.style.display = "none";
+            badge.style.display = "none";
+
+            const { data, error } = await _supabase.rpc('get_car_details', { plate_text: plate.replace(/\s/g, '') });
+
+            if (data && !data.error && data.make) {
+                const formattedPlate = plate.toUpperCase();
+                
+                document.getElementById('displayCarName').innerText = `${data.make} ${data.model}`;
+                document.getElementById('displayCarMeta').innerText = `${data.model_year || ''} • ${data.color || ''} • ${formattedPlate}`;
+                
+                carDataStorage = {
+                    make: data.make,
+                    model: data.model,
+                    year: data.model_year ? data.model_year.toString() : "",
+                    color: data.color || "",
+                    plate: formattedPlate,
+                    details: `${data.model_year || ''} • ${data.color || ''} • ${formattedPlate}`,
+                    display_name: `${data.make} ${data.model}`
+                };
+                
+                badge.style.display = "flex";
+                plateInput.value = ""; 
+            } else {
+                err.innerText = "❌ Vi kunne ikke finde bilen. Tjek nummerpladen.";
+                err.style.display = "block";
+            }
+        }
+
+        function clearCarData() {
+            carDataStorage = null;
+            document.getElementById('carBadge').style.display = "none";
         }
 
         function switchMainTab(tabId, btn) {
