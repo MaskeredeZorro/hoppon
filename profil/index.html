@@ -342,10 +342,12 @@
         const MAPBOX_TOKEN = "pk.eyJ1IjoiaG9wcG9uIiwiYSI6ImNtbDk0bDN3cTBiM3MzZnFzdThhOXRuZG4ifQ.9LP9GFe5zEvMjwhPtf6l0w";
         let currentUser = null;
         let isCprLocked = false;
-        let activeDriverRides = [];
+        
+        let groupedDriverRides = []; // GEMMER GRUPPEREDE TURE HER
+        
         let currentBalance = 0;
         let editCurrentPrice = 0;
-        let originalEmail = ""; // Gemmer den originale e-mail til sammenligning
+        let originalEmail = "";
 
         window.onload = async () => {
             if (typeof _supabase === 'undefined') return;
@@ -384,7 +386,6 @@
                 document.getElementById('prof-gender').value = profile.gender || "Andet";
                 document.getElementById('prof-bio').value = profile.bio || "";
                 
-                // Udfyld e-mail fra Supabase Auth sessionen
                 originalEmail = currentUser.email;
                 document.getElementById('prof-email').value = originalEmail;
             } catch (err) { console.error("Fejl ved load af profil:", err); }
@@ -434,7 +435,6 @@
             }
         }
 
-        // TABS OG UI LOGIK
         function switchMainTab(tabId, btn) {
             document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(e => e.classList.remove('active'));
@@ -452,13 +452,13 @@
             el.style.display = el.style.display === 'block' ? 'none' : 'block';
         }
 
-        // FORMATTERING
         function formatDateTime(isoString) {
             const d = new Date(isoString);
             return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')} • ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
         }
 
         async function loadTaxData() {
+            // Skattelogik forbliver uændret...
             try {
                 const { data: taxData } = await _supabase.from('tax_identities').select('*').eq('user_id', currentUser.id).maybeSingle();
                 if (taxData) {
@@ -483,13 +483,13 @@
         }
 
         async function updateProfileInfo(e) {
+            // Profilopdatering forbliver uændret...
             e.preventDefault();
             const btn = document.getElementById('prof-submitBtn');
             const msg = document.getElementById('profileMessage');
             btn.disabled = true; btn.innerText = "Gemmer..."; msg.style.display = 'none';
             
             try {
-                // 1. Opdater Profil Tabellen (Navn, tlf, bio, køn)
                 const updates = {
                     full_name: document.getElementById('prof-fullname').value.trim(),
                     phone_number: document.getElementById('prof-phone').value.trim(),
@@ -504,21 +504,15 @@
                 let msgBg = "#DCFCE7";
                 let msgColor = "#166534";
 
-                // 2. Håndter E-mail ændring, hvis brugeren har skrevet en ny
                 const newEmail = document.getElementById('prof-email').value.trim();
                 if (newEmail !== originalEmail) {
                     const { data, error: emailError } = await _supabase.auth.updateUser({ email: newEmail });
-                    if (emailError) {
-                        throw new Error("Kunne ikke ændre e-mail. Måske er den allerede i brug?");
-                    }
+                    if (emailError) throw new Error("Kunne ikke ændre e-mail. Måske er den allerede i brug?");
                     
-                    // Supabase kræver nu at de bekræfter begge steder
                     successText += "<br><br>⚠️ <b>Tjek din indbakke!</b> Vi har sendt et bekræftelseslink til din nye e-mail for at godkende ændringen.";
-                    msgBg = "#FEF9C3"; // Gult advarsels-look for at fange opmærksomheden
-                    msgColor = "#854D0E";
+                    msgBg = "#FEF9C3"; msgColor = "#854D0E";
                 }
 
-                // Opdater UI
                 msg.style.display = 'block'; 
                 msg.style.backgroundColor = msgBg;
                 msg.style.color = msgColor; 
@@ -526,7 +520,6 @@
                 
                 document.getElementById('ui-name').innerText = updates.full_name;
                 document.getElementById('ui-phone').innerText = updates.phone_number;
-
             } catch (err) {
                 msg.style.display = 'block'; 
                 msg.style.backgroundColor = '#FEF2F2';
@@ -539,6 +532,7 @@
         }
 
         async function uploadAvatar(event) {
+            // Upload logik forbliver uændret...
             const file = event.target.files[0];
             if (!file) return;
             const loader = document.getElementById('avatar-loading');
@@ -558,6 +552,7 @@
             finally { loader.style.display = 'none'; event.target.value = ""; }
         }
 
+        // --- FETCH OG GRUPPÉR TURE ---
         async function fetchDriverRides() {
             try {
                 const { data: rides, error } = await _supabase.from('rides')
@@ -565,42 +560,107 @@
                     .eq('driver_id', currentUser.id).order('departure_time', { ascending: true });
                 if(error) throw error;
                 const now = new Date();
-                activeDriverRides = rides.filter(r => {
+                
+                const activeRides = rides.filter(r => {
                     const dep = new Date(r.departure_time);
                     return r.status !== 'completed' && now < new Date(dep.getTime() + (24 * 60 * 60 * 1000));
                 });
+
+                // Grupper turene efter deres route_group_id
+                const groups = {};
+                activeRides.forEach(r => {
+                    const groupId = r.route_group_id || r.id; // Fallback til ID for gamle ruter
+                    if (!groups[groupId]) groups[groupId] = [];
+                    groups[groupId].push(r);
+                });
+
+                groupedDriverRides = Object.values(groups).map(group => {
+                    let allBookings = [];
+                    let hasPassengers = false;
+                    let isCancelled = group.every(r => r.status === 'cancelled');
+
+                    // Find hovedturen (den der tager længst tid = fra start til slut)
+                    const mainRide = group.reduce((prev, curr) => {
+                        const prevDur = new Date(prev.arrival_time) - new Date(prev.departure_time);
+                        const currDur = new Date(curr.arrival_time) - new Date(curr.departure_time);
+                        return currDur > prevDur ? curr : prev;
+                    });
+
+                    // Saml alle bookinger på tværs af gruppen (og gem strækningen)
+                    group.forEach(r => {
+                        if (r.bookings) {
+                            r.bookings.forEach(b => {
+                                allBookings.push({ 
+                                    ...b, 
+                                    ride_segment: `${r.origin_city} ➝ ${r.destination_city}`, 
+                                    ride_id: r.id 
+                                });
+                                if (b.status === 'approved' || b.status === 'pending') hasPassengers = true;
+                            });
+                        }
+                    });
+
+                    return {
+                        id: group[0].route_group_id || group[0].id,
+                        is_group: !!group[0].route_group_id && group.length > 1,
+                        rides: group,
+                        main_ride: mainRide,
+                        all_bookings: allBookings,
+                        has_passengers: hasPassengers,
+                        is_cancelled: isCancelled
+                    };
+                });
+
+                // Sortér grupperne efter tidligste afgang
+                groupedDriverRides.sort((a, b) => new Date(a.main_ride.departure_time) - new Date(b.main_ride.departure_time));
+
                 renderDriverRides();
-            } catch (err) { document.getElementById('driver-rides-list').innerHTML = `<p style="color:red;text-align:center;">Fejl: ${err.message}</p>`; }
+            } catch (err) { 
+                document.getElementById('driver-rides-list').innerHTML = `<p style="color:red;text-align:center;">Fejl: ${err.message}</p>`; 
+            }
         }
 
         function renderDriverRides() {
             const container = document.getElementById('driver-rides-list');
-            if (activeDriverRides.length === 0) {
+            if (groupedDriverRides.length === 0) {
                 container.innerHTML = `<div style="text-align:center; padding:3rem 1rem;"><h3 style="color:var(--brand);">Ingen kommende ture</h3></div>`;
                 return;
             }
             let html = '';
-            activeDriverRides.forEach(ride => {
-                const isPassed = new Date() > new Date(ride.arrival_time);
-                const isCancelled = ride.status === 'cancelled'; 
-                
-                const activeBookings = (ride.bookings || []).filter(b => b.status === 'approved' || b.status === 'pending');
+            groupedDriverRides.forEach(group => {
+                const mainRide = group.main_ride;
+                const isPassed = new Date() > new Date(mainRide.arrival_time);
+                const isCancelled = group.is_cancelled;
+
+                const activeBookings = group.all_bookings.filter(b => b.status === 'approved' || b.status === 'pending');
                 const hasPassengers = activeBookings.length > 0;
                 let passengersHTML = '';
-                
-                if (!isCancelled) {
-                    activeBookings.forEach(b => {
-                        const name = b.profiles ? b.profiles.full_name : 'Ukendt';
-                        const paxId = b.passenger_id;
-                        
-                        const chatBtn = `<button class="btn-icon chat" onclick="event.stopPropagation(); window.location.href='/samtale?user=${paxId}&ride=${ride.id}'" title="Skriv til passager"><i class="fa-regular fa-comment-dots"></i></button>`;
 
-                        let actionsHTML = b.status === 'pending' 
-                            ? `${chatBtn}<button class="btn-icon green" onclick="event.stopPropagation(); updateBooking('${b.id}', 'approved', '${name}')" title="Godkend">✓</button><button class="btn-icon red" onclick="event.stopPropagation(); updateBooking('${b.id}', 'rejected', '${name}')" title="Afvis">✕</button>`
-                            : `${chatBtn}<button class="btn-icon red" onclick="event.stopPropagation(); driverCancelPassenger('${b.id}', '${name}')" title="Aflys passager">✕</button>`;
-                            
-                        passengersHTML += `<div class="passenger-item"><div class="passenger-info">👤 ${name}</div><div class="passenger-actions">${actionsHTML}</div></div>`;
-                    });
+                if (!isCancelled) {
+                    if (activeBookings.length === 0) {
+                        passengersHTML = `<div style="color:var(--text-muted); font-size:0.9rem; text-align:center;">Ingen passagerer endnu.</div>`;
+                    } else {
+                        activeBookings.forEach(b => {
+                            const name = b.profiles ? b.profiles.full_name : 'Ukendt';
+                            const paxId = b.passenger_id;
+
+                            const chatBtn = `<button class="btn-icon chat" onclick="event.stopPropagation(); window.location.href='/samtale?user=${paxId}&ride=${b.ride_id}'" title="Skriv til passager"><i class="fa-regular fa-comment-dots"></i></button>`;
+
+                            let actionsHTML = b.status === 'pending' 
+                                ? `${chatBtn}<button class="btn-icon green" onclick="event.stopPropagation(); updateBooking('${b.id}', 'approved', '${name}')" title="Godkend">✓</button><button class="btn-icon red" onclick="event.stopPropagation(); updateBooking('${b.id}', 'rejected', '${name}')" title="Afvis">✕</button>`
+                                : `${chatBtn}<button class="btn-icon red" onclick="event.stopPropagation(); driverCancelPassenger('${b.id}', '${name}')" title="Aflys passager">✕</button>`;
+                                
+                            passengersHTML += `<div class="passenger-item">
+                                <div class="passenger-info">
+                                    <div style="display:flex; flex-direction:column; gap:2px;">
+                                        <span>👤 ${name}</span>
+                                        <span style="font-size:0.75rem; color:#64748B; font-weight:500;">Strækning: ${b.ride_segment}</span>
+                                    </div>
+                                </div>
+                                <div class="passenger-actions">${actionsHTML}</div>
+                            </div>`;
+                        });
+                    }
                 } else {
                     passengersHTML = `<div style="padding:10px; color:#991B1B; background:#FEF2F2; border-radius:8px; text-align:center; font-weight:600;">Denne tur er aflyst</div>`;
                 }
@@ -612,14 +672,16 @@
                     let editBtnStr = '';
                     if (hasPassengers) {
                         editBtnStr = `<button class="btn-outline" disabled title="Du kan ikke ændre turen, når der er passagerer." style="background:#F3F4F6; color:#94A3B8; cursor:not-allowed;">Ændre tur 🔒</button>`;
+                    } else if (group.is_group) {
+                        editBtnStr = `<button class="btn-outline" disabled title="Ture med mellemstops kan i øjeblikket ikke rettes. Aflys venligst og opret en ny i stedet." style="background:#F3F4F6; color:#94A3B8; cursor:not-allowed;">Ændre tur 🔒</button>`;
                     } else {
-                        editBtnStr = `<button class="btn-outline" onclick="openEditModal('${ride.id}')">Ændre tur</button>`;
+                        editBtnStr = `<button class="btn-outline" onclick="openEditModal('${group.id}')">Ændre tur</button>`;
                     }
 
                     actionBarHTML = `
                         ${editBtnStr}
-                        <button class="btn-outline btn-danger" onclick="deleteTrip('${ride.id}')">Aflys tur</button>
-                        <button class="btn-action-main" ${!isPassed ? 'disabled' : ''} onclick="completeTrip('${ride.id}')">${isPassed ? 'Afslut tur & Modtag penge' : 'Turen er ikke slut endnu'}</button>
+                        <button class="btn-outline btn-danger" onclick="deleteTrip('${group.id}')">Aflys tur</button>
+                        <button class="btn-action-main" ${!isPassed ? 'disabled' : ''} onclick="completeTrip('${group.id}')">${isPassed ? 'Afslut tur & Modtag penge' : 'Turen er ikke slut endnu'}</button>
                     `;
                 }
 
@@ -627,14 +689,14 @@
                 const titleStyle = isCancelled ? 'text-decoration: line-through; color: #94A3B8;' : '';
 
                 html += `<div class="ride-card" style="${cardStyle}">
-                    <div class="ride-header" onclick="toggleExpand('details-${ride.id}')">
+                    <div class="ride-header" onclick="toggleExpand('details-${group.id}')">
                         <div>
-                            <div class="route-title" style="${titleStyle}">${ride.origin_city} ➝ ${ride.destination_city}</div>
-                            <div class="ride-meta">${formatDateTime(ride.departure_time)} ${isCancelled ? '<span style="color:#EF4444; font-weight:bold; margin-left:10px;">(AFLYST)</span>' : ''}</div>
+                            <div class="route-title" style="${titleStyle}">${mainRide.origin_city} ➝ ${mainRide.destination_city}</div>
+                            <div class="ride-meta">${formatDateTime(mainRide.departure_time)} ${group.is_group ? `<span style="background:#E2E8F0; padding:2px 8px; border-radius:12px; font-size:0.75rem; margin-left:6px; color:#475569;">Med stop</span>` : ''} ${isCancelled ? '<span style="color:#EF4444; font-weight:bold; margin-left:10px;">(AFLYST)</span>' : ''}</div>
                         </div>
-                        <div class="ride-price">${ride.price_dkk} kr.</div>
+                        <div class="ride-price">${mainRide.price_dkk} kr.</div>
                     </div>
-                    <div class="ride-details" id="details-${ride.id}">
+                    <div class="ride-details" id="details-${group.id}">
                         <div class="passenger-list">${passengersHTML}</div>
                         <div class="action-bar">
                             ${actionBarHTML}
@@ -675,16 +737,24 @@
         function closeModal() { document.getElementById('customModal').style.display = 'none'; }
         document.getElementById('modalConfirmBtn').addEventListener('click', () => { closeModal(); if(modalConfirmCallback) modalConfirmCallback(); });
 
-        async function completeTrip(rideId) {
-            showModal("Afslut tur?", "Dette vil hæve pengene hos passagererne og overføre beløbet til din konto.", "Afslut nu", async () => {
+        async function completeTrip(groupId) {
+            const group = groupedDriverRides.find(g => g.id === groupId);
+            if(!group) return;
+
+            showModal("Afslut tur?", "Dette vil hæve pengene hos passagererne og overføre beløbet til din konto for alle strækningerne.", "Afslut nu", async () => {
                 try {
-                    const { data: pax } = await _supabase.from('bookings').select('stripe_payment_id').eq('ride_id', rideId).eq('status', 'approved');
-                    for (let p of (pax||[])) {
-                        if(p.stripe_payment_id) await _supabase.functions.invoke('settle-payment', { body: { paymentIntentId: p.stripe_payment_id, action: 'capture' }});
-                    }
                     const session = (await _supabase.auth.getSession()).data.session;
-                    const res = await _supabase.functions.invoke('complete-trip', { body: { trip_id: rideId }, headers: { Authorization: `Bearer ${session.access_token}` } });
-                    if(res.error) throw res.error;
+                    
+                    // Loop igennem alle under-ture og afslut dem
+                    for (let ride of group.rides) {
+                        const { data: pax } = await _supabase.from('bookings').select('stripe_payment_id').eq('ride_id', ride.id).eq('status', 'approved');
+                        for (let p of (pax||[])) {
+                            if(p.stripe_payment_id) await _supabase.functions.invoke('settle-payment', { body: { paymentIntentId: p.stripe_payment_id, action: 'capture' }});
+                        }
+                        const res = await _supabase.functions.invoke('complete-trip', { body: { trip_id: ride.id }, headers: { Authorization: `Bearer ${session.access_token}` } });
+                        if(res.error) throw res.error;
+                    }
+
                     alert("Turen er afsluttet! 💸");
                     loadProfileData();
                     fetchDriverRides();
@@ -692,20 +762,28 @@
             });
         }
 
-        async function deleteTrip(rideId) {
+        async function deleteTrip(groupId) {
+            const group = groupedDriverRides.find(g => g.id === groupId);
+            if(!group) return;
+
             showModal(
-                "Aflys tur?", 
-                "Er du sikker på, at du vil aflyse denne tur? Har du allerede passagerer, vil de automatisk få deres betaling refunderet.", 
-                "Ja, aflys", 
+                "Aflys hele ruten?", 
+                "Er du sikker på, at du vil aflyse denne tur? Har du allerede passagerer på nogen af strækningerne, vil de automatisk få deres betaling refunderet. Dette sletter samtlige strækninger på denne rute.", 
+                "Ja, aflys ruten", 
                 async () => {
                     try {
                         const session = (await _supabase.auth.getSession()).data.session;
-                        const res = await _supabase.functions.invoke('delete-trip', { 
-                            body: { trip_id: rideId }, 
-                            headers: { Authorization: `Bearer ${session.access_token}` } 
-                        });
-                        if (res.error) throw res.error;
-                        alert("Turen er nu aflyst.");
+                        
+                        // Slet alle relaterede under-ture
+                        for (let ride of group.rides) {
+                            const res = await _supabase.functions.invoke('delete-trip', { 
+                                body: { trip_id: ride.id }, 
+                                headers: { Authorization: `Bearer ${session.access_token}` } 
+                            });
+                            if (res.error) throw res.error;
+                        }
+
+                        alert("Hele ruten er nu aflyst.");
                         fetchDriverRides(); 
                     } catch(e) { 
                         alert("Fejl ved aflysning: " + e.message); 
@@ -714,29 +792,16 @@
             );
         }
 
-        // --- EDIT RIDE LOGIC ---
-        // --- BOOKING LOGIK (Indsæt dette nederst i dit script) ---
-
+        // --- BOOKING LOGIK ---
         async function updateBooking(bookingId, newStatus, passengerName) {
-            // Tekst til bekræftelsesboks
             const actionText = newStatus === 'approved' ? 'godkende' : 'afvise';
-            
             if (!confirm(`Er du sikker på, at du vil ${actionText} ${passengerName}?`)) return;
 
             try {
-                // Vi opdaterer KUN status. Databasen klarer nu selv sæde-antallet!
-                const { error } = await _supabase
-                    .from('bookings')
-                    .update({ status: newStatus })
-                    .eq('id', bookingId);
-
+                const { error } = await _supabase.from('bookings').update({ status: newStatus }).eq('id', bookingId);
                 if (error) throw error;
-
                 alert(`Succes: ${passengerName} er nu ${newStatus === 'approved' ? 'godkendt ✅' : 'afvist ❌'}.`);
-                
-                // Genindlæs listen for at se ændringen
                 fetchDriverRides();
-
             } catch (err) {
                 console.error("Booking fejl:", err);
                 alert("Der opstod en fejl: " + err.message);
@@ -747,26 +812,20 @@
             if (!confirm(`Er du sikker på, at du vil smide ${passengerName} af turen? \nPladsen bliver gjort ledig igen.`)) return;
 
             try {
-                // Sæt status til rejected -> Triggeren sørger for at lægge sædet tilbage i puljen
-                const { error } = await _supabase
-                    .from('bookings')
-                    .update({ status: 'rejected' }) 
-                    .eq('id', bookingId);
-
+                const { error } = await _supabase.from('bookings').update({ status: 'rejected' }).eq('id', bookingId);
                 if (error) throw error;
-
                 alert(`${passengerName} er fjernet fra turen.`);
                 fetchDriverRides();
-
             } catch (err) {
                 console.error("Cancel fejl:", err);
                 alert("Fejl: " + err.message);
             }
         }
         
-        function openEditModal(rideId) {
-            const ride = activeDriverRides.find(r => r.id === rideId);
-            if (!ride) return;
+        function openEditModal(groupId) {
+            const group = groupedDriverRides.find(g => g.id === groupId);
+            if (!group) return;
+            const ride = group.main_ride; // Modalen håndterer kun enlige ture pt.
 
             document.getElementById('editRideId').value = ride.id;
             
