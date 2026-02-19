@@ -8,6 +8,8 @@
     <link rel="icon" href="https://i.imgur.com/4oGYz8n.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="/style.css">
     <script src="/supabase.js"></script>
@@ -16,70 +18,133 @@
     <style>
         main { padding-top: 100px; padding-bottom: 5rem; background: #F8FAFC; min-height: 100vh; }
         
-        .profile-container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; }
+        .profile-container { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem; display: grid; grid-template-columns: 1fr 2.2fr; gap: 1.5rem; }
 
         /* KORT STYLES */
-        .card { background: white; border-radius: 24px; padding: 2.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid var(--border); }
+        .card { background: white; border-radius: 20px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--border); margin-bottom: 1.5rem; }
         
         /* VENSTRE: BRUGERINFO */
-        .user-card { text-align: center; height: fit-content; }
-        .avatar { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; background: #E2E8F0; margin: 0 auto 1.5rem auto; border: 4px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .user-name { font-size: 1.8rem; font-weight: 900; color: var(--brand); margin-bottom: 0.5rem; letter-spacing: -0.5px; }
-        .user-meta { color: var(--text-muted); font-size: 0.95rem; font-weight: 500; margin-bottom: 5px; }
+        .user-card { text-align: center; height: fit-content; position: sticky; top: 90px; }
+        .avatar { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; background: #E2E8F0; margin: 0 auto 1rem auto; border: 4px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        .user-name { font-size: 1.5rem; font-weight: 900; color: var(--brand); margin-bottom: 0.3rem; letter-spacing: -0.5px; }
+        .user-meta { color: var(--text-muted); font-size: 0.9rem; font-weight: 500; margin-bottom: 5px; }
         
-        .badges-container { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; margin: 1.5rem 0; padding-top: 1.5rem; border-top: 1px solid #F1F5F9;}
-        .badge-verified { display: inline-flex; align-items: center; gap: 6px; color: var(--brand); font-size: 0.95rem; font-weight: 600;}
+        .badges-container { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; margin: 1.2rem 0; padding-top: 1.2rem; border-top: 1px solid #F1F5F9;}
+        .badge-verified { display: inline-flex; align-items: center; gap: 6px; color: var(--brand); font-size: 0.9rem; font-weight: 600;}
         .badge-verified svg { color: #10B981; }
 
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: center; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 16px; padding: 1.5rem; margin-top: 2rem; }
-        .stat-item h4 { margin: 0 0 5px 0; font-size: 1.5rem; font-weight: 900; color: var(--brand); display: flex; justify-content: center; align-items: center; gap: 5px;}
-        .stat-item p { margin: 0; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600;}
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; text-align: center; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1rem; margin-top: 1.5rem; }
+        .stat-item h4 { margin: 0 0 2px 0; font-size: 1.3rem; font-weight: 900; color: var(--brand); display: flex; justify-content: center; align-items: center; gap: 5px;}
+        .stat-item p { margin: 0; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700;}
 
-        /* HØJRE: BIO, BIL & REVIEWS */
-        .detail-card h3 { font-size: 1.3rem; font-weight: 800; color: var(--brand); margin-bottom: 1rem; }
-        .bio-text { font-size: 1.05rem; line-height: 1.6; color: var(--text-main); margin-bottom: 2.5rem; white-space: pre-wrap;}
+        /* SHARE BUTTON */
+        .btn-share {
+            width: 100%;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        .btn-share:hover {
+            transform: translateY(-2px);
+            background: var(--accent-hover);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        /* HØJRE: BIO & REVIEWS (TIGHT LAYOUT) */
+        .detail-card h3 { font-size: 1.1rem; font-weight: 800; color: var(--brand); margin-bottom: 0.8rem; border-bottom: 2px solid #F1F5F9; padding-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;}
         
-        .gomore-badge { background: #F0FDF4; border: 1px solid #10B981; padding: 1rem 1.5rem; border-radius: 16px; display: flex; align-items: center; gap: 15px; margin-bottom: 2rem;}
-        .gomore-badge .icon-box { background: #10B981; color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;}
-        .gomore-badge h4 { color: #166534; margin: 0 0 5px 0; font-weight: 800; }
-        .gomore-badge p { color: #15803D; margin: 0; font-size: 0.9rem; font-weight: 500;}
+        .tight-top-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; margin-bottom: 1.5rem; }
+        @media (max-width: 768px) { .tight-top-grid { grid-template-columns: 1fr; gap: 1.5rem; } }
+
+        .bio-text { font-size: 0.95rem; line-height: 1.5; color: var(--text-main); white-space: pre-wrap; margin: 0;}
+        
+        .gomore-badge { background: #F0FDF4; border: 1px solid #10B981; padding: 0.8rem 1rem; border-radius: 12px; display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem;}
+        .gomore-badge .icon-box { background: #10B981; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;}
+        .gomore-badge h4 { color: #166534; margin: 0 0 2px 0; font-weight: 800; font-size: 0.95rem;}
+        .gomore-badge p { color: #15803D; margin: 0; font-size: 0.85rem; font-weight: 600;}
 
         /* RATINGS BREAKDOWN */
-        .rating-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-        .btn-text { color: var(--accent); font-weight: 800; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 1rem; padding: 0;}
+        .btn-text { color: var(--accent); font-weight: 800; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; padding: 0;}
         .btn-text:hover { opacity: 0.8; }
         
-        .rating-grid { display: flex; gap: 2rem; align-items: center; margin-bottom: 2rem; }
-        .rating-bars { flex: 1; display: flex; flex-direction: column; gap: 8px;}
-        .rating-bar-row { display: flex; align-items: center; gap: 10px; cursor: pointer; opacity: 1; transition: 0.2s;}
+        .rating-grid { display: flex; gap: 1.5rem; align-items: center; }
+        .rating-bars { flex: 1; display: flex; flex-direction: column; gap: 5px;}
+        .rating-bar-row { display: flex; align-items: center; gap: 8px; cursor: pointer; opacity: 1; transition: 0.2s;}
         .rating-bar-row.faded { opacity: 0.3; }
         .rating-bar-row.selected { font-weight: bold; }
-        .rating-num { width: 15px; font-size: 0.9rem; font-weight: 700; color: var(--text-muted); }
+        .rating-num { width: 12px; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); }
         .rating-bar-row.selected .rating-num { color: var(--accent); }
         .bar-bg { flex: 1; height: 6px; background: #F1F5F9; border-radius: 4px; overflow: hidden; }
         .bar-fill { height: 100%; background: var(--brand); border-radius: 4px; }
         .rating-bar-row.selected .bar-fill { background: var(--accent); }
         
-        .rating-score { text-align: center; width: 120px; }
-        .score-big { font-size: 3.5rem; font-weight: 900; color: var(--brand); line-height: 1; margin-bottom: 5px;}
-        .score-stars { color: #F59E0B; font-size: 1.2rem; margin-bottom: 5px;}
-        .score-total { color: var(--text-muted); font-size: 0.85rem; font-weight: 600;}
+        .rating-score { text-align: center; }
+        .score-big { font-size: 2.8rem; font-weight: 900; color: var(--brand); line-height: 1; margin-bottom: 2px;}
+        .score-stars { color: #F59E0B; font-size: 1rem; margin-bottom: 2px;}
+        .score-total { color: var(--text-muted); font-size: 0.8rem; font-weight: 600;}
 
         /* REVIEWS LIST */
-        .review-card { padding: 1.5rem; border: 1px solid #F1F5F9; border-radius: 16px; margin-bottom: 1rem; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-        .review-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
-        .reviewer-info { display: flex; align-items: center; gap: 10px; }
-        .reviewer-avatar { width: 35px; height: 35px; border-radius: 50%; background: #E2E8F0; display: flex; align-items: center; justify-content: center; font-size: 1rem; overflow: hidden;}
-        .reviewer-name { font-weight: 700; color: var(--brand); font-size: 0.95rem; margin-bottom: 2px;}
-        .review-date { color: var(--text-muted); font-size: 0.8rem; }
-        .review-stars { color: #F59E0B; font-size: 0.9rem; letter-spacing: 2px;}
-        .review-comment { color: var(--text-main); font-size: 1rem; line-height: 1.5; margin: 0; }
+        .reviews-wrapper { margin-top: 1rem; }
+        .review-card { padding: 1rem; border: 1px solid #F1F5F9; border-radius: 12px; margin-bottom: 0.8rem; background: #F8FAFC; }
+        .review-header { display: flex; justify-content: space-between; margin-bottom: 6px; align-items: center;}
+        .reviewer-info { display: flex; align-items: center; gap: 8px; }
+        .reviewer-avatar { width: 30px; height: 30px; border-radius: 50%; background: #E2E8F0; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; overflow: hidden;}
+        .reviewer-name { font-weight: 700; color: var(--brand); font-size: 0.9rem; margin-bottom: 0;}
+        .review-date { color: var(--text-muted); font-size: 0.75rem; font-weight: 500;}
+        .review-stars { color: #F59E0B; font-size: 0.85rem; letter-spacing: 1px;}
+        .review-comment { color: var(--text-main); font-size: 0.9rem; line-height: 1.4; margin: 0; }
 
-        .empty-state { text-align: center; padding: 2rem; background: #F8FAFC; border-radius: 16px; color: var(--text-muted); font-weight: 500; }
+        .empty-state { text-align: center; padding: 1.5rem; background: #F8FAFC; border-radius: 12px; color: var(--text-muted); font-weight: 500; font-size: 0.9rem;}
+
+        /* LIFT SØGNING */
+        .mini-search-bar { display: flex; gap: 0.5rem; background: #F1F5F9; padding: 0.5rem; border-radius: 14px; margin-bottom: 1.5rem; flex-wrap: wrap; border: 1px solid var(--border);}
+        .mini-search-bar input, .mini-search-bar select { flex: 1; min-width: 120px; padding: 10px 14px; border: 1px solid transparent; border-radius: 10px; font-size: 0.95rem; font-family: inherit; font-weight: 500; outline: none; background: white; color: var(--brand);}
+        .mini-search-bar input:focus, .mini-search-bar select:focus { border-color: var(--accent); }
+        .mini-search-bar input::placeholder { color: #94a3b8; }
+        
+        /* RIDE CARDS */
+        .ride-list { display: flex; flex-direction: column; gap: 0.8rem; }
+        .ride-item { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 1rem 1.2rem; transition: 0.2s; cursor: pointer; }
+        .ride-item:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 15px -5px rgba(0,0,0,0.05); }
+        .card-date { font-size: 0.75rem; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .timeline { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; width: 100%; }
+        .time-box { display: flex; flex-direction: column; flex: 1; min-width: 0; overflow: hidden; }
+        .time-box.right { align-items: flex-end; text-align: right; }
+        .time { font-size: 1.4rem; font-weight: 900; color: var(--brand); letter-spacing: -0.5px; line-height: 1;}
+        .city { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+        
+        .route-path { flex: 0 0 60px; margin: 0 10px; position: relative; display: flex; flex-direction: column; align-items: center; }
+        .duration-line { width: 100%; height: 2px; background: #E2E8F0; position: relative; }
+        .duration-line::before, .duration-line::after { content: ''; position: absolute; width: 8px; height: 8px; border-radius: 50%; background: white; border: 2px solid #cbd5e1; top: -3px; }
+        .duration-line::before { left: -4px; } .duration-line::after { right: -4px; }
+        .duration-text { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); background: white; padding: 0 6px; position: relative; top: -11px; white-space: nowrap; }
+
+        .card-mid { display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 0; border-top: 1px dashed var(--border); border-bottom: 1px dashed var(--border); margin-bottom: 0.7rem; }
+        .badge-group { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-start; }
+        .badge { padding: 2px 8px; border-radius: 20px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; border: 1px solid var(--border); background: #F8FAFC; color: var(--text-muted);}
+        .b-ferry { background: #E0F2FE; color: #0284C7; border-color: #BAE6FD; }
+        .b-pink { background: #FCE7F3; color: #BE185D; border-color: #FBCFE8; }
+        .b-instant { background: #FEF3C7; color: #B45309; border-color: #FDE68A; }
+
+        .card-footer { display: flex; justify-content: space-between; align-items: center; }
+        .price { font-size: 1.4rem; font-weight: 900; color: var(--brand); letter-spacing: -0.5px; }
+        .seats-left { font-weight: 700; color: var(--success); font-size: 0.8rem; }
 
         /* MODAL */
         .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
-        .modal-box { background: white; padding: 2rem; border-radius: 24px; width: 90%; max-width: 450px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); text-align: center; }
+        .modal-box { background: white; padding: 2rem; border-radius: 24px; width: 90%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); text-align: center; }
         .modal-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; }
         .modal-text { color: var(--text-muted); margin-bottom: 1.5rem; }
         
@@ -90,17 +155,19 @@
         .modal-box textarea:focus { border-color: var(--accent); background: white; }
         
         .modal-actions { display: flex; gap: 1rem; }
-        .btn-outline { flex: 1; border: 1px solid var(--border); background: white; padding: 14px; border-radius: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; }
-        .btn-submit { flex: 1; background: var(--brand); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+        .btn-outline { flex: 1; border: 1px solid var(--border); background: white; padding: 12px; border-radius: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: 0.2s;}
+        .btn-outline:hover { background: #F8FAFC; }
+        .btn-submit { flex: 1; background: var(--brand); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.2s;}
+        .btn-submit:hover { background: var(--accent); }
 
         /* LOADING / ERROR STATE */
         #loading-state, #error-state { text-align: center; padding: 5rem 1rem; grid-column: 1 / -1; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #E2E8F0; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem auto; }
+        .spinner { width: 30px; height: 30px; border: 3px solid #E2E8F0; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem auto; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
         @media (max-width: 768px) {
             .profile-container { grid-template-columns: 1fr; }
-            .rating-grid { flex-direction: column-reverse; gap: 1.5rem; }
+            .user-card { position: static; }
         }
     </style>
 </head>
@@ -123,7 +190,7 @@
 
         <div class="profile-container" id="profile-content" style="display: none;">
             
-            <div class="card user-card">
+            <aside class="card user-card">
                 <img src="" alt="Avatar" class="avatar" id="pub-avatar" style="display: none;">
                 <div class="avatar" id="pub-avatar-placeholder" style="display: flex; align-items: center; justify-content: center; font-size: 3.5rem; color: #94A3B8;">👤</div>
                 
@@ -133,67 +200,97 @@
                 <div class="stat-grid">
                     <div class="stat-item">
                         <h4 id="pub-rides">0</h4>
-                        <p>Kørte ture</p>
+                        <p>Ture</p>
                     </div>
                     <div class="stat-item">
-                        <h4><span id="pub-co2">0</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></h4>
+                        <h4><span id="pub-co2">0</span> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></h4>
                         <p>CO2 (kg)</p>
                     </div>
                 </div>
 
                 <div class="badges-container" id="pub-badges">
-                    </div>
+                </div>
+
+                <button class="btn-share" onclick="shareProfile()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    Del profil
+                </button>
 
                 <button class="btn-text" onclick="showReportDialog()" style="width: 100%; justify-content: center; color: #94A3B8; margin-top: 1rem;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> 
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> 
                     Anmeld profil
                 </button>
-            </div>
+            </aside>
 
-            <div class="card detail-card">
-                
-                <div id="gomore-badge" class="gomore-badge" style="display: none;">
-                    <div class="icon-box">😊</div>
-                    <div>
-                        <h4>Verificeret ekstern samkørselshistorik</h4>
-                        <p id="gomore-text">... tidligere ture • Gns. ... stjerner</p>
-                    </div>
-                </div>
-
-                <div id="bio-section" style="margin-bottom: 2.5rem;">
-                    <h3>Om mig</h3>
-                    <div class="bio-text" id="pub-bio" style="margin-bottom: 0;">Brugeren har ikke skrevet en beskrivelse.</div>
-                </div>
-
-                <div class="rating-header">
-                    <h3>Anmeldelser</h3>
-                    <button class="btn-text" id="btn-write-review" style="display: none;" onclick="openReviewModal()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                        Skriv anmeldelse
-                    </button>
-                    <span id="txt-has-reviewed" style="display: none; color: #10B981; font-weight: 700; font-size: 0.9rem;">✓ Du har anmeldt</span>
-                </div>
-
-                <div class="rating-grid">
-                    <div class="rating-bars" id="ui-rating-bars">
+            <div class="right-col">
+                <div class="card detail-card">
+                    <div class="tight-top-grid">
+                        <div id="bio-section">
+                            <h3>Om mig</h3>
+                            <div class="bio-text" id="pub-bio">Brugeren har ikke skrevet en beskrivelse.</div>
                         </div>
-                    <div class="rating-score">
-                        <div class="score-big" id="ui-avg-score">0.0</div>
-                        <div class="score-stars" id="ui-avg-stars">★★★★★</div>
-                        <div class="score-total" id="ui-total-reviews">0 anmeldelser</div>
+
+                        <div class="rating-section">
+                            <h3>
+                                Anmeldelser
+                                <div>
+                                    <button class="btn-text" id="btn-write-review" style="display: none;" onclick="openReviewModal()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg> Skriv
+                                    </button>
+                                    <span id="txt-has-reviewed" style="display: none; color: #10B981; font-weight: 700; font-size: 0.8rem;">✓ Anmeldt</span>
+                                </div>
+                            </h3>
+                            
+                            <div class="rating-grid">
+                                <div class="rating-score">
+                                    <div class="score-big" id="ui-avg-score">0.0</div>
+                                    <div class="score-stars" id="ui-avg-stars">★★★★★</div>
+                                    <div class="score-total" id="ui-total-reviews">0 anmeldelser</div>
+                                </div>
+                                <div class="rating-bars" id="ui-rating-bars"></div>
+                            </div>
+                        </div>
                     </div>
+
+                    <div id="gomore-badge" class="gomore-badge" style="display: none;">
+                        <div class="icon-box">😊</div>
+                        <div>
+                            <h4>Verificeret ekstern samkørselshistorik</h4>
+                            <p id="gomore-text">... tidligere ture • Gns. ... stjerner</p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between;">
+                        <button id="btn-clear-filter" class="btn-text" style="display:none; color: #64748B; font-weight: 600;" onclick="setFilter(null)">× Fjern filter</button>
+                    </div>
+
+                    <div class="reviews-wrapper" id="reviews-list"></div>
+                    
+                    <button id="btn-show-all" class="btn-text" style="display:none; width: 100%; justify-content: center; margin-top: 1rem; padding: 0.8rem; background: #F8FAFC; border-radius: 10px;" onclick="showAllReviews()">
+                        Se alle anmeldelser
+                    </button>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                    <button id="btn-clear-filter" class="btn-text" style="display:none; color: #64748B; font-weight: 600;" onclick="setFilter(null)">× Fjern filter</button>
-                </div>
-
-                <div id="reviews-list">
+                <div class="card rides-card">
+                    <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--brand); margin-bottom: 0.8rem;">Ture fra denne chauffør</h3>
+                    
+                    <div class="mini-search-bar">
+                        <input type="text" id="searchFrom" placeholder="Fra by..." oninput="filterUserRides()">
+                        <input type="text" id="searchTo" placeholder="Til by..." oninput="filterUserRides()">
+                        <input type="text" id="searchDate" 
+                               onfocus="(this.type='date')" 
+                               onblur="if(!this.value) this.type='text'" 
+                               onchange="filterUserRides()">
+                        <select id="sortSelect" onchange="filterUserRides()">
+                            <option value="time">Tidligste afgang</option>
+                            <option value="price">Laveste pris</option>
+                        </select>
                     </div>
-                
-                <button id="btn-show-all" class="btn-text" style="display:none; width: 100%; justify-content: center; margin-top: 1rem; padding: 1rem; background: #F8FAFC; border-radius: 12px;" onclick="showAllReviews()">
-                    Se alle anmeldelser
-                </button>
+
+                    <div id="userRidesLoader" class="spinner" style="margin: 2rem auto;"></div>
+                    <div class="ride-list" id="userRidesList" style="display: none;"></div>
+                    <div id="userRidesEmpty" class="empty-state" style="display: none;">Denne bruger har pt. ingen åbne ture.</div>
+                </div>
 
             </div>
         </div>
@@ -233,6 +330,7 @@
     <script>
         let currentUserId = null;
         let targetId = null;
+        let targetProfile = null;
         
         let allReviews = [];
         let ratingDist = {5:0, 4:0, 3:0, 2:0, 1:0};
@@ -241,6 +339,8 @@
         let selectedFilter = null;
         let isShowingAll = false;
         let selectedInputStars = 5;
+
+        let allUserRides = []; // Holder brugerens aktive ture
 
         const months = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
 
@@ -251,10 +351,17 @@
             targetId = urlParams.get('id');
             if (!targetId) return showError();
 
+            const today = new Date();
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const yyyy = today.getFullYear();
+            document.getElementById('searchDate').placeholder = `${dd}/${mm}/${yyyy}`;
+
             const { data: { session } } = await _supabase.auth.getSession();
             if (session) currentUserId = session.user.id;
 
             await loadData();
+            await fetchUserRides();
         };
 
         async function loadData() {
@@ -262,8 +369,9 @@
                 // 1. Profil Data
                 const { data: profile, error } = await _supabase.from('profiles').select('*').eq('id', targetId).single();
                 if (error || !profile) throw error;
+                targetProfile = profile; // Gem globalt til ride cards og share knap
 
-                // 2. Ture
+                // 2. Ture count
                 const { count: driverRides } = await _supabase.from('rides').select('*', { count: 'exact', head: true }).eq('driver_id', targetId).eq('status', 'completed');
                 const { count: paxRides } = await _supabase.from('bookings').select('*', { count: 'exact', head: true }).eq('passenger_id', targetId).eq('status', 'approved');
                 const totalRides = (driverRides || 0) + (paxRides || 0);
@@ -350,7 +458,136 @@
         }
 
         // ==========================================
-        // UI & FILTER LOGIK
+        // FETCH & RENDER BRUGERENS TURE
+        // ==========================================
+        async function fetchUserRides() {
+            const nowISO = new Date().toISOString(); 
+            const { data, error } = await _supabase.from('rides')
+                .select('*')
+                .eq('driver_id', targetId)
+                .eq('status', 'active')
+                .gte('departure_time', nowISO)
+                .order('departure_time', { ascending: true });
+
+            document.getElementById('userRidesLoader').style.display = 'none';
+            if (!error && data) {
+                allUserRides = data;
+                filterUserRides(); 
+            } else {
+                document.getElementById('userRidesEmpty').style.display = 'block';
+            }
+        }
+
+        function filterUserRides() {
+            const from = document.getElementById('searchFrom').value.toLowerCase();
+            const to = document.getElementById('searchTo').value.toLowerCase();
+            const dateInput = document.getElementById('searchDate');
+            let qDate = "";
+            if(dateInput.type === 'date') { qDate = dateInput.value; }
+
+            const filtered = allUserRides.filter(r => {
+                const rawOrigin = r.origin_city.toLowerCase();
+                const rawDest = r.destination_city.toLowerCase();
+                
+                if (from && !rawOrigin.includes(from)) return false;
+                if (to && !rawDest.includes(to)) return false;
+                if (qDate && new Date(r.departure_time).toISOString().split('T')[0] !== qDate) return false;
+                
+                return true;
+            });
+
+            const sortBy = document.getElementById('sortSelect').value;
+            if (sortBy === 'price') {
+                filtered.sort((a, b) => Math.ceil(a.price_dkk * 1.05) - Math.ceil(b.price_dkk * 1.05));
+            } else {
+                filtered.sort((a, b) => new Date(a.departure_time) - new Date(b.departure_time));
+            }
+
+            renderUserRides(filtered);
+        }
+
+        function renderUserRides(rides) {
+            const container = document.getElementById('userRidesList');
+            const empty = document.getElementById('userRidesEmpty');
+            container.innerHTML = '';
+            
+            if (rides.length === 0) { 
+                container.style.display = 'none';
+                empty.style.display = 'block'; 
+                return; 
+            }
+            
+            empty.style.display = 'none';
+            container.style.display = 'flex';
+
+            rides.forEach(ride => {
+                const depDate = new Date(ride.departure_time);
+                const arrDate = ride.arrival_time ? new Date(ride.arrival_time) : null;
+                let hrs = 0, mins = 0, arrTimeStr = "--:--";
+                
+                if(arrDate) {
+                    const diff = Math.abs(arrDate - depDate);
+                    hrs = Math.floor(diff / 3600000);
+                    mins = Math.floor((diff / 60000) % 60);
+                    arrTimeStr = arrDate.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'});
+                }
+
+                const displayOrigin = ride.origin_city;
+                const displayDest = ride.destination_city;
+
+                let car = { display_name: 'Bil' };
+                try { car = typeof ride.car_model === 'string' ? JSON.parse(ride.car_model) : ride.car_model; } catch(e) {}
+
+                let bHTML = '';
+                if (ride.is_ferry) bHTML += `<span class="badge b-ferry">⛴️ Færge</span>`;
+                if (ride.instant_booking) bHTML += `<span class="badge b-instant">⚡ Lyn</span>`;
+                if (ride.comfort_guarantee) bHTML += `<span class="badge">🛋️ Komfort</span>`;
+                if (ride.detour_flex) bHTML += `<span class="badge">🛣️ Flex</span>`;
+                if (ride.pref_pets) bHTML += `<span class="badge">🐾 Dyr</span>`;
+                if (ride.pref_kids) bHTML += `<span class="badge">👶 Børn</span>`;
+                if (ride.pref_music) bHTML += `<span class="badge">🎵 Musik</span>`;
+                if (ride.ladies_only) bHTML += `<span class="badge b-pink">🌸 Ladies</span>`;
+                
+                const finalPrice = Math.ceil(ride.price_dkk * 1.05); // Samme 5% beregning som Lift siden
+
+                const card = document.createElement('div');
+                card.className = 'ride-item';
+                card.onclick = () => {
+                    const urlId = ride.ride_number || ride.id;
+                    window.location.href = '/lift/view.html?id=' + urlId;
+                };
+
+                card.innerHTML = `
+                    <span class="card-date">${depDate.toLocaleDateString('da-DK', {weekday:'short', day:'numeric', month:'short'})}</span>
+                    <div class="timeline">
+                        <div class="time-box">
+                            <span class="time">${depDate.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'})}</span>
+                            <span class="city" title="${displayOrigin}">${displayOrigin}</span>
+                        </div>
+                        <div class="route-path">
+                            <div class="duration-text">${hrs}t ${mins}m</div>
+                            <div class="duration-line"></div>
+                        </div>
+                        <div class="time-box right">
+                            <span class="time">${arrTimeStr}</span>
+                            <span class="city" title="${displayDest}">${displayDest}</span>
+                        </div>
+                    </div>
+                    <div class="card-mid">
+                        <div class="badge-group" style="width: 100%;">${bHTML}</div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="price">${finalPrice}<span> kr</span></div>
+                        <div class="seats-left">✔️ ${ride.seats_available} pladser</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+
+        // ==========================================
+        // UI & FILTER LOGIK REVIEWS
         // ==========================================
         function getStarsHTML(num) {
             let s = '';
@@ -359,7 +596,7 @@
         }
 
         function setFilter(star) {
-            selectedFilter = selectedFilter === star ? null : star; // Toggle
+            selectedFilter = selectedFilter === star ? null : star; 
             isShowingAll = false;
             document.getElementById('btn-clear-filter').style.display = selectedFilter ? 'flex' : 'none';
             renderRatingBars();
@@ -407,8 +644,8 @@
             }
 
             let toShow = filtered;
-            if(!isShowingAll && selectedFilter === null && filtered.length > 3) {
-                toShow = filtered.slice(0,3);
+            if(!isShowingAll && selectedFilter === null && filtered.length > 2) {
+                toShow = filtered.slice(0,2);
                 btnShowAll.style.display = 'flex';
                 btnShowAll.innerText = `Se alle ${allReviews.length} anmeldelser`;
             } else {
@@ -454,6 +691,31 @@
         }
 
         // ==========================================
+        // SHARE FUNKTION
+        // ==========================================
+        function shareProfile() {
+            const url = window.location.href;
+            const name = targetProfile ? targetProfile.full_name : 'Brugeren';
+            const title = `${name}s profil på HoppOn`;
+            const text = `Se alle ${name}s kommende ture på HoppOn og kør med! 🚗💨`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: title,
+                    text: text,
+                    url: url
+                }).catch(err => console.log('Fejl ved deling:', err));
+            } else {
+                // Fallback hvis browseren ikke understøtter Web Share API (f.eks. nogle desktop browsere)
+                navigator.clipboard.writeText(url).then(() => {
+                    alert("Link til profilen er kopieret! 📋 Del det med dine venner.");
+                }).catch(err => {
+                    alert("Kunne ikke kopiere linket automatisk. Kopier venligst URL'en i toppen af din browser.");
+                });
+            }
+        }
+
+        // ==========================================
         // MODALS (Anmeld & Rapport)
         // ==========================================
         function openReviewModal() {
@@ -464,7 +726,6 @@
         }
         function closeModal() { document.getElementById('reviewModal').style.display = 'none'; }
 
-        // Star interaction i Modal
         const starSpans = document.querySelectorAll('#modal-stars span');
         starSpans.forEach(span => {
             span.addEventListener('click', (e) => {
@@ -491,7 +752,7 @@
                     comment: comment
                 });
                 alert("Tak for din anmeldelse!");
-                loadData(); // Genindlæs siden
+                loadData(); 
             } catch(e) { alert("Kunne ikke sende anmeldelse."); }
         }
 
