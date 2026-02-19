@@ -199,7 +199,7 @@
         .military-time-input input:focus { box-shadow: none; background: transparent; border: none; }
         .military-time-input span { font-size: 1.1rem; font-weight: 800; color: var(--brand); margin: 0 2px;}
 
-        /* Styling til Ankomst tid (som man kan rette) */
+        /* Styling til Ankomst/Mellemstop tid (som man kan rette) */
         .editable-time-container { display: flex; align-items: center; gap: 2px;}
         .editable-time-input { font-family: inherit; font-size: 1rem; font-weight: 900; color: var(--brand); background: transparent; border: none; border-bottom: 2px dashed var(--accent); width: 28px; text-align: center; cursor: pointer; outline: none; transition: 0.2s; padding: 0;}
         .editable-time-input:focus { background: #EEF2FF; border-bottom: 2px solid var(--accent); }
@@ -324,7 +324,7 @@
                             <h2>De sidste detaljer</h2>
                             <p class="step-desc">Tilpas antallet af ledige pladser, fastsæt din pris, og angiv dine husregler for turen.</p>
                             
-                            <div class="section-title" style="margin-top:0;">Pladser & Pris</div>
+                            <div class="section-title" style="margin-top:0;">Pladser & Pris for hele turen</div>
                             <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 12px;">
                                 <div class="form-group">
                                     <label>Ledige Sæder</label>
@@ -390,6 +390,8 @@
                                 <span>Afgang:</span>
                                 <span id="departureText">--:--</span>
                             </div>
+
+                            <div id="waypointTimesContainer"></div>
                             
                             <div class="info-row" style="align-items: center;">
                                 <span>Est. ankomst (klik for at rette):</span>
@@ -409,13 +411,15 @@
                                 <span id="distanceText">0 km</span>
                             </div>
                             
+                            <div id="segmentPricesContainer"></div>
+                            
                             <div class="payout-highlight">
                                 <div class="gebyr-badge">0 kr i gebyr</div>
                                 <div class="amount"><span id="payoutText">0</span> kr.</div>
-                                <div class="sub">Din udbetaling pr. passager</div>
+                                <div class="sub">Din overordnede udbetaling pr. passager</div>
                             </div>
                             
-                            <button class="btn btn-primary" style="margin-top: 15px;" onclick="submitRides()">OFFENTLIGGØR TUR 🚀</button>
+                            <button class="btn btn-primary" style="margin-top: 15px;" onclick="submitRides()">OFFENTLIGGØR TUR(E) 🚀</button>
                         </div>
                     </div>
                     
@@ -463,6 +467,7 @@
         let recommendedPrice = 0;
         let cachedDistanceKm = 0;
         let cachedDurationMin = 0;
+        let legDurationsMin = []; // Nyt array der gemmer tiden mellem hver destination
         let crossesSeaGlobal = false;
         
         let originCoords = null; 
@@ -471,6 +476,7 @@
         let rules = { Music: true, Smoking: false, Pets: false, Kids: true };
         let searchTimeout = null;
         let selectedDates = [];
+        let routeSegments = []; // Holder priserne for hver kombineret strækning
 
         const FERRY_AARHUS = [10.21396, 56.15720];
         const FERRY_ODDEN = [11.29615, 55.97330];
@@ -493,11 +499,8 @@
                 const hours = defaultTime.getHours().toString().padStart(2, '0');
                 const minutes = defaultTime.getMinutes().toString().padStart(2, '0');
                 
-                // Opdater de nye custom input felter
                 document.getElementById('rideTimeHour').value = hours;
                 document.getElementById('rideTimeMin').value = minutes;
-                
-                // SLET DENNE LINJE: selectedDates.push(todayStr); 
                 
                 generateCalendar();
                 updateTimes();
@@ -514,13 +517,11 @@
                 let val = parseInt(input.value);
                 if (val > maxVal) input.value = maxVal;
             }
-            // Tilføj det foranstillede 0, når brugeren forlader feltet (håndteres af blur hvis nødvendigt, men holdes simpelt her)
             if (input.value.length === 1 && parseInt(input.value) > (maxVal > 23 ? 5 : 2)) {
                 input.value = '0' + input.value;
             }
         }
         
-        // Henter værdien fra vores nye 24h felter
         function getDepartureTimeStr() {
             let h = document.getElementById('rideTimeHour').value || "00";
             let m = document.getElementById('rideTimeMin').value || "00";
@@ -614,27 +615,133 @@
             }
         }
 
+        function renderWaypointTimeInputs() {
+            const container = document.getElementById('waypointTimesContainer');
+            const validWps = waypoints.filter(w => w.coords);
+            
+            // Tjek om vi allerede har de rigtige inputs
+            const currentIds = Array.from(container.querySelectorAll('input[id^="wpTimeHour_"]')).map(el => parseInt(el.id.split('_')[1]));
+            const newIds = validWps.map(w => w.id);
+            if (JSON.stringify(currentIds) === JSON.stringify(newIds)) return; 
+
+            container.innerHTML = '';
+            validWps.forEach((wp) => {
+                const html = `
+                <div class="info-row" style="align-items: center;">
+                    <span>Via ${wp.name || 'Mellemstop'} (Est. ankomst):</span>
+                    <div class="editable-time-container">
+                        <input type="text" id="wpTimeHour_${wp.id}" class="editable-time-input" value="00" maxlength="2" oninput="validateTimeInput(this, 23)" onfocus="this.select()">
+                        <span style="font-weight:900;">:</span>
+                        <input type="text" id="wpTimeMin_${wp.id}" class="editable-time-input" value="00" maxlength="2" oninput="validateTimeInput(this, 59)" onfocus="this.select()">
+                    </div>
+                </div>`;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        // --- STRÆKNINGSPRISER (NY FUNKTION) ---
+        function generateRouteSegments() {
+            routeSegments = [];
+            const originName = document.getElementById('originInput').value || 'Start';
+            const destName = document.getElementById('destInput').value || 'Slut';
+            
+            let points = [{name: originName}];
+            waypoints.filter(w => w.coords).forEach(w => points.push({name: w.name || 'Mellemstop'}));
+            points.push({name: destName});
+
+            for (let i = 0; i < points.length - 1; i++) {
+                for (let j = i + 1; j < points.length; j++) {
+                    routeSegments.push({
+                        from: points[i].name,
+                        to: points[j].name,
+                        price: currentPrice
+                    });
+                }
+            }
+            renderSegmentPrices();
+        }
+
+        function renderSegmentPrices() {
+            const container = document.getElementById('segmentPricesContainer');
+            if (routeSegments.length <= 1) {
+                container.innerHTML = ''; // Skjul det, hvis det kun er én strækning (A->B)
+                return;
+            }
+            
+            let html = '<div style="margin-top: 15px; border-top: 1px dashed var(--border); padding-top: 15px;"><h4 style="font-size: 0.95rem; margin-bottom: 10px; color: var(--brand);">Pris pr. strækning:</h4>';
+            routeSegments.forEach((seg, idx) => {
+                html += `
+                <div class="info-row" style="align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 0.85rem; color: var(--text-main); font-weight: 600;">${seg.from} ➝ ${seg.to}</span>
+                    <div class="editable-time-container" style="gap: 5px; background: #F8FAFC; padding: 2px 6px; border-radius: 8px; border: 1px solid var(--border);">
+                        <button class="price-btn" style="width: 24px; height: 24px; font-size: 1rem; line-height: 1;" onclick="adjustSegmentPrice(${idx}, -5)">-</button>
+                        <span style="font-weight: 800; color: var(--brand); min-width: 32px; text-align: center; font-size: 0.9rem;">${seg.price} kr</span>
+                        <button class="price-btn" style="width: 24px; height: 24px; font-size: 1rem; line-height: 1;" onclick="adjustSegmentPrice(${idx}, 5)">+</button>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function adjustSegmentPrice(idx, amt) {
+            routeSegments[idx].price += amt;
+            if (routeSegments[idx].price < 20) routeSegments[idx].price = 20; // Minimumspris er stadig 20 kr.
+            renderSegmentPrices();
+        }
+
         // --- TIDER & CO2 ---
         function updateTimes() {
             const timeStr = getDepartureTimeStr();
             if(!timeStr) return;
             
             document.getElementById('departureText').innerText = timeStr; 
-        
-            if(cachedDurationMin > 0) {
-                const [hours, mins] = timeStr.split(':').map(Number);
-                const isFerry = document.getElementById('swFerry').checked;
-                const ferryExtraMins = (isFerry && crossesSeaGlobal) ? 90 : 0; 
-                const totalMins = (hours * 60) + mins + cachedDurationMin + ferryExtraMins;
-        
-                const arrivalHours = Math.floor(totalMins / 60) % 24;
-                const arrivalMins = totalMins % 60;
+
+            if(cachedDurationMin > 0 || legDurationsMin.length > 0) {
+                const [startH, startM] = timeStr.split(':').map(Number);
+                let cumulativeMins = (startH * 60) + startM;
                 
-                document.getElementById('arrTimeHour').value = arrivalHours.toString().padStart(2, '0');
-                document.getElementById('arrTimeMin').value = arrivalMins.toString().padStart(2, '0');
+                const validWps = waypoints.filter(w => w.coords);
                 
-                const totalDurH = Math.floor((cachedDurationMin + ferryExtraMins) / 60);
-                const totalDurM = (cachedDurationMin + ferryExtraMins) % 60;
+                // Beregn for mellemstops dynamisk ud fra Mapbox legs
+                validWps.forEach((wp, idx) => {
+                    if (legDurationsMin[idx] !== undefined) {
+                        cumulativeMins += legDurationsMin[idx];
+                    }
+                    const wpH = Math.floor(cumulativeMins / 60) % 24;
+                    const wpM = Math.round(cumulativeMins % 60);
+
+                    const hrEl = document.getElementById(`wpTimeHour_${wp.id}`);
+                    const minEl = document.getElementById(`wpTimeMin_${wp.id}`);
+                    if (hrEl && minEl) { 
+                        hrEl.value = wpH.toString().padStart(2, '0');
+                        minEl.value = wpM.toString().padStart(2, '0');
+                    }
+                });
+
+                // Beregn for slutdestination
+                if (legDurationsMin[validWps.length] !== undefined) {
+                    cumulativeMins += legDurationsMin[validWps.length];
+                } else if (legDurationsMin.length > 0) {
+                    cumulativeMins += legDurationsMin[0]; // Fallback hvis ingen mellemstops
+                } else {
+                    const isFerry = document.getElementById('swFerry').checked;
+                    const ferryExtraMins = (isFerry && crossesSeaGlobal) ? 90 : 0; 
+                    cumulativeMins = (startH * 60) + startM + cachedDurationMin + ferryExtraMins;
+                }
+
+                const arrH = Math.floor(cumulativeMins / 60) % 24;
+                const arrM = Math.round(cumulativeMins % 60);
+                
+                const arrTimeHourEl = document.getElementById('arrTimeHour');
+                const arrTimeMinEl = document.getElementById('arrTimeMin');
+                if(arrTimeHourEl && arrTimeMinEl) {
+                    arrTimeHourEl.value = arrH.toString().padStart(2, '0');
+                    arrTimeMinEl.value = arrM.toString().padStart(2, '0');
+                }
+                
+                const totalDurH = Math.floor((cumulativeMins - ((startH * 60) + startM)) / 60);
+                const totalDurM = Math.round((cumulativeMins - ((startH * 60) + startM)) % 60);
                 document.getElementById('durationText').innerText = `${totalDurH} t ${totalDurM} m`;
             }
         }
@@ -701,9 +808,7 @@
 
         // --- MAPBOX & FALLBACK ---
         function initMap() {
-            // TJEK: Har browseren WebGL? (Mapbox GL JS kræver WebGL for at virke)
             if (mapboxgl.supported()) {
-                // Mapbox understøttes - brug det primære kort!
                 if(map) return;
                 try {
                     map = new mapboxgl.Map({
@@ -714,11 +819,9 @@
                     });
                     setTimeout(() => map.resize(), 500);
                 } catch(e) {
-                    console.error("Mapbox fejlede, starter Leaflet fallback...", e);
                     initLeafletFallback();
                 }
             } else {
-                // Mapbox understøttes IKKE (Hardware Acceleration er slået fra) - brug Leaflet!
                 initLeafletFallback();
             }
         }
@@ -821,6 +924,8 @@
             waypoints.forEach(wp => { if(wp.coords) allPoints.push(wp.coords); });
             allPoints.push(destCoords);
 
+            legDurationsMin = [];
+
             if (isFerry && crossesSeaGlobal) {
                 const isEastbound = originCoords.lng < destCoords.lng;
                 const fStart = isEastbound ? {lng: FERRY_AARHUS[0], lat: FERRY_AARHUS[1]} : {lng: FERRY_ODDEN[0], lat: FERRY_ODDEN[1]};
@@ -845,6 +950,15 @@
                 if (data1.routes?.[0] && data2.routes?.[0]) {
                     totalDistance = (data1.routes[0].distance + data2.routes[0].distance) / 1000;
                     totalDuration = (data1.routes[0].duration + data2.routes[0].duration) / 60;
+                    
+                    const legs1 = data1.routes[0].legs.map(l => l.duration / 60);
+                    const legs2 = data2.routes[0].legs.map(l => l.duration / 60);
+                    
+                    for(let i=0; i<legs1.length - 1; i++) legDurationsMin.push(legs1[i]);
+                    const crossingDuration = legs1[legs1.length - 1] + 90 + legs2[0];
+                    legDurationsMin.push(crossingDuration);
+                    for(let i=1; i<legs2.length; i++) legDurationsMin.push(legs2[i]);
+
                     routeGeojson.geometry.type = 'MultiLineString';
                     routeGeojson.geometry.coordinates = [data1.routes[0].geometry.coordinates, data2.routes[0].geometry.coordinates];
                     drawRouteOnMap(routeGeojson, allPoints, true); 
@@ -859,6 +973,8 @@
                 if (data.routes?.[0]) {
                     totalDistance = data.routes[0].distance / 1000;
                     totalDuration = data.routes[0].duration / 60;
+                    legDurationsMin = data.routes[0].legs.map(l => l.duration / 60);
+
                     routeGeojson.geometry = data.routes[0].geometry;
                     drawRouteOnMap(routeGeojson, allPoints, false);
                 }
@@ -885,14 +1001,15 @@
                 document.getElementById('distanceText').innerText = `${Math.round(cachedDistanceKm)} km`;
                 document.getElementById('recPriceDisplay').innerText = recommendedPrice;
                 
+                renderWaypointTimeInputs(); // Opret redigerbare tidspunkter før updateTimes udfylder dem
                 updateTimes();
                 updatePriceUI();
                 updateCO2Display();
+                generateRouteSegments(); // Beregn strækningspriser nu hvor alt er klart
             }
         }
 
         function drawRouteOnMap(routeGeojson, points, showFerryLine) {
-            // Håndter hvis brugeren kører Mapbox
             if (map) {
                 if (map.getLayer('route')) map.removeLayer('route');
                 if (map.getLayer('ferry-line')) map.removeLayer('ferry-line');
@@ -918,7 +1035,6 @@
                 points.forEach(p => bounds.extend([p.lng, p.lat]));
                 map.fitBounds(bounds, { padding: 40 });
             } 
-            // Håndter Fallback (Leaflet)
             else if (leafletMap) {
                 if (leafletRouteLayer) leafletMap.removeLayer(leafletRouteLayer);
                 leafletMarkerLayers.forEach(m => leafletMap.removeLayer(m));
@@ -966,6 +1082,12 @@
                 currentPrice = maxPrice;
             }
             updatePriceUI(); 
+            
+            // Opdater automatisk alle strækningspriser, hvis hovedprisen ændres
+            if (routeSegments.length > 0) {
+                routeSegments.forEach(seg => seg.price = currentPrice);
+                renderSegmentPrices();
+            }
         }
 
         function updatePriceUI() {
@@ -973,58 +1095,120 @@
             document.getElementById('payoutText').innerText = currentPrice;
         }
 
+        // Helper til Date-objekter for at bygge korrekt rute-kombinatorik
+        function makeDateObj(dateStr, timeStr, prevDateObj) {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            const [h, m] = timeStr.split(':').map(Number);
+            let d = new Date(year, month - 1, day, h, m, 0);
+            if (prevDateObj && d < prevDateObj) {
+                d.setDate(d.getDate() + 1); // Passerer midnat
+            }
+            return d;
+        }
+
         // --- SUBMIT ---
         async function submitRides() {
             if (!currentUser || !originCoords || !destCoords) { alert("Fejl: Mangler rute-information."); return; }
             setLoading(true, "Opretter ture...");
 
-            const waypointsData = waypoints.filter(wp => wp.coords).map(wp => ({ city: wp.name, lat: wp.coords.lat, lng: wp.coords.lng }));
-            
+            const validWps = waypoints.filter(wp => wp.coords);
             const depTimeStr = getDepartureTimeStr();
             const arrTimeStr = getArrivalTimeStr();
+            const payloadsToInsert = [];
 
-            const payloadsToInsert = selectedDates.map(dateStr => {
-                // 1. Split den lokale dato og tid
-                const [year, month, day] = dateStr.split('-').map(Number);
-                const [depH, depM] = depTimeStr.split(':').map(Number);
-                const [arrH, arrM] = arrTimeStr.split(':').map(Number);
-                
-                // 2. Opret Date-objekter i LOKAL dansk tid
-                const depDateObj = new Date(year, month - 1, day, depH, depM, 0);
-                const arrDateObj = new Date(year, month - 1, day, arrH, arrM, 0);
-            
-                // 3. Hvis ankomst er før afgang, betyder det at vi ankommer efter midnat (næste dag)
-                if (arrDateObj <= depDateObj) { 
-                    arrDateObj.setDate(arrDateObj.getDate() + 1); 
+            // Genere en unik ID til at samle hele turen i databasen (kræver 'route_group_id' kolonne)
+            const routeGroupId = self.crypto && self.crypto.randomUUID ? self.crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substr(2);
+
+            // Dobbelt-loop over alle valgte datoer for at skabe rute-kombinationer
+            selectedDates.forEach(dateStr => {
+                let routePoints = [];
+
+                // 1. Definer startpunkt
+                let currentDt = makeDateObj(dateStr, depTimeStr, null);
+                routePoints.push({
+                    city: document.getElementById('originInput').value,
+                    lat: originCoords.lat,
+                    lng: originCoords.lng,
+                    time: currentDt,
+                    type: 'origin'
+                });
+
+                // 2. Definer alle mellemstops (indsæt den fastsatte tid fra UI'en)
+                validWps.forEach(wp => {
+                    const h = document.getElementById(`wpTimeHour_${wp.id}`).value || '00';
+                    const m = document.getElementById(`wpTimeMin_${wp.id}`).value || '00';
+                    const wpTimeStr = `${h.padStart(2,'0')}:${m.padStart(2,'0')}`;
+                    currentDt = makeDateObj(dateStr, wpTimeStr, currentDt);
+
+                    routePoints.push({
+                        city: wp.name,
+                        lat: wp.coords.lat,
+                        lng: wp.coords.lng,
+                        time: currentDt,
+                        type: 'waypoint'
+                    });
+                });
+
+                // 3. Definer slutdestination
+                currentDt = makeDateObj(dateStr, arrTimeStr, currentDt);
+                routePoints.push({
+                    city: document.getElementById('destInput').value,
+                    lat: destCoords.lat,
+                    lng: destCoords.lng,
+                    time: currentDt,
+                    type: 'destination'
+                });
+
+                // 4. Byg de specifikke kombinatoriske ruter!
+                for (let i = 0; i < routePoints.length - 1; i++) {
+                    for (let j = i + 1; j < routePoints.length; j++) {
+                        const fromP = routePoints[i];
+                        const toP = routePoints[j];
+                        
+                        let subWaypoints = [];
+                        for(let k = i + 1; k < j; k++) {
+                            const dateObj = routePoints[k].time;
+                            subWaypoints.push({
+                                city: routePoints[k].city,
+                                lat: routePoints[k].lat,
+                                lng: routePoints[k].lng,
+                                departure_time: `${dateObj.getHours().toString().padStart(2,'0')}:${dateObj.getMinutes().toString().padStart(2,'0')}`
+                            });
+                        }
+
+                        // Find den specifikke pris, som brugeren har sat for præcis denne kombination
+                        const specificSegment = routeSegments.find(s => s.from === fromP.city && s.to === toP.city);
+                        const finalPrice = specificSegment ? specificSegment.price : currentPrice;
+
+                        payloadsToInsert.push({
+                            route_group_id: routeGroupId, // Kæder ruterne sammen
+                            driver_id: currentUser.id,
+                            origin_city: fromP.city,
+                            destination_city: toP.city,
+                            origin_location: `POINT(${fromP.lng} ${fromP.lat})`,
+                            destination_location: `POINT(${toP.lng} ${toP.lat})`,
+                            
+                            departure_time: fromP.time.toISOString(),
+                            arrival_time: toP.time.toISOString(),
+                            
+                            seats_available: parseInt(document.getElementById('seatsInput').value),
+                            price_dkk: finalPrice, // Bruger nu den specifikke strækningspris!
+                            car_model: currentUserCarDetails, 
+                            status: 'active',
+                            is_ferry: document.getElementById('swFerry').checked,
+                            instant_booking: document.getElementById('swInstant').checked,
+                            detour_flex: document.getElementById('swFlex').checked,
+                            comfort_guarantee: document.getElementById('swComfort').checked,
+                            ladies_only: document.getElementById('swLadies') ? document.getElementById('swLadies').checked : false,
+                            pref_music: rules.Music,
+                            pref_smoking: rules.Smoking,
+                            pref_pets: rules.Pets,
+                            pref_kids: rules.Kids,
+                            comment: document.getElementById('commentInput').value,
+                            waypoints: subWaypoints
+                        });
+                    }
                 }
-            
-                return {
-                    driver_id: currentUser.id,
-                    origin_city: document.getElementById('originInput').value,
-                    destination_city: document.getElementById('destInput').value,
-                    origin_location: `POINT(${originCoords.lng} ${originCoords.lat})`,
-                    destination_location: `POINT(${destCoords.lng} ${destCoords.lat})`,
-                    
-                    // 4. Nu bruger vi .toISOString() - JS trækker SELV timerne fra til UTC!
-                    departure_time: depDateObj.toISOString(),
-                    arrival_time: arrDateObj.toISOString(),
-                    
-                    seats_available: parseInt(document.getElementById('seatsInput').value),
-                    price_dkk: currentPrice,
-                    car_model: currentUserCarDetails, 
-                    status: 'active',
-                    is_ferry: document.getElementById('swFerry').checked,
-                    instant_booking: document.getElementById('swInstant').checked,
-                    detour_flex: document.getElementById('swFlex').checked,
-                    comfort_guarantee: document.getElementById('swComfort').checked,
-                    ladies_only: document.getElementById('swLadies') ? document.getElementById('swLadies').checked : false,
-                    pref_music: rules.Music,
-                    pref_smoking: rules.Smoking,
-                    pref_pets: rules.Pets,
-                    pref_kids: rules.Kids,
-                    comment: document.getElementById('commentInput').value,
-                    waypoints: waypointsData
-                };
             });
 
             const { error } = await _supabase.from('rides').insert(payloadsToInsert);
@@ -1040,7 +1224,7 @@
                     zIndex: 3000 
                 });
                 
-                setLoading(true, `🎉 Succes!<br><br><span style="font-size:1.1rem; font-weight:500; color:var(--text-main);">Du har oprettet ${selectedDates.length} tur(e). Sender dig videre...</span>`); 
+                setLoading(true, `🎉 Succes!<br><br><span style="font-size:1.1rem; font-weight:500; color:var(--text-main);">Du har oprettet ${payloadsToInsert.length} tur(e). Sender dig videre...</span>`); 
                 
                 setTimeout(() => {
                     window.location.href = "/lift"; 
