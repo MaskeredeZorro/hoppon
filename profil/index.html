@@ -575,7 +575,7 @@
 
     <script>
         let currentUserId = null;
-        let currentUser = null; // Tilføjet tilbage for at undgå fejl
+        let currentUser = null; 
         let targetId = null;
         let targetProfile = null;
         
@@ -601,64 +601,83 @@
 
         const months = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
 
+        // ==========================================
+        // INITIALISERING (LØSER BUGGEN)
+        // ==========================================
         window.onload = async () => {
-            if (typeof _supabase === 'undefined') return showError();
+            try {
+                if (typeof _supabase === 'undefined') {
+                    showError("Supabase er ikke indlæst.");
+                    return;
+                }
 
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (session) {
-                currentUser = session.user;
-                currentUserId = session.user.id;
-            }
+                const { data: { session }, error: sessionError } = await _supabase.auth.getSession();
+                if (sessionError) console.error("Session error:", sessionError);
 
-            const urlParams = new URLSearchParams(window.location.search);
-            targetId = urlParams.get('id') || currentUserId; // HYBRID FIX
+                if (session) {
+                    currentUser = session.user;
+                    currentUserId = session.user.id;
+                }
 
-            if (!targetId) {
-                window.location.href = '/login';
-                return;
-            }
+                const urlParams = new URLSearchParams(window.location.search);
+                targetId = urlParams.get('id') || currentUserId;
 
-            const today = new Date();
-            const dd = String(today.getDate()).padStart(2, '0');
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const yyyy = today.getFullYear();
-            const sd = document.getElementById('searchDate');
-            if(sd) sd.placeholder = `${dd}/${mm}/${yyyy}`;
+                if (!targetId) {
+                    window.location.href = '/login';
+                    return;
+                }
 
-            // Sæt den rigtige visning baseret på rettigheder
-            if (currentUserId === targetId) {
-                // EGEN PROFIL
-                document.getElementById('private-tabs').style.display = 'flex';
-                document.getElementById('private-balance-box').style.display = 'block';
-                document.getElementById('btn-report-profile').style.display = 'none';
-                
-                renderOwnProfileRidesSection();
-                await fetchDriverRides(); 
-            } else {
-                // GÆSTE PROFIL
-                document.getElementById('private-tabs').style.display = 'none';
-                document.getElementById('tab-profil').style.display = 'none';
-                document.getElementById('tab-skat').style.display = 'none';
-                
-                document.getElementById('userActiveRidesContainer').style.display = 'block';
-                document.getElementById('userActiveRidesContainer').style.padding = '0';
-                document.getElementById('userActiveRidesContainer').style.border = 'none';
-                document.getElementById('userActiveRidesContainer').style.boxShadow = 'none';
-                document.getElementById('userActiveRidesContainer').style.background = 'transparent';
-                
-                renderGuestProfileRidesSection();
-                await fetchUserRides(); 
-            }
+                const today = new Date();
+                const dd = String(today.getDate()).padStart(2, '0');
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const yyyy = today.getFullYear();
+                const sd = document.getElementById('searchDate');
+                if(sd) sd.placeholder = `${dd}/${mm}/${yyyy}`;
 
-            await loadData();
-            if (currentUserId === targetId) {
-                await checkStripeStatus();
-                await loadTaxData();
+                // VIGTIGT: Vi loader den overordnede struktur FØRST
+                await loadData();
+
+                if (currentUserId === targetId) {
+                    // EGEN PROFIL
+                    document.getElementById('private-tabs').style.display = 'flex';
+                    document.getElementById('private-balance-box').style.display = 'block';
+                    document.getElementById('btn-report-profile').style.display = 'none';
+                    
+                    renderOwnProfileRidesSection();
+                    await fetchDriverRides(); 
+                    await checkStripeStatus();
+                    await loadTaxData();
+                } else {
+                    // GÆSTE PROFIL
+                    document.getElementById('private-tabs').style.display = 'none';
+                    document.getElementById('tab-profil').style.display = 'none';
+                    document.getElementById('tab-skat').style.display = 'none';
+                    
+                    const container = document.getElementById('tab-ture');
+                    if (container) {
+                        container.style.display = 'block';
+                        container.style.padding = '0';
+                        container.style.border = 'none';
+                        container.style.boxShadow = 'none';
+                        container.style.background = 'transparent';
+                    }
+                    
+                    renderGuestProfileRidesSection();
+                    await fetchUserRides(); 
+                }
+
+            } catch (err) {
+                console.error("Fejl i window.onload:", err);
+                showError("Der opstod en fejl under indlæsning.");
             }
         };
 
+        // ==========================================
+        // RENDER STRUKTUR FOR TURE
+        // ==========================================
         function renderOwnProfileRidesSection() {
             const container = document.getElementById('tab-ture');
+            if(!container) return;
             container.innerHTML = `
                 <div class="card" style="padding: 1.5rem;">
                     <div class="sub-tabs">
@@ -696,6 +715,7 @@
 
         function renderGuestProfileRidesSection() {
             const container = document.getElementById('tab-ture');
+            if(!container) return;
             const today = new Date();
             const dd = String(today.getDate()).padStart(2, '0');
             const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -725,14 +745,15 @@
             `;
         }
 
+        // ==========================================
+        // PROFIL DATA FETCH
+        // ==========================================
         async function loadData() {
             try {
-                // 1. Profil Data
                 const { data: profile, error } = await _supabase.from('profiles').select('*').eq('id', targetId).single();
                 if (error || !profile) throw error;
                 targetProfile = profile; 
 
-                // Udfyld Private Data hvis det er ejeren
                 if (currentUserId === targetId) {
                     currentBalance = profile.balance || 0;
                     document.getElementById('ui-balance').innerText = currentBalance.toFixed(2);
@@ -755,16 +776,13 @@
                     }
                 }
 
-                // 2. Ture count
                 const { count: driverRides } = await _supabase.from('rides').select('*', { count: 'exact', head: true }).eq('driver_id', targetId).eq('status', 'completed');
                 const { count: paxRides } = await _supabase.from('bookings').select('*', { count: 'exact', head: true }).eq('passenger_id', targetId).eq('status', 'approved');
                 const totalRides = (driverRides || 0) + (paxRides || 0);
 
-                // 3. Reviews
                 const { data: reviews } = await _supabase.from('reviews').select('*, profiles:reviewer_id(full_name, avatar_url)').eq('reviewee_id', targetId).order('created_at', { ascending: false });
                 allReviews = reviews || [];
 
-                // 4. Beregn Statistik
                 let sum = 0;
                 let alreadyReviewed = false;
                 ratingDist = {5:0, 4:0, 3:0, 2:0, 1:0};
@@ -777,14 +795,12 @@
 
                 avgRating = allReviews.length > 0 ? (sum / allReviews.length) : 0.0;
 
-                // 5. Kan jeg anmelde?
                 let canReview = false;
                 if(currentUserId && currentUserId !== targetId && !alreadyReviewed) {
                     const { data: shared } = await _supabase.from('bookings').select('id, rides!inner(driver_id)').eq('passenger_id', currentUserId).eq('status', 'approved').eq('rides.driver_id', targetId).limit(1);
                     if(shared && shared.length > 0) canReview = true;
                 }
 
-                // UDFYLD UI
                 document.getElementById('loading-state').style.display = 'none';
                 document.getElementById('profile-content').style.display = 'grid';
 
@@ -808,7 +824,6 @@
                     document.getElementById('pub-bio').innerText = profile.bio;
                 }
 
-                // Badges
                 let badges = '';
                 if (profile.is_verified_mitid) badges += '<div class="badge-verified"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> MitID Verificeret</div>';
                 if (profile.phone_verified) badges += '<div class="badge-verified"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> Telefon Verificeret</div>';
@@ -830,13 +845,13 @@
                 renderReviews();
 
             } catch (err) {
-                console.error(err);
-                showError();
+                console.error("Fejl i loadData:", err);
+                showError("Kunne ikke indlæse brugerdata.");
             }
         }
 
         // ==========================================
-        // FETCH & RENDER EGEN PROFIL TURE (Aktive & Afsluttede)
+        // EGEN PROFIL: KØRER & PASSAGER TURE
         // ==========================================
         async function fetchDriverRides() {
             try {
@@ -846,26 +861,27 @@
                 if(error) throw error;
                 const now = new Date();
                 
-                // Aktive ture
                 const activeRides = rides.filter(r => {
+                    if (!r.departure_time) return false;
                     const dep = new Date(r.departure_time);
                     return r.status !== 'completed' && r.status !== 'cancelled' && now < new Date(dep.getTime() + (24 * 60 * 60 * 1000));
                 });
 
-                // Afsluttede/Aflyste ture (alt der ikke er i active)
                 const completedRides = rides.filter(r => !activeRides.includes(r));
 
                 const activeGroups = groupAndFormatRides(activeRides);
-                activeGroups.sort((a,b) => new Date(a.main_ride.departure_time) - new Date(b.main_ride.departure_time));
+                activeGroups.sort((a,b) => new Date(a.main_ride.departure_time || 0) - new Date(b.main_ride.departure_time || 0));
 
-                groupedCompletedRides = groupAndFormatRides(completedRides).sort((a,b) => new Date(b.main_ride.departure_time) - new Date(a.main_ride.departure_time)); 
+                groupedCompletedRides = groupAndFormatRides(completedRides).sort((a,b) => new Date(b.main_ride.departure_time || 0) - new Date(a.main_ride.departure_time || 0)); 
 
                 renderDriverRides(activeGroups);
                 renderCompletedRides();
                 await fetchPassengerRides();
 
             } catch (err) { 
-                console.error(err);
+                console.error("Fejl i fetchDriverRides:", err);
+                const el = document.getElementById('driver-rides-list');
+                if(el) el.innerHTML = `<p style="color:red;text-align:center;">Fejl: ${err.message}</p>`; 
             }
         }
 
@@ -883,13 +899,13 @@
                 let isCancelled = group.every(r => r.status === 'cancelled');
 
                 const mainRide = group.reduce((prev, curr) => {
-                    const prevDur = new Date(prev.arrival_time || 0) - new Date(prev.departure_time || 0);
-                    const currDur = new Date(curr.arrival_time || 0) - new Date(curr.departure_time || 0);
+                    const prevDur = new Date(prev.arrival_time || 0).getTime() - new Date(prev.departure_time || 0).getTime();
+                    const currDur = new Date(curr.arrival_time || 0).getTime() - new Date(curr.departure_time || 0).getTime();
                     return currDur > prevDur ? curr : prev;
-                });
+                }, group[0]);
 
                 group.forEach(r => {
-                    if (r.bookings) {
+                    if (r.bookings && Array.isArray(r.bookings)) {
                         r.bookings.forEach(b => {
                             allBookings.push({ 
                                 ...b, 
@@ -923,7 +939,7 @@
             let html = '';
             groups.forEach(group => {
                 const mainRide = group.main_ride;
-                const isPassed = new Date() > new Date(mainRide.arrival_time);
+                const isPassed = new Date() > new Date(mainRide.arrival_time || new Date());
                 
                 const activeBookings = group.all_bookings.filter(b => b.status === 'approved' || b.status === 'pending');
                 let passengersHTML = '';
@@ -969,7 +985,7 @@
                 html += `<div class="ride-card">
                     <div class="ride-header" onclick="toggleExpand('details-${group.id}')">
                         <div>
-                            <div class="route-title">${mainRide.origin_city} ➝ ${mainRide.destination_city}</div>
+                            <div class="route-title">${mainRide.origin_city || ''} ➝ ${mainRide.destination_city || ''}</div>
                             <div class="ride-meta">${formatDateTime(mainRide.departure_time)} ${group.is_group ? `<span style="background:#E2E8F0; padding:2px 8px; border-radius:12px; font-size:0.75rem; margin-left:6px; color:#475569;">Med stop</span>` : ''}</div>
                         </div>
                         <div class="ride-price">${mainRide.price_dkk} kr.</div>
@@ -983,6 +999,31 @@
                 </div>`;
             });
             container.innerHTML = html;
+        }
+
+        async function fetchPassengerRides() {
+            try {
+                if (!currentUser) return;
+                const { data: bookings, error } = await _supabase.from('bookings').select('*, rides(*, profiles(full_name))').eq('passenger_id', currentUser.id);
+                if(error) throw error;
+                const container = document.getElementById('passenger-rides-list');
+                if(!container) return;
+                
+                let html = '';
+                bookings.forEach(b => {
+                    const ride = b.rides;
+                    if (!ride) return; // Beskytter mod slettede ture
+                    const chatBtn = `<button class="btn-icon chat" style="position: absolute; right: 1.5rem; top: 1.5rem;" onclick="window.location.href='/samtale?user=${ride.driver_id}&ride=${ride.id}'" title="Skriv til chauffør"><i class="fa-regular fa-comment-dots"></i></button>`;
+
+                    html += `<div class="ride-card" style="padding: 1.5rem; position: relative;">
+                        ${chatBtn}
+                        <div class="route-title" style="padding-right: 40px;">${ride.origin_city} ➝ ${ride.destination_city}</div>
+                        <div class="ride-meta">${formatDateTime(ride.departure_time)}</div>
+                        <div style="margin-top:10px; font-weight:700;">Status: ${b.status}</div>
+                    </div>`;
+                });
+                container.innerHTML = html || '<p style="text-align:center;">Ingen rejser fundet.</p>';
+            } catch (err) { console.error("Fejl i fetchPassengerRides:", err); }
         }
 
         // ==========================================
@@ -1155,28 +1196,31 @@
             }
         }
 
-
         // ==========================================
         // GÆSTE PROFIL TURE SØGNING
         // ==========================================
         async function fetchUserRides() {
-            const nowISO = new Date().toISOString(); 
-            const { data, error } = await _supabase.from('rides')
-                .select('*')
-                .eq('driver_id', targetId)
-                .eq('status', 'active')
-                .gte('departure_time', nowISO)
-                .order('departure_time', { ascending: true });
+            try {
+                const nowISO = new Date().toISOString(); 
+                const { data, error } = await _supabase.from('rides')
+                    .select('*')
+                    .eq('driver_id', targetId)
+                    .eq('status', 'active')
+                    .gte('departure_time', nowISO)
+                    .order('departure_time', { ascending: true });
 
-            const loader = document.getElementById('userRidesLoader');
-            const empty = document.getElementById('userRidesEmpty');
-            if(loader) loader.style.display = 'none';
-            
-            if (!error && data && data.length > 0) {
-                allUserRides = data;
-                filterUserRides(); 
-            } else if (empty) {
-                empty.style.display = 'block';
+                const loader = document.getElementById('userRidesLoader');
+                const empty = document.getElementById('userRidesEmpty');
+                if(loader) loader.style.display = 'none';
+                
+                if (!error && data && data.length > 0) {
+                    allUserRides = data;
+                    filterUserRides(); 
+                } else if (empty) {
+                    empty.style.display = 'block';
+                }
+            } catch (err) {
+                console.error("Fejl i fetchUserRides:", err);
             }
         }
 
@@ -1185,7 +1229,7 @@
             const toEl = document.getElementById('searchTo');
             const dateInput = document.getElementById('searchDate');
             
-            if (!fromEl || !toEl || !dateInput) return;
+            if (!fromEl || !toEl || !dateInput) return; // Prevent errors if on private view
 
             const from = fromEl.value.toLowerCase();
             const to = toEl.value.toLowerCase();
@@ -1207,7 +1251,7 @@
             if (sortBy === 'price') {
                 filtered.sort((a, b) => Math.ceil(a.price_dkk * 1.05) - Math.ceil(b.price_dkk * 1.05));
             } else {
-                filtered.sort((a, b) => new Date(a.departure_time) - new Date(b.departure_time));
+                filtered.sort((a, b) => new Date(a.departure_time || 0) - new Date(b.departure_time || 0));
             }
 
             renderUserRides(filtered);
@@ -1222,11 +1266,11 @@
             
             if (rides.length === 0) { 
                 container.style.display = 'none';
-                empty.style.display = 'block'; 
+                if(empty) empty.style.display = 'block'; 
                 return; 
             }
             
-            empty.style.display = 'none';
+            if(empty) empty.style.display = 'none';
             container.style.display = 'flex';
 
             rides.forEach(ride => {
@@ -1241,8 +1285,8 @@
                     arrTimeStr = arrDate.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'});
                 }
 
-                const displayOrigin = ride.origin_city;
-                const displayDest = ride.destination_city;
+                const displayOrigin = ride.origin_city || '';
+                const displayDest = ride.destination_city || '';
 
                 let car = { display_name: 'Bil' };
                 try { car = typeof ride.car_model === 'string' ? JSON.parse(ride.car_model) : ride.car_model; } catch(e) {}
@@ -1294,7 +1338,6 @@
             });
         }
 
-
         // ==========================================
         // UI & FILTER LOGIK REVIEWS
         // ==========================================
@@ -1319,6 +1362,7 @@
 
         function renderRatingBars() {
             const container = document.getElementById('ui-rating-bars');
+            if(!container) return;
             let html = '';
             const total = allReviews.length;
 
@@ -1346,6 +1390,7 @@
         function renderReviews() {
             const container = document.getElementById('reviews-list');
             const btnShowAll = document.getElementById('btn-show-all');
+            if(!container) return;
             
             let filtered = allReviews;
             if(selectedFilter) {
@@ -1394,9 +1439,10 @@
             container.innerHTML = html;
         }
 
-        function showError() {
+        function showError(msg = "Denne profil eksisterer ikke, eller også er linket ugyldigt.") {
             document.getElementById('loading-state').style.display = 'none';
             document.getElementById('error-state').style.display = 'block';
+            document.querySelector('#error-state p').innerText = msg;
         }
 
         // ==========================================
@@ -1415,7 +1461,6 @@
                     url: url
                 }).catch(err => console.log('Fejl ved deling:', err));
             } else {
-                // Kopier link via moderne clipboard API
                 if (navigator.clipboard && window.isSecureContext) {
                     navigator.clipboard.writeText(url).then(() => {
                         alert("Link til profilen er kopieret! 📋 Del det med dine venner.");
@@ -1423,7 +1468,6 @@
                         alert("Kunne ikke kopiere linket automatisk. Kopier venligst URL'en.");
                     });
                 } else {
-                    // Fallback for ældre browsere eller non-secure
                     let textArea = document.createElement("textarea");
                     textArea.value = url;
                     document.body.appendChild(textArea);
@@ -1592,48 +1636,6 @@
             alert("Tak. Vi kigger på sagen.");
         }
 
-        async function lookupPlateProfile() {
-            const plateInput = document.getElementById('prof-plate');
-            const plate = plateInput.value.trim();
-            const badge = document.getElementById('carBadge');
-            const err = document.getElementById('plateError');
-            
-            if (!plate) return;
-
-            err.style.display = "none";
-            badge.style.display = "none";
-
-            const { data, error } = await _supabase.rpc('get_car_details', { plate_text: plate.replace(/\s/g, '') });
-
-            if (data && !data.error && data.make) {
-                const formattedPlate = plate.toUpperCase();
-                
-                document.getElementById('displayCarName').innerText = `${data.make} ${data.model}`;
-                document.getElementById('displayCarMeta').innerText = `${data.model_year || ''} • ${data.color || ''} • ${formattedPlate}`;
-                
-                carDataStorage = {
-                    make: data.make,
-                    model: data.model,
-                    year: data.model_year ? data.model_year.toString() : "",
-                    color: data.color || "",
-                    plate: formattedPlate,
-                    details: `${data.model_year || ''} • ${data.color || ''} • ${formattedPlate}`,
-                    display_name: `${data.make} ${data.model}`
-                };
-                
-                badge.style.display = "flex";
-                plateInput.value = ""; 
-            } else {
-                err.innerText = "❌ Vi kunne ikke finde bilen. Tjek nummerpladen.";
-                err.style.display = "block";
-            }
-        }
-
-        function clearCarData() {
-            carDataStorage = null;
-            document.getElementById('carBadge').style.display = "none";
-        }
-
         function switchMainTab(tabId, btn) {
             document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(e => e.classList.remove('active'));
@@ -1650,6 +1652,7 @@
         
         function toggleExpand(id) {
             const el = document.getElementById(id);
+            if(!el) return;
             el.style.display = el.style.display === 'block' ? 'none' : 'block';
         }
     </script>
