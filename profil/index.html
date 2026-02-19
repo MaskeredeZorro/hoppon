@@ -575,6 +575,7 @@
 
     <script>
         let currentUserId = null;
+        let currentUser = null; // Tilføjet tilbage for at undgå fejl
         let targetId = null;
         let targetProfile = null;
         
@@ -604,17 +605,27 @@
             if (typeof _supabase === 'undefined') return showError();
 
             const { data: { session } } = await _supabase.auth.getSession();
-            if (session) currentUserId = session.user.id;
+            if (session) {
+                currentUser = session.user;
+                currentUserId = session.user.id;
+            }
 
             const urlParams = new URLSearchParams(window.location.search);
-            targetId = urlParams.get('id') || currentUserId; // HYBRID FIX: Bruger automatisk din id, hvis du er logget ind
+            targetId = urlParams.get('id') || currentUserId; // HYBRID FIX
 
             if (!targetId) {
                 window.location.href = '/login';
                 return;
             }
 
-            // Sæt den rigtige visning baseret på rettigheder før vi loader data
+            const today = new Date();
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const yyyy = today.getFullYear();
+            const sd = document.getElementById('searchDate');
+            if(sd) sd.placeholder = `${dd}/${mm}/${yyyy}`;
+
+            // Sæt den rigtige visning baseret på rettigheder
             if (currentUserId === targetId) {
                 // EGEN PROFIL
                 document.getElementById('private-tabs').style.display = 'flex';
@@ -628,6 +639,12 @@
                 document.getElementById('private-tabs').style.display = 'none';
                 document.getElementById('tab-profil').style.display = 'none';
                 document.getElementById('tab-skat').style.display = 'none';
+                
+                document.getElementById('userActiveRidesContainer').style.display = 'block';
+                document.getElementById('userActiveRidesContainer').style.padding = '0';
+                document.getElementById('userActiveRidesContainer').style.border = 'none';
+                document.getElementById('userActiveRidesContainer').style.boxShadow = 'none';
+                document.getElementById('userActiveRidesContainer').style.background = 'transparent';
                 
                 renderGuestProfileRidesSection();
                 await fetchUserRides(); 
@@ -725,7 +742,8 @@
                     document.getElementById('prof-phone').value = profile.phone_number || "";
                     document.getElementById('prof-gender').value = profile.gender || "Andet";
                     document.getElementById('prof-bio').value = profile.bio || "";
-                    originalEmail = (await _supabase.auth.getUser()).data?.user?.email || "";
+                    
+                    originalEmail = currentUser ? currentUser.email : "";
                     document.getElementById('prof-email').value = originalEmail;
 
                     if (profile.car_details) {
@@ -865,8 +883,8 @@
                 let isCancelled = group.every(r => r.status === 'cancelled');
 
                 const mainRide = group.reduce((prev, curr) => {
-                    const prevDur = new Date(prev.arrival_time) - new Date(prev.departure_time);
-                    const currDur = new Date(curr.arrival_time) - new Date(curr.departure_time);
+                    const prevDur = new Date(prev.arrival_time || 0) - new Date(prev.departure_time || 0);
+                    const currDur = new Date(curr.arrival_time || 0) - new Date(curr.departure_time || 0);
                     return currDur > prevDur ? curr : prev;
                 });
 
@@ -1167,7 +1185,7 @@
             const toEl = document.getElementById('searchTo');
             const dateInput = document.getElementById('searchDate');
             
-            if (!fromEl || !toEl || !dateInput) return; // Prevent errors if on private view
+            if (!fromEl || !toEl || !dateInput) return;
 
             const from = fromEl.value.toLowerCase();
             const to = toEl.value.toLowerCase();
@@ -1175,8 +1193,8 @@
             if(dateInput.type === 'date') { qDate = dateInput.value; }
 
             const filtered = allUserRides.filter(r => {
-                const rawOrigin = r.origin_city.toLowerCase();
-                const rawDest = r.destination_city.toLowerCase();
+                const rawOrigin = (r.origin_city || "").toLowerCase();
+                const rawDest = (r.destination_city || "").toLowerCase();
                 
                 if (from && !rawOrigin.includes(from)) return false;
                 if (to && !rawDest.includes(to)) return false;
@@ -1385,7 +1403,7 @@
         // SHARE FUNKTION
         // ==========================================
         function shareProfile() {
-            const url = window.location.href;
+            const url = `https://hoppon.dk/bruger/?id=${targetId}`;
             const name = targetProfile ? targetProfile.full_name : 'Brugeren';
             const title = `${name}s profil på HoppOn`;
             const text = `Se alle ${name}s kommende ture på HoppOn og kør med! 🚗💨`;
@@ -1397,11 +1415,28 @@
                     url: url
                 }).catch(err => console.log('Fejl ved deling:', err));
             } else {
-                navigator.clipboard.writeText(url).then(() => {
-                    alert("Link til profilen er kopieret! 📋 Del det med dine venner.");
-                }).catch(err => {
-                    alert("Kunne ikke kopiere linket automatisk. Kopier venligst URL'en i toppen af din browser.");
-                });
+                // Kopier link via moderne clipboard API
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(url).then(() => {
+                        alert("Link til profilen er kopieret! 📋 Del det med dine venner.");
+                    }).catch(err => {
+                        alert("Kunne ikke kopiere linket automatisk. Kopier venligst URL'en.");
+                    });
+                } else {
+                    // Fallback for ældre browsere eller non-secure
+                    let textArea = document.createElement("textarea");
+                    textArea.value = url;
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        alert("Link til profilen er kopieret! 📋 Del det med dine venner.");
+                    } catch (err) {
+                        alert("Kunne ikke kopiere linket automatisk.");
+                    }
+                    document.body.removeChild(textArea);
+                }
             }
         }
 
@@ -1597,6 +1632,25 @@
         function clearCarData() {
             carDataStorage = null;
             document.getElementById('carBadge').style.display = "none";
+        }
+
+        function switchMainTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(e => e.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
+        
+        function switchSubTab(tabId, btn) {
+            document.querySelectorAll('.sub-tab-content').forEach(e => e.classList.remove('active'));
+            document.querySelectorAll('.sub-tab-btn').forEach(e => e.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
+        
+        function toggleExpand(id) {
+            const el = document.getElementById(id);
+            el.style.display = el.style.display === 'block' ? 'none' : 'block';
         }
     </script>
 </body>
