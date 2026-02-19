@@ -38,29 +38,29 @@
         .stat-item p { margin: 0; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700;}
 
         /* SHARE BUTTON */
-        .btn-share {
-            width: 100%;
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 12px;
-            font-weight: 800;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 1.5rem;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-        }
-        .btn-share:hover {
-            transform: translateY(-2px);
-            background: var(--accent-hover);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-        }
+        .btn-share { width: 100%; background: var(--accent); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 1.5rem; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+        .btn-share:hover { transform: translateY(-2px); background: var(--accent-hover); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); }
+
+        /* BALANCE & PAYOUT */
+        .balance-box { background: var(--brand); color: white; padding: 1.5rem; border-radius: 16px; text-align: center; margin-top: 1.5rem;}
+        .balance-amount { font-size: 2rem; font-weight: 900; margin: 5px 0; }
+        .pending-amount { font-size: 0.85rem; color: #94A3B8; margin-bottom: 15px; }
+        .btn-payout { width: 100%; background: white; color: var(--brand); border: none; padding: 10px; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
+        .btn-payout:hover { background: #f1f5f9; transform: translateY(-1px); }
+        .btn-payout:disabled { background: rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); cursor: not-allowed; transform: none; }
+
+        /* TABS */
+        .tabs { display: flex; gap: 0.5rem; background: white; padding: 0.5rem; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid var(--border); overflow-x: auto; margin-bottom: 1.5rem;}
+        .tab-btn { flex: 1; padding: 12px 15px; border: none; background: transparent; font-weight: 700; font-size: 0.95rem; color: var(--text-muted); cursor: pointer; border-radius: 12px; transition: 0.2s; white-space: nowrap;}
+        .tab-btn.active { background: var(--brand); color: white; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+
+        .sub-tabs { display: flex; background: #F1F5F9; border-radius: 25px; padding: 4px; margin-bottom: 1.5rem; }
+        .sub-tab-btn { flex: 1; text-align: center; padding: 10px; border-radius: 25px; font-weight: 700; font-size: 0.95rem; cursor: pointer; color: #64748B; transition: 0.2s; border: none; background: transparent; }
+        .sub-tab-btn.active { background: var(--accent); color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .sub-tab-content { display: none; }
+        .sub-tab-content.active { display: block; animation: fadeIn 0.3s ease; }
 
         /* HØJRE: BIO & REVIEWS (TIGHT LAYOUT) */
         .detail-card h3 { font-size: 1.1rem; font-weight: 800; color: var(--brand); margin-bottom: 0.8rem; border-bottom: 2px solid #F1F5F9; padding-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;}
@@ -105,8 +105,18 @@
         .review-date { color: var(--text-muted); font-size: 0.75rem; font-weight: 500;}
         .review-stars { color: #F59E0B; font-size: 0.85rem; letter-spacing: 1px;}
         .review-comment { color: var(--text-main); font-size: 0.9rem; line-height: 1.4; margin: 0; }
-
         .empty-state { text-align: center; padding: 1.5rem; background: #F8FAFC; border-radius: 12px; color: var(--text-muted); font-weight: 500; font-size: 0.9rem;}
+
+        /* CARDS & FORMS */
+        .form-group { margin-bottom: 1.5rem; position: relative; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        label { display: block; font-weight: 700; color: var(--brand); margin-bottom: 0.5rem; font-size: 0.95rem; }
+        input, select, textarea { width: 100%; padding: 14px 16px; border: 1px solid #E2E8F0; border-radius: 12px; background: #F8FAFC; font-size: 1rem; font-family: inherit; font-weight: 500; outline: none; transition: 0.2s; box-sizing: border-box;}
+        input:focus, select:focus, textarea:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+        input[readonly] { background: #E2E8F0; color: #64748B; cursor: not-allowed; }
+        .helper-text { font-size: 0.85rem; color: #64748B; margin-top: 5px; }
+        .btn-submit { background: var(--accent); color: white; width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .btn-submit:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(99,102,241,0.2); }
 
         /* LIFT SØGNING */
         .mini-search-bar { display: flex; gap: 0.5rem; background: #F1F5F9; padding: 0.5rem; border-radius: 14px; margin-bottom: 1.5rem; flex-wrap: wrap; border: 1px solid var(--border);}
@@ -116,8 +126,8 @@
         
         /* RIDE CARDS (Fra Lift siden) */
         .ride-list { display: flex; flex-direction: column; gap: 0.8rem; }
-        .ride-item { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 1rem 1.2rem; transition: 0.2s; cursor: pointer; }
-        .ride-item:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 15px -5px rgba(0,0,0,0.05); }
+        .ride-item, .ride-card { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 1rem 1.2rem; transition: 0.2s; cursor: pointer; position: relative; overflow: hidden; }
+        .ride-item:hover, .ride-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 15px -5px rgba(0,0,0,0.05); }
         .card-date { font-size: 0.75rem; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; display: block; }
         .timeline { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; width: 100%; }
         .time-box { display: flex; flex-direction: column; flex: 1; min-width: 0; overflow: hidden; }
@@ -142,29 +152,67 @@
         .price { font-size: 1.4rem; font-weight: 900; color: var(--brand); letter-spacing: -0.5px; }
         .seats-left { font-weight: 700; color: var(--success); font-size: 0.8rem; }
 
-        /* MODAL */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
-        .modal-box { background: white; padding: 2rem; border-radius: 24px; width: 90%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); text-align: center; max-height: 90vh; overflow-y: auto;}
+        .ride-header { padding-bottom: 0; }
+        .route-title { font-weight: 800; color: var(--brand); font-size: 1.2rem; margin-bottom: 5px; }
+        .ride-meta { color: var(--text-muted); font-size: 0.95rem; font-weight: 500; }
+        .ride-price { font-size: 1.3rem; font-weight: 900; color: var(--brand); }
+        .ride-details { display: none; border-top: 1px solid #F1F5F9; padding-top: 1.5rem; margin-top: 1rem; }
+        
+        .passenger-list { margin-top: 1rem; }
+        .passenger-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #F1F5F9; }
+        .passenger-info { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--brand); }
+        .passenger-actions { display: flex; gap: 10px; align-items: center; }
+        .btn-icon { background: #F1F5F9; border: none; width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; color: var(--text-muted); }
+        .btn-icon:hover { filter: brightness(0.95); }
+        .btn-icon.green { color: #166534; background: #DCFCE7; }
+        .btn-icon.red { color: #991B1B; background: #FEE2E2; }
+        .btn-icon.chat { color: #3B82F6; background: #EFF6FF; }
+        
+        .action-bar { display: flex; gap: 10px; margin-top: 1.5rem; flex-wrap: wrap;}
+        .btn-outline { flex: 1; min-width: 120px; border: 1px solid var(--border); background: white; padding: 12px; border-radius: 12px; font-weight: 700; color: var(--brand); cursor: pointer; transition: 0.2s;}
+        .btn-outline:hover { background: #F8FAFC; }
+        .btn-action-main { flex: 1; min-width: 120px; background: #22C55E; color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+        .btn-action-main:disabled { background: #E2E8F0; color: #94A3B8; cursor: not-allowed; }
+        .btn-danger { color: #EF4444; border-color: #FECACA; background: #FEF2F2; }
+
+        /* MODALS */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); padding: 20px;}
+        .modal-box { background: white; padding: 2rem; border-radius: 24px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); text-align: center; margin: auto; max-height: 90vh; overflow-y: auto;}
+        
+        .edit-modal-box { max-width: 500px; text-align: left; }
+        .edit-modal-box h2 { font-size: 1.5rem; margin-bottom: 1.5rem; }
+        
+        .military-time-input { display: flex; align-items: center; background: #F8FAFC; border: 1px solid var(--border); border-radius: 12px; padding: 8px 12px; width: fit-content; transition: 0.2s; }
+        .military-time-input:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); background: white; }
+        .military-time-input input { width: 45px; padding: 4px; border: none; background: transparent; text-align: center; font-size: 1.1rem; font-weight: 800; color: var(--brand); outline: none; }
+        .military-time-input span { font-size: 1.1rem; font-weight: 800; color: var(--brand); margin: 0 2px;}
+        
+        .price-selector { display: flex; align-items: center; justify-content: space-between; background: #F8FAFC; border: 1px solid var(--border); border-radius: 12px; padding: 4px; }
+        .price-btn { width: 40px; height: 40px; border-radius: 8px; border: none; background: white; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-size: 1.1rem; font-weight: bold; color: var(--brand); transition: 0.2s;}
+        .price-btn:hover { background: var(--border);}
+        .price-value { font-weight: 900; font-size: 1.2rem; color: var(--brand);}
+
         .modal-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; }
         .modal-text { color: var(--text-muted); margin-bottom: 1.5rem; }
-        
         .star-rating-input { display: flex; justify-content: center; gap: 5px; margin-bottom: 1.5rem; font-size: 2.5rem; color: #E2E8F0; cursor: pointer; }
         .star-rating-input span:hover, .star-rating-input span.active { color: #F59E0B; }
-        
-        .modal-box textarea { width: 100%; padding: 1rem; border: 1px solid #E2E8F0; border-radius: 12px; background: #F8FAFC; font-family: inherit; font-size: 1rem; margin-bottom: 1.5rem; resize: none; outline: none; box-sizing: border-box;}
-        .modal-box textarea:focus { border-color: var(--accent); background: white; }
-        
-        .modal-actions { display: flex; gap: 1rem; }
-        .btn-outline { flex: 1; border: 1px solid var(--border); background: white; padding: 12px; border-radius: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: 0.2s;}
-        .btn-outline:hover { background: #F8FAFC; }
-        .btn-submit { flex: 1; background: var(--brand); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.2s;}
-        .btn-submit:hover { background: var(--accent); }
+        .modal-actions { display: flex; gap: 1rem; margin-top: 1.5rem;}
+
+        /* Styling til Bil-Søgning på Profil */
+        .plate-row { display: flex; gap: 10px; margin-bottom: 0.5rem; }
+        .btn-lookup { background: var(--brand); color: white; border: none; padding: 0 15px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 0.95rem; transition: 0.2s;}
+        .btn-lookup:hover { background: var(--accent); }
+        #carBadge { display: none; background: #F0FDF4; border: 1px solid #BBF7D0; padding: 12px 16px; border-radius: 12px; align-items: center; gap: 14px; margin-bottom: 1.5rem; }
+        .car-icon { background: #DCFCE7; padding: 10px; border-radius: 12px; font-size: 1.4rem; }
+        .car-info { flex: 1; }
+        .car-name { font-weight: 800; color: #166534; font-size: 0.95rem; display: block; margin-bottom: 2px;}
+        .car-details { font-size: 0.8rem; color: #15803d; font-weight: 500;}
 
         /* LOADING / ERROR STATE */
         #loading-state, #error-state { text-align: center; padding: 5rem 1rem; grid-column: 1 / -1; }
-        .spinner { width: 30px; height: 30px; border: 3px solid #E2E8F0; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem auto; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
 
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
         @media (max-width: 768px) {
             .profile-container { grid-template-columns: 1fr; }
             .user-card { position: static; }
@@ -208,22 +256,35 @@
                     </div>
                 </div>
 
-                <div class="badges-container" id="pub-badges">
-                </div>
+                <div class="badges-container" id="pub-badges"></div>
 
                 <button class="btn-share" onclick="shareProfile()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                     Del profil
                 </button>
 
-                <button class="btn-text" onclick="showReportDialog()" style="width: 100%; justify-content: center; color: #94A3B8; margin-top: 1rem;">
+                <div id="private-balance-box" class="balance-box" style="display: none;">
+                    <p>Tilgængelig saldo</p>
+                    <div class="balance-amount"><span id="ui-balance">0.00</span> kr.</div>
+                    <div class="pending-amount">Afventer: <span id="ui-pending">0.00</span> kr.</div>
+                    <button class="btn-payout" id="ui-payout-btn" disabled onclick="payoutFunds()">Udbetal</button>
+                </div>
+
+                <button class="btn-text" id="btn-report-profile" onclick="showReportDialog()" style="width: 100%; justify-content: center; color: #94A3B8; margin-top: 1.5rem;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> 
                     Anmeld profil
                 </button>
             </aside>
 
             <div class="right-col">
-                <div class="card detail-card">
+                
+                <div class="tabs" id="private-tabs" style="display: none;">
+                    <button class="tab-btn active" onclick="switchMainTab('tab-ture', this)">Dine Ture</button>
+                    <button class="tab-btn" onclick="switchMainTab('tab-profil', this)">Indstillinger</button>
+                    <button class="tab-btn" onclick="switchMainTab('tab-skat', this)">Udbetaling & Skat</button>
+                </div>
+
+                <div class="card detail-card" id="public-details-card">
                     <div class="tight-top-grid">
                         <div id="bio-section">
                             <h3>Om mig</h3>
@@ -271,8 +332,96 @@
                     </button>
                 </div>
 
-                <div class="card rides-card" id="userActiveRidesContainer">
+                <div id="tab-ture" class="tab-content active" style="margin-top:0;">
+                    <div class="card" id="userActiveRidesContainer" style="padding: 1.5rem;">
+                        </div>
+                </div>
+
+                <div id="tab-profil" class="tab-content">
+                    <div class="card">
+                        <h2>Personlige oplysninger</h2>
+                        <form id="profileForm" onsubmit="updateProfileInfo(event)">
+                            <div class="form-row">
+                                <div class="form-group"><label>Fulde navn</label><input type="text" id="prof-fullname" required></div>
+                                <div class="form-group">
+                                    <label>Email <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">(Kræver bekræftelse)</span></label>
+                                    <input type="email" id="prof-email" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Telefonnummer</label><input type="tel" id="prof-phone" required></div>
+                                <div class="form-group">
+                                    <label>Køn</label>
+                                    <select id="prof-gender">
+                                        <option value="Mand">Mand</option>
+                                        <option value="Kvinde">Kvinde</option>
+                                        <option value="Andet">Andet / Ønsker ikke at oplyse</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group"><label>Kort Bio</label><textarea id="prof-bio" rows="3" placeholder="Fortæl lidt om dig selv..."></textarea></div>
+                            
+                            <div class="form-group" style="border-top: 1px dashed var(--border); padding-top: 1.5rem; margin-top: 1.5rem;">
+                                <label>Opdater din Bil (Nummerplade)</label>
+                                <div class="plate-row">
+                                    <input type="text" id="prof-plate" placeholder="AB 12 345" style="text-transform: uppercase;">
+                                    <button type="button" class="btn-lookup" onclick="lookupPlateProfile()">Søg bil</button>
+                                </div>
+                                
+                                <div id="carBadge">
+                                    <div class="car-icon">🚗</div>
+                                    <div class="car-info">
+                                        <span class="car-name" id="displayCarName">Audi Q3</span>
+                                        <span class="car-details" id="displayCarMeta">2021 • Sort • AB 12 345</span>
+                                    </div>
+                                    <button type="button" onclick="clearCarData()" style="background:none; border:none; color:#EF4444; cursor:pointer; font-weight:bold; padding: 5px;">Fjern</button>
+                                </div>
+                                <div id="plateError" style="font-size: 0.85rem; margin-top: 5px; font-weight: 600; color: #EF4444; display: none;"></div>
+                            </div>
+
+                            <div id="profileMessage" style="text-align: center; display: none; margin-bottom: 15px; font-weight: 600; padding: 10px; border-radius: 8px;"></div>
+                            <button type="submit" class="btn-submit" id="prof-submitBtn">Gem ændringer</button>
+                        </form>
+                        <div style="margin-top: 3rem; text-align: center; border-top: 1px solid #F1F5F9; padding-top: 2rem;">
+                            <a href="/gdpr" style="color: #EF4444; font-weight: 700; text-decoration: none;">Slet min konto</a>
+                        </div>
                     </div>
+                </div>
+
+                <div id="tab-skat" class="tab-content">
+                    <div class="card">
+                        <h2>Skatteoplysninger (DAC7)</h2>
+                        <form id="taxForm" onsubmit="submitTaxInfo(event)">
+                            <div class="form-row">
+                                <div class="form-group"><label>Fornavn</label><input type="text" id="fName" required></div>
+                                <div class="form-group"><label>Efternavn</label><input type="text" id="lName" required></div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Fødselsdato</label><input type="date" id="dob" required></div>
+                                <div class="form-group"><label>Land</label><select id="country"><option value="Danmark">Danmark</option></select></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Hjemstedsadresse</label>
+                                <input type="text" id="address" required placeholder="Begynd at skrive for at søge..." oninput="searchAddress(this.value)" autocomplete="off">
+                                <div id="address-suggestions" class="suggestions-box"></div>
+                                <div class="helper-text">Din folkeregisteradresse (Påkrævet jf. Hvidvaskloven)</div>
+                            </div>
+                            <div class="form-group"><label>Etage, dør (valgfri)</label><input type="text" id="floorDoor" placeholder="f.eks. st. tv"></div>
+                            <hr style="margin: 2rem 0;">
+                            <div class="form-group">
+                                <label>CPR-nummer</label>
+                                <input type="text" id="cpr" required maxlength="10" placeholder="DDMMÅÅXXXX">
+                                <div class="helper-text">Sendes krypteret. Indtast uden bindestreg.</div>
+                            </div>
+                            <div class="form-group">
+                                <label>Bank IBAN-nummer</label>
+                                <input type="text" id="iban" required placeholder="DK00..." style="text-transform: uppercase;">
+                            </div>
+                            <div id="formMessage" style="text-align: center; display: none; margin-bottom: 15px; font-weight: 600;"></div>
+                            <button type="submit" class="btn-submit" id="submitBtn">Gem & Krypter Oplysninger</button>
+                        </form>
+                    </div>
+                </div>
 
             </div>
         </div>
@@ -280,19 +429,27 @@
 
     <hoppon-footer></hoppon-footer>
 
+    <div class="modal-overlay" id="customModal">
+        <div class="modal-box">
+            <h2 class="modal-title" id="modalTitle">Titel</h2>
+            <p class="modal-text" id="modalText">Tekst</p>
+            <div class="modal-actions">
+                <button class="btn-outline" style="flex:1" onclick="closeModal()">Fortryd</button>
+                <button class="btn-submit" style="flex:1; background: #EF4444;" id="modalConfirmBtn">Bekræft</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="reviewModal">
         <div class="modal-box">
             <h2 class="modal-title">Hvordan var turen?</h2>
             <p class="modal-text">Giv en vurdering af din oplevelse.</p>
-            
             <div class="star-rating-input" id="modal-stars">
                 <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span><span data-val="4">★</span><span data-val="5">★</span>
             </div>
-            
             <textarea id="modal-comment" rows="3" placeholder="Kommentar (valgfri)... f.eks. God kørestil, kom til tiden"></textarea>
-            
             <div class="modal-actions">
-                <button class="btn-outline" onclick="closeModal()">Annuller</button>
+                <button class="btn-outline" onclick="closeReviewModal()">Annuller</button>
                 <button class="btn-submit" onclick="submitReview()">Send</button>
             </div>
         </div>
@@ -305,6 +462,57 @@
             <div class="modal-actions">
                 <button class="btn-outline" onclick="document.getElementById('reportModal').style.display='none'">Annuller</button>
                 <button class="btn-submit" style="background: #EF4444;" onclick="submitReport()">Anmeld</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="editRideModal">
+        <div class="modal-box edit-modal-box">
+            <h2>Ændre Tur</h2>
+            <input type="hidden" id="editRideId">
+            <div class="form-group">
+                <label>Dato for afgang</label>
+                <input type="date" id="editDate" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Afgangstid</label>
+                    <div class="military-time-input">
+                        <input type="text" id="editDepHour" maxlength="2" oninput="validateTimeInput(this, 23)" onfocus="this.select()">
+                        <span>:</span>
+                        <input type="text" id="editDepMin" maxlength="2" oninput="validateTimeInput(this, 59)" onfocus="this.select()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Est. Ankomst</label>
+                    <div class="military-time-input">
+                        <input type="text" id="editArrHour" maxlength="2" oninput="validateTimeInput(this, 23)" onfocus="this.select()">
+                        <span>:</span>
+                        <input type="text" id="editArrMin" maxlength="2" oninput="validateTimeInput(this, 59)" onfocus="this.select()">
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Sæder</label>
+                    <input type="number" id="editSeats" min="1" max="7" value="3">
+                </div>
+                <div class="form-group">
+                    <label>Pris (kr)</label>
+                    <div class="price-selector">
+                        <button type="button" class="price-btn" onclick="adjustEditPrice(-5)">-</button>
+                        <div class="price-value" id="editPriceDisplay">0</div>
+                        <button type="button" class="price-btn" onclick="adjustEditPrice(5)">+</button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Besked til passagerer</label>
+                <textarea id="editComment" rows="2" placeholder="F.eks. samler op ved stationen..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-outline" style="flex:1" onclick="closeEditModal()">Fortryd</button>
+                <button class="btn-submit" style="flex:1; background: var(--accent);" id="editSaveBtn" onclick="saveRideChanges()">Gem Ændringer</button>
             </div>
         </div>
     </div>
@@ -381,81 +589,121 @@
         let selectedInputStars = 5;
 
         let allUserRides = []; 
-        let groupedCompletedRides = []; // GEMMER AFSLUTTEDE TURE HER
+        let groupedDriverRides = [];
+        let groupedCompletedRides = []; 
         let currentDuplicateGroup = null;
         let dupCurrentPrice = 0;
+        
+        let currentBalance = 0;
+        let editCurrentPrice = 0;
+        let originalEmail = "";
+        let carDataStorage = null; 
+        let isCprLocked = false;
 
         const months = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
 
         window.onload = async () => {
             if (typeof _supabase === 'undefined') return showError();
 
-            const urlParams = new URLSearchParams(window.location.search);
-            targetId = urlParams.get('id');
-            if (!targetId) return showError();
-
             const { data: { session } } = await _supabase.auth.getSession();
             if (session) currentUserId = session.user.id;
 
-            await loadData();
-            
-            // Render den rigtige rides-sektion afhængig af om vi kigger på vores egen eller en andens profil
+            const urlParams = new URLSearchParams(window.location.search);
+            targetId = urlParams.get('id') || currentUserId; // HYBRID FIX: Bruger automatisk din id, hvis du er logget ind
+
+            if (!targetId) {
+                window.location.href = '/login';
+                return;
+            }
+
+            const today = new Date();
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const yyyy = today.getFullYear();
+            const sd = document.getElementById('searchDate');
+            if(sd) sd.placeholder = `${dd}/${mm}/${yyyy}`;
+
+            // Sæt den rigtige visning baseret på rettigheder
             if (currentUserId === targetId) {
+                // EGEN PROFIL
+                document.getElementById('private-tabs').style.display = 'flex';
+                document.getElementById('private-balance-box').style.display = 'block';
+                document.getElementById('btn-report-profile').style.display = 'none';
+                
                 renderOwnProfileRidesSection();
-                await fetchDriverRides(); // Henter både aktive og afsluttede for ejeren
+                await fetchDriverRides(); 
             } else {
+                // GÆSTE PROFIL
+                document.getElementById('private-tabs').style.display = 'none';
+                document.getElementById('tab-profil').style.display = 'none';
+                document.getElementById('tab-skat').style.display = 'none';
+                document.getElementById('tab-ture').style.display = 'none';
+                
+                document.getElementById('userActiveRidesContainer').style.display = 'block';
+                document.getElementById('userActiveRidesContainer').style.padding = '0';
+                document.getElementById('userActiveRidesContainer').style.border = 'none';
+                document.getElementById('userActiveRidesContainer').style.boxShadow = 'none';
+                document.getElementById('userActiveRidesContainer').style.background = 'transparent';
+                
                 renderGuestProfileRidesSection();
-                await fetchUserRides(); // Henter kun aktive ture for gæsten
+                await fetchUserRides(); 
+            }
+
+            await loadData();
+            if (currentUserId === targetId) {
+                await checkStripeStatus();
+                await loadTaxData();
             }
         };
 
         function renderOwnProfileRidesSection() {
             const container = document.getElementById('userActiveRidesContainer');
-            container.innerHTML = `
-                <div class="sub-tabs">
-                    <button class="sub-tab-btn active" onclick="switchSubTab('sub-driver', this)">🚗 Jeg kører</button>
-                    <button class="sub-tab-btn" onclick="switchSubTab('sub-passenger', this)">🎒 Jeg rejser (Historik herunder)</button>
-                </div>
-                
-                <div id="sub-driver" class="sub-tab-content active">
-                    <div style="margin-bottom: 1.5rem;">
-                        <div onclick="toggleCompletedRides()" style="background: #F1F5F9; padding: 1rem 1.2rem; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: var(--brand); border: 1px solid var(--border);">
-                            <span>✅ Afsluttede ture (<span id="completedCount">0</span>)</span>
-                            <span id="completedChevron" style="transition: 0.3s;">▼</span>
-                        </div>
-                        <div id="completedContent" style="display: none; padding-top: 1rem;">
-                            <div id="completed-rides-list">
-                                <div style="text-align: center; padding: 1rem; color: var(--text-muted);">Ingen afsluttede ture endnu.</div>
+            // Vi fjerner container formateringen, fordi vi bruger tabs i stedet for
+            container.style.display = 'none'; 
+            
+            document.getElementById('tab-ture').innerHTML = `
+                <div class="card" style="padding: 1.5rem;">
+                    <div class="sub-tabs">
+                        <button class="sub-tab-btn active" onclick="switchSubTab('sub-driver', this)">🚗 Jeg kører</button>
+                        <button class="sub-tab-btn" onclick="switchSubTab('sub-passenger', this)">🎒 Jeg rejser</button>
+                    </div>
+                    
+                    <div id="sub-driver" class="sub-tab-content active">
+                        <div style="margin-bottom: 1.5rem;">
+                            <div onclick="toggleCompletedRides()" style="background: #F1F5F9; padding: 1rem 1.2rem; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: var(--brand); border: 1px solid var(--border);">
+                                <span>✅ Afsluttede ture (<span id="completedCount">0</span>)</span>
+                                <span id="completedChevron" style="transition: 0.3s;">▼</span>
+                            </div>
+                            <div id="completedContent" style="display: none; padding-top: 1rem;">
+                                <div id="completed-rides-list">
+                                    <div style="text-align: center; padding: 1rem; color: var(--text-muted);">Ingen afsluttede ture endnu.</div>
+                                </div>
                             </div>
                         </div>
+
+                        <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--brand); margin-bottom: 1rem;">Kommende ture</h3>
+                        <div id="driver-rides-list">
+                            <div style="text-align: center; padding: 2rem; color: var(--text-muted);">Henter ture...</div>
+                        </div>
                     </div>
 
-                    <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--brand); margin-bottom: 1rem;">Kommende ture</h3>
-                    <div id="driver-rides-list">
-                        <div style="text-align: center; padding: 2rem; color: var(--text-muted);">Henter ture...</div>
+                    <div id="sub-passenger" class="sub-tab-content">
+                        <div id="passenger-rides-list">
+                            <div style="text-align: center; padding: 2rem; color: var(--text-muted);">Henter rejser...</div>
+                        </div>
                     </div>
-                </div>
-
-                <div id="sub-passenger" class="sub-tab-content">
-                    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">Passagerhistorik (Ikon til chat findes i toppen af hvert kort).</div>
                 </div>
             `;
         }
 
         function renderGuestProfileRidesSection() {
             const container = document.getElementById('userActiveRidesContainer');
-            const today = new Date();
-            const dd = String(today.getDate()).padStart(2, '0');
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const yyyy = today.getFullYear();
-
             container.innerHTML = `
                 <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--brand); margin-bottom: 0.8rem;">Ture fra denne chauffør</h3>
                 <div class="mini-search-bar">
                     <input type="text" id="searchFrom" placeholder="Fra by..." oninput="filterUserRides()">
                     <input type="text" id="searchTo" placeholder="Til by..." oninput="filterUserRides()">
                     <input type="text" id="searchDate" 
-                           placeholder="${dd}/${mm}/${yyyy}"
                            onfocus="(this.type='date')" 
                            onblur="if(!this.value) this.type='text'" 
                            onchange="filterUserRides()">
@@ -477,6 +725,28 @@
                 const { data: profile, error } = await _supabase.from('profiles').select('*').eq('id', targetId).single();
                 if (error || !profile) throw error;
                 targetProfile = profile; 
+
+                // Udfyld Private Data hvis det er ejeren
+                if (currentUserId === targetId) {
+                    currentBalance = profile.balance || 0;
+                    document.getElementById('ui-balance').innerText = currentBalance.toFixed(2);
+                    document.getElementById('ui-pending').innerText = (profile.pending_balance || 0).toFixed(2);
+                    
+                    document.getElementById('prof-fullname').value = profile.full_name || "";
+                    document.getElementById('prof-phone').value = profile.phone_number || "";
+                    document.getElementById('prof-gender').value = profile.gender || "Andet";
+                    document.getElementById('prof-bio').value = profile.bio || "";
+                    originalEmail = (await _supabase.auth.getUser()).data?.user?.email || "";
+                    document.getElementById('prof-email').value = originalEmail;
+
+                    if (profile.car_details) {
+                        let car = typeof profile.car_details === 'string' ? JSON.parse(profile.car_details) : profile.car_details;
+                        carDataStorage = car; 
+                        document.getElementById('displayCarName').innerText = car.display_name || `${car.make} ${car.model}`;
+                        document.getElementById('displayCarMeta').innerText = car.details || `${car.year} • ${car.color} • ${car.plate}`;
+                        document.getElementById('carBadge').style.display = "flex";
+                    }
+                }
 
                 // 2. Ture count
                 const { count: driverRides } = await _supabase.from('rides').select('*', { count: 'exact', head: true }).eq('driver_id', targetId).eq('status', 'completed');
@@ -569,17 +839,17 @@
                 if(error) throw error;
                 const now = new Date();
                 
-                // Aktive ture
                 const activeRides = rides.filter(r => {
                     const dep = new Date(r.departure_time);
                     return r.status !== 'completed' && r.status !== 'cancelled' && now < new Date(dep.getTime() + (24 * 60 * 60 * 1000));
                 });
 
-                // Afsluttede/Aflyste ture (alt der ikke er i active)
                 const completedRides = rides.filter(r => !activeRides.includes(r));
 
                 const activeGroups = groupAndFormatRides(activeRides);
-                groupedCompletedRides = groupAndFormatRides(completedRides).sort((a,b) => new Date(b.main_ride.departure_time) - new Date(a.main_ride.departure_time)); // Nyeste øverst for afsluttede
+                activeGroups.sort((a,b) => new Date(a.main_ride.departure_time) - new Date(b.main_ride.departure_time));
+
+                groupedCompletedRides = groupAndFormatRides(completedRides).sort((a,b) => new Date(b.main_ride.departure_time) - new Date(a.main_ride.departure_time)); 
 
                 renderDriverRides(activeGroups);
                 renderCompletedRides();
@@ -671,7 +941,17 @@
                     });
                 }
                 
+                let editBtnStr = '';
+                if (group.has_passengers) {
+                    editBtnStr = `<button class="btn-outline" disabled title="Du kan ikke ændre turen, når der er passagerer." style="background:#F3F4F6; color:#94A3B8; cursor:not-allowed;">Ændre tur 🔒</button>`;
+                } else if (group.is_group) {
+                    editBtnStr = `<button class="btn-outline" disabled title="Ture med mellemstops kan ikke rettes pt." style="background:#F3F4F6; color:#94A3B8; cursor:not-allowed;">Ændre tur 🔒</button>`;
+                } else {
+                    editBtnStr = `<button class="btn-outline" onclick="openEditModal('${group.id}')">Ændre tur</button>`;
+                }
+
                 let actionBarHTML = `
+                    ${editBtnStr}
                     <button class="btn-outline btn-danger" onclick="deleteTrip('${group.id}')">Aflys tur</button>
                     <button class="btn-action-main" ${!isPassed ? 'disabled' : ''} onclick="completeTrip('${group.id}')">${isPassed ? 'Afslut tur & Modtag penge' : 'Turen er ikke slut endnu'}</button>
                 `;
@@ -725,7 +1005,7 @@
             let html = '';
             groupedCompletedRides.forEach(group => {
                 const mainRide = group.main_ride;
-                const statusTxt = group.is_cancelled ? '<span style="color:#EF4444; font-weight:bold;">AFLYST</span>' : 'Afsluttet';
+                const statusTxt = group.is_cancelled ? '<span style="color:#EF4444; font-weight:bold;">AFLYST</span>' : '<span style="color:#10B981; font-weight:bold;">Afsluttet</span>';
                 
                 html += `<div class="ride-card" style="background:#F8FAFC; border:1px solid #E2E8F0; box-shadow:none;">
                     <div class="ride-header" style="padding-bottom: 1rem;">
@@ -747,11 +1027,9 @@
 
             document.getElementById('dupRideGroupId').value = groupId;
             
-            // Sæt dato til i dag (eller i morgen, for nemheds skyld siger vi i dag)
             const today = new Date();
             document.getElementById('dupDate').value = today.toISOString().split('T')[0];
             
-            // Bevar de gamle tider
             const depDate = new Date(ride.departure_time);
             document.getElementById('dupDepHour').value = depDate.getHours().toString().padStart(2, '0');
             document.getElementById('dupDepMin').value = depDate.getMinutes().toString().padStart(2, '0');
@@ -774,17 +1052,6 @@
             document.getElementById('dupPriceDisplay').innerText = dupCurrentPrice;
         }
 
-        function validateTimeInput(input, maxVal) {
-            input.value = input.value.replace(/[^0-9]/g, '');
-            if (input.value !== '') {
-                let val = parseInt(input.value);
-                if (val > maxVal) input.value = maxVal;
-            }
-            if (input.value.length === 1 && parseInt(input.value) > (maxVal > 23 ? 5 : 2)) {
-                input.value = '0' + input.value;
-            }
-        }
-
         async function submitDuplicateRide() {
             if (!currentDuplicateGroup) return;
             const btn = document.getElementById('dupSaveBtn');
@@ -792,7 +1059,6 @@
             btn.innerText = "Opretter...";
 
             try {
-                // 1. Aflæs Inputs for main_ride
                 const dateStr = document.getElementById('dupDate').value;
                 const dH = document.getElementById('dupDepHour').value || "00";
                 const dM = document.getElementById('dupDepMin').value || "00";
@@ -807,14 +1073,11 @@
                 const newSeats = parseInt(document.getElementById('dupSeats').value);
                 const newComment = document.getElementById('dupComment').value;
 
-                // 2. Beregn tidsforskellen mellem gammel afgang og ny afgang (for at forskyde evt. mellemstops)
                 const oldMainDep = new Date(currentDuplicateGroup.main_ride.departure_time);
                 const deltaMs = userNewDep.getTime() - oldMainDep.getTime();
 
-                // Ny gruppe ID
                 const newRouteGroupId = self.crypto && self.crypto.randomUUID ? self.crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substr(2);
 
-                // 3. Byg array af alle ture i gruppen (hvis det er en kombi-rute med mellemstops)
                 const payloadsToInsert = currentDuplicateGroup.rides.map(oldRide => {
                     const oldRideDep = new Date(oldRide.departure_time).getTime();
                     const oldRideArr = new Date(oldRide.arrival_time).getTime();
@@ -822,7 +1085,6 @@
                     let finalDep = new Date(oldRideDep + deltaMs);
                     let finalArr = new Date(oldRideArr + deltaMs);
 
-                    // For hovedruten bruger vi brugerens præcise input for sikkerheds skyld
                     if (oldRide.id === currentDuplicateGroup.main_ride.id) {
                         finalDep = userNewDep;
                         finalArr = userNewArr;
@@ -840,7 +1102,7 @@
                         arrival_time: finalArr.toISOString(),
                         
                         seats_available: newSeats,
-                        price_dkk: dupCurrentPrice, // Sætter prisen ens for alt ved duplikering
+                        price_dkk: dupCurrentPrice,
                         car_model: oldRide.car_model, 
                         status: 'active',
                         is_ferry: oldRide.is_ferry,
@@ -863,7 +1125,6 @@
                 alert("Turen er succesfuldt duplikeret og offentliggjort! 🚀");
                 document.getElementById('duplicateRideModal').style.display = 'none';
                 
-                // Opdater visning
                 await fetchDriverRides(); 
             } catch (e) {
                 alert("Fejl ved duplikering: " + e.message);
@@ -886,19 +1147,27 @@
                 .gte('departure_time', nowISO)
                 .order('departure_time', { ascending: true });
 
-            document.getElementById('userRidesLoader').style.display = 'none';
-            if (!error && data) {
+            const loader = document.getElementById('userRidesLoader');
+            const empty = document.getElementById('userRidesEmpty');
+            if(loader) loader.style.display = 'none';
+            
+            if (!error && data && data.length > 0) {
                 allUserRides = data;
                 filterUserRides(); 
-            } else {
-                document.getElementById('userRidesEmpty').style.display = 'block';
+            } else if (empty) {
+                empty.style.display = 'block';
             }
         }
 
         function filterUserRides() {
-            const from = document.getElementById('searchFrom').value.toLowerCase();
-            const to = document.getElementById('searchTo').value.toLowerCase();
+            const fromEl = document.getElementById('searchFrom');
+            const toEl = document.getElementById('searchTo');
             const dateInput = document.getElementById('searchDate');
+            
+            if (!fromEl || !toEl || !dateInput) return; // Prevent errors if on private view
+
+            const from = fromEl.value.toLowerCase();
+            const to = toEl.value.toLowerCase();
             let qDate = "";
             if(dateInput.type === 'date') { qDate = dateInput.value; }
 
@@ -927,6 +1196,7 @@
             const container = document.getElementById('userRidesList');
             const empty = document.getElementById('userRidesEmpty');
             if(!container) return;
+            
             container.innerHTML = '';
             
             if (rides.length === 0) { 
@@ -1002,7 +1272,6 @@
                 container.appendChild(card);
             });
         }
-
 
         // ==========================================
         // UI & FILTER LOGIK REVIEWS
@@ -1133,14 +1402,120 @@
         }
 
         // ==========================================
-        // MODALS (Anmeld & Rapport)
+        // GENERELLE MODALS & ACTIONS
         // ==========================================
+        let modalConfirmCallback = null;
+        function showModal(title, text, btnText, callback) {
+            document.getElementById('modalTitle').innerText = title; document.getElementById('modalText').innerText = text;
+            document.getElementById('modalConfirmBtn').innerText = btnText; modalConfirmCallback = callback;
+            document.getElementById('customModal').style.display = 'flex';
+        }
+        function closeModal() { document.getElementById('customModal').style.display = 'none'; }
+        document.getElementById('modalConfirmBtn').addEventListener('click', () => { closeModal(); if(modalConfirmCallback) modalConfirmCallback(); });
+
+        async function updateBooking(bookingId, newStatus, passengerName) {
+            const actionText = newStatus === 'approved' ? 'godkende' : 'afvise';
+            if (!confirm(`Er du sikker på, at du vil ${actionText} ${passengerName}?`)) return;
+
+            try {
+                const { error } = await _supabase.from('bookings').update({ status: newStatus }).eq('id', bookingId);
+                if (error) throw error;
+                alert(`Succes: ${passengerName} er nu ${newStatus === 'approved' ? 'godkendt ✅' : 'afvist ❌'}.`);
+                fetchDriverRides();
+            } catch (err) { alert("Der opstod en fejl: " + err.message); }
+        }
+
+        async function driverCancelPassenger(bookingId, passengerName) {
+            if (!confirm(`Er du sikker på, at du vil smide ${passengerName} af turen? \nPladsen bliver gjort ledig igen.`)) return;
+            try {
+                const { error } = await _supabase.from('bookings').update({ status: 'rejected' }).eq('id', bookingId);
+                if (error) throw error;
+                alert(`${passengerName} er fjernet fra turen.`);
+                fetchDriverRides();
+            } catch (err) { alert("Fejl: " + err.message); }
+        }
+
+        function openEditModal(groupId) {
+            const group = groupedDriverRides.find(g => g.id === groupId);
+            if (!group) return;
+            const ride = group.main_ride; 
+
+            document.getElementById('editRideId').value = ride.id;
+            
+            const depDate = new Date(ride.departure_time);
+            document.getElementById('editDate').value = depDate.toISOString().split('T')[0];
+            document.getElementById('editDepHour').value = depDate.getHours().toString().padStart(2, '0');
+            document.getElementById('editDepMin').value = depDate.getMinutes().toString().padStart(2, '0');
+            
+            const arrDate = new Date(ride.arrival_time);
+            document.getElementById('editArrHour').value = arrDate.getHours().toString().padStart(2, '0');
+            document.getElementById('editArrMin').value = arrDate.getMinutes().toString().padStart(2, '0');
+
+            document.getElementById('editSeats').value = ride.seats_available;
+            editCurrentPrice = ride.price_dkk;
+            document.getElementById('editPriceDisplay').innerText = editCurrentPrice;
+            document.getElementById('editComment').value = ride.comment || "";
+
+            document.getElementById('editRideModal').style.display = 'flex';
+        }
+
+        function closeEditModal() { document.getElementById('editRideModal').style.display = 'none'; }
+
+        function adjustEditPrice(amt) {
+            editCurrentPrice += amt;
+            if(editCurrentPrice < 20) editCurrentPrice = 20;
+            document.getElementById('editPriceDisplay').innerText = editCurrentPrice;
+        }
+
+        async function saveRideChanges() {
+            const btn = document.getElementById('editSaveBtn');
+            btn.disabled = true;
+            btn.innerText = "Gemmer...";
+
+            try {
+                const rideId = document.getElementById('editRideId').value;
+                const dateStr = document.getElementById('editDate').value;
+                const dH = document.getElementById('editDepHour').value || "00";
+                const dM = document.getElementById('editDepMin').value || "00";
+                const aH = document.getElementById('editArrHour').value || "00";
+                const aM = document.getElementById('editArrMin').value || "00";
+
+                const [year, month, day] = dateStr.split('-').map(Number);
+                const newDep = new Date(year, month - 1, day, parseInt(dH), parseInt(dM), 0);
+                const newArr = new Date(year, month - 1, day, parseInt(aH), parseInt(aM), 0);
+                
+                if (newArr <= newDep) newArr.setDate(newArr.getDate() + 1);
+
+                const seats = parseInt(document.getElementById('editSeats').value);
+                const comment = document.getElementById('editComment').value;
+
+                const { error } = await _supabase.from('rides').update({
+                    departure_time: newDep.toISOString(),
+                    arrival_time: newArr.toISOString(),
+                    seats_available: seats,
+                    price_dkk: editCurrentPrice,
+                    comment: comment
+                }).eq('id', rideId);
+
+                if (error) throw error;
+                alert("Turen er opdateret! ✅");
+                closeEditModal();
+                fetchDriverRides(); 
+            } catch (e) {
+                alert("Fejl ved opdatering: " + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Gem Ændringer";
+            }
+        }
+
         function openReviewModal() {
             selectedInputStars = 5;
             updateModalStars();
             document.getElementById('modal-comment').value = '';
             document.getElementById('reviewModal').style.display = 'flex';
         }
+        function closeReviewModal() { document.getElementById('reviewModal').style.display = 'none'; }
 
         const starSpans = document.querySelectorAll('#modal-stars span');
         starSpans.forEach(span => {
@@ -1159,7 +1534,7 @@
 
         async function submitReview() {
             const comment = document.getElementById('modal-comment').value.trim();
-            document.getElementById('reviewModal').style.display = 'none';
+            closeReviewModal();
             try {
                 await _supabase.from('reviews').insert({
                     reviewer_id: currentUserId,
@@ -1176,6 +1551,48 @@
         function submitReport() {
             document.getElementById('reportModal').style.display = 'none';
             alert("Tak. Vi kigger på sagen.");
+        }
+
+        async function lookupPlateProfile() {
+            const plateInput = document.getElementById('prof-plate');
+            const plate = plateInput.value.trim();
+            const badge = document.getElementById('carBadge');
+            const err = document.getElementById('plateError');
+            
+            if (!plate) return;
+
+            err.style.display = "none";
+            badge.style.display = "none";
+
+            const { data, error } = await _supabase.rpc('get_car_details', { plate_text: plate.replace(/\s/g, '') });
+
+            if (data && !data.error && data.make) {
+                const formattedPlate = plate.toUpperCase();
+                
+                document.getElementById('displayCarName').innerText = `${data.make} ${data.model}`;
+                document.getElementById('displayCarMeta').innerText = `${data.model_year || ''} • ${data.color || ''} • ${formattedPlate}`;
+                
+                carDataStorage = {
+                    make: data.make,
+                    model: data.model,
+                    year: data.model_year ? data.model_year.toString() : "",
+                    color: data.color || "",
+                    plate: formattedPlate,
+                    details: `${data.model_year || ''} • ${data.color || ''} • ${formattedPlate}`,
+                    display_name: `${data.make} ${data.model}`
+                };
+                
+                badge.style.display = "flex";
+                plateInput.value = ""; 
+            } else {
+                err.innerText = "❌ Vi kunne ikke finde bilen. Tjek nummerpladen.";
+                err.style.display = "block";
+            }
+        }
+
+        function clearCarData() {
+            carDataStorage = null;
+            document.getElementById('carBadge').style.display = "none";
         }
     </script>
 </body>
