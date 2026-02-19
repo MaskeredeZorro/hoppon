@@ -334,7 +334,59 @@
                 </div>
 
                 <div id="tab-ture" class="tab-content active" style="margin-top:0;">
+                    <div class="card" style="padding: 1.5rem;" id="private-rides-box">
+                        <div class="sub-tabs">
+                            <button class="sub-tab-btn active" onclick="switchSubTab('sub-driver', this)">🚗 Jeg kører</button>
+                            <button class="sub-tab-btn" onclick="switchSubTab('sub-passenger', this)">🎒 Jeg rejser</button>
+                        </div>
+                        
+                        <div id="sub-driver" class="sub-tab-content active">
+                            <div style="margin-bottom: 1.5rem;">
+                                <div onclick="toggleCompletedRides()" style="background: #F1F5F9; padding: 1rem 1.2rem; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: var(--brand); border: 1px solid var(--border);">
+                                    <span>✅ Afsluttede ture (<span id="completedCount">0</span>)</span>
+                                    <span id="completedChevron" style="transition: 0.3s;">▼</span>
+                                </div>
+                                <div id="completedContent" style="display: none; padding-top: 1rem;">
+                                    <div id="completed-rides-list">
+                                        <div style="text-align: center; padding: 1rem; color: var(--text-muted);">Ingen afsluttede ture endnu.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--brand); margin-bottom: 1rem;">Kommende ture</h3>
+                            <div id="driver-rides-list">
+                                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">Henter ture...</div>
+                            </div>
+                        </div>
+
+                        <div id="sub-passenger" class="sub-tab-content">
+                            <div id="passenger-rides-list">
+                                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">Henter rejser...</div>
+                            </div>
+                        </div>
                     </div>
+
+                    <div class="card rides-card" id="guest-rides-box" style="display:none; padding: 1.5rem; border: none; box-shadow: none; background: transparent;">
+                        <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--brand); margin-bottom: 0.8rem;">Ture fra denne chauffør</h3>
+                        <div class="mini-search-bar">
+                            <input type="text" id="searchFrom" placeholder="Fra by..." oninput="filterUserRides()">
+                            <input type="text" id="searchTo" placeholder="Til by..." oninput="filterUserRides()">
+                            <input type="text" id="searchDate" 
+                                   placeholder="Dato"
+                                   onfocus="(this.type='date')" 
+                                   onblur="if(!this.value) this.type='text'" 
+                                   onchange="filterUserRides()">
+                            <select id="sortSelect" onchange="filterUserRides()">
+                                <option value="time">Tidligste afgang</option>
+                                <option value="price">Laveste pris</option>
+                            </select>
+                        </div>
+
+                        <div id="userRidesLoader" class="spinner" style="margin: 2rem auto;"></div>
+                        <div class="ride-list" id="userRidesList" style="display: none;"></div>
+                        <div id="userRidesEmpty" class="empty-state" style="display: none;">Denne bruger har pt. ingen åbne ture.</div>
+                    </div>
+                </div>
 
                 <div id="tab-profil" class="tab-content">
                     <div class="card">
@@ -578,8 +630,12 @@
         // HJÆLPEFUNKTION
         function formatDateTime(isoString) {
             if (!isoString) return "--/-- • --:--";
-            const d = new Date(isoString);
-            return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')} • ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+            try {
+                const d = new Date(isoString);
+                return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')} • ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+            } catch (e) {
+                return "--/-- • --:--";
+            }
         }
 
         let currentUserId = null;
@@ -652,18 +708,30 @@
                     return;
                 }
 
-                // Hent og udfyld data - fejler denne, hopper den direkte ned i catch() og viser fejlskærm
-                await loadData();
-                showScreenContent(); // Viser indholdet nu hvor dataen er hentet med succes
+                // Opsæt Dato placeholder for søgefeltet
+                const today = new Date();
+                const dd = String(today.getDate()).padStart(2, '0');
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const yyyy = today.getFullYear();
+                const sd = document.getElementById('searchDate');
+                if(sd) sd.placeholder = `${dd}/${mm}/${yyyy}`;
 
-                // Klargør UI og hent ture baseret på rettigheder
+                // HENT DATA FØRST
+                await loadData();
+                
+                // SKJUL LOADER OG VIS INDHOLD
+                showScreenContent();
+
+                // BESTEM VISNING (EJER VS GÆST)
                 if (currentUserId === targetId) {
                     // EJER
                     document.getElementById('private-tabs').style.display = 'flex';
                     document.getElementById('private-balance-box').style.display = 'block';
                     document.getElementById('btn-report-profile').style.display = 'none';
                     
-                    renderOwnProfileRidesSection();
+                    document.getElementById('private-rides-box').style.display = 'block';
+                    document.getElementById('guest-rides-box').style.display = 'none';
+                    
                     fetchDriverRides(); // Asynkron i baggrunden for at fremskynde sideindlæsning
                     checkStripeStatus();
                     loadTaxData();
@@ -673,16 +741,9 @@
                     document.getElementById('tab-profil').style.display = 'none';
                     document.getElementById('tab-skat').style.display = 'none';
                     
-                    const container = document.getElementById('tab-ture');
-                    if (container) {
-                        container.style.display = 'block';
-                        container.style.padding = '0';
-                        container.style.border = 'none';
-                        container.style.boxShadow = 'none';
-                        container.style.background = 'transparent';
-                    }
+                    document.getElementById('private-rides-box').style.display = 'none';
+                    document.getElementById('guest-rides-box').style.display = 'block';
                     
-                    renderGuestProfileRidesSection();
                     fetchUserRides(); // Asynkron
                 }
 
@@ -693,86 +754,13 @@
         };
 
         // ==========================================
-        // RENDER STRUKTUR FOR TURE
-        // ==========================================
-        function renderOwnProfileRidesSection() {
-            const container = document.getElementById('tab-ture');
-            if(!container) return;
-            container.innerHTML = `
-                <div class="card" style="padding: 1.5rem;">
-                    <div class="sub-tabs">
-                        <button class="sub-tab-btn active" onclick="switchSubTab('sub-driver', this)">🚗 Jeg kører</button>
-                        <button class="sub-tab-btn" onclick="switchSubTab('sub-passenger', this)">🎒 Jeg rejser</button>
-                    </div>
-                    
-                    <div id="sub-driver" class="sub-tab-content active">
-                        <div style="margin-bottom: 1.5rem;">
-                            <div onclick="toggleCompletedRides()" style="background: #F1F5F9; padding: 1rem 1.2rem; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: var(--brand); border: 1px solid var(--border);">
-                                <span>✅ Afsluttede ture (<span id="completedCount">0</span>)</span>
-                                <span id="completedChevron" style="transition: 0.3s;">▼</span>
-                            </div>
-                            <div id="completedContent" style="display: none; padding-top: 1rem;">
-                                <div id="completed-rides-list">
-                                    <div style="text-align: center; padding: 1rem; color: var(--text-muted);">Ingen afsluttede ture endnu.</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--brand); margin-bottom: 1rem;">Kommende ture</h3>
-                        <div id="driver-rides-list">
-                            <div style="text-align: center; padding: 2rem; color: var(--text-muted);">Henter ture...</div>
-                        </div>
-                    </div>
-
-                    <div id="sub-passenger" class="sub-tab-content">
-                        <div id="passenger-rides-list">
-                            <div style="text-align: center; padding: 2rem; color: var(--text-muted);">Henter rejser...</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderGuestProfileRidesSection() {
-            const container = document.getElementById('tab-ture');
-            if(!container) return;
-            const today = new Date();
-            const dd = String(today.getDate()).padStart(2, '0');
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const yyyy = today.getFullYear();
-
-            container.innerHTML = `
-                <div class="card rides-card" style="padding: 1.5rem; border: none; box-shadow: none; background: transparent;">
-                    <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--brand); margin-bottom: 0.8rem;">Ture fra denne chauffør</h3>
-                    <div class="mini-search-bar">
-                        <input type="text" id="searchFrom" placeholder="Fra by..." oninput="filterUserRides()">
-                        <input type="text" id="searchTo" placeholder="Til by..." oninput="filterUserRides()">
-                        <input type="text" id="searchDate" 
-                               placeholder="${dd}/${mm}/${yyyy}"
-                               onfocus="(this.type='date')" 
-                               onblur="if(!this.value) this.type='text'" 
-                               onchange="filterUserRides()">
-                        <select id="sortSelect" onchange="filterUserRides()">
-                            <option value="time">Tidligste afgang</option>
-                            <option value="price">Laveste pris</option>
-                        </select>
-                    </div>
-
-                    <div id="userRidesLoader" class="spinner" style="margin: 2rem auto;"></div>
-                    <div class="ride-list" id="userRidesList" style="display: none;"></div>
-                    <div id="userRidesEmpty" class="empty-state" style="display: none;">Denne bruger har pt. ingen åbne ture.</div>
-                </div>
-            `;
-        }
-
-        // ==========================================
         // PROFIL DATA FETCH
         // ==========================================
         async function loadData() {
-            // Vi tillader denne funktion at kaste fejl (throw), så window.onload fanger det og viser fejlskærmen korrekt.
-            
+            // Hvis denne funktion kaster en fejl, bliver den fanget i window.onload's try-catch blok
             const { data: profile, error } = await _supabase.from('profiles').select('*').eq('id', targetId).single();
             if (error || !profile) throw new Error("Profil findes ikke i databasen.");
+            
             targetProfile = profile; 
 
             // Udfyld Private Data
@@ -790,11 +778,13 @@
                 document.getElementById('prof-email').value = originalEmail;
 
                 if (profile.car_details) {
-                    let car = typeof profile.car_details === 'string' ? JSON.parse(profile.car_details) : profile.car_details;
-                    carDataStorage = car; 
-                    document.getElementById('displayCarName').innerText = car.display_name || `${car.make} ${car.model}`;
-                    document.getElementById('displayCarMeta').innerText = car.details || `${car.year} • ${car.color} • ${car.plate}`;
-                    document.getElementById('carBadge').style.display = "flex";
+                    try {
+                        let car = typeof profile.car_details === 'string' ? JSON.parse(profile.car_details) : profile.car_details;
+                        carDataStorage = car; 
+                        document.getElementById('displayCarName').innerText = car.display_name || `${car.make} ${car.model}`;
+                        document.getElementById('displayCarMeta').innerText = car.details || `${car.year} • ${car.color} • ${car.plate}`;
+                        document.getElementById('carBadge').style.display = "flex";
+                    } catch(e) { console.error("Kunne ikke parse bil-data"); }
                 }
             }
 
@@ -865,14 +855,16 @@
         }
 
         // ==========================================
-        // FETCH & RENDER EGEN PROFIL TURE
+        // FETCH & RENDER EGEN PROFIL TURE (Aktive & Afsluttede)
         // ==========================================
         async function fetchDriverRides() {
             try {
                 const { data: rides, error } = await _supabase.from('rides')
                     .select('*, bookings(id, passenger_id, status, seats_booked, profiles(full_name, avatar_url))')
                     .eq('driver_id', currentUserId).order('departure_time', { ascending: true });
+                
                 if(error) throw error;
+                
                 const now = new Date();
                 
                 const activeRides = rides.filter(r => {
@@ -895,7 +887,7 @@
             } catch (err) { 
                 console.error("Fejl i fetchDriverRides:", err);
                 const el = document.getElementById('driver-rides-list');
-                if(el) el.innerHTML = `<p style="color:red;text-align:center;">Fejl: ${err.message}</p>`; 
+                if(el) el.innerHTML = `<p style="color:red;text-align:center;">Kunne ikke hente ture: ${err.message}</p>`; 
             }
         }
 
@@ -913,9 +905,11 @@
                 let isCancelled = group.every(r => r.status === 'cancelled');
 
                 const mainRide = group.reduce((prev, curr) => {
-                    const prevDur = new Date(prev.arrival_time || 0).getTime() - new Date(prev.departure_time || 0).getTime();
-                    const currDur = new Date(curr.arrival_time || 0).getTime() - new Date(curr.departure_time || 0).getTime();
-                    return currDur > prevDur ? curr : prev;
+                    try {
+                        const prevDur = new Date(prev.arrival_time || 0).getTime() - new Date(prev.departure_time || 0).getTime();
+                        const currDur = new Date(curr.arrival_time || 0).getTime() - new Date(curr.departure_time || 0).getTime();
+                        return currDur > prevDur ? curr : prev;
+                    } catch(e) { return prev; }
                 }, group[0]);
 
                 group.forEach(r => {
@@ -1017,7 +1011,7 @@
 
         async function fetchPassengerRides() {
             try {
-                if (!currentUser) return;
+                if (!currentUserId) return;
                 const { data: bookings, error } = await _supabase.from('bookings').select('*, rides(*, profiles(full_name))').eq('passenger_id', currentUserId);
                 if(error) throw error;
                 const container = document.getElementById('passenger-rides-list');
@@ -1031,7 +1025,7 @@
 
                     html += `<div class="ride-card" style="padding: 1.5rem; position: relative;">
                         ${chatBtn}
-                        <div class="route-title" style="padding-right: 40px;">${ride.origin_city} ➝ ${ride.destination_city}</div>
+                        <div class="route-title" style="padding-right: 40px;">${ride.origin_city || ''} ➝ ${ride.destination_city || ''}</div>
                         <div class="ride-meta">${formatDateTime(ride.departure_time)}</div>
                         <div style="margin-top:10px; font-weight:700;">Status: ${b.status}</div>
                     </div>`;
@@ -1075,7 +1069,7 @@
                 html += `<div class="ride-card" style="background:#F8FAFC; border:1px solid #E2E8F0; box-shadow:none;">
                     <div class="ride-header" style="padding-bottom: 1rem;">
                         <div>
-                            <div class="route-title" style="color:#64748B;">${mainRide.origin_city} ➝ ${mainRide.destination_city}</div>
+                            <div class="route-title" style="color:#64748B;">${mainRide.origin_city || ''} ➝ ${mainRide.destination_city || ''}</div>
                             <div class="ride-meta">${formatDateTime(mainRide.departure_time)} • ${statusTxt}</div>
                         </div>
                         <button class="btn-outline" style="min-width:auto; padding:8px 16px; font-size:0.9rem;" onclick="openDuplicateModal('${group.id}')">Dupliker tur</button>
@@ -1095,16 +1089,18 @@
             const today = new Date();
             document.getElementById('dupDate').value = today.toISOString().split('T')[0];
             
-            const depDate = new Date(ride.departure_time);
-            document.getElementById('dupDepHour').value = depDate.getHours().toString().padStart(2, '0');
-            document.getElementById('dupDepMin').value = depDate.getMinutes().toString().padStart(2, '0');
-            
-            const arrDate = new Date(ride.arrival_time);
-            document.getElementById('dupArrHour').value = arrDate.getHours().toString().padStart(2, '0');
-            document.getElementById('dupArrMin').value = arrDate.getMinutes().toString().padStart(2, '0');
+            try {
+                const depDate = new Date(ride.departure_time);
+                document.getElementById('dupDepHour').value = depDate.getHours().toString().padStart(2, '0');
+                document.getElementById('dupDepMin').value = depDate.getMinutes().toString().padStart(2, '0');
+                
+                const arrDate = new Date(ride.arrival_time);
+                document.getElementById('dupArrHour').value = arrDate.getHours().toString().padStart(2, '0');
+                document.getElementById('dupArrMin').value = arrDate.getMinutes().toString().padStart(2, '0');
+            } catch(e) {}
 
-            document.getElementById('dupSeats').value = ride.seats_available;
-            dupCurrentPrice = ride.price_dkk;
+            document.getElementById('dupSeats').value = ride.seats_available || 3;
+            dupCurrentPrice = ride.price_dkk || 0;
             document.getElementById('dupPriceDisplay').innerText = dupCurrentPrice;
             document.getElementById('dupComment').value = ride.comment || "";
 
@@ -1244,7 +1240,7 @@
             const toEl = document.getElementById('searchTo');
             const dateInput = document.getElementById('searchDate');
             
-            if (!fromEl || !toEl || !dateInput) return; // Prevent errors if on private view
+            if (!fromEl || !toEl || !dateInput) return; // Forhindrer fejl i Ejer-visning
 
             const from = fromEl.value.toLowerCase();
             const to = toEl.value.toLowerCase();
@@ -1264,7 +1260,7 @@
 
             const sortBy = document.getElementById('sortSelect').value;
             if (sortBy === 'price') {
-                filtered.sort((a, b) => Math.ceil(a.price_dkk * 1.05) - Math.ceil(b.price_dkk * 1.05));
+                filtered.sort((a, b) => Math.ceil((a.price_dkk || 0) * 1.05) - Math.ceil((b.price_dkk || 0) * 1.05));
             } else {
                 filtered.sort((a, b) => new Date(a.departure_time || 0) - new Date(b.departure_time || 0));
             }
@@ -1316,7 +1312,7 @@
                 if (ride.pref_music) bHTML += `<span class="badge">🎵 Musik</span>`;
                 if (ride.ladies_only) bHTML += `<span class="badge b-pink">🌸 Ladies</span>`;
                 
-                const finalPrice = Math.ceil(ride.price_dkk * 1.05);
+                const finalPrice = Math.ceil((ride.price_dkk || 0) * 1.05);
 
                 const card = document.createElement('div');
                 card.className = 'ride-item';
@@ -1535,17 +1531,19 @@
 
             document.getElementById('editRideId').value = ride.id;
             
-            const depDate = new Date(ride.departure_time);
-            document.getElementById('editDate').value = depDate.toISOString().split('T')[0];
-            document.getElementById('editDepHour').value = depDate.getHours().toString().padStart(2, '0');
-            document.getElementById('editDepMin').value = depDate.getMinutes().toString().padStart(2, '0');
-            
-            const arrDate = new Date(ride.arrival_time);
-            document.getElementById('editArrHour').value = arrDate.getHours().toString().padStart(2, '0');
-            document.getElementById('editArrMin').value = arrDate.getMinutes().toString().padStart(2, '0');
+            try {
+                const depDate = new Date(ride.departure_time);
+                document.getElementById('editDate').value = depDate.toISOString().split('T')[0];
+                document.getElementById('editDepHour').value = depDate.getHours().toString().padStart(2, '0');
+                document.getElementById('editDepMin').value = depDate.getMinutes().toString().padStart(2, '0');
+                
+                const arrDate = new Date(ride.arrival_time);
+                document.getElementById('editArrHour').value = arrDate.getHours().toString().padStart(2, '0');
+                document.getElementById('editArrMin').value = arrDate.getMinutes().toString().padStart(2, '0');
+            } catch(e) {}
 
-            document.getElementById('editSeats').value = ride.seats_available;
-            editCurrentPrice = ride.price_dkk;
+            document.getElementById('editSeats').value = ride.seats_available || 3;
+            editCurrentPrice = ride.price_dkk || 0;
             document.getElementById('editPriceDisplay').innerText = editCurrentPrice;
             document.getElementById('editComment').value = ride.comment || "";
 
