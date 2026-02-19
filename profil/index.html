@@ -209,7 +209,8 @@
         .car-details { font-size: 0.8rem; color: #15803d; font-weight: 500;}
 
         /* LOADING / ERROR STATE */
-        #loading-state, #error-state { text-align: center; padding: 5rem 1rem; grid-column: 1 / -1; }
+        #loading-state { text-align: center; padding: 5rem 1rem; grid-column: 1 / -1; }
+        #error-state { display: none; text-align: center; padding: 5rem 1rem; grid-column: 1 / -1; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -229,9 +230,9 @@
             <h2 style="color: var(--brand);">Henter profil...</h2>
         </div>
 
-        <div id="error-state" style="display: none;">
+        <div id="error-state">
             <span style="font-size: 4rem;">🔍</span>
-            <h2 style="color: var(--brand); margin-top: 1rem;">Bruger ikke fundet</h2>
+            <h2 style="color: var(--brand); margin-top: 1rem;">Noget gik galt</h2>
             <p style="color: var(--text-muted); font-size: 1.1rem;">Denne profil eksisterer ikke, eller også er linket ugyldigt.</p>
             <a href="/" style="display: inline-block; background: var(--accent); color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: bold; margin-top: 1.5rem;">Gå til forsiden</a>
         </div>
@@ -574,7 +575,7 @@
 
 
     <script>
-        // HJÆLPEFUNKTION SOM MANGLEDE!
+        // HJÆLPEFUNKTION
         function formatDateTime(isoString) {
             if (!isoString) return "--/-- • --:--";
             const d = new Date(isoString);
@@ -608,53 +609,66 @@
 
         const months = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
 
+        function showScreenContent() {
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('error-state').style.display = 'none';
+            document.getElementById('profile-content').style.display = 'grid';
+        }
+
+        function showError(msg = "Denne profil eksisterer ikke, eller også er linket ugyldigt.") {
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('profile-content').style.display = 'none';
+            document.getElementById('error-state').style.display = 'block';
+            const msgEl = document.querySelector('#error-state p');
+            if (msgEl) msgEl.innerText = msg;
+        }
+
         // ==========================================
-        // INITIALISERING
+        // INITIALISERING 
         // ==========================================
         window.onload = async () => {
             try {
                 if (typeof _supabase === 'undefined') {
-                    showError("Supabase er ikke indlæst.");
+                    showError("Forbindelse til databasen kunne ikke oprettes.");
                     return;
                 }
 
+                // Sikker hentning af session
                 const { data: { session }, error: sessionError } = await _supabase.auth.getSession();
-                if (sessionError) console.error("Session error:", sessionError);
+                if (sessionError) console.error("Session advarsel:", sessionError);
 
                 if (session) {
                     currentUser = session.user;
                     currentUserId = session.user.id;
                 }
 
+                // Bestem hvilken profil der vises
                 const urlParams = new URLSearchParams(window.location.search);
                 targetId = urlParams.get('id') || currentUserId;
 
+                // Hvis hverken logget ind eller sat et ID
                 if (!targetId) {
                     window.location.href = '/login';
                     return;
                 }
 
-                const today = new Date();
-                const dd = String(today.getDate()).padStart(2, '0');
-                const mm = String(today.getMonth() + 1).padStart(2, '0');
-                const yyyy = today.getFullYear();
-                const sd = document.getElementById('searchDate');
-                if(sd) sd.placeholder = `${dd}/${mm}/${yyyy}`;
-
+                // Hent og udfyld data - fejler denne, hopper den direkte ned i catch() og viser fejlskærm
                 await loadData();
+                showScreenContent(); // Viser indholdet nu hvor dataen er hentet med succes
 
+                // Klargør UI og hent ture baseret på rettigheder
                 if (currentUserId === targetId) {
-                    // EGEN PROFIL
+                    // EJER
                     document.getElementById('private-tabs').style.display = 'flex';
                     document.getElementById('private-balance-box').style.display = 'block';
                     document.getElementById('btn-report-profile').style.display = 'none';
                     
                     renderOwnProfileRidesSection();
-                    await fetchDriverRides(); 
-                    await checkStripeStatus();
-                    await loadTaxData();
+                    fetchDriverRides(); // Asynkron i baggrunden for at fremskynde sideindlæsning
+                    checkStripeStatus();
+                    loadTaxData();
                 } else {
-                    // GÆSTE PROFIL
+                    // GÆST
                     document.getElementById('private-tabs').style.display = 'none';
                     document.getElementById('tab-profil').style.display = 'none';
                     document.getElementById('tab-skat').style.display = 'none';
@@ -669,12 +683,12 @@
                     }
                     
                     renderGuestProfileRidesSection();
-                    await fetchUserRides(); 
+                    fetchUserRides(); // Asynkron
                 }
 
             } catch (err) {
-                console.error("Fejl i window.onload:", err);
-                showError("Der opstod en fejl under indlæsning.");
+                console.error("Fejl under indlæsning:", err);
+                showError("Kunne ikke finde brugeren.");
             }
         };
 
@@ -755,109 +769,103 @@
         // PROFIL DATA FETCH
         // ==========================================
         async function loadData() {
-            try {
-                const { data: profile, error } = await _supabase.from('profiles').select('*').eq('id', targetId).single();
-                if (error || !profile) throw error;
-                targetProfile = profile; 
+            // Vi tillader denne funktion at kaste fejl (throw), så window.onload fanger det og viser fejlskærmen korrekt.
+            
+            const { data: profile, error } = await _supabase.from('profiles').select('*').eq('id', targetId).single();
+            if (error || !profile) throw new Error("Profil findes ikke i databasen.");
+            targetProfile = profile; 
 
-                if (currentUserId === targetId) {
-                    currentBalance = profile.balance || 0;
-                    document.getElementById('ui-balance').innerText = currentBalance.toFixed(2);
-                    document.getElementById('ui-pending').innerText = (profile.pending_balance || 0).toFixed(2);
-                    
-                    document.getElementById('prof-fullname').value = profile.full_name || "";
-                    document.getElementById('prof-phone').value = profile.phone_number || "";
-                    document.getElementById('prof-gender').value = profile.gender || "Andet";
-                    document.getElementById('prof-bio').value = profile.bio || "";
-                    
-                    originalEmail = currentUser ? currentUser.email : "";
-                    document.getElementById('prof-email').value = originalEmail;
-
-                    if (profile.car_details) {
-                        let car = typeof profile.car_details === 'string' ? JSON.parse(profile.car_details) : profile.car_details;
-                        carDataStorage = car; 
-                        document.getElementById('displayCarName').innerText = car.display_name || `${car.make} ${car.model}`;
-                        document.getElementById('displayCarMeta').innerText = car.details || `${car.year} • ${car.color} • ${car.plate}`;
-                        document.getElementById('carBadge').style.display = "flex";
-                    }
-                }
-
-                const { count: driverRides } = await _supabase.from('rides').select('*', { count: 'exact', head: true }).eq('driver_id', targetId).eq('status', 'completed');
-                const { count: paxRides } = await _supabase.from('bookings').select('*', { count: 'exact', head: true }).eq('passenger_id', targetId).eq('status', 'approved');
-                const totalRides = (driverRides || 0) + (paxRides || 0);
-
-                const { data: reviews } = await _supabase.from('reviews').select('*, profiles:reviewer_id(full_name, avatar_url)').eq('reviewee_id', targetId).order('created_at', { ascending: false });
-                allReviews = reviews || [];
-
-                let sum = 0;
-                let alreadyReviewed = false;
-                ratingDist = {5:0, 4:0, 3:0, 2:0, 1:0};
-
-                allReviews.forEach(r => {
-                    sum += r.rating;
-                    ratingDist[r.rating]++;
-                    if(currentUserId && r.reviewer_id === currentUserId) alreadyReviewed = true;
-                });
-
-                avgRating = allReviews.length > 0 ? (sum / allReviews.length) : 0.0;
-
-                let canReview = false;
-                if(currentUserId && currentUserId !== targetId && !alreadyReviewed) {
-                    const { data: shared } = await _supabase.from('bookings').select('id, rides!inner(driver_id)').eq('passenger_id', currentUserId).eq('status', 'approved').eq('rides.driver_id', targetId).limit(1);
-                    if(shared && shared.length > 0) canReview = true;
-                }
-
-                document.getElementById('loading-state').style.display = 'none';
-                document.getElementById('profile-content').style.display = 'grid';
-
-                document.getElementById('pub-name').innerText = profile.full_name || 'Ukendt';
-                document.getElementById('pub-rides').innerText = totalRides;
-                document.getElementById('pub-co2').innerText = profile.co2_saved_kg || '0';
+            // Udfyld Private Data
+            if (currentUserId === targetId) {
+                currentBalance = profile.balance || 0;
+                document.getElementById('ui-balance').innerText = currentBalance.toFixed(2);
+                document.getElementById('ui-pending').innerText = (profile.pending_balance || 0).toFixed(2);
                 
-                let locationText = profile.gender || 'Andet';
-                if(profile.address) locationText += ` • ${profile.address.split(',').pop().trim()}`;
-                let memberYear = profile.created_at ? new Date(profile.created_at).getFullYear() : '2026';
-                locationText += ` • Medlem siden ${memberYear}`;
-                document.getElementById('pub-meta').innerText = locationText;
+                document.getElementById('prof-fullname').value = profile.full_name || "";
+                document.getElementById('prof-phone').value = profile.phone_number || "";
+                document.getElementById('prof-gender').value = profile.gender || "Andet";
+                document.getElementById('prof-bio').value = profile.bio || "";
+                
+                originalEmail = currentUser ? currentUser.email : "";
+                document.getElementById('prof-email').value = originalEmail;
 
-                if (profile.avatar_url) {
-                    document.getElementById('pub-avatar').src = profile.avatar_url;
-                    document.getElementById('pub-avatar').style.display = 'block';
-                    document.getElementById('pub-avatar-placeholder').style.display = 'none';
+                if (profile.car_details) {
+                    let car = typeof profile.car_details === 'string' ? JSON.parse(profile.car_details) : profile.car_details;
+                    carDataStorage = car; 
+                    document.getElementById('displayCarName').innerText = car.display_name || `${car.make} ${car.model}`;
+                    document.getElementById('displayCarMeta').innerText = car.details || `${car.year} • ${car.color} • ${car.plate}`;
+                    document.getElementById('carBadge').style.display = "flex";
                 }
-
-                if (profile.bio) {
-                    document.getElementById('pub-bio').innerText = profile.bio;
-                }
-
-                let badges = '';
-                if (profile.is_verified_mitid) badges += '<div class="badge-verified"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> MitID Verificeret</div>';
-                if (profile.phone_verified) badges += '<div class="badge-verified"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> Telefon Verificeret</div>';
-                document.getElementById('pub-badges').innerHTML = badges;
-
-                if (profile.manual_ride_count != null && profile.manual_rating != null) {
-                    document.getElementById('gomore-text').innerText = `${profile.manual_ride_count}+ verificerede ture • Gns. ${parseFloat(profile.manual_rating).toFixed(1)} stjerner`;
-                    document.getElementById('gomore-badge').style.display = 'flex';
-                }
-
-                if(canReview) document.getElementById('btn-write-review').style.display = 'flex';
-                if(alreadyReviewed) document.getElementById('txt-has-reviewed').style.display = 'inline-block';
-
-                document.getElementById('ui-avg-score').innerText = avgRating > 0 ? avgRating.toFixed(1) : "Ny";
-                document.getElementById('ui-avg-stars').innerText = getStarsHTML(Math.round(avgRating));
-                document.getElementById('ui-total-reviews').innerText = `${allReviews.length} anmeldelser`;
-
-                renderRatingBars();
-                renderReviews();
-
-            } catch (err) {
-                console.error("Fejl i loadData:", err);
-                showError("Kunne ikke indlæse brugerdata.");
             }
+
+            const { count: driverRides } = await _supabase.from('rides').select('*', { count: 'exact', head: true }).eq('driver_id', targetId).eq('status', 'completed');
+            const { count: paxRides } = await _supabase.from('bookings').select('*', { count: 'exact', head: true }).eq('passenger_id', targetId).eq('status', 'approved');
+            const totalRides = (driverRides || 0) + (paxRides || 0);
+
+            const { data: reviews } = await _supabase.from('reviews').select('*, profiles:reviewer_id(full_name, avatar_url)').eq('reviewee_id', targetId).order('created_at', { ascending: false });
+            allReviews = reviews || [];
+
+            let sum = 0;
+            let alreadyReviewed = false;
+            ratingDist = {5:0, 4:0, 3:0, 2:0, 1:0};
+
+            allReviews.forEach(r => {
+                sum += r.rating;
+                ratingDist[r.rating]++;
+                if(currentUserId && r.reviewer_id === currentUserId) alreadyReviewed = true;
+            });
+
+            avgRating = allReviews.length > 0 ? (sum / allReviews.length) : 0.0;
+
+            let canReview = false;
+            if(currentUserId && currentUserId !== targetId && !alreadyReviewed) {
+                const { data: shared } = await _supabase.from('bookings').select('id, rides!inner(driver_id)').eq('passenger_id', currentUserId).eq('status', 'approved').eq('rides.driver_id', targetId).limit(1);
+                if(shared && shared.length > 0) canReview = true;
+            }
+
+            document.getElementById('pub-name').innerText = profile.full_name || 'Ukendt';
+            document.getElementById('pub-rides').innerText = totalRides;
+            document.getElementById('pub-co2').innerText = profile.co2_saved_kg || '0';
+            
+            let locationText = profile.gender || 'Andet';
+            if(profile.address) locationText += ` • ${profile.address.split(',').pop().trim()}`;
+            let memberYear = profile.created_at ? new Date(profile.created_at).getFullYear() : '2026';
+            locationText += ` • Medlem siden ${memberYear}`;
+            document.getElementById('pub-meta').innerText = locationText;
+
+            if (profile.avatar_url) {
+                document.getElementById('pub-avatar').src = profile.avatar_url;
+                document.getElementById('pub-avatar').style.display = 'block';
+                document.getElementById('pub-avatar-placeholder').style.display = 'none';
+            }
+
+            if (profile.bio) {
+                document.getElementById('pub-bio').innerText = profile.bio;
+            }
+
+            let badges = '';
+            if (profile.is_verified_mitid) badges += '<div class="badge-verified"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> MitID Verificeret</div>';
+            if (profile.phone_verified) badges += '<div class="badge-verified"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> Telefon Verificeret</div>';
+            document.getElementById('pub-badges').innerHTML = badges;
+
+            if (profile.manual_ride_count != null && profile.manual_rating != null) {
+                document.getElementById('gomore-text').innerText = `${profile.manual_ride_count}+ verificerede ture • Gns. ${parseFloat(profile.manual_rating).toFixed(1)} stjerner`;
+                document.getElementById('gomore-badge').style.display = 'flex';
+            }
+
+            if(canReview) document.getElementById('btn-write-review').style.display = 'flex';
+            if(alreadyReviewed) document.getElementById('txt-has-reviewed').style.display = 'inline-block';
+
+            document.getElementById('ui-avg-score').innerText = avgRating > 0 ? avgRating.toFixed(1) : "Ny";
+            document.getElementById('ui-avg-stars').innerText = getStarsHTML(Math.round(avgRating));
+            document.getElementById('ui-total-reviews').innerText = `${allReviews.length} anmeldelser`;
+
+            renderRatingBars();
+            renderReviews();
         }
 
         // ==========================================
-        // EGEN PROFIL: KØRER & PASSAGER TURE
+        // FETCH & RENDER EGEN PROFIL TURE
         // ==========================================
         async function fetchDriverRides() {
             try {
@@ -1010,7 +1018,7 @@
         async function fetchPassengerRides() {
             try {
                 if (!currentUser) return;
-                const { data: bookings, error } = await _supabase.from('bookings').select('*, rides(*, profiles(full_name))').eq('passenger_id', currentUser.id);
+                const { data: bookings, error } = await _supabase.from('bookings').select('*, rides(*, profiles(full_name))').eq('passenger_id', currentUserId);
                 if(error) throw error;
                 const container = document.getElementById('passenger-rides-list');
                 if(!container) return;
@@ -1447,12 +1455,6 @@
             container.innerHTML = html;
         }
 
-        function showError(msg = "Denne profil eksisterer ikke, eller også er linket ugyldigt.") {
-            document.getElementById('loading-state').style.display = 'none';
-            document.getElementById('error-state').style.display = 'block';
-            document.querySelector('#error-state p').innerText = msg;
-        }
-
         // ==========================================
         // SHARE FUNKTION
         // ==========================================
@@ -1642,6 +1644,102 @@
         function submitReport() {
             document.getElementById('reportModal').style.display = 'none';
             alert("Tak. Vi kigger på sagen.");
+        }
+
+        // ==========================================
+        // PROFIL & SETTINGS FUNKTIONER
+        // ==========================================
+        async function updateProfileInfo(e) {
+            e.preventDefault();
+            const btn = document.getElementById('prof-submitBtn');
+            const msg = document.getElementById('profileMessage');
+            btn.disabled = true; btn.innerText = "Gemmer..."; msg.style.display = 'none';
+            
+            try {
+                const updates = {
+                    full_name: document.getElementById('prof-fullname').value.trim(),
+                    phone_number: document.getElementById('prof-phone').value.trim(),
+                    gender: document.getElementById('prof-gender').value,
+                    bio: document.getElementById('prof-bio').value.trim(),
+                    car_details: carDataStorage, 
+                    updated_at: new Date().toISOString()
+                };
+                const { error: profileError } = await _supabase.from('profiles').update(updates).eq('id', currentUser.id);
+                if (profileError) throw profileError;
+
+                let successText = "✅ Din profil er blevet opdateret.";
+                let msgBg = "#DCFCE7";
+                let msgColor = "#166534";
+
+                const newEmail = document.getElementById('prof-email').value.trim();
+                if (newEmail !== originalEmail) {
+                    const { data, error: emailError } = await _supabase.auth.updateUser({ email: newEmail });
+                    if (emailError) throw new Error("Kunne ikke ændre e-mail. Måske er den allerede i brug?");
+                    
+                    successText += "<br><br>⚠️ <b>Tjek din indbakke!</b> Vi har sendt et bekræftelseslink til din nye e-mail for at godkende ændringen.";
+                    msgBg = "#FEF9C3"; msgColor = "#854D0E";
+                }
+
+                msg.style.display = 'block'; 
+                msg.style.backgroundColor = msgBg;
+                msg.style.color = msgColor; 
+                msg.innerHTML = successText;
+                
+                document.getElementById('ui-name').innerText = updates.full_name;
+                document.getElementById('ui-phone').innerText = updates.phone_number;
+            } catch (err) {
+                msg.style.display = 'block'; 
+                msg.style.backgroundColor = '#FEF2F2';
+                msg.style.color = '#DC2626'; 
+                msg.innerText = "❌ Fejl: " + err.message;
+            } finally { 
+                btn.disabled = false; 
+                btn.innerText = "Gem ændringer"; 
+            }
+        }
+
+        async function uploadAvatar(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const loader = document.getElementById('avatar-loading');
+            loader.style.display = 'flex';
+            try {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${currentUser.id}_${Date.now()}.${fileExt}`;
+                const { error: uploadError } = await _supabase.storage.from('avatars').upload(fileName, file, { upsert: true });
+                if (uploadError) throw uploadError;
+                const { data: publicUrlData } = _supabase.storage.from('avatars').getPublicUrl(fileName);
+                const publicUrl = publicUrlData.publicUrl;
+                await _supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', currentUser.id);
+                document.getElementById('ui-avatar').src = publicUrl;
+                document.getElementById('ui-avatar').style.display = 'block';
+                document.getElementById('ui-avatar-placeholder').style.display = 'none';
+            } catch (err) { alert("Fejl ved upload: " + err.message); } 
+            finally { loader.style.display = 'none'; event.target.value = ""; }
+        }
+
+        async function loadTaxData() {
+            try {
+                const { data: taxData } = await _supabase.from('tax_identities').select('*').eq('user_id', currentUser.id).maybeSingle();
+                if (taxData) {
+                    const names = (taxData.full_name || "").split(" ");
+                    if (names.length > 0) {
+                        document.getElementById('fName').value = names[0];
+                        if (names.length > 1) document.getElementById('lName').value = names.slice(1).join(" ");
+                    }
+                    let fullAddress = taxData.address || "";
+                    if (fullAddress.includes(",")) {
+                        let parts = fullAddress.split(",");
+                        document.getElementById('address').value = parts[0].trim();
+                        document.getElementById('floorDoor').value = parts.slice(1).join(",").trim();
+                    } else {
+                        document.getElementById('address').value = fullAddress;
+                    }
+                    document.getElementById('cpr').value = "**********"; 
+                    document.getElementById('cpr').readOnly = true; 
+                    isCprLocked = true;
+                }
+            } catch (err) { console.error("Fejl ved load af tax:", err); }
         }
 
         async function lookupPlateProfile() {
