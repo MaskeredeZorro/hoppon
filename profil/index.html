@@ -333,9 +333,7 @@
                 </div>
 
                 <div id="tab-ture" class="tab-content active" style="margin-top:0;">
-                    <div class="card" id="userActiveRidesContainer" style="padding: 1.5rem;">
-                        </div>
-                </div>
+                    </div>
 
                 <div id="tab-profil" class="tab-content">
                     <div class="card">
@@ -616,14 +614,7 @@
                 return;
             }
 
-            const today = new Date();
-            const dd = String(today.getDate()).padStart(2, '0');
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const yyyy = today.getFullYear();
-            const sd = document.getElementById('searchDate');
-            if(sd) sd.placeholder = `${dd}/${mm}/${yyyy}`;
-
-            // Sæt den rigtige visning baseret på rettigheder
+            // Sæt den rigtige visning baseret på rettigheder før vi loader data
             if (currentUserId === targetId) {
                 // EGEN PROFIL
                 document.getElementById('private-tabs').style.display = 'flex';
@@ -637,13 +628,6 @@
                 document.getElementById('private-tabs').style.display = 'none';
                 document.getElementById('tab-profil').style.display = 'none';
                 document.getElementById('tab-skat').style.display = 'none';
-                document.getElementById('tab-ture').style.display = 'none';
-                
-                document.getElementById('userActiveRidesContainer').style.display = 'block';
-                document.getElementById('userActiveRidesContainer').style.padding = '0';
-                document.getElementById('userActiveRidesContainer').style.border = 'none';
-                document.getElementById('userActiveRidesContainer').style.boxShadow = 'none';
-                document.getElementById('userActiveRidesContainer').style.background = 'transparent';
                 
                 renderGuestProfileRidesSection();
                 await fetchUserRides(); 
@@ -657,11 +641,8 @@
         };
 
         function renderOwnProfileRidesSection() {
-            const container = document.getElementById('userActiveRidesContainer');
-            // Vi fjerner container formateringen, fordi vi bruger tabs i stedet for
-            container.style.display = 'none'; 
-            
-            document.getElementById('tab-ture').innerHTML = `
+            const container = document.getElementById('tab-ture');
+            container.innerHTML = `
                 <div class="card" style="padding: 1.5rem;">
                     <div class="sub-tabs">
                         <button class="sub-tab-btn active" onclick="switchSubTab('sub-driver', this)">🚗 Jeg kører</button>
@@ -697,25 +678,33 @@
         }
 
         function renderGuestProfileRidesSection() {
-            const container = document.getElementById('userActiveRidesContainer');
-            container.innerHTML = `
-                <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--brand); margin-bottom: 0.8rem;">Ture fra denne chauffør</h3>
-                <div class="mini-search-bar">
-                    <input type="text" id="searchFrom" placeholder="Fra by..." oninput="filterUserRides()">
-                    <input type="text" id="searchTo" placeholder="Til by..." oninput="filterUserRides()">
-                    <input type="text" id="searchDate" 
-                           onfocus="(this.type='date')" 
-                           onblur="if(!this.value) this.type='text'" 
-                           onchange="filterUserRides()">
-                    <select id="sortSelect" onchange="filterUserRides()">
-                        <option value="time">Tidligste afgang</option>
-                        <option value="price">Laveste pris</option>
-                    </select>
-                </div>
+            const container = document.getElementById('tab-ture');
+            const today = new Date();
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const yyyy = today.getFullYear();
 
-                <div id="userRidesLoader" class="spinner" style="margin: 2rem auto;"></div>
-                <div class="ride-list" id="userRidesList" style="display: none;"></div>
-                <div id="userRidesEmpty" class="empty-state" style="display: none;">Denne bruger har pt. ingen åbne ture.</div>
+            container.innerHTML = `
+                <div class="card rides-card" style="padding: 1.5rem; border: none; box-shadow: none; background: transparent;">
+                    <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--brand); margin-bottom: 0.8rem;">Ture fra denne chauffør</h3>
+                    <div class="mini-search-bar">
+                        <input type="text" id="searchFrom" placeholder="Fra by..." oninput="filterUserRides()">
+                        <input type="text" id="searchTo" placeholder="Til by..." oninput="filterUserRides()">
+                        <input type="text" id="searchDate" 
+                               placeholder="${dd}/${mm}/${yyyy}"
+                               onfocus="(this.type='date')" 
+                               onblur="if(!this.value) this.type='text'" 
+                               onchange="filterUserRides()">
+                        <select id="sortSelect" onchange="filterUserRides()">
+                            <option value="time">Tidligste afgang</option>
+                            <option value="price">Laveste pris</option>
+                        </select>
+                    </div>
+
+                    <div id="userRidesLoader" class="spinner" style="margin: 2rem auto;"></div>
+                    <div class="ride-list" id="userRidesList" style="display: none;"></div>
+                    <div id="userRidesEmpty" class="empty-state" style="display: none;">Denne bruger har pt. ingen åbne ture.</div>
+                </div>
             `;
         }
 
@@ -839,11 +828,13 @@
                 if(error) throw error;
                 const now = new Date();
                 
+                // Aktive ture
                 const activeRides = rides.filter(r => {
                     const dep = new Date(r.departure_time);
                     return r.status !== 'completed' && r.status !== 'cancelled' && now < new Date(dep.getTime() + (24 * 60 * 60 * 1000));
                 });
 
+                // Afsluttede/Aflyste ture (alt der ikke er i active)
                 const completedRides = rides.filter(r => !activeRides.includes(r));
 
                 const activeGroups = groupAndFormatRides(activeRides);
@@ -853,6 +844,7 @@
 
                 renderDriverRides(activeGroups);
                 renderCompletedRides();
+                await fetchPassengerRides();
 
             } catch (err) { 
                 console.error(err);
@@ -1050,6 +1042,17 @@
             dupCurrentPrice += amt;
             if(dupCurrentPrice < 20) dupCurrentPrice = 20;
             document.getElementById('dupPriceDisplay').innerText = dupCurrentPrice;
+        }
+
+        function validateTimeInput(input, maxVal) {
+            input.value = input.value.replace(/[^0-9]/g, '');
+            if (input.value !== '') {
+                let val = parseInt(input.value);
+                if (val > maxVal) input.value = maxVal;
+            }
+            if (input.value.length === 1 && parseInt(input.value) > (maxVal > 23 ? 5 : 2)) {
+                input.value = '0' + input.value;
+            }
         }
 
         async function submitDuplicateRide() {
@@ -1272,6 +1275,7 @@
                 container.appendChild(card);
             });
         }
+
 
         // ==========================================
         // UI & FILTER LOGIK REVIEWS
