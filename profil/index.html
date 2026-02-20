@@ -677,6 +677,8 @@
         function renderOwnProfileRidesSection() {
             const container = document.getElementById('tab-ture');
             if(!container) return;
+            // FJERN container.style.display = 'none'; DA DET SKJULER HELE SEKTIONEN
+            
             container.innerHTML = `
                 <div class="card" style="padding: 1.5rem;">
                     <div class="sub-tabs">
@@ -873,6 +875,7 @@
 
                 groupedCompletedRides = groupAndFormatRides(completedRides).sort((a,b) => new Date(b.main_ride.departure_time || 0) - new Date(a.main_ride.departure_time || 0)); 
 
+                groupedDriverRides = activeGroups; // Gemmer globalt til redigering
                 renderDriverRides(activeGroups);
                 renderCompletedRides();
                 await fetchPassengerRides();
@@ -950,9 +953,11 @@
                         const name = b.profiles ? b.profiles.full_name : 'Ukendt';
                         const paxId = b.passenger_id;
                         const chatBtn = `<button class="btn-icon chat" onclick="event.stopPropagation(); window.location.href='/samtale?user=${paxId}&ride=${b.ride_id}'" title="Skriv til passager"><i class="fa-regular fa-comment-dots"></i></button>`;
+                        
+                        // FIX: Fjernet single quotes omkring ID'erne i onlicks, da backticks (``) allerede dækker strengen. Det forhindrer JS syntaksfejl.
                         let actionsHTML = b.status === 'pending' 
-                            ? `${chatBtn}<button class="btn-icon green" onclick="event.stopPropagation(); updateBooking('${b.id}', 'approved', '${name}')" title="Godkend">✓</button><button class="btn-icon red" onclick="event.stopPropagation(); updateBooking('${b.id}', 'rejected', '${name}')" title="Afvis">✕</button>`
-                            : `${chatBtn}<button class="btn-icon red" onclick="event.stopPropagation(); driverCancelPassenger('${b.id}', '${name}')" title="Aflys passager">✕</button>`;
+                            ? `${chatBtn}<button class="btn-icon green" onclick="event.stopPropagation(); updateBooking('${b.id}', 'approved', '${name.replace(/'/g, "\\'")}')" title="Godkend">✓</button><button class="btn-icon red" onclick="event.stopPropagation(); updateBooking('${b.id}', 'rejected', '${name.replace(/'/g, "\\'")}')" title="Afvis">✕</button>`
+                            : `${chatBtn}<button class="btn-icon red" onclick="event.stopPropagation(); driverCancelPassenger('${b.id}', '${name.replace(/'/g, "\\'")}')" title="Aflys passager">✕</button>`;
                             
                         passengersHTML += `<div class="passenger-item">
                             <div class="passenger-info">
@@ -965,6 +970,40 @@
                         </div>`;
                     });
                 }
+                
+                let editBtnStr = '';
+                if (group.has_passengers) {
+                    editBtnStr = `<button class="btn-outline" disabled title="Du kan ikke ændre turen, når der er passagerer." style="background:#F3F4F6; color:#94A3B8; cursor:not-allowed;">Ændre tur 🔒</button>`;
+                } else if (group.is_group) {
+                    editBtnStr = `<button class="btn-outline" disabled title="Ture med mellemstops kan ikke rettes pt." style="background:#F3F4F6; color:#94A3B8; cursor:not-allowed;">Ændre tur 🔒</button>`;
+                } else {
+                    editBtnStr = `<button class="btn-outline" onclick="openEditModal('${group.id}')">Ændre tur</button>`;
+                }
+
+                let actionBarHTML = `
+                    ${editBtnStr}
+                    <button class="btn-outline btn-danger" onclick="deleteTrip('${group.id}')">Aflys tur</button>
+                    <button class="btn-action-main" ${!isPassed ? 'disabled' : ''} onclick="completeTrip('${group.id}')">${isPassed ? 'Afslut tur & Modtag penge' : 'Turen er ikke slut endnu'}</button>
+                `;
+
+                html += `<div class="ride-card">
+                    <div class="ride-header" onclick="toggleExpand('details-${group.id}')">
+                        <div>
+                            <div class="route-title">${mainRide.origin_city || ''} ➝ ${mainRide.destination_city || ''}</div>
+                            <div class="ride-meta">${formatDateTime(mainRide.departure_time)} ${group.is_group ? `<span style="background:#E2E8F0; padding:2px 8px; border-radius:12px; font-size:0.75rem; margin-left:6px; color:#475569;">Med stop</span>` : ''}</div>
+                        </div>
+                        <div class="ride-price">${mainRide.price_dkk} kr.</div>
+                    </div>
+                    <div class="ride-details" id="details-${group.id}">
+                        <div class="passenger-list">${passengersHTML}</div>
+                        <div class="action-bar">
+                            ${actionBarHTML}
+                        </div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
                 
                 let editBtnStr = '';
                 if (group.has_passengers) {
