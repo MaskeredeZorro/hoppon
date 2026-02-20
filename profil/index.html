@@ -1487,6 +1487,86 @@
             }
         }
 
+
+        // ==========================================
+        // TUR HANDLINGER (AFLYS & AFSLUT MED EDGE FUNCTIONS)
+        // ==========================================
+
+        function completeTrip(groupId) {
+            // Find turen i din lokalt gemte liste over ture (håndterer evt. mellemstops)
+            const group = groupedDriverRides.find(g => g.id === groupId);
+            if (!group) return;
+
+            showModal("Afslut tur?", "Dette vil hæve pengene hos passagererne og overføre beløbet til din konto.", "Afslut nu", async () => {
+                try {
+                    // Giv brugeren feedback i modalen mens der arbejdes
+                    document.getElementById('modalConfirmBtn').innerText = "Arbejder...";
+                    
+                    const session = (await _supabase.auth.getSession()).data.session;
+
+                    // Loop igennem alle del-strækninger for denne tur
+                    for (const ride of group.rides) {
+                        // 1. Træk penge for alle passagerer med status 'approved' på denne del-strækning
+                        const { data: pax } = await _supabase.from('bookings').select('stripe_payment_id').eq('ride_id', ride.id).eq('status', 'approved');
+                        
+                        for (let p of (pax || [])) {
+                            if (p.stripe_payment_id) {
+                                await _supabase.functions.invoke('settle-payment', { 
+                                    body: { paymentIntentId: p.stripe_payment_id, action: 'capture' }
+                                });
+                            }
+                        }
+
+                        // 2. Kør din edge function til at afslutte strækningen
+                        const res = await _supabase.functions.invoke('complete-trip', { 
+                            body: { trip_id: ride.id }, 
+                            headers: { Authorization: `Bearer ${session.access_token}` } 
+                        });
+                        
+                        if (res.error) throw res.error;
+                    }
+
+                    alert("Turen er afsluttet! 💸");
+                    loadData(); // Genindlæser profilen for at opdatere din nye balance
+                    fetchDriverRides(); // Fjerner turen fra de aktive
+                } catch(e) { 
+                    alert("Fejl: " + e.message); 
+                }
+            });
+        }
+
+        function deleteTrip(groupId) {
+            const group = groupedDriverRides.find(g => g.id === groupId);
+            if (!group) return;
+
+            showModal(
+                "Aflys tur?", 
+                "Er du sikker på, at du vil aflyse denne tur? Har du allerede passagerer, vil de automatisk få deres betaling refunderet.", 
+                "Ja, aflys", 
+                async () => {
+                    try {
+                        document.getElementById('modalConfirmBtn').innerText = "Arbejder...";
+                        
+                        const session = (await _supabase.auth.getSession()).data.session;
+                        
+                        // Loop igennem alle del-strækninger og aflys dem via edge function
+                        for (const ride of group.rides) {
+                            const res = await _supabase.functions.invoke('delete-trip', { 
+                                body: { trip_id: ride.id }, 
+                                headers: { Authorization: `Bearer ${session.access_token}` } 
+                            });
+                            
+                            if (res.error) throw res.error;
+                        }
+
+                        alert("Turen er nu aflyst.");
+                        fetchDriverRides(); 
+                    } catch(e) { 
+                        alert("Fejl ved aflysning: " + e.message); 
+                    }
+                }
+            );
+        }
         // ==========================================
         // GENERELLE MODALS & ACTIONS
         // ==========================================
