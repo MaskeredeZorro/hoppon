@@ -136,6 +136,15 @@
         .price-value { font-weight: 900; font-size: 1.2rem; color: var(--brand);}
         .rec-price-text { font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; text-align: right; }
         
+        /* Donation Slider */
+        .donation-container { margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border); }
+        .donation-label { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
+        .donation-value { color: var(--success); font-weight: 900; }
+        .donation-slider { -webkit-appearance: none; width: 100%; height: 8px; border-radius: 4px; background: #E2E8F0; outline: none; transition: 0.2s; }
+        .donation-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--success); cursor: pointer; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4); border: 2px solid white; }
+        .donation-slider::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--success); cursor: pointer; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4); border: 2px solid white; }
+        .donation-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; line-height: 1.4; text-align: center; }
+
         /* Settings Toggles */
         .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         @media (max-width: 600px) { .settings-grid { grid-template-columns: 1fr; } }
@@ -338,6 +347,15 @@
                                         <button class="price-btn" onclick="adjustPrice(5)">+</button>
                                     </div>
                                     <div class="rec-price-text">Vi anbefaler <strong id="recPriceDisplay" style="color:var(--brand)">0</strong> kr <span style="color:var(--success); font-weight:800;">(0 kr i gebyr)</span></div>
+                                    
+                                    <div class="donation-container">
+                                        <div class="donation-label">
+                                            <span>Donation til platformen 💖</span>
+                                            <span class="donation-value" id="donationDisplay">0 kr</span>
+                                        </div>
+                                        <input type="range" id="donationSlider" class="donation-slider" min="0" max="0" step="5" value="0" oninput="updateDonationUI()">
+                                        <div class="donation-desc">Vælg hvor meget af din pris pr. passager du vil donere til at holde HoppOn kørende. Denne donation trækkes fra din udbetaling.</div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -477,6 +495,7 @@
         let searchTimeout = null;
         let selectedDates = [];
         let routeSegments = []; // Holder priserne for hver kombineret strækning
+        let currentDonation = 0;
 
         const FERRY_AARHUS = [10.21396, 56.15720];
         const FERRY_ODDEN = [11.29615, 55.97330];
@@ -1092,7 +1111,24 @@
 
         function updatePriceUI() {
             document.getElementById('priceDisplay').innerText = currentPrice;
-            document.getElementById('payoutText').innerText = currentPrice;
+            
+            // Opdater max på donation slider (man kan max donere hele beløbet minus evt. platform fee, men vi lader den gå op til currentPrice - 20 eller bare currentPrice)
+            // Lader os sætte max donation til currentPrice, men sikrer vi er i bounds.
+            const donationSlider = document.getElementById('donationSlider');
+            donationSlider.max = currentPrice;
+            if (parseInt(donationSlider.value) > currentPrice) {
+                donationSlider.value = currentPrice;
+            }
+            updateDonationUI();
+        }
+
+        function updateDonationUI() {
+            const donationSlider = document.getElementById('donationSlider');
+            currentDonation = parseInt(donationSlider.value) || 0;
+            document.getElementById('donationDisplay').innerText = `${currentDonation} kr`;
+            
+            // Opdater payout i infokortet (payout er pris minus donation, da gebyret "er 0" for chaufføren som standard udover dette)
+            document.getElementById('payoutText').innerText = currentPrice - currentDonation;
         }
 
         // Helper til Date-objekter for at bygge korrekt rute-kombinatorik
@@ -1193,6 +1229,7 @@
                             
                             seats_available: parseInt(document.getElementById('seatsInput').value),
                             price_dkk: finalPrice, // Bruger nu den specifikke strækningspris!
+                            platform_donation: currentDonation,
                             car_model: currentUserCarDetails, 
                             status: 'active',
                             is_ferry: document.getElementById('swFerry').checked,
