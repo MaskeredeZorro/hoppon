@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="da">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HoppOn | Gennemsigtig Samkørsel (0 kr. i chaufførgebyr)</title>
-    <meta name="description" content="Find Danmarks billigste lift med HoppOn. Vi har droppet de høje gebyrer, så chaufføren beholder 100% og passageren sparer penge.">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+    <title>HoppOn | Gennemsigtig Samkørsel (0 kr. i gebyr)</title>
+    <meta name="description"
+        content="Find Danmarks billigste lift med HoppOn. Vi har droppet de høje gebyrer, så chaufføren beholder 100% og passageren sparer penge.">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="/style.css">
     <script src="/supabase.js"></script>
@@ -15,46 +18,165 @@
 
     <style>
         /* Specifikke styles kun for forsiden */
-        main { padding-top: 75px; }
-        
-        .hero-section { background: linear-gradient(135deg, var(--brand) 0%, #1e293b 100%); padding: 6rem 1rem 8rem 1rem; text-align: center; color: white; position: relative; overflow: hidden; }
-        .hero-content { max-width: 800px; margin: 0 auto; position: relative; z-index: 2; }
-        
+        main {
+            padding-top: 75px;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--brand) 0%, #1e293b 100%);
+            padding: 6rem 1rem 8rem 1rem;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
         /* Mellemrum strammet op */
-        .hero-top-text { margin-bottom: 0 !important; padding-bottom: 0; color: #cbd5e1; font-size: 1.25rem; font-weight: 500; }
-        .hero-title { font-size: 3.5rem; font-weight: 900; margin-top: 0 !important; margin-bottom: 5px !important; letter-spacing: -1.5px; line-height: 1.1; }
-        .hero-highlight { background-color: var(--accent); color: white; padding: 4px 12px; border-radius: 6px; font-weight: 800; display: inline-block; margin-top: 5px; font-size: 1.1rem;}
-        
-        .search-box { background: white; padding: 1rem; border-radius: 24px; display: flex; gap: 0.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4); max-width: 900px; margin: 3rem auto 0 auto; }
-        .search-input { flex: 1; padding: 16px 20px; border: none; background: #F1F5F9; border-radius: 16px; font-size: 1.1rem; font-weight: 600; color: var(--brand); outline: none; }
-        .search-input:focus { box-shadow: 0 0 0 2px var(--accent) inset; }
-        .search-btn { 
-            background: var(--accent); 
-            color: white; 
-            border: none; 
-            padding: 16px 2rem; /* Skruet lidt ned fra 3rem til 2rem så den ikke er unødigt bred */
-            border-radius: 16px; 
-            font-weight: 800; 
-            font-size: 1.1rem; 
-            cursor: pointer; 
-            transition: 0.2s; 
-            white-space: nowrap; /* FORHINDRER LINJESKIFT */
-            flex-shrink: 0;      /* FORHINDRER AT KNAPPEN BLIVER MAST */
-        }       
-        .search-btn:hover { background: var(--accent-hover); transform: scale(1.02); }
+        .hero-top-text {
+            margin-bottom: 0 !important;
+            padding-bottom: 0;
+            color: #cbd5e1;
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-top: 0 !important;
+            margin-bottom: 5px !important;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+        }
+
+        .hero-highlight {
+            background-color: var(--accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: 800;
+            display: inline-block;
+            margin-top: 5px;
+            font-size: 1.1rem;
+        }
+
+        .search-box {
+            background: white;
+            padding: 1rem;
+            border-radius: 24px;
+            display: flex;
+            gap: 0.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            max-width: 900px;
+            margin: 3rem auto 0 auto;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 16px 20px;
+            border: none;
+            background: #F1F5F9;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--brand);
+            outline: none;
+        }
+
+        .search-input:focus {
+            box-shadow: 0 0 0 2px var(--accent) inset;
+        }
+
+        .search-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 16px 2rem;
+            /* Skruet lidt ned fra 3rem til 2rem så den ikke er unødigt bred */
+            border-radius: 16px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+            /* FORHINDRER LINJESKIFT */
+            flex-shrink: 0;
+            /* FORHINDRER AT KNAPPEN BLIVER MAST */
+        }
+
+        .search-btn:hover {
+            background: var(--accent-hover);
+            transform: scale(1.02);
+        }
 
         @media (max-width: 768px) {
-            .hero-title { font-size: 2.5rem; }
-            .search-box { flex-direction: column; padding: 1rem; border-radius: 20px; }
-            .search-btn { width: 100%; }
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .search-box {
+                flex-direction: column;
+                padding: 1rem;
+                border-radius: 20px;
+            }
+
+            .search-btn {
+                width: 100%;
+            }
         }
 
         /* Value Props (Hvorfor HoppOn) */
-        .value-props { max-width: 1200px; margin: -3rem auto 5rem auto; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; padding: 0 1rem; position: relative; z-index: 3; }
-        .prop-card { background: white; padding: 2.5rem; border-radius: 24px; box-shadow: 0 10px 30px rgba(15,23,42,0.05); text-align: center; border: 1px solid var(--border); }
-        .prop-icon { width: 64px; height: 64px; background: #EEF2FF; color: var(--accent); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; font-size: 2rem; }
-        .prop-card h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 1rem; color: var(--brand); }
-        .prop-card p { color: var(--text-muted); line-height: 1.6; }
+        .value-props {
+            max-width: 1200px;
+            margin: -3rem auto 5rem auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 3;
+        }
+
+        .prop-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .prop-icon {
+            width: 64px;
+            height: 64px;
+            background: #EEF2FF;
+            color: var(--accent);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem auto;
+            font-size: 2rem;
+        }
+
+        .prop-card h3 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: var(--brand);
+        }
+
+        .prop-card p {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
 
         /* OPPDATERET KLASSE TIL TEKST-HIGHLIGHT I BOKSENE (Nu tekstfarve, ikke baggrund) */
         .text-highlight {
@@ -62,27 +184,108 @@
             font-weight: 800;
         }
 
-        @media (max-width: 900px) { .value-props { grid-template-columns: 1fr; margin-top: 2rem; } }
+        @media (max-width: 900px) {
+            .value-props {
+                grid-template-columns: 1fr;
+                margin-top: 2rem;
+            }
+        }
 
         /* SEO Tekst & Route Sektion */
-        .seo-section { max-width: 1000px; margin: 5rem auto; padding: 0 1.5rem; text-align: center; }
-        .seo-section h2 { font-size: 2.5rem; font-weight: 900; margin-bottom: 1.5rem; letter-spacing: -1px; }
-        .seo-section p { font-size: 1.1rem; color: var(--text-muted); line-height: 1.8; margin-bottom: 3rem; }
+        .seo-section {
+            max-width: 1000px;
+            margin: 5rem auto;
+            padding: 0 1.5rem;
+            text-align: center;
+        }
 
-        .route-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; text-align: left; }
-        .route-card { background: var(--surface); padding: 1.5rem; border-radius: 16px; border: 1px solid var(--border); text-decoration: none; color: var(--brand); display: flex; justify-content: space-between; align-items: center; transition: 0.2s; font-weight: 700; font-size: 1.1rem;}
-        .route-card:hover { border-color: var(--accent); box-shadow: 0 10px 20px rgba(99, 102, 241, 0.1); transform: translateY(-3px); }
-        .route-price { color: var(--success); font-weight: 800; }
+        .seo-section h2 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            letter-spacing: -1px;
+        }
 
-        @media (max-width: 600px) { .route-grid { grid-template-columns: 1fr; } }
+        .seo-section p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+            margin-bottom: 3rem;
+        }
+
+        .route-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            text-align: left;
+        }
+
+        .route-card {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            text-decoration: none;
+            color: var(--brand);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .route-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .route-price {
+            color: var(--success);
+            font-weight: 800;
+        }
+
+        @media (max-width: 600px) {
+            .route-grid {
+                grid-template-columns: 1fr;
+            }
+        }
 
         /* Bottom CTA */
-        .cta-section { background: var(--accent); padding: 5rem 1rem; text-align: center; color: white; margin-top: 4rem; }
-        .cta-section h2 { font-size: 2.5rem; font-weight: 900; margin-bottom: 1.5rem; }
-        .cta-btn { background: white; color: var(--brand); padding: 16px 40px; border-radius: 16px; text-decoration: none; font-weight: 800; font-size: 1.2rem; display: inline-block; transition: 0.2s; }
-        .cta-btn:hover { transform: scale(1.05); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .cta-section {
+            background: var(--accent);
+            padding: 5rem 1rem;
+            text-align: center;
+            color: white;
+            margin-top: 4rem;
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-btn {
+            background: white;
+            color: var(--brand);
+            padding: 16px 40px;
+            border-radius: 16px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 1.2rem;
+            display: inline-block;
+            transition: 0.2s;
+        }
+
+        .cta-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
+
 <body>
 
     <hoppon-header></hoppon-header>
@@ -92,8 +295,8 @@
             <div class="hero-content">
                 <p class="hero-top-text">Samkørsel i hele Danmark.</p>
                 <h1 class="hero-title">Find dit næste lift</h1>
-                <span class="hero-highlight">Altid gennemsigtige priser. 0 kr i chaufførgebyr.</span>
-                
+                <span class="hero-highlight">Altid gennemsigtige priser. 0 kr i gebyr.</span>
+
                 <div class="search-box">
                     <input type="text" id="frontFrom" class="search-input" placeholder="Hvorfra? (f.eks. Aarhus)">
                     <input type="text" id="frontTo" class="search-input" placeholder="Hvorhen? (f.eks. København)">
@@ -106,24 +309,30 @@
             <div class="prop-card">
                 <div class="prop-icon">💸</div>
                 <h3>Gennemsigtige priser</h3>
-                <p>HoppOn gør samkørsel fair. <span class="text-highlight">Chaufføren betaler 0 kr. i gebyr</span> og beholder hele sin indtjening.<br>For dig som passager betyder det <span class="text-highlight">100% gennemsigtige priser</span> - det du ser i søgningen, er præcis det du betaler ved kassen!</p>
+                <p>HoppOn gør samkørsel fair. <span class="text-highlight">Chaufføren betaler 0 kr. i gebyr</span> og
+                    beholder hele sin indtjening.<br>For dig som passager betyder det <span class="text-highlight">100%
+                        gennemsigtige priser</span> - det du ser i søgningen, er præcis det du betaler ved kassen!</p>
             </div>
             <div class="prop-card">
                 <div class="prop-icon">🛡️</div>
                 <h3>Trygt & Verificeret</h3>
-                <p>Alle brugere verificeres via vores sikre system. <span class="text-highlight">Læs anmeldelser</span> fra andre passagerer før du booker dit næste lift.</p>
+                <p>Alle brugere verificeres via vores sikre system. <span class="text-highlight">Læs anmeldelser</span>
+                    fra andre passagerer før du booker dit næste lift.</p>
             </div>
             <div class="prop-card">
                 <div class="prop-icon">⚡</div>
                 <h3>Lynbooking & Færge</h3>
-                <p>Filtrér på ruter der bruger <span class="text-highlight">færgen</span> for en hurtigere tur, og brug <span class="text-highlight">Lynbooking</span> for øjeblikkelig bekræftelse af dit sæde.</p>
+                <p>Filtrér på ruter der bruger <span class="text-highlight">færgen</span> for en hurtigere tur, og brug
+                    <span class="text-highlight">Lynbooking</span> for øjeblikkelig bekræftelse af dit sæde.</p>
             </div>
         </section>
 
         <section class="seo-section">
             <h2>Danmarks nye dedikerede samkørsels-netværk</h2>
-            <p>Uanset om du er pendler mellem <strong>Aarhus og Odense</strong>, eller skal hjem på weekend fra <strong>København til Aalborg</strong>, gør HoppOn det nemt at finde et billigt lift. Samkørsel er ikke bare godt for din pengepung - det reducerer også CO2-udledningen på de danske motorveje markant.</p>
-            
+            <p>Uanset om du er pendler mellem <strong>Aarhus og Odense</strong>, eller skal hjem på weekend fra
+                <strong>København til Aalborg</strong>, gør HoppOn det nemt at finde et billigt lift. Samkørsel er ikke
+                bare godt for din pengepung - det reducerer også CO2-udledningen på de danske motorveje markant.</p>
+
             <div class="route-grid">
                 <a href="/lift?fra=Aarhus&til=København" class="route-card">
                     <span>Aarhus ➔ København</span>
@@ -146,7 +355,8 @@
 
         <section class="cta-section">
             <h2>Har du ledige sæder i bilen?</h2>
-            <p style="font-size: 1.2rem; margin-bottom: 2rem; color: #E0E7FF;">Opret din tur på 30 sekunder og lad passagererne betale for dit brændstof.</p>
+            <p style="font-size: 1.2rem; margin-bottom: 2rem; color: #E0E7FF;">Opret din tur på 30 sekunder og lad
+                passagererne betale for dit brændstof.</p>
             <a href="/opret-tur" class="cta-btn">Udbyd en tur nu</a>
         </section>
     </main>
@@ -158,15 +368,15 @@
         window.onload = async () => {
             if (typeof _supabase !== 'undefined') {
                 const { data: { session } } = await _supabase.auth.getSession();
-                
+
                 if (session) {
                     const loginBtn = document.querySelector('.nav-btn-login');
-                    if(loginBtn) {
+                    if (loginBtn) {
                         loginBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Log ud`;
-                        loginBtn.onclick = async (e) => { 
-                            e.preventDefault(); 
-                            await _supabase.auth.signOut(); 
-                            location.reload(); 
+                        loginBtn.onclick = async (e) => {
+                            e.preventDefault();
+                            await _supabase.auth.signOut();
+                            location.reload();
                         };
                     }
                 }
@@ -182,4 +392,5 @@
         }
     </script>
 </body>
+
 </html>
