@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="da">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
+
     <title>Lift Detaljer | HoppOn Samkørsel</title>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -20,8 +22,8 @@
 
     <style>
         :root {
-            --brand: #0F172A; 
-            --accent: #6366F1; 
+            --brand: #0F172A;
+            --accent: #6366F1;
             --surface: #FFFFFF;
             --bg-color: #F8FAFC;
             --border: #E2E8F0;
@@ -30,64 +32,275 @@
             --pink: #BE185D;
         }
 
-        *, *::before, *::after { box-sizing: border-box; }
-        body { 
-            margin: 0; 
-            padding: 0; 
-            background: var(--bg-color); 
-            font-family: 'Inter', sans-serif; 
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-color);
+            font-family: 'Inter', sans-serif;
             color: var(--brand);
             overflow-x: hidden;
         }
 
-        main-content { display: block; padding-top: 80px; min-height: 100vh; padding-bottom: 100px;}
+        main-content {
+            display: block;
+            padding-top: 80px;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
 
         /* --- LAYOUT --- */
-        .page-container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
 
-        .page-title { font-size: 2.2rem; font-weight: 900; margin: 0 0 5px 0; letter-spacing: -1px; }
-        .page-subtitle { font-size: 1.1rem; color: var(--accent); font-weight: 800; text-transform: uppercase; margin-bottom: 2rem; }
+        .page-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin: 0 0 5px 0;
+            letter-spacing: -1px;
+        }
 
-        .content-grid { display: grid; grid-template-columns: 1fr 380px; gap: 2.5rem; align-items: start; }
-        .left-col { display: flex; flex-direction: column; gap: 1.5rem; }
-        .right-sidebar { position: sticky; top: 90px; display: flex; flex-direction: column; gap: 1.5rem; }
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: var(--accent);
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 2.5rem;
+            align-items: start;
+        }
+
+        .left-col {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .right-sidebar {
+            position: sticky;
+            top: 90px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
 
         /* --- GENERISKE KORT --- */
-        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; }
-        h2 { font-size: 1.3rem; font-weight: 800; margin: 0 0 1.2rem 0; letter-spacing: -0.5px; }
-        
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+        }
+
+        h2 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin: 0 0 1.2rem 0;
+            letter-spacing: -0.5px;
+        }
+
         /* --- RUTE OVERBLIK --- */
-        .route-timeline { display: flex; flex-direction: column; position: relative; gap: 1.5rem; }
-        .route-timeline::before { content: ''; position: absolute; left: 9px; top: 15px; bottom: 15px; width: 3px; background: var(--border); border-radius: 3px; }
-        .stop { display: flex; gap: 15px; position: relative; z-index: 2; align-items: flex-start;}
-        .stop-dot { width: 20px; height: 20px; background: white; border: 4px solid var(--brand); border-radius: 50%; margin-top: 2px;}
-        .stop-dot.accent { border-color: var(--accent); }
-        .stop-info .time { font-size: 1.4rem; font-weight: 900; line-height: 1; margin-bottom: 4px; display: block;}
-        .stop-info .city { font-size: 1rem; font-weight: 600; color: var(--text-muted); }
-        .stop-info .address { font-size: 0.85rem; color: #94A3B8; margin-top: 2px; }
+        .route-timeline {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            gap: 1.5rem;
+        }
+
+        .route-timeline::before {
+            content: '';
+            position: absolute;
+            left: 9px;
+            top: 15px;
+            bottom: 15px;
+            width: 3px;
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .stop {
+            display: flex;
+            gap: 15px;
+            position: relative;
+            z-index: 2;
+            align-items: flex-start;
+        }
+
+        .stop-dot {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border: 4px solid var(--brand);
+            border-radius: 50%;
+            margin-top: 2px;
+        }
+
+        .stop-dot.accent {
+            border-color: var(--accent);
+        }
+
+        .stop-info .time {
+            font-size: 1.4rem;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .stop-info .city {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .stop-info .address {
+            font-size: 0.85rem;
+            color: #94A3B8;
+            margin-top: 2px;
+        }
 
         /* --- SPLIT GRID --- */
-        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
 
         /* --- PREFERENCES & BADGES --- */
-        .badge-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.5rem; }
-        .badge { padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; border: 1px solid var(--border); background: var(--bg-color); color: var(--text-muted); display: flex; align-items: center; gap: 6px;}
-        .b-ferry { background: #E0F2FE; color: #0284C7; border-color: #BAE6FD; }
-        .b-pink { background: #FCE7F3; color: #BE185D; border-color: #FBCFE8; }
-        .b-instant { background: #FEF3C7; color: #B45309; border-color: #FDE68A; }
-        .driver-comment { background: #F1F5F9; padding: 1rem; border-radius: 12px; font-style: italic; color: #475569; font-size: 0.95rem; border-left: 4px solid var(--accent); margin-top: 1rem; }
-        .stat-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--border); font-size: 0.95rem; font-weight: 500;}
-        .stat-row:last-child { border-bottom: none; }
+        .badge-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border: 1px solid var(--border);
+            background: var(--bg-color);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .b-ferry {
+            background: #E0F2FE;
+            color: #0284C7;
+            border-color: #BAE6FD;
+        }
+
+        .b-pink {
+            background: #FCE7F3;
+            color: #BE185D;
+            border-color: #FBCFE8;
+        }
+
+        .b-instant {
+            background: #FEF3C7;
+            color: #B45309;
+            border-color: #FDE68A;
+        }
+
+        .driver-comment {
+            background: #F1F5F9;
+            padding: 1rem;
+            border-radius: 12px;
+            font-style: italic;
+            color: #475569;
+            font-size: 0.95rem;
+            border-left: 4px solid var(--accent);
+            margin-top: 1rem;
+        }
+
+        .stat-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px dashed var(--border);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
 
         /* --- CHAUFFØR PROFIL --- */
-        .driver-header-wrap { cursor: pointer; transition: 0.2s; padding: 10px; margin: -10px; border-radius: 16px;}
-        .driver-header-wrap:hover { background: #F8FAFC; }
-        .driver-header { display: flex; align-items: center; gap: 15px; margin-bottom: 0.5rem;} 
-        .avatar-lg { width: 55px; height: 55px; border-radius: 50%; background: #E2E8F0; object-fit: cover; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; overflow: hidden; flex-shrink: 0;}
-        .avatar-lg img { width: 100%; height: 100%; object-fit: cover; }
-        .driver-name { font-size: 1.2rem; font-weight: 800; margin: 0; }
-        .driver-meta { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; display: flex; align-items: center; gap: 5px; margin-top: 4px;}
-        
+        .driver-header-wrap {
+            cursor: pointer;
+            transition: 0.2s;
+            padding: 10px;
+            margin: -10px;
+            border-radius: 16px;
+        }
+
+        .driver-header-wrap:hover {
+            background: #F8FAFC;
+        }
+
+        .driver-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 0.5rem;
+        }
+
+        .avatar-lg {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: #E2E8F0;
+            object-fit: cover;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .avatar-lg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .driver-name {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .driver-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 4px;
+        }
+
         /* NY CHAT KNAP (Lille, under profil) */
         .btn-message-driver {
             display: inline-flex;
@@ -105,31 +318,108 @@
             margin-top: 10px;
             margin-left: 10px;
         }
+
         .btn-message-driver:hover {
             background: #DBEAFE;
         }
 
-        .gomore-badge { background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px; border-radius: 16px; display: flex; gap: 15px; align-items: center; margin-bottom: 1.2rem; margin-top: 0.5rem;}
-        .gomore-icon { background: var(--success); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;}
-        .co2-box { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 1rem;}
+        .gomore-badge {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 12px;
+            border-radius: 16px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            margin-top: 0.5rem;
+        }
+
+        .gomore-icon {
+            background: var(--success);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .co2-box {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 1rem;
+        }
 
         /* --- MAP & BOOKING BOKS (Højre kolonne) --- */
-        .map-card { padding: 10px; height: 250px; }
-        #map { width: 100%; height: 100%; border-radius: 12px; background: #E2E8F0; z-index: 1;}
-        
-        .booking-card { text-align: center; }
-        .price-huge { font-size: 2.5rem; font-weight: 900; color: var(--brand); letter-spacing: -1px; margin-bottom: 5px; }
-        .seats-left { color: var(--success); font-weight: 700; font-size: 0.95rem; margin-bottom: 1.5rem; display: block; }
-        
+        .map-card {
+            padding: 10px;
+            height: 250px;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            background: #E2E8F0;
+            z-index: 1;
+        }
+
+        .booking-card {
+            text-align: center;
+        }
+
+        .price-huge {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--brand);
+            letter-spacing: -1px;
+            margin-bottom: 5px;
+        }
+
+        .seats-left {
+            color: var(--success);
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
         /* Primær Book-knap */
-        .btn-book { width: 100%; background: var(--accent); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: 0.2s; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3); }
-        .btn-book:hover { transform: translateY(-2px); box-shadow: 0 15px 20px -3px rgba(99, 102, 241, 0.4); }
+        .btn-book {
+            width: 100%;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-book:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 20px -3px rgba(99, 102, 241, 0.4);
+        }
 
         /* NY CHAT KNAP (Stor, under Book-knap) */
         .btn-message-sidebar {
             width: 100%;
-            background: #EEF2FF; /* Lys indigo */
-            color: var(--accent); 
+            background: #EEF2FF;
+            /* Lys indigo */
+            color: var(--accent);
             border: 2px solid #E0E7FF;
             padding: 14px;
             border-radius: 12px;
@@ -138,38 +428,121 @@
             cursor: pointer;
             transition: 0.2s;
             margin-top: 10px;
-            display: none; /* Skjult indtil vi ved brugeren ikke er chauffør */
+            display: none;
+            /* Skjult indtil vi ved brugeren ikke er chauffør */
             align-items: center;
             justify-content: center;
             gap: 8px;
         }
+
         .btn-message-sidebar:hover {
             background: #E0E7FF;
             border-color: #C7D2FE;
         }
 
         /* LOADERS */
-        #globalLoader { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg-color); display: flex; flex-direction:column; justify-content: center; align-items: center; z-index: 2000; }
-        .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;}
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #globalLoader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
 
         /* MOBILE FIXES */
-        .mobile-booking-bar { display: none; }
+        .mobile-booking-bar {
+            display: none;
+        }
 
         @media (max-width: 900px) {
-            .page-container { padding: 1rem; }
-            .content-grid { grid-template-columns: 1fr; }
-            .details-grid { grid-template-columns: 1fr; }
-            .right-sidebar { position: static; } 
-            .booking-card { display: none; }
-            
-            .mobile-booking-bar { display: flex; position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid var(--border); padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 1000; align-items: center; justify-content: space-between; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
-            .mb-price { font-size: 1.8rem; font-weight: 900; color: var(--brand); line-height: 1;}
-            .mb-seats { font-size: 0.8rem; color: var(--success); font-weight: 700;}
-            .btn-book-mobile { background: var(--accent); color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 800; font-size: 1rem;}
+            .page-container {
+                padding: 1rem;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .right-sidebar {
+                position: static;
+            }
+
+            .booking-card {
+                display: none;
+            }
+
+            .mobile-booking-bar {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                background: white;
+                border-top: 1px solid var(--border);
+                padding: 15px 20px;
+                box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+                z-index: 1000;
+                align-items: center;
+                justify-content: space-between;
+                padding-bottom: calc(15px + env(safe-area-inset-bottom));
+            }
+
+            .mb-price {
+                font-size: 1.8rem;
+                font-weight: 900;
+                color: var(--brand);
+                line-height: 1;
+            }
+
+            .mb-seats {
+                font-size: 0.8rem;
+                color: var(--success);
+                font-weight: 700;
+            }
+
+            .btn-book-mobile {
+                background: var(--accent);
+                color: white;
+                border: none;
+                padding: 12px 30px;
+                border-radius: 12px;
+                font-weight: 800;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <div id="globalLoader">
@@ -181,16 +554,16 @@
 
     <main-content id="mainContent" style="display: none;">
         <div class="page-container">
-            
+
             <div>
                 <h1 class="page-title" id="pageTitle">Henter...</h1>
                 <div class="page-subtitle" id="rDate">Læser dato...</div>
             </div>
-            
+
             <div class="content-grid">
-                
+
                 <div class="left-col">
-                    
+
                     <div class="card">
                         <div class="route-timeline">
                             <div class="stop">
@@ -213,10 +586,10 @@
                     </div>
 
                     <div class="details-grid">
-                        
+
                         <div class="card" id="driverSection" style="margin: 0;">
                             <h2>Chauffør</h2>
-                            
+
                             <div class="driver-header-wrap" onclick="goToDriverProfile()" title="Se fuld profil">
                                 <div class="driver-header">
                                     <div class="avatar-lg" id="dAvatar">👤</div>
@@ -225,13 +598,20 @@
                                         <div class="driver-meta">
                                             ⭐ <span id="dRatingMini">--</span> (<span id="dReviewsMini">0</span>)
                                         </div>
-                                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top:2px;" id="dAge"></div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top:2px;"
+                                            id="dAge"></div>
                                     </div>
-                                    <div style="margin-left:auto; color:var(--text-muted);"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+                                    <div style="margin-left:auto; color:var(--text-muted);"><svg
+                                            xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="9 18 15 12 9 6"></polyline>
+                                        </svg></div>
                                 </div>
                             </div>
 
-                            <button class="btn-message-driver" id="btnMessageDriver" onclick="messageDriver()" style="display: none;">
+                            <button class="btn-message-driver" id="btnMessageDriver" onclick="messageDriver()"
+                                style="display: none;">
                                 <i class="fa-regular fa-comment-dots"></i> Spørg chauffør
                             </button>
 
@@ -248,19 +628,21 @@
                                 <span style="font-size: 1.5rem;">🌱</span>
                                 <div>
                                     <div style="font-weight: 800; color: var(--success);" id="dCo2">0 kg CO₂</div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Sparet ved samkørsel</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Sparet
+                                        ved samkørsel</div>
                                 </div>
                             </div>
 
                             <div id="dBioBox" style="margin-top: 1rem; display:none;">
-                                <p style="margin:0; font-size:0.9rem; color: var(--text-muted); line-height: 1.5; font-style: italic;" id="dBio"></p>
+                                <p style="margin:0; font-size:0.9rem; color: var(--text-muted); line-height: 1.5; font-style: italic;"
+                                    id="dBio"></p>
                             </div>
                         </div>
 
                         <div class="card" style="margin: 0;">
                             <h2>Turens detaljer</h2>
                             <div class="badge-list" id="rBadges"></div>
-                            
+
                             <div class="stat-row">
                                 <span>🎒 Max bagage:</span>
                                 <strong style="margin-left:auto" id="rLuggage">Mellem</strong>
@@ -279,23 +661,26 @@
                 </div>
 
                 <aside class="right-sidebar">
-                    
+
                     <div class="card map-card">
                         <div id="map"></div>
                     </div>
 
                     <div class="card booking-card">
-                        <div style="font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 5px;">Pris pr. plads</div>
+                        <div
+                            style="font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 5px;">
+                            Pris pr. plads</div>
                         <div class="price-huge" id="bPrice">-- kr</div>
                         <div class="seats-left" id="bSeats">✔️ -- pladser tilbage</div>
-                        
+
                         <button class="btn-book" onclick="handleBooking()">Book plads</button>
-                        
+
                         <button class="btn-message-sidebar" id="btnMessageSidebar" onclick="messageDriver()">
                             <i class="fa-regular fa-comment-dots"></i> Spørg chauffør
                         </button>
 
-                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 15px;">Du betaler først når anmodningen er godkendt.</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 15px;">Du betaler først når
+                            anmodningen er godkendt.</div>
                     </div>
 
                 </aside>
@@ -342,7 +727,7 @@
 
         // --- NAVIGATION TIL PROFIL ---
         function goToDriverProfile() {
-            if(driverProfile && driverProfile.id) {
+            if (driverProfile && driverProfile.id) {
                 window.location.href = "/bruger?id=" + driverProfile.id;
             }
         }
@@ -356,7 +741,7 @@
                 }
                 return;
             }
-            
+
             // Send til chat-siden
             window.location.href = `/samtale?user=${driverProfile.id}&ride=${currentRide.id}`;
         }
@@ -395,10 +780,10 @@
                     .select('id', { count: 'exact', head: true })
                     .eq('driver_id', driverProfile.id)
                     .eq('status', 'completed');
-                    
+
                 let totalRides = ridesAsDriver || 0;
-                if(driverProfile.manual_ride_count) totalRides += parseInt(driverProfile.manual_ride_count);
-                
+                if (driverProfile.manual_ride_count) totalRides += parseInt(driverProfile.manual_ride_count);
+
                 populateUI(totalRides);
                 document.getElementById('globalLoader').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
@@ -420,14 +805,14 @@
             const destCityShort = currentRide.destination_city.split(',')[0];
 
             document.getElementById('pageTitle').innerText = `${originCityShort} → ${destCityShort}`;
-            document.getElementById('rDate').innerText = depDate.toLocaleDateString('da-DK', { weekday:'long', day:'numeric', month:'long' });
-            
-            document.getElementById('rDepTime').innerText = depDate.toLocaleTimeString('da-DK', { hour:'2-digit', minute:'2-digit' });
+            document.getElementById('rDate').innerText = depDate.toLocaleDateString('da-DK', { weekday: 'long', day: 'numeric', month: 'long' });
+
+            document.getElementById('rDepTime').innerText = depDate.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
             document.getElementById('rDepCity').innerText = originCityShort;
             document.getElementById('rDepAddr').innerText = currentRide.origin_city;
 
-            if(arrDate) {
-                document.getElementById('rArrTime').innerText = arrDate.toLocaleTimeString('da-DK', { hour:'2-digit', minute:'2-digit' });
+            if (arrDate) {
+                document.getElementById('rArrTime').innerText = arrDate.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
             }
             document.getElementById('rArrCity').innerText = destCityShort;
             document.getElementById('rArrAddr').innerText = currentRide.destination_city;
@@ -442,7 +827,7 @@
             if (currentRide.pref_kids) bHTML += `<span class="badge">👶 Børn</span>`;
             if (currentRide.pref_music) bHTML += `<span class="badge">🎵 Musik</span>`;
             if (currentRide.pref_smoking) bHTML += `<span class="badge">🚬 Rygning</span>`;
-            
+
             document.getElementById('rBadges').innerHTML = bHTML;
             document.getElementById('rLuggage').innerText = currentRide.luggage_size || "Ikke angivet";
 
@@ -450,15 +835,15 @@
             try {
                 const car = typeof currentRide.car_model === 'string' ? JSON.parse(currentRide.car_model) : currentRide.car_model;
                 carStr = `${car.make} ${car.model}`;
-            } catch(e){}
+            } catch (e) { }
             document.getElementById('rCar').innerText = carStr;
 
-            if(currentRide.comment) {
+            if (currentRide.comment) {
                 document.getElementById('rCommentBox').style.display = 'block';
                 document.getElementById('rCommentText').innerText = `"${currentRide.comment}"`;
             }
 
-            const finalPrice = Math.ceil(currentRide.price_dkk * 1.05);
+            const finalPrice = currentRide.price_dkk;
 
             document.getElementById('bPrice').innerText = `${finalPrice} kr`;
             document.getElementById('bSeats').innerText = `✔️ ${currentRide.seats_available} pladser tilbage`;
@@ -466,29 +851,29 @@
             document.getElementById('mbSeats').innerText = `✔️ ${currentRide.seats_available} pladser`;
 
             document.getElementById('dName').innerText = driverProfile.full_name || "Anonym";
-            if(driverProfile.avatar_url) {
+            if (driverProfile.avatar_url) {
                 document.getElementById('dAvatar').innerHTML = `<img src="${driverProfile.avatar_url}" alt="Profilbillede">`;
             } else {
                 document.getElementById('dAvatar').innerText = driverProfile.full_name ? driverProfile.full_name[0] : "👤";
             }
             document.getElementById('dTotalRides').innerText = totalRides;
 
-            if(driverProfile.created_at) {
+            if (driverProfile.created_at) {
                 const created = new Date(driverProfile.created_at);
                 document.getElementById('dAge').innerText = "Medlem siden " + created.getFullYear();
             }
 
-            if(driverProfile.bio) {
+            if (driverProfile.bio) {
                 document.getElementById('dBioBox').style.display = 'block';
                 document.getElementById('dBio').innerText = `"${driverProfile.bio}"`;
             }
 
-            if(driverProfile.co2_saved_kg && driverProfile.co2_saved_kg > 0) {
+            if (driverProfile.co2_saved_kg && driverProfile.co2_saved_kg > 0) {
                 document.getElementById('co2Box').style.display = 'flex';
                 document.getElementById('dCo2').innerText = `${driverProfile.co2_saved_kg} kg CO₂`;
             }
 
-            if(driverProfile.manual_ride_count != null && driverProfile.manual_rating != null) {
+            if (driverProfile.manual_ride_count != null && driverProfile.manual_rating != null) {
                 document.getElementById('gomoreBadgeContainer').innerHTML = `
                     <div class="gomore-badge">
                         <div class="gomore-icon">😊</div>
@@ -517,7 +902,7 @@
 
         async function initMap(originStr, destStr) {
             const map = L.map('map').setView([56.0, 10.0], 6);
-            
+
             L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                 attribution: '&copy; OpenStreetMap'
             }).addTo(map);
@@ -535,7 +920,7 @@
                 if (originCoords && destCoords) {
                     L.marker(originCoords).addTo(map).bindPopup("Start");
                     L.marker(destCoords).addTo(map).bindPopup("Mål");
-                    L.polyline([originCoords, destCoords], {color: '#6366F1', weight: 4, dashArray: '10, 10'}).addTo(map);
+                    L.polyline([originCoords, destCoords], { color: '#6366F1', weight: 4, dashArray: '10, 10' }).addTo(map);
                     const bounds = L.latLngBounds(originCoords, destCoords);
                     map.fitBounds(bounds, { padding: [30, 30] });
                 }
@@ -554,9 +939,10 @@
                 alert("Du kan ikke booke din egen tur!");
                 return;
             }
-            
+
             window.location.href = '/lift/book.html?id=' + (currentRide.ride_number || currentRide.id);
         }
     </script>
 </body>
+
 </html>
