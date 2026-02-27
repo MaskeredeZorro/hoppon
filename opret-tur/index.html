@@ -1724,8 +1724,8 @@
                 const maxPrice = Math.floor((cachedDistanceKm * 3.73 + ferryCost) / seats);
 
                 if (currentPrice === 0 || currentPrice > maxPrice) {
-                    let recommended = Math.floor(cachedDistanceKm * 1.0);
-                    if (recommended > 150) recommended = 150;
+                    let recommended = Math.floor(cachedDistanceKm * 0.9);
+                    if (recommended > 125) recommended = 125;
                     if (recommended < 20) recommended = 20;
                     recommended = Math.round(recommended / 5) * 5;
 
