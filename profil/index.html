@@ -1,224 +1,1312 @@
 <!DOCTYPE html>
 <html lang="da">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Min Profil | HoppOn</title>
-    
+
     <link rel="icon" href="https://i.imgur.com/4oGYz8n.png" type="image/png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="/style.css">
     <script src="/supabase.js"></script>
     <script src="/components.js" defer></script>
 
     <style>
-        main { padding-top: 100px; padding-bottom: 5rem; background: #F8FAFC; min-height: 100vh; }
-        
-        .profile-container { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem; display: grid; grid-template-columns: 1fr 2.2fr; gap: 1.5rem; }
+        /* ==========================================
+           End Trip Modal
+        ========================================== */
+        #endTripModal .modal-box {
+            max-height: 85vh;
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        .end-trip-step {
+            display: none;
+        }
+
+        .end-trip-step.active {
+            display: block;
+        }
+
+        .passenger-rate-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: #F8FAFC;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .passenger-rate-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .passenger-rate-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #E2E8F0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            overflow: hidden;
+        }
+
+        .passenger-rate-name {
+            font-weight: 600;
+        }
+
+        .passenger-rate-stars {
+            display: flex;
+            gap: 5px;
+            font-size: 1.5rem;
+            color: #E2E8F0;
+            cursor: pointer;
+        }
+
+        .passenger-rate-stars span:hover,
+        .passenger-rate-stars span.active {
+            color: #F59E0B;
+        }
+
+        .donation-box {
+            background: #F0F9FF;
+            border: 1px solid #BAE6FD;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .donation-title {
+            font-weight: bold;
+            color: #0369A1;
+            margin-bottom: 5px;
+        }
+
+        .donation-desc {
+            font-size: 0.9rem;
+            color: #0C4A6E;
+            margin-bottom: 15px;
+        }
+
+        .donation-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 1px solid #CBD5E1;
+        }
+
+        .donation-input-group input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 1rem;
+            background: transparent;
+        }
+
+        .donation-input-group span {
+            font-weight: 600;
+            color: #475569;
+        }
+
+        main {
+            padding-top: 100px;
+            padding-bottom: 5rem;
+            background: #F8FAFC;
+            min-height: 100vh;
+        }
+
+        .profile-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 2.2fr;
+            gap: 1.5rem;
+        }
 
         /* KORT STYLES */
-        .card { background: white; border-radius: 20px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--border); margin-bottom: 1.5rem; }
-        
-        /* VENSTRE: BRUGERINFO */
-        .user-card { text-align: center; height: fit-content; position: sticky; top: 90px; }
-        .avatar { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; background: #E2E8F0; margin: 0 auto 1rem auto; border: 4px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-        .user-name { font-size: 1.5rem; font-weight: 900; color: var(--brand); margin-bottom: 0.3rem; letter-spacing: -0.5px; }
-        .user-meta { color: var(--text-muted); font-size: 0.9rem; font-weight: 500; margin-bottom: 5px; }
-        
-        .badges-container { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; margin: 1.2rem 0; padding-top: 1.2rem; border-top: 1px solid #F1F5F9;}
-        .badge-verified { display: inline-flex; align-items: center; gap: 6px; color: var(--brand); font-size: 0.9rem; font-weight: 600;}
-        .badge-verified svg { color: #10B981; }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
 
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; text-align: center; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1rem; margin-top: 1.5rem; }
-        .stat-item h4 { margin: 0 0 2px 0; font-size: 1.3rem; font-weight: 900; color: var(--brand); display: flex; justify-content: center; align-items: center; gap: 5px;}
-        .stat-item p { margin: 0; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700;}
+        /* VENSTRE: BRUGERINFO */
+        .user-card {
+            text-align: center;
+            height: fit-content;
+            position: sticky;
+            top: 90px;
+        }
+
+        .avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #E2E8F0;
+            margin: 0 auto 1rem auto;
+            border: 4px solid white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .user-name {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--brand);
+            margin-bottom: 0.3rem;
+            letter-spacing: -0.5px;
+        }
+
+        .user-meta {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .badges-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-start;
+            margin: 1.2rem 0;
+            padding-top: 1.2rem;
+            border-top: 1px solid #F1F5F9;
+        }
+
+        .badge-verified {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--brand);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .badge-verified svg {
+            color: #10B981;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            text-align: center;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-item h4 {
+            margin: 0 0 2px 0;
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: var(--brand);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-item p {
+            margin: 0;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
 
         /* SHARE BUTTON */
-        .btn-share { width: 100%; background: var(--accent); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 1.5rem; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
-        .btn-share:hover { transform: translateY(-2px); background: var(--accent-hover); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); }
+        .btn-share {
+            width: 100%;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-share:hover {
+            transform: translateY(-2px);
+            background: var(--accent-hover);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
 
         /* BALANCE & PAYOUT */
-        .balance-box { background: var(--brand); color: white; padding: 1.5rem; border-radius: 16px; text-align: center; margin-top: 1.5rem;}
-        .balance-amount { font-size: 2rem; font-weight: 900; margin: 5px 0; }
-        .pending-amount { font-size: 0.85rem; color: #94A3B8; margin-bottom: 15px; }
-        .btn-payout { width: 100%; background: white; color: var(--brand); border: none; padding: 10px; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
-        .btn-payout:hover { background: #f1f5f9; transform: translateY(-1px); }
-        .btn-payout:disabled { background: rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); cursor: not-allowed; transform: none; }
+        .balance-box {
+            background: var(--brand);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .balance-amount {
+            font-size: 2rem;
+            font-weight: 900;
+            margin: 5px 0;
+        }
+
+        .pending-amount {
+            font-size: 0.85rem;
+            color: #94A3B8;
+            margin-bottom: 15px;
+        }
+
+        .btn-payout {
+            width: 100%;
+            background: white;
+            color: var(--brand);
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .btn-payout:hover {
+            background: #f1f5f9;
+            transform: translateY(-1px);
+        }
+
+        .btn-payout:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.5);
+            cursor: not-allowed;
+            transform: none;
+        }
 
         /* TABS */
-        .tabs { display: flex; gap: 0.5rem; background: white; padding: 0.5rem; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid var(--border); overflow-x: auto; margin-bottom: 1.5rem;}
-        .tab-btn { flex: 1; padding: 12px 15px; border: none; background: transparent; font-weight: 700; font-size: 0.95rem; color: var(--text-muted); cursor: pointer; border-radius: 12px; transition: 0.2s; white-space: nowrap;}
-        .tab-btn.active { background: var(--brand); color: white; }
-        .tab-content { display: none; animation: fadeIn 0.3s ease; }
-        .tab-content.active { display: block; }
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: white;
+            padding: 0.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+        }
 
-        .sub-tabs { display: flex; background: #F1F5F9; border-radius: 25px; padding: 4px; margin-bottom: 1.5rem; }
-        .sub-tab-btn { flex: 1; text-align: center; padding: 10px; border-radius: 25px; font-weight: 700; font-size: 0.95rem; cursor: pointer; color: #64748B; transition: 0.2s; border: none; background: transparent; }
-        .sub-tab-btn.active { background: var(--accent); color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .sub-tab-content { display: none; }
-        .sub-tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        .tab-btn {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            background: transparent;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 12px;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: var(--brand);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .sub-tabs {
+            display: flex;
+            background: #F1F5F9;
+            border-radius: 25px;
+            padding: 4px;
+            margin-bottom: 1.5rem;
+        }
+
+        .sub-tab-btn {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            color: #64748B;
+            transition: 0.2s;
+            border: none;
+            background: transparent;
+        }
+
+        .sub-tab-btn.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .sub-tab-content {
+            display: none;
+        }
+
+        .sub-tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
 
         /* HØJRE: BIO & REVIEWS (TIGHT LAYOUT) */
-        .detail-card h3 { font-size: 1.1rem; font-weight: 800; color: var(--brand); margin-bottom: 0.8rem; border-bottom: 2px solid #F1F5F9; padding-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;}
-        
-        .tight-top-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; margin-bottom: 1.5rem; }
-        @media (max-width: 768px) { .tight-top-grid { grid-template-columns: 1fr; gap: 1.5rem; } }
+        .detail-card h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--brand);
+            margin-bottom: 0.8rem;
+            border-bottom: 2px solid #F1F5F9;
+            padding-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-        .bio-text { font-size: 0.95rem; line-height: 1.5; color: var(--text-main); white-space: pre-wrap; margin: 0;}
-        
-        .gomore-badge { background: #F0FDF4; border: 1px solid #10B981; padding: 0.8rem 1rem; border-radius: 12px; display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem;}
-        .gomore-badge .icon-box { background: #10B981; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;}
-        .gomore-badge h4 { color: #166534; margin: 0 0 2px 0; font-weight: 800; font-size: 0.95rem;}
-        .gomore-badge p { color: #15803D; margin: 0; font-size: 0.85rem; font-weight: 600;}
+        .tight-top-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .tight-top-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        .bio-text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text-main);
+            white-space: pre-wrap;
+            margin: 0;
+        }
+
+        .gomore-badge {
+            background: #F0FDF4;
+            border: 1px solid #10B981;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .gomore-badge .icon-box {
+            background: #10B981;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .gomore-badge h4 {
+            color: #166534;
+            margin: 0 0 2px 0;
+            font-weight: 800;
+            font-size: 0.95rem;
+        }
+
+        .gomore-badge p {
+            color: #15803D;
+            margin: 0;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
 
         /* RATINGS BREAKDOWN */
-        .btn-text { color: var(--accent); font-weight: 800; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; padding: 0;}
-        .btn-text:hover { opacity: 0.8; }
-        
-        .rating-grid { display: flex; gap: 1.5rem; align-items: center; }
-        .rating-bars { flex: 1; display: flex; flex-direction: column; gap: 5px;}
-        .rating-bar-row { display: flex; align-items: center; gap: 8px; cursor: pointer; opacity: 1; transition: 0.2s;}
-        .rating-bar-row.faded { opacity: 0.3; }
-        .rating-bar-row.selected { font-weight: bold; }
-        .rating-num { width: 12px; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); }
-        .rating-bar-row.selected .rating-num { color: var(--accent); }
-        .bar-bg { flex: 1; height: 6px; background: #F1F5F9; border-radius: 4px; overflow: hidden; }
-        .bar-fill { height: 100%; background: var(--brand); border-radius: 4px; }
-        .rating-bar-row.selected .bar-fill { background: var(--accent); }
-        
-        .rating-score { text-align: center; }
-        .score-big { font-size: 2.8rem; font-weight: 900; color: var(--brand); line-height: 1; margin-bottom: 2px;}
-        .score-stars { color: #F59E0B; font-size: 1rem; margin-bottom: 2px;}
-        .score-total { color: var(--text-muted); font-size: 0.8rem; font-weight: 600;}
+        .btn-text {
+            color: var(--accent);
+            font-weight: 800;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            padding: 0;
+        }
+
+        .btn-text:hover {
+            opacity: 0.8;
+        }
+
+        .rating-grid {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .rating-bars {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .rating-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            opacity: 1;
+            transition: 0.2s;
+        }
+
+        .rating-bar-row.faded {
+            opacity: 0.3;
+        }
+
+        .rating-bar-row.selected {
+            font-weight: bold;
+        }
+
+        .rating-num {
+            width: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .rating-bar-row.selected .rating-num {
+            color: var(--accent);
+        }
+
+        .bar-bg {
+            flex: 1;
+            height: 6px;
+            background: #F1F5F9;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: var(--brand);
+            border-radius: 4px;
+        }
+
+        .rating-bar-row.selected .bar-fill {
+            background: var(--accent);
+        }
+
+        .rating-score {
+            text-align: center;
+        }
+
+        .score-big {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+            margin-bottom: 2px;
+        }
+
+        .score-stars {
+            color: #F59E0B;
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .score-total {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
 
         /* REVIEWS LIST */
-        .reviews-wrapper { margin-top: 1rem; }
-        .review-card { padding: 1rem; border: 1px solid #F1F5F9; border-radius: 12px; margin-bottom: 0.8rem; background: #F8FAFC; }
-        .review-header { display: flex; justify-content: space-between; margin-bottom: 6px; align-items: center;}
-        .reviewer-info { display: flex; align-items: center; gap: 8px; }
-        .reviewer-avatar { width: 30px; height: 30px; border-radius: 50%; background: #E2E8F0; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; overflow: hidden;}
-        .reviewer-name { font-weight: 700; color: var(--brand); font-size: 0.9rem; margin-bottom: 0;}
-        .review-date { color: var(--text-muted); font-size: 0.75rem; font-weight: 500;}
-        .review-stars { color: #F59E0B; font-size: 0.85rem; letter-spacing: 1px;}
-        .review-comment { color: var(--text-main); font-size: 0.9rem; line-height: 1.4; margin: 0; }
-        .empty-state { text-align: center; padding: 1.5rem; background: #F8FAFC; border-radius: 12px; color: var(--text-muted); font-weight: 500; font-size: 0.9rem;}
+        .reviews-wrapper {
+            margin-top: 1rem;
+        }
+
+        .review-card {
+            padding: 1rem;
+            border: 1px solid #F1F5F9;
+            border-radius: 12px;
+            margin-bottom: 0.8rem;
+            background: #F8FAFC;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            align-items: center;
+        }
+
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reviewer-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #E2E8F0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            overflow: hidden;
+        }
+
+        .reviewer-name {
+            font-weight: 700;
+            color: var(--brand);
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        .review-date {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .review-stars {
+            color: #F59E0B;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .review-comment {
+            color: var(--text-main);
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 1.5rem;
+            background: #F8FAFC;
+            border-radius: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
 
         /* CARDS & FORMS */
-        .form-group { margin-bottom: 1.5rem; position: relative; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-        label { display: block; font-weight: 700; color: var(--brand); margin-bottom: 0.5rem; font-size: 0.95rem; }
-        input, select, textarea { width: 100%; padding: 14px 16px; border: 1px solid #E2E8F0; border-radius: 12px; background: #F8FAFC; font-size: 1rem; font-family: inherit; font-weight: 500; outline: none; transition: 0.2s; box-sizing: border-box;}
-        input:focus, select:focus, textarea:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
-        input[readonly] { background: #E2E8F0; color: #64748B; cursor: not-allowed; }
-        .helper-text { font-size: 0.85rem; color: #64748B; margin-top: 5px; }
-        .btn-submit { background: var(--accent); color: white; width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: 0.2s; }
-        .btn-submit:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(99,102,241,0.2); }
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 700;
+            color: var(--brand);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            background: #F8FAFC;
+            font-size: 1rem;
+            font-family: inherit;
+            font-weight: 500;
+            outline: none;
+            transition: 0.2s;
+            box-sizing: border-box;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--accent);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        input[readonly] {
+            background: #E2E8F0;
+            color: #64748B;
+            cursor: not-allowed;
+        }
+
+        .helper-text {
+            font-size: 0.85rem;
+            color: #64748B;
+            margin-top: 5px;
+        }
+
+        .btn-submit {
+            background: var(--accent);
+            color: white;
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-submit:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+        }
 
         /* LIFT SØGNING */
-        .mini-search-bar { display: flex; gap: 0.5rem; background: #F1F5F9; padding: 0.5rem; border-radius: 14px; margin-bottom: 1.5rem; flex-wrap: wrap; border: 1px solid var(--border);}
-        .mini-search-bar input, .mini-search-bar select { flex: 1; min-width: 120px; padding: 10px 14px; border: 1px solid transparent; border-radius: 10px; font-size: 0.95rem; font-family: inherit; font-weight: 500; outline: none; background: white; color: var(--brand);}
-        .mini-search-bar input:focus, .mini-search-bar select:focus { border-color: var(--accent); }
-        .mini-search-bar input::placeholder { color: #94a3b8; }
-        
+        .mini-search-bar {
+            display: flex;
+            gap: 0.5rem;
+            background: #F1F5F9;
+            padding: 0.5rem;
+            border-radius: 14px;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            border: 1px solid var(--border);
+        }
+
+        .mini-search-bar input,
+        .mini-search-bar select {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px 14px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            font-weight: 500;
+            outline: none;
+            background: white;
+            color: var(--brand);
+        }
+
+        .mini-search-bar input:focus,
+        .mini-search-bar select:focus {
+            border-color: var(--accent);
+        }
+
+        .mini-search-bar input::placeholder {
+            color: #94a3b8;
+        }
+
         /* RIDE CARDS (Fra Lift siden) */
-        .ride-list { display: flex; flex-direction: column; gap: 0.8rem; }
-        .ride-item, .ride-card { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 1rem 1.2rem; transition: 0.2s; cursor: pointer; position: relative; overflow: hidden; }
-        .ride-item:hover, .ride-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 15px -5px rgba(0,0,0,0.05); }
-        .card-date { font-size: 0.75rem; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; display: block; }
-        .timeline { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; width: 100%; }
-        .time-box { display: flex; flex-direction: column; flex: 1; min-width: 0; overflow: hidden; }
-        .time-box.right { align-items: flex-end; text-align: right; }
-        .time { font-size: 1.4rem; font-weight: 900; color: var(--brand); letter-spacing: -0.5px; line-height: 1;}
-        .city { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-        
-        .route-path { flex: 0 0 60px; margin: 0 10px; position: relative; display: flex; flex-direction: column; align-items: center; }
-        .duration-line { width: 100%; height: 2px; background: #E2E8F0; position: relative; }
-        .duration-line::before, .duration-line::after { content: ''; position: absolute; width: 8px; height: 8px; border-radius: 50%; background: white; border: 2px solid #cbd5e1; top: -3px; }
-        .duration-line::before { left: -4px; } .duration-line::after { right: -4px; }
-        .duration-text { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); background: white; padding: 0 6px; position: relative; top: -11px; white-space: nowrap; }
+        .ride-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
 
-        .card-mid { display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 0; border-top: 1px dashed var(--border); border-bottom: 1px dashed var(--border); margin-bottom: 0.7rem; }
-        .badge-group { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-start; }
-        .badge { padding: 2px 8px; border-radius: 20px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; border: 1px solid var(--border); background: #F8FAFC; color: var(--text-muted);}
-        .b-ferry { background: #E0F2FE; color: #0284C7; border-color: #BAE6FD; }
-        .b-pink { background: #FCE7F3; color: #BE185D; border-color: #FBCFE8; }
-        .b-instant { background: #FEF3C7; color: #B45309; border-color: #FDE68A; }
+        .ride-item,
+        .ride-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1rem 1.2rem;
+            transition: 0.2s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
 
-        .card-footer { display: flex; justify-content: space-between; align-items: center; }
-        .price { font-size: 1.4rem; font-weight: 900; color: var(--brand); letter-spacing: -0.5px; }
-        .seats-left { font-weight: 700; color: var(--success); font-size: 0.8rem; }
+        .ride-item:hover,
+        .ride-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px -5px rgba(0, 0, 0, 0.05);
+        }
 
-        .ride-header { padding-bottom: 0; }
-        .route-title { font-weight: 800; color: var(--brand); font-size: 1.2rem; margin-bottom: 5px; }
-        .ride-meta { color: var(--text-muted); font-size: 0.95rem; font-weight: 500; }
-        .ride-price { font-size: 1.3rem; font-weight: 900; color: var(--brand); }
-        .ride-details { display: none; border-top: 1px solid #F1F5F9; padding-top: 1.5rem; margin-top: 1rem; }
-        
-        .passenger-list { margin-top: 1rem; }
-        .passenger-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #F1F5F9; }
-        .passenger-info { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--brand); }
-        .passenger-actions { display: flex; gap: 10px; align-items: center; }
-        .btn-icon { background: #F1F5F9; border: none; width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; color: var(--text-muted); }
-        .btn-icon:hover { filter: brightness(0.95); }
-        .btn-icon.green { color: #166534; background: #DCFCE7; }
-        .btn-icon.red { color: #991B1B; background: #FEE2E2; }
-        .btn-icon.chat { color: #3B82F6; background: #EFF6FF; }
-        
-        .action-bar { display: flex; gap: 10px; margin-top: 1.5rem; flex-wrap: wrap;}
-        .btn-outline { flex: 1; min-width: 120px; border: 1px solid var(--border); background: white; padding: 12px; border-radius: 12px; font-weight: 700; color: var(--brand); cursor: pointer; transition: 0.2s;}
-        .btn-outline:hover { background: #F8FAFC; }
-        .btn-action-main { flex: 1; min-width: 120px; background: #22C55E; color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer; }
-        .btn-action-main:disabled { background: #E2E8F0; color: #94A3B8; cursor: not-allowed; }
-        .btn-danger { color: #EF4444; border-color: #FECACA; background: #FEF2F2; }
+        .card-date {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .timeline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+
+        .time-box {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .time-box.right {
+            align-items: flex-end;
+            text-align: right;
+        }
+
+        .time {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--brand);
+            letter-spacing: -0.5px;
+            line-height: 1;
+        }
+
+        .city {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+
+        .route-path {
+            flex: 0 0 60px;
+            margin: 0 10px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .duration-line {
+            width: 100%;
+            height: 2px;
+            background: #E2E8F0;
+            position: relative;
+        }
+
+        .duration-line::before,
+        .duration-line::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #cbd5e1;
+            top: -3px;
+        }
+
+        .duration-line::before {
+            left: -4px;
+        }
+
+        .duration-line::after {
+            right: -4px;
+        }
+
+        .duration-text {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            background: white;
+            padding: 0 6px;
+            position: relative;
+            top: -11px;
+            white-space: nowrap;
+        }
+
+        .card-mid {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.7rem 0;
+            border-top: 1px dashed var(--border);
+            border-bottom: 1px dashed var(--border);
+            margin-bottom: 0.7rem;
+        }
+
+        .badge-group {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        .badge {
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border: 1px solid var(--border);
+            background: #F8FAFC;
+            color: var(--text-muted);
+        }
+
+        .b-ferry {
+            background: #E0F2FE;
+            color: #0284C7;
+            border-color: #BAE6FD;
+        }
+
+        .b-pink {
+            background: #FCE7F3;
+            color: #BE185D;
+            border-color: #FBCFE8;
+        }
+
+        .b-instant {
+            background: #FEF3C7;
+            color: #B45309;
+            border-color: #FDE68A;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--brand);
+            letter-spacing: -0.5px;
+        }
+
+        .seats-left {
+            font-weight: 700;
+            color: var(--success);
+            font-size: 0.8rem;
+        }
+
+        .ride-header {
+            padding-bottom: 0;
+        }
+
+        .route-title {
+            font-weight: 800;
+            color: var(--brand);
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .ride-meta {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .ride-price {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: var(--brand);
+        }
+
+        .ride-details {
+            display: none;
+            border-top: 1px solid #F1F5F9;
+            padding-top: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .passenger-list {
+            margin-top: 1rem;
+        }
+
+        .passenger-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #F1F5F9;
+        }
+
+        .passenger-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: var(--brand);
+        }
+
+        .passenger-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-icon {
+            background: #F1F5F9;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            color: var(--text-muted);
+        }
+
+        .btn-icon:hover {
+            filter: brightness(0.95);
+        }
+
+        .btn-icon.green {
+            color: #166534;
+            background: #DCFCE7;
+        }
+
+        .btn-icon.red {
+            color: #991B1B;
+            background: #FEE2E2;
+        }
+
+        .btn-icon.chat {
+            color: #3B82F6;
+            background: #EFF6FF;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-outline {
+            flex: 1;
+            min-width: 120px;
+            border: 1px solid var(--border);
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            color: var(--brand);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-outline:hover {
+            background: #F8FAFC;
+        }
+
+        .btn-action-main {
+            flex: 1;
+            min-width: 120px;
+            background: #22C55E;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-action-main:disabled {
+            background: #E2E8F0;
+            color: #94A3B8;
+            cursor: not-allowed;
+        }
+
+        .btn-danger {
+            color: #EF4444;
+            border-color: #FECACA;
+            background: #FEF2F2;
+        }
 
         /* MODALS */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); padding: 20px;}
-        .modal-box { background: white; padding: 2rem; border-radius: 24px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); text-align: center; margin: auto; max-height: 90vh; overflow-y: auto;}
-        
-        .edit-modal-box { max-width: 500px; text-align: left; }
-        .edit-modal-box h2 { font-size: 1.5rem; margin-bottom: 1.5rem; }
-        
-        .military-time-input { display: flex; align-items: center; background: #F8FAFC; border: 1px solid var(--border); border-radius: 12px; padding: 8px 12px; width: fit-content; transition: 0.2s; }
-        .military-time-input:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); background: white; }
-        .military-time-input input { width: 45px; padding: 4px; border: none; background: transparent; text-align: center; font-size: 1.1rem; font-weight: 800; color: var(--brand); outline: none; }
-        .military-time-input span { font-size: 1.1rem; font-weight: 800; color: var(--brand); margin: 0 2px;}
-        
-        .price-selector { display: flex; align-items: center; justify-content: space-between; background: #F8FAFC; border: 1px solid var(--border); border-radius: 12px; padding: 4px; }
-        .price-btn { width: 40px; height: 40px; border-radius: 8px; border: none; background: white; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-size: 1.1rem; font-weight: bold; color: var(--brand); transition: 0.2s;}
-        .price-btn:hover { background: var(--border);}
-        .price-value { font-weight: 900; font-size: 1.2rem; color: var(--brand);}
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+            padding: 20px;
+        }
 
-        .modal-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; }
-        .modal-text { color: var(--text-muted); margin-bottom: 1.5rem; }
-        .star-rating-input { display: flex; justify-content: center; gap: 5px; margin-bottom: 1.5rem; font-size: 2.5rem; color: #E2E8F0; cursor: pointer; }
-        .star-rating-input span:hover, .star-rating-input span.active { color: #F59E0B; }
-        .modal-actions { display: flex; gap: 1rem; margin-top: 1.5rem;}
+        .modal-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            text-align: center;
+            margin: auto;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .edit-modal-box {
+            max-width: 500px;
+            text-align: left;
+        }
+
+        .edit-modal-box h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .military-time-input {
+            display: flex;
+            align-items: center;
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 8px 12px;
+            width: fit-content;
+            transition: 0.2s;
+        }
+
+        .military-time-input:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            background: white;
+        }
+
+        .military-time-input input {
+            width: 45px;
+            padding: 4px;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--brand);
+            outline: none;
+        }
+
+        .military-time-input span {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--brand);
+            margin: 0 2px;
+        }
+
+        .price-selector {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 4px;
+        }
+
+        .price-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--brand);
+            transition: 0.2s;
+        }
+
+        .price-btn:hover {
+            background: var(--border);
+        }
+
+        .price-value {
+            font-weight: 900;
+            font-size: 1.2rem;
+            color: var(--brand);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-text {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .star-rating-input {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            color: #E2E8F0;
+            cursor: pointer;
+        }
+
+        .star-rating-input span:hover,
+        .star-rating-input span.active {
+            color: #F59E0B;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
 
         /* Styling til Bil-Søgning på Profil */
-        .plate-row { display: flex; gap: 10px; margin-bottom: 0.5rem; }
-        .btn-lookup { background: var(--brand); color: white; border: none; padding: 0 15px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 0.95rem; transition: 0.2s;}
-        .btn-lookup:hover { background: var(--accent); }
-        #carBadge { display: none; background: #F0FDF4; border: 1px solid #BBF7D0; padding: 12px 16px; border-radius: 12px; align-items: center; gap: 14px; margin-bottom: 1.5rem; }
-        .car-icon { background: #DCFCE7; padding: 10px; border-radius: 12px; font-size: 1.4rem; }
-        .car-info { flex: 1; }
-        .car-name { font-weight: 800; color: #166534; font-size: 0.95rem; display: block; margin-bottom: 2px;}
-        .car-details { font-size: 0.8rem; color: #15803d; font-weight: 500;}
+        .plate-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-lookup {
+            background: var(--brand);
+            color: white;
+            border: none;
+            padding: 0 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: 0.2s;
+        }
+
+        .btn-lookup:hover {
+            background: var(--accent);
+        }
+
+        #carBadge {
+            display: none;
+            background: #F0FDF4;
+            border: 1px solid #BBF7D0;
+            padding: 12px 16px;
+            border-radius: 12px;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 1.5rem;
+        }
+
+        .car-icon {
+            background: #DCFCE7;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 1.4rem;
+        }
+
+        .car-info {
+            flex: 1;
+        }
+
+        .car-name {
+            font-weight: 800;
+            color: #166534;
+            font-size: 0.95rem;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .car-details {
+            font-size: 0.8rem;
+            color: #15803d;
+            font-weight: 500;
+        }
 
         /* LOADING / ERROR STATE */
-        #loading-state, #error-state { text-align: center; padding: 5rem 1rem; grid-column: 1 / -1; }
+        #loading-state,
+        #error-state {
+            text-align: center;
+            padding: 5rem 1rem;
+            grid-column: 1 / -1;
+        }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
         @media (max-width: 768px) {
-            .profile-container { grid-template-columns: 1fr; }
-            .user-card { position: static; }
+            .profile-container {
+                grid-template-columns: 1fr;
+            }
+
+            .user-card {
+                position: static;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <hoppon-header></hoppon-header>
@@ -230,11 +1318,13 @@
         </div>
 
         <div class="profile-container" id="profile-content" style="display: none;">
-            
+
             <aside class="card user-card">
                 <img src="" alt="Avatar" class="avatar" id="pub-avatar" style="display: none;">
-                <div class="avatar" id="pub-avatar-placeholder" style="display: flex; align-items: center; justify-content: center; font-size: 3.5rem; color: #94A3B8;">👤</div>
-                
+                <div class="avatar" id="pub-avatar-placeholder"
+                    style="display: flex; align-items: center; justify-content: center; font-size: 3.5rem; color: #94A3B8;">
+                    👤</div>
+
                 <h1 class="user-name" id="pub-name">Navn</h1>
                 <div class="user-meta" id="pub-meta">Danmark</div>
 
@@ -244,7 +1334,12 @@
                         <p>Ture</p>
                     </div>
                     <div class="stat-item">
-                        <h4><span id="pub-co2">0</span> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></h4>
+                        <h4><span id="pub-co2">0</span> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="3" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                            </svg></h4>
                         <p>CO2 (kg)</p>
                     </div>
                 </div>
@@ -252,7 +1347,14 @@
                 <div class="badges-container" id="pub-badges"></div>
 
                 <button class="btn-share" onclick="shareProfile()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="18" cy="5" r="3"></circle>
+                        <circle cx="6" cy="12" r="3"></circle>
+                        <circle cx="18" cy="19" r="3"></circle>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                    </svg>
                     Del profil
                 </button>
 
@@ -263,14 +1365,19 @@
                     <button class="btn-payout" id="ui-payout-btn" disabled onclick="payoutFunds()">Udbetal</button>
                 </div>
 
-                <button class="btn-text" id="btn-report-profile" onclick="showReportDialog()" style="width: 100%; justify-content: center; color: #94A3B8; margin-top: 1.5rem;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> 
+                <button class="btn-text" id="btn-report-profile" onclick="showReportDialog()"
+                    style="width: 100%; justify-content: center; color: #94A3B8; margin-top: 1.5rem;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                        <line x1="4" y1="22" x2="4" y2="15"></line>
+                    </svg>
                     Anmeld profil
                 </button>
             </aside>
 
             <div class="right-col">
-                
+
                 <div class="tabs" id="private-tabs" style="display: none;">
                     <button class="tab-btn active" onclick="switchMainTab('tab-ture', this)">Dine Ture</button>
                     <button class="tab-btn" onclick="switchMainTab('tab-profil', this)">Indstillinger</button>
@@ -288,13 +1395,21 @@
                             <h3>
                                 Anmeldelser
                                 <div>
-                                    <button class="btn-text" id="btn-write-review" style="display: none;" onclick="openReviewModal()">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg> Skriv
+                                    <button class="btn-text" id="btn-write-review" style="display: none;"
+                                        onclick="openReviewModal()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 20h9"></path>
+                                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                        </svg> Skriv
                                     </button>
-                                    <span id="txt-has-reviewed" style="display: none; color: #10B981; font-weight: 700; font-size: 0.8rem;">✓ Anmeldt</span>
+                                    <span id="txt-has-reviewed"
+                                        style="display: none; color: #10B981; font-weight: 700; font-size: 0.8rem;">✓
+                                        Anmeldt</span>
                                 </div>
                             </h3>
-                            
+
                             <div class="rating-grid">
                                 <div class="rating-score">
                                     <div class="score-big" id="ui-avg-score">0.0</div>
@@ -315,32 +1430,40 @@
                     </div>
 
                     <div style="display: flex; justify-content: space-between;">
-                        <button id="btn-clear-filter" class="btn-text" style="display:none; color: #64748B; font-weight: 600;" onclick="setFilter(null)">× Fjern filter</button>
+                        <button id="btn-clear-filter" class="btn-text"
+                            style="display:none; color: #64748B; font-weight: 600;" onclick="setFilter(null)">× Fjern
+                            filter</button>
                     </div>
 
                     <div class="reviews-wrapper" id="reviews-list"></div>
-                    
-                    <button id="btn-show-all" class="btn-text" style="display:none; width: 100%; justify-content: center; margin-top: 1rem; padding: 0.8rem; background: #F8FAFC; border-radius: 10px;" onclick="showAllReviews()">
+
+                    <button id="btn-show-all" class="btn-text"
+                        style="display:none; width: 100%; justify-content: center; margin-top: 1rem; padding: 0.8rem; background: #F8FAFC; border-radius: 10px;"
+                        onclick="showAllReviews()">
                         Se alle anmeldelser
                     </button>
                 </div>
 
                 <div id="tab-ture" class="tab-content active" style="margin-top:0;">
-                    </div>
+                </div>
 
                 <div id="tab-profil" class="tab-content">
                     <div class="card">
                         <h2>Personlige oplysninger</h2>
                         <form id="profileForm" onsubmit="updateProfileInfo(event)">
                             <div class="form-row">
-                                <div class="form-group"><label>Fulde navn</label><input type="text" id="prof-fullname" required></div>
+                                <div class="form-group"><label>Fulde navn</label><input type="text" id="prof-fullname"
+                                        required></div>
                                 <div class="form-group">
-                                    <label>Email <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">(Kræver bekræftelse)</span></label>
+                                    <label>Email <span
+                                            style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">(Kræver
+                                            bekræftelse)</span></label>
                                     <input type="email" id="prof-email" required>
                                 </div>
                             </div>
                             <div class="form-row">
-                                <div class="form-group"><label>Telefonnummer</label><input type="tel" id="prof-phone" required></div>
+                                <div class="form-group"><label>Telefonnummer</label><input type="tel" id="prof-phone"
+                                        required></div>
                                 <div class="form-group">
                                     <label>Køn</label>
                                     <select id="prof-gender">
@@ -350,31 +1473,42 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group"><label>Kort Bio</label><textarea id="prof-bio" rows="3" placeholder="Fortæl lidt om dig selv..."></textarea></div>
-                            
-                            <div class="form-group" style="border-top: 1px dashed var(--border); padding-top: 1.5rem; margin-top: 1.5rem;">
+                            <div class="form-group"><label>Kort Bio</label><textarea id="prof-bio" rows="3"
+                                    placeholder="Fortæl lidt om dig selv..."></textarea></div>
+
+                            <div class="form-group"
+                                style="border-top: 1px dashed var(--border); padding-top: 1.5rem; margin-top: 1.5rem;">
                                 <label>Opdater din Bil (Nummerplade)</label>
                                 <div class="plate-row">
-                                    <input type="text" id="prof-plate" placeholder="AB 12 345" style="text-transform: uppercase;">
-                                    <button type="button" class="btn-lookup" onclick="lookupPlateProfile()">Søg bil</button>
+                                    <input type="text" id="prof-plate" placeholder="AB 12 345"
+                                        style="text-transform: uppercase;">
+                                    <button type="button" class="btn-lookup" onclick="lookupPlateProfile()">Søg
+                                        bil</button>
                                 </div>
-                                
+
                                 <div id="carBadge">
                                     <div class="car-icon">🚗</div>
                                     <div class="car-info">
                                         <span class="car-name" id="displayCarName">Audi Q3</span>
                                         <span class="car-details" id="displayCarMeta">2021 • Sort • AB 12 345</span>
                                     </div>
-                                    <button type="button" onclick="clearCarData()" style="background:none; border:none; color:#EF4444; cursor:pointer; font-weight:bold; padding: 5px;">Fjern</button>
+                                    <button type="button" onclick="clearCarData()"
+                                        style="background:none; border:none; color:#EF4444; cursor:pointer; font-weight:bold; padding: 5px;">Fjern</button>
                                 </div>
-                                <div id="plateError" style="font-size: 0.85rem; margin-top: 5px; font-weight: 600; color: #EF4444; display: none;"></div>
+                                <div id="plateError"
+                                    style="font-size: 0.85rem; margin-top: 5px; font-weight: 600; color: #EF4444; display: none;">
+                                </div>
                             </div>
 
-                            <div id="profileMessage" style="text-align: center; display: none; margin-bottom: 15px; font-weight: 600; padding: 10px; border-radius: 8px;"></div>
+                            <div id="profileMessage"
+                                style="text-align: center; display: none; margin-bottom: 15px; font-weight: 600; padding: 10px; border-radius: 8px;">
+                            </div>
                             <button type="submit" class="btn-submit" id="prof-submitBtn">Gem ændringer</button>
                         </form>
-                        <div style="margin-top: 3rem; text-align: center; border-top: 1px solid #F1F5F9; padding-top: 2rem;">
-                            <a href="/gdpr" style="color: #EF4444; font-weight: 700; text-decoration: none;">Slet min konto</a>
+                        <div
+                            style="margin-top: 3rem; text-align: center; border-top: 1px solid #F1F5F9; padding-top: 2rem;">
+                            <a href="/gdpr" style="color: #EF4444; font-weight: 700; text-decoration: none;">Slet min
+                                konto</a>
                         </div>
                     </div>
                 </div>
@@ -384,20 +1518,27 @@
                         <h2>Skatteoplysninger (DAC7)</h2>
                         <form id="taxForm" onsubmit="submitTaxInfo(event)">
                             <div class="form-row">
-                                <div class="form-group"><label>Fornavn</label><input type="text" id="fName" required></div>
-                                <div class="form-group"><label>Efternavn</label><input type="text" id="lName" required></div>
+                                <div class="form-group"><label>Fornavn</label><input type="text" id="fName" required>
+                                </div>
+                                <div class="form-group"><label>Efternavn</label><input type="text" id="lName" required>
+                                </div>
                             </div>
                             <div class="form-row">
-                                <div class="form-group"><label>Fødselsdato</label><input type="date" id="dob" required></div>
-                                <div class="form-group"><label>Land</label><select id="country"><option value="Danmark">Danmark</option></select></div>
+                                <div class="form-group"><label>Fødselsdato</label><input type="date" id="dob" required>
+                                </div>
+                                <div class="form-group"><label>Land</label><select id="country">
+                                        <option value="Danmark">Danmark</option>
+                                    </select></div>
                             </div>
                             <div class="form-group">
                                 <label>Hjemstedsadresse</label>
-                                <input type="text" id="address" required placeholder="Begynd at skrive for at søge..." oninput="searchAddress(this.value)" autocomplete="off">
+                                <input type="text" id="address" required placeholder="Begynd at skrive for at søge..."
+                                    oninput="searchAddress(this.value)" autocomplete="off">
                                 <div id="address-suggestions" class="suggestions-box"></div>
                                 <div class="helper-text">Din folkeregisteradresse (Påkrævet jf. Hvidvaskloven)</div>
                             </div>
-                            <div class="form-group"><label>Etage, dør (valgfri)</label><input type="text" id="floorDoor" placeholder="f.eks. st. tv"></div>
+                            <div class="form-group"><label>Etage, dør (valgfri)</label><input type="text" id="floorDoor"
+                                    placeholder="f.eks. st. tv"></div>
                             <hr style="margin: 2rem 0;">
                             <div class="form-group">
                                 <label>CPR-nummer</label>
@@ -406,9 +1547,11 @@
                             </div>
                             <div class="form-group">
                                 <label>Bank IBAN-nummer</label>
-                                <input type="text" id="iban" required placeholder="DK00..." style="text-transform: uppercase;">
+                                <input type="text" id="iban" required placeholder="DK00..."
+                                    style="text-transform: uppercase;">
                             </div>
-                            <div id="formMessage" style="text-align: center; display: none; margin-bottom: 15px; font-weight: 600;"></div>
+                            <div id="formMessage"
+                                style="text-align: center; display: none; margin-bottom: 15px; font-weight: 600;"></div>
                             <button type="submit" class="btn-submit" id="submitBtn">Gem & Krypter Oplysninger</button>
                         </form>
                     </div>
@@ -431,14 +1574,52 @@
         </div>
     </div>
 
+    <!-- Nyt Afslut Tur Modal -->
+    <div class="modal-overlay" id="endTripModal">
+        <div class="modal-box" style="text-align: left;">
+            <div id="endTripStepLoading" class="end-trip-step active" style="text-align: center; padding: 2rem;">
+                <p>Henter passagerer...</p>
+            </div>
+
+            <div id="endTripStepContent" class="end-trip-step">
+                <h2 class="modal-title" style="text-align: left; margin-bottom: 5px;">Turen er slut! 🎉</h2>
+                <p class="modal-text" style="text-align: left; margin-bottom: 20px;">Hjælp os med at holde et godt og
+                    trygt fællesskab ved at anmelde dine passagerer.</p>
+
+                <div id="endTripPassengersList">
+                    <!-- Fyldes dynamisk med JS -->
+                </div>
+
+                <div class="donation-box">
+                    <div class="donation-title">Støt HoppOn</div>
+                    <div class="donation-desc" id="donationDescText">Din donation går til at holde platformen kørende.
+                        Din transaktion koster os ca. 0 kr. pr. passager.</div>
+                    <label style="font-size: 0.9rem; font-weight: 600; margin-bottom: 5px; display: block;">Hvor meget
+                        vil du donere? (Valgfrit)</label>
+                    <div class="donation-input-group">
+                        <input type="number" id="donationInput" min="0" value="0" step="1">
+                        <span>kr. i alt</span>
+                    </div>
+                </div>
+
+                <div class="modal-actions" style="margin-top: 20px;">
+                    <button class="btn-outline" style="flex:1" onclick="closeEndTripModal()">Fortryd</button>
+                    <button class="btn-submit" style="flex:2;" id="endTripConfirmBtn">Afslut Tur</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="reviewModal">
         <div class="modal-box">
             <h2 class="modal-title">Hvordan var turen?</h2>
             <p class="modal-text">Giv en vurdering af din oplevelse.</p>
             <div class="star-rating-input" id="modal-stars">
-                <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span><span data-val="4">★</span><span data-val="5">★</span>
+                <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span><span
+                    data-val="4">★</span><span data-val="5">★</span>
             </div>
-            <textarea id="modal-comment" rows="3" placeholder="Kommentar (valgfri)... f.eks. God kørestil, kom til tiden"></textarea>
+            <textarea id="modal-comment" rows="3"
+                placeholder="Kommentar (valgfri)... f.eks. God kørestil, kom til tiden"></textarea>
             <div class="modal-actions">
                 <button class="btn-outline" onclick="closeReviewModal()">Annuller</button>
                 <button class="btn-submit" onclick="submitReview()">Send</button>
@@ -451,7 +1632,8 @@
             <h2 class="modal-title">Anmeld bruger</h2>
             <p class="modal-text">Er du sikker på, at du vil anmelde denne profil for upassende adfærd?</p>
             <div class="modal-actions">
-                <button class="btn-outline" onclick="document.getElementById('reportModal').style.display='none'">Annuller</button>
+                <button class="btn-outline"
+                    onclick="document.getElementById('reportModal').style.display='none'">Annuller</button>
                 <button class="btn-submit" style="background: #EF4444;" onclick="submitReport()">Anmeld</button>
             </div>
         </div>
@@ -469,17 +1651,21 @@
                 <div class="form-group">
                     <label>Afgangstid</label>
                     <div class="military-time-input">
-                        <input type="text" id="editDepHour" maxlength="2" oninput="validateTimeInput(this, 23)" onfocus="this.select()">
+                        <input type="text" id="editDepHour" maxlength="2" oninput="validateTimeInput(this, 23)"
+                            onfocus="this.select()">
                         <span>:</span>
-                        <input type="text" id="editDepMin" maxlength="2" oninput="validateTimeInput(this, 59)" onfocus="this.select()">
+                        <input type="text" id="editDepMin" maxlength="2" oninput="validateTimeInput(this, 59)"
+                            onfocus="this.select()">
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Est. Ankomst</label>
                     <div class="military-time-input">
-                        <input type="text" id="editArrHour" maxlength="2" oninput="validateTimeInput(this, 23)" onfocus="this.select()">
+                        <input type="text" id="editArrHour" maxlength="2" oninput="validateTimeInput(this, 23)"
+                            onfocus="this.select()">
                         <span>:</span>
-                        <input type="text" id="editArrMin" maxlength="2" oninput="validateTimeInput(this, 59)" onfocus="this.select()">
+                        <input type="text" id="editArrMin" maxlength="2" oninput="validateTimeInput(this, 59)"
+                            onfocus="this.select()">
                     </div>
                 </div>
             </div>
@@ -503,7 +1689,8 @@
             </div>
             <div class="modal-actions">
                 <button class="btn-outline" style="flex:1" onclick="closeEditModal()">Fortryd</button>
-                <button class="btn-submit" style="flex:1; background: var(--accent);" id="editSaveBtn" onclick="saveRideChanges()">Gem Ændringer</button>
+                <button class="btn-submit" style="flex:1; background: var(--accent);" id="editSaveBtn"
+                    onclick="saveRideChanges()">Gem Ændringer</button>
             </div>
         </div>
     </div>
@@ -511,29 +1698,44 @@
     <div class="modal-overlay" id="duplicateRideModal">
         <div class="modal-box edit-modal-box">
             <h2>Dupliker Tur</h2>
-            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem; margin-top:-10px;">Opretter en tro kopi af turen. Juster blot dato og tid.</p>
+            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem; margin-top:-10px;">Opretter en
+                tro kopi af turen. Juster blot dato og tid.</p>
             <input type="hidden" id="dupRideGroupId">
-            
+
             <div class="form-group">
-                <label style="font-weight:700; color:var(--brand); margin-bottom:5px; display:block;">Ny dato for afgang</label>
-                <input type="date" id="dupDate" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border);" required>
+                <label style="font-weight:700; color:var(--brand); margin-bottom:5px; display:block;">Ny dato for
+                    afgang</label>
+                <input type="date" id="dupDate"
+                    style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border);" required>
             </div>
 
             <div style="display:flex; gap:15px; margin-bottom:1rem;">
                 <div style="flex:1;">
-                    <label style="font-weight:700; color:var(--brand); margin-bottom:5px; display:block;">Afgangstid</label>
-                    <div style="display:flex; align-items:center; background:#F8FAFC; border:1px solid var(--border); border-radius:10px; padding:5px 10px; width:fit-content;">
-                        <input type="text" id="dupDepHour" maxlength="2" style="width:40px; border:none; background:transparent; text-align:center; font-weight:800; font-size:1.1rem; color:var(--brand); padding:0; outline:none;" oninput="validateTimeInput(this, 23)" onfocus="this.select()">
+                    <label
+                        style="font-weight:700; color:var(--brand); margin-bottom:5px; display:block;">Afgangstid</label>
+                    <div
+                        style="display:flex; align-items:center; background:#F8FAFC; border:1px solid var(--border); border-radius:10px; padding:5px 10px; width:fit-content;">
+                        <input type="text" id="dupDepHour" maxlength="2"
+                            style="width:40px; border:none; background:transparent; text-align:center; font-weight:800; font-size:1.1rem; color:var(--brand); padding:0; outline:none;"
+                            oninput="validateTimeInput(this, 23)" onfocus="this.select()">
                         <span style="font-weight:800; margin:0 2px;">:</span>
-                        <input type="text" id="dupDepMin" maxlength="2" style="width:40px; border:none; background:transparent; text-align:center; font-weight:800; font-size:1.1rem; color:var(--brand); padding:0; outline:none;" oninput="validateTimeInput(this, 59)" onfocus="this.select()">
+                        <input type="text" id="dupDepMin" maxlength="2"
+                            style="width:40px; border:none; background:transparent; text-align:center; font-weight:800; font-size:1.1rem; color:var(--brand); padding:0; outline:none;"
+                            oninput="validateTimeInput(this, 59)" onfocus="this.select()">
                     </div>
                 </div>
                 <div style="flex:1;">
-                    <label style="font-weight:700; color:var(--brand); margin-bottom:5px; display:block;">Est. Ankomst</label>
-                    <div style="display:flex; align-items:center; background:#F8FAFC; border:1px solid var(--border); border-radius:10px; padding:5px 10px; width:fit-content;">
-                        <input type="text" id="dupArrHour" maxlength="2" style="width:40px; border:none; background:transparent; text-align:center; font-weight:800; font-size:1.1rem; color:var(--brand); padding:0; outline:none;" oninput="validateTimeInput(this, 23)" onfocus="this.select()">
+                    <label style="font-weight:700; color:var(--brand); margin-bottom:5px; display:block;">Est.
+                        Ankomst</label>
+                    <div
+                        style="display:flex; align-items:center; background:#F8FAFC; border:1px solid var(--border); border-radius:10px; padding:5px 10px; width:fit-content;">
+                        <input type="text" id="dupArrHour" maxlength="2"
+                            style="width:40px; border:none; background:transparent; text-align:center; font-weight:800; font-size:1.1rem; color:var(--brand); padding:0; outline:none;"
+                            oninput="validateTimeInput(this, 23)" onfocus="this.select()">
                         <span style="font-weight:800; margin:0 2px;">:</span>
-                        <input type="text" id="dupArrMin" maxlength="2" style="width:40px; border:none; background:transparent; text-align:center; font-weight:800; font-size:1.1rem; color:var(--brand); padding:0; outline:none;" oninput="validateTimeInput(this, 59)" onfocus="this.select()">
+                        <input type="text" id="dupArrMin" maxlength="2"
+                            style="width:40px; border:none; background:transparent; text-align:center; font-weight:800; font-size:1.1rem; color:var(--brand); padding:0; outline:none;"
+                            oninput="validateTimeInput(this, 59)" onfocus="this.select()">
                     </div>
                 </div>
             </div>
@@ -541,26 +1743,37 @@
             <div style="display:flex; gap:15px; margin-bottom:1rem;">
                 <div style="flex:1;">
                     <label style="font-weight:700; color:var(--brand); margin-bottom:5px; display:block;">Sæder</label>
-                    <input type="number" id="dupSeats" min="1" max="7" value="3" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border);">
+                    <input type="number" id="dupSeats" min="1" max="7" value="3"
+                        style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border);">
                 </div>
                 <div style="flex:1;">
-                    <label style="font-weight:700; color:var(--brand); margin-bottom:5px; display:block;">Pris (kr)</label>
-                    <div style="display:flex; align-items:center; justify-content:space-between; background:#F8FAFC; border:1px solid var(--border); border-radius:10px; padding:4px;">
-                        <button type="button" style="width:35px; height:35px; border-radius:8px; border:none; background:white; cursor:pointer; font-weight:bold; font-size:1.1rem;" onclick="adjustDupPrice(-5)">-</button>
+                    <label style="font-weight:700; color:var(--brand); margin-bottom:5px; display:block;">Pris
+                        (kr)</label>
+                    <div
+                        style="display:flex; align-items:center; justify-content:space-between; background:#F8FAFC; border:1px solid var(--border); border-radius:10px; padding:4px;">
+                        <button type="button"
+                            style="width:35px; height:35px; border-radius:8px; border:none; background:white; cursor:pointer; font-weight:bold; font-size:1.1rem;"
+                            onclick="adjustDupPrice(-5)">-</button>
                         <div id="dupPriceDisplay" style="font-weight:900; font-size:1.1rem; color:var(--brand);">0</div>
-                        <button type="button" style="width:35px; height:35px; border-radius:8px; border:none; background:white; cursor:pointer; font-weight:bold; font-size:1.1rem;" onclick="adjustDupPrice(5)">+</button>
+                        <button type="button"
+                            style="width:35px; height:35px; border-radius:8px; border:none; background:white; cursor:pointer; font-weight:bold; font-size:1.1rem;"
+                            onclick="adjustDupPrice(5)">+</button>
                     </div>
                 </div>
             </div>
 
             <div style="margin-bottom:1.5rem;">
-                <label style="font-weight:700; color:var(--brand); margin-bottom:5px; display:block;">Besked til passagerer</label>
-                <textarea id="dupComment" rows="2" placeholder="F.eks. samler op ved stationen..." style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border);"></textarea>
+                <label style="font-weight:700; color:var(--brand); margin-bottom:5px; display:block;">Besked til
+                    passagerer</label>
+                <textarea id="dupComment" rows="2" placeholder="F.eks. samler op ved stationen..."
+                    style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border);"></textarea>
             </div>
 
             <div class="modal-actions">
-                <button class="btn-outline" style="flex:1" onclick="document.getElementById('duplicateRideModal').style.display='none'">Fortryd</button>
-                <button class="btn-submit" style="flex:1; background: var(--accent);" id="dupSaveBtn" onclick="submitDuplicateRide()">Opret Tur</button>
+                <button class="btn-outline" style="flex:1"
+                    onclick="document.getElementById('duplicateRideModal').style.display='none'">Fortryd</button>
+                <button class="btn-submit" style="flex:1; background: var(--accent);" id="dupSaveBtn"
+                    onclick="submitDuplicateRide()">Opret Tur</button>
             </div>
         </div>
     </div>
@@ -571,32 +1784,32 @@
         function formatDateTime(isoString) {
             if (!isoString) return "--/-- • --:--";
             const d = new Date(isoString);
-            return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')} • ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+            return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')} • ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
         }
 
         let currentUserId = null;
-        let currentUser = null; 
+        let currentUser = null;
         let targetId = null;
         let targetProfile = null;
-        
+
         let allReviews = [];
-        let ratingDist = {5:0, 4:0, 3:0, 2:0, 1:0};
+        let ratingDist = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
         let avgRating = 0.0;
-        
+
         let selectedFilter = null;
         let isShowingAll = false;
         let selectedInputStars = 5;
 
-        let allUserRides = []; 
+        let allUserRides = [];
         let groupedDriverRides = [];
-        let groupedCompletedRides = []; 
+        let groupedCompletedRides = [];
         let currentDuplicateGroup = null;
         let dupCurrentPrice = 0;
-        
+
         let currentBalance = 0;
         let editCurrentPrice = 0;
         let originalEmail = "";
-        let carDataStorage = null; 
+        let carDataStorage = null;
         let isCprLocked = false;
 
         const months = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
@@ -632,7 +1845,7 @@
                 const mm = String(today.getMonth() + 1).padStart(2, '0');
                 const yyyy = today.getFullYear();
                 const sd = document.getElementById('searchDate');
-                if(sd) sd.placeholder = `${dd}/${mm}/${yyyy}`;
+                if (sd) sd.placeholder = `${dd}/${mm}/${yyyy}`;
 
                 await loadData();
 
@@ -641,9 +1854,9 @@
                     document.getElementById('private-tabs').style.display = 'flex';
                     document.getElementById('private-balance-box').style.display = 'block';
                     document.getElementById('btn-report-profile').style.display = 'none';
-                    
+
                     renderOwnProfileRidesSection();
-                    await fetchDriverRides(); 
+                    await fetchDriverRides();
                     await checkStripeStatus();
                     await loadTaxData();
                 } else {
@@ -651,7 +1864,7 @@
                     document.getElementById('private-tabs').style.display = 'none';
                     document.getElementById('tab-profil').style.display = 'none';
                     document.getElementById('tab-skat').style.display = 'none';
-                    
+
                     const container = document.getElementById('tab-ture');
                     if (container) {
                         container.style.display = 'block';
@@ -660,9 +1873,9 @@
                         container.style.boxShadow = 'none';
                         container.style.background = 'transparent';
                     }
-                    
+
                     renderGuestProfileRidesSection();
-                    await fetchUserRides(); 
+                    await fetchUserRides();
                 }
 
             } catch (err) {
@@ -676,9 +1889,9 @@
         // ==========================================
         function renderOwnProfileRidesSection() {
             const container = document.getElementById('tab-ture');
-            if(!container) return;
+            if (!container) return;
             // FJERN container.style.display = 'none'; DA DET SKJULER HELE SEKTIONEN
-            
+
             container.innerHTML = `
                 <div class="card" style="padding: 1.5rem;">
                     <div class="sub-tabs">
@@ -716,7 +1929,7 @@
 
         function renderGuestProfileRidesSection() {
             const container = document.getElementById('tab-ture');
-            if(!container) return;
+            if (!container) return;
             const today = new Date();
             const dd = String(today.getDate()).padStart(2, '0');
             const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -753,24 +1966,24 @@
             try {
                 const { data: profile, error } = await _supabase.from('profiles').select('*').eq('id', targetId).single();
                 if (error || !profile) throw error;
-                targetProfile = profile; 
+                targetProfile = profile;
 
                 if (currentUserId === targetId) {
                     currentBalance = profile.balance || 0;
                     document.getElementById('ui-balance').innerText = currentBalance.toFixed(2);
                     document.getElementById('ui-pending').innerText = (profile.pending_balance || 0).toFixed(2);
-                    
+
                     document.getElementById('prof-fullname').value = profile.full_name || "";
                     document.getElementById('prof-phone').value = profile.phone_number || "";
                     document.getElementById('prof-gender').value = profile.gender || "Andet";
                     document.getElementById('prof-bio').value = profile.bio || "";
-                    
+
                     originalEmail = currentUser ? currentUser.email : "";
                     document.getElementById('prof-email').value = originalEmail;
 
                     if (profile.car_details) {
                         let car = typeof profile.car_details === 'string' ? JSON.parse(profile.car_details) : profile.car_details;
-                        carDataStorage = car; 
+                        carDataStorage = car;
                         document.getElementById('displayCarName').innerText = car.display_name || `${car.make} ${car.model}`;
                         document.getElementById('displayCarMeta').innerText = car.details || `${car.year} • ${car.color} • ${car.plate}`;
                         document.getElementById('carBadge').style.display = "flex";
@@ -786,20 +1999,20 @@
 
                 let sum = 0;
                 let alreadyReviewed = false;
-                ratingDist = {5:0, 4:0, 3:0, 2:0, 1:0};
+                ratingDist = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
 
                 allReviews.forEach(r => {
                     sum += r.rating;
                     ratingDist[r.rating]++;
-                    if(currentUserId && r.reviewer_id === currentUserId) alreadyReviewed = true;
+                    if (currentUserId && r.reviewer_id === currentUserId) alreadyReviewed = true;
                 });
 
                 avgRating = allReviews.length > 0 ? (sum / allReviews.length) : 0.0;
 
                 let canReview = false;
-                if(currentUserId && currentUserId !== targetId && !alreadyReviewed) {
+                if (currentUserId && currentUserId !== targetId && !alreadyReviewed) {
                     const { data: shared } = await _supabase.from('bookings').select('id, rides!inner(driver_id)').eq('passenger_id', currentUserId).eq('status', 'approved').eq('rides.driver_id', targetId).limit(1);
-                    if(shared && shared.length > 0) canReview = true;
+                    if (shared && shared.length > 0) canReview = true;
                 }
 
                 document.getElementById('loading-state').style.display = 'none';
@@ -808,9 +2021,9 @@
                 document.getElementById('pub-name').innerText = profile.full_name || 'Ukendt';
                 document.getElementById('pub-rides').innerText = totalRides;
                 document.getElementById('pub-co2').innerText = profile.co2_saved_kg || '0';
-                
+
                 let locationText = profile.gender || 'Andet';
-                if(profile.address) locationText += ` • ${profile.address.split(',').pop().trim()}`;
+                if (profile.address) locationText += ` • ${profile.address.split(',').pop().trim()}`;
                 let memberYear = profile.created_at ? new Date(profile.created_at).getFullYear() : '2026';
                 locationText += ` • Medlem siden ${memberYear}`;
                 document.getElementById('pub-meta').innerText = locationText;
@@ -835,8 +2048,8 @@
                     document.getElementById('gomore-badge').style.display = 'flex';
                 }
 
-                if(canReview) document.getElementById('btn-write-review').style.display = 'flex';
-                if(alreadyReviewed) document.getElementById('txt-has-reviewed').style.display = 'inline-block';
+                if (canReview) document.getElementById('btn-write-review').style.display = 'flex';
+                if (alreadyReviewed) document.getElementById('txt-has-reviewed').style.display = 'inline-block';
 
                 document.getElementById('ui-avg-score').innerText = avgRating > 0 ? avgRating.toFixed(1) : "Ny";
                 document.getElementById('ui-avg-stars').innerText = getStarsHTML(Math.round(avgRating));
@@ -859,9 +2072,9 @@
                 const { data: rides, error } = await _supabase.from('rides')
                     .select('*, bookings(id, passenger_id, status, seats_booked, profiles(full_name, avatar_url))')
                     .eq('driver_id', currentUserId).order('departure_time', { ascending: true });
-                if(error) throw error;
+                if (error) throw error;
                 const now = new Date();
-                
+
                 const activeRides = rides.filter(r => {
                     if (!r.departure_time) return false;
                     const dep = new Date(r.departure_time);
@@ -871,26 +2084,26 @@
                 const completedRides = rides.filter(r => !activeRides.includes(r));
 
                 const activeGroups = groupAndFormatRides(activeRides);
-                activeGroups.sort((a,b) => new Date(a.main_ride.departure_time || 0) - new Date(b.main_ride.departure_time || 0));
+                activeGroups.sort((a, b) => new Date(a.main_ride.departure_time || 0) - new Date(b.main_ride.departure_time || 0));
 
-                groupedCompletedRides = groupAndFormatRides(completedRides).sort((a,b) => new Date(b.main_ride.departure_time || 0) - new Date(a.main_ride.departure_time || 0)); 
+                groupedCompletedRides = groupAndFormatRides(completedRides).sort((a, b) => new Date(b.main_ride.departure_time || 0) - new Date(a.main_ride.departure_time || 0));
 
                 groupedDriverRides = activeGroups; // Gemmer globalt til redigering
                 renderDriverRides(activeGroups);
                 renderCompletedRides();
                 await fetchPassengerRides();
 
-            } catch (err) { 
+            } catch (err) {
                 console.error("Fejl i fetchDriverRides:", err);
                 const el = document.getElementById('driver-rides-list');
-                if(el) el.innerHTML = `<p style="color:red;text-align:center;">Fejl: ${err.message}</p>`; 
+                if (el) el.innerHTML = `<p style="color:red;text-align:center;">Fejl: ${err.message}</p>`;
             }
         }
 
         function groupAndFormatRides(ridesArray) {
             const groups = {};
             ridesArray.forEach(r => {
-                const groupId = r.route_group_id || r.id; 
+                const groupId = r.route_group_id || r.id;
                 if (!groups[groupId]) groups[groupId] = [];
                 groups[groupId].push(r);
             });
@@ -909,10 +2122,10 @@
                 group.forEach(r => {
                     if (r.bookings && Array.isArray(r.bookings)) {
                         r.bookings.forEach(b => {
-                            allBookings.push({ 
-                                ...b, 
-                                ride_segment: `${r.origin_city} ➝ ${r.destination_city}`, 
-                                ride_id: r.id 
+                            allBookings.push({
+                                ...b,
+                                ride_segment: `${r.origin_city} ➝ ${r.destination_city}`,
+                                ride_id: r.id
                             });
                             if (b.status === 'approved' || b.status === 'pending') hasPassengers = true;
                         });
@@ -942,7 +2155,7 @@
             groups.forEach(group => {
                 const mainRide = group.main_ride;
                 const isPassed = new Date() > new Date(mainRide.arrival_time || new Date());
-                
+
                 const activeBookings = group.all_bookings.filter(b => b.status === 'approved' || b.status === 'pending');
                 let passengersHTML = '';
 
@@ -953,11 +2166,11 @@
                         const name = b.profiles ? b.profiles.full_name : 'Ukendt';
                         const paxId = b.passenger_id;
                         const chatBtn = `<button class="btn-icon chat" onclick="event.stopPropagation(); window.location.href='/samtale?user=${paxId}&ride=${b.ride_id}'" title="Skriv til passager"><i class="fa-regular fa-comment-dots"></i></button>`;
-                        
-                        let actionsHTML = b.status === 'pending' 
+
+                        let actionsHTML = b.status === 'pending'
                             ? `${chatBtn}<button class="btn-icon green" onclick="event.stopPropagation(); updateBooking('${b.id}', 'approved', '${name.replace(/'/g, "\\'")}')" title="Godkend">✓</button><button class="btn-icon red" onclick="event.stopPropagation(); updateBooking('${b.id}', 'rejected', '${name.replace(/'/g, "\\'")}')" title="Afvis">✕</button>`
                             : `${chatBtn}<button class="btn-icon red" onclick="event.stopPropagation(); driverCancelPassenger('${b.id}', '${name.replace(/'/g, "\\'")}')" title="Aflys passager">✕</button>`;
-                            
+
                         passengersHTML += `<div class="passenger-item">
                             <div class="passenger-info">
                                 <div style="display:flex; flex-direction:column; gap:2px;">
@@ -969,7 +2182,7 @@
                         </div>`;
                     });
                 }
-                
+
                 let editBtnStr = '';
                 if (group.has_passengers) {
                     editBtnStr = `<button class="btn-outline" disabled title="Du kan ikke ændre turen, når der er passagerer." style="background:#F3F4F6; color:#94A3B8; cursor:not-allowed;">Ændre tur 🔒</button>`;
@@ -1008,14 +2221,14 @@
             try {
                 if (!currentUser) return;
                 const { data: bookings, error } = await _supabase.from('bookings').select('*, rides(*, profiles(full_name))').eq('passenger_id', currentUser.id);
-                if(error) throw error;
+                if (error) throw error;
                 const container = document.getElementById('passenger-rides-list');
-                if(!container) return;
-                
+                if (!container) return;
+
                 let html = '';
                 bookings.forEach(b => {
                     const ride = b.rides;
-                    if (!ride) return; 
+                    if (!ride) return;
                     const chatBtn = `<button class="btn-icon chat" style="position: absolute; right: 1.5rem; top: 1.5rem;" onclick="window.location.href='/samtale?user=${ride.driver_id}&ride=${ride.id}'" title="Skriv til chauffør"><i class="fa-regular fa-comment-dots"></i></button>`;
 
                     html += `<div class="ride-card" style="padding: 1.5rem; position: relative;">
@@ -1035,7 +2248,7 @@
         function toggleCompletedRides() {
             const content = document.getElementById('completedContent');
             const chevron = document.getElementById('completedChevron');
-            if(content.style.display === 'none') {
+            if (content.style.display === 'none') {
                 content.style.display = 'block';
                 chevron.style.transform = 'rotate(180deg)';
             } else {
@@ -1060,7 +2273,7 @@
             groupedCompletedRides.forEach(group => {
                 const mainRide = group.main_ride;
                 const statusTxt = group.is_cancelled ? '<span style="color:#EF4444; font-weight:bold;">AFLYST</span>' : '<span style="color:#10B981; font-weight:bold;">Afsluttet</span>';
-                
+
                 html += `<div class="ride-card" style="background:#F8FAFC; border:1px solid #E2E8F0; box-shadow:none;">
                     <div class="ride-header" style="padding-bottom: 1rem;">
                         <div>
@@ -1080,14 +2293,14 @@
             const ride = currentDuplicateGroup.main_ride;
 
             document.getElementById('dupRideGroupId').value = groupId;
-            
+
             const today = new Date();
             document.getElementById('dupDate').value = today.toISOString().split('T')[0];
-            
+
             const depDate = new Date(ride.departure_time);
             document.getElementById('dupDepHour').value = depDate.getHours().toString().padStart(2, '0');
             document.getElementById('dupDepMin').value = depDate.getMinutes().toString().padStart(2, '0');
-            
+
             const arrDate = new Date(ride.arrival_time);
             document.getElementById('dupArrHour').value = arrDate.getHours().toString().padStart(2, '0');
             document.getElementById('dupArrMin').value = arrDate.getMinutes().toString().padStart(2, '0');
@@ -1102,7 +2315,7 @@
 
         function adjustDupPrice(amt) {
             dupCurrentPrice += amt;
-            if(dupCurrentPrice < 20) dupCurrentPrice = 20;
+            if (dupCurrentPrice < 20) dupCurrentPrice = 20;
             document.getElementById('dupPriceDisplay').innerText = dupCurrentPrice;
         }
 
@@ -1146,7 +2359,7 @@
                 const payloadsToInsert = currentDuplicateGroup.rides.map(oldRide => {
                     const oldRideDep = new Date(oldRide.departure_time).getTime();
                     const oldRideArr = new Date(oldRide.arrival_time).getTime();
-                    
+
                     let finalDep = new Date(oldRideDep + deltaMs);
                     let finalArr = new Date(oldRideArr + deltaMs);
 
@@ -1162,13 +2375,13 @@
                         destination_city: oldRide.destination_city,
                         origin_location: oldRide.origin_location,
                         destination_location: oldRide.destination_location,
-                        
+
                         departure_time: finalDep.toISOString(),
                         arrival_time: finalArr.toISOString(),
-                        
+
                         seats_available: newSeats,
                         price_dkk: dupCurrentPrice,
-                        car_model: oldRide.car_model, 
+                        car_model: oldRide.car_model,
                         status: 'active',
                         is_ferry: oldRide.is_ferry,
                         instant_booking: oldRide.instant_booking,
@@ -1189,8 +2402,8 @@
 
                 alert("Turen er succesfuldt duplikeret og offentliggjort! 🚀");
                 document.getElementById('duplicateRideModal').style.display = 'none';
-                
-                await fetchDriverRides(); 
+
+                await fetchDriverRides();
             } catch (e) {
                 alert("Fejl ved duplikering: " + e.message);
             } finally {
@@ -1205,7 +2418,7 @@
         // ==========================================
         async function fetchUserRides() {
             try {
-                const nowISO = new Date().toISOString(); 
+                const nowISO = new Date().toISOString();
                 const { data, error } = await _supabase.from('rides')
                     .select('*')
                     .eq('driver_id', targetId)
@@ -1215,11 +2428,11 @@
 
                 const loader = document.getElementById('userRidesLoader');
                 const empty = document.getElementById('userRidesEmpty');
-                if(loader) loader.style.display = 'none';
-                
+                if (loader) loader.style.display = 'none';
+
                 if (!error && data && data.length > 0) {
                     allUserRides = data;
-                    filterUserRides(); 
+                    filterUserRides();
                 } else if (empty) {
                     empty.style.display = 'block';
                 }
@@ -1232,22 +2445,22 @@
             const fromEl = document.getElementById('searchFrom');
             const toEl = document.getElementById('searchTo');
             const dateInput = document.getElementById('searchDate');
-            
+
             if (!fromEl || !toEl || !dateInput) return; // Prevent errors if on private view
 
             const from = fromEl.value.toLowerCase();
             const to = toEl.value.toLowerCase();
             let qDate = "";
-            if(dateInput.type === 'date') { qDate = dateInput.value; }
+            if (dateInput.type === 'date') { qDate = dateInput.value; }
 
             const filtered = allUserRides.filter(r => {
                 const rawOrigin = (r.origin_city || "").toLowerCase();
                 const rawDest = (r.destination_city || "").toLowerCase();
-                
+
                 if (from && !rawOrigin.includes(from)) return false;
                 if (to && !rawDest.includes(to)) return false;
                 if (qDate && new Date(r.departure_time).toISOString().split('T')[0] !== qDate) return false;
-                
+
                 return true;
             });
 
@@ -1264,36 +2477,36 @@
         function renderUserRides(rides) {
             const container = document.getElementById('userRidesList');
             const empty = document.getElementById('userRidesEmpty');
-            if(!container) return;
-            
+            if (!container) return;
+
             container.innerHTML = '';
-            
-            if (rides.length === 0) { 
+
+            if (rides.length === 0) {
                 container.style.display = 'none';
-                if(empty) empty.style.display = 'block'; 
-                return; 
+                if (empty) empty.style.display = 'block';
+                return;
             }
-            
-            if(empty) empty.style.display = 'none';
+
+            if (empty) empty.style.display = 'none';
             container.style.display = 'flex';
 
             rides.forEach(ride => {
                 const depDate = new Date(ride.departure_time);
                 const arrDate = ride.arrival_time ? new Date(ride.arrival_time) : null;
                 let hrs = 0, mins = 0, arrTimeStr = "--:--";
-                
-                if(arrDate) {
+
+                if (arrDate) {
                     const diff = Math.abs(arrDate - depDate);
                     hrs = Math.floor(diff / 3600000);
                     mins = Math.floor((diff / 60000) % 60);
-                    arrTimeStr = arrDate.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'});
+                    arrTimeStr = arrDate.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
                 }
 
                 const displayOrigin = ride.origin_city || '';
                 const displayDest = ride.destination_city || '';
 
                 let car = { display_name: 'Bil' };
-                try { car = typeof ride.car_model === 'string' ? JSON.parse(ride.car_model) : ride.car_model; } catch(e) {}
+                try { car = typeof ride.car_model === 'string' ? JSON.parse(ride.car_model) : ride.car_model; } catch (e) { }
 
                 let bHTML = '';
                 if (ride.is_ferry) bHTML += `<span class="badge b-ferry">⛴️ Færge</span>`;
@@ -1304,7 +2517,7 @@
                 if (ride.pref_kids) bHTML += `<span class="badge">👶 Børn</span>`;
                 if (ride.pref_music) bHTML += `<span class="badge">🎵 Musik</span>`;
                 if (ride.ladies_only) bHTML += `<span class="badge b-pink">🌸 Ladies</span>`;
-                
+
                 const finalPrice = Math.ceil(ride.price_dkk * 1.05);
 
                 const card = document.createElement('div');
@@ -1315,10 +2528,10 @@
                 };
 
                 card.innerHTML = `
-                    <span class="card-date">${depDate.toLocaleDateString('da-DK', {weekday:'short', day:'numeric', month:'short'})}</span>
+                    <span class="card-date">${depDate.toLocaleDateString('da-DK', { weekday: 'short', day: 'numeric', month: 'short' })}</span>
                     <div class="timeline">
                         <div class="time-box">
-                            <span class="time">${depDate.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'})}</span>
+                            <span class="time">${depDate.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' })}</span>
                             <span class="city" title="${displayOrigin}">${displayOrigin}</span>
                         </div>
                         <div class="route-path">
@@ -1348,12 +2561,12 @@
         // ==========================================
         function getStarsHTML(num) {
             let s = '';
-            for(let i=0; i<5; i++) { s += (i<num) ? '★' : '☆'; }
+            for (let i = 0; i < 5; i++) { s += (i < num) ? '★' : '☆'; }
             return s;
         }
 
         function setFilter(star) {
-            selectedFilter = selectedFilter === star ? null : star; 
+            selectedFilter = selectedFilter === star ? null : star;
             isShowingAll = false;
             document.getElementById('btn-clear-filter').style.display = selectedFilter ? 'flex' : 'none';
             renderRatingBars();
@@ -1367,20 +2580,20 @@
 
         function renderRatingBars() {
             const container = document.getElementById('ui-rating-bars');
-            if(!container) return;
+            if (!container) return;
             let html = '';
             const total = allReviews.length;
 
-            [5,4,3,2,1].forEach(star => {
+            [5, 4, 3, 2, 1].forEach(star => {
                 const count = ratingDist[star];
                 const pct = total === 0 ? 0 : (count / total) * 100;
-                
+
                 const isSelected = selectedFilter === star;
                 const isFaded = selectedFilter !== null && !isSelected;
-                
+
                 let cls = 'rating-bar-row';
-                if(isSelected) cls += ' selected';
-                if(isFaded) cls += ' faded';
+                if (isSelected) cls += ' selected';
+                if (isFaded) cls += ' faded';
 
                 html += `
                     <div class="${cls}" onclick="setFilter(${star})">
@@ -1395,23 +2608,23 @@
         function renderReviews() {
             const container = document.getElementById('reviews-list');
             const btnShowAll = document.getElementById('btn-show-all');
-            if(!container) return;
-            
+            if (!container) return;
+
             let filtered = allReviews;
-            if(selectedFilter) {
+            if (selectedFilter) {
                 filtered = allReviews.filter(r => r.rating === selectedFilter);
             }
 
             let toShow = filtered;
-            if(!isShowingAll && selectedFilter === null && filtered.length > 2) {
-                toShow = filtered.slice(0,2);
+            if (!isShowingAll && selectedFilter === null && filtered.length > 2) {
+                toShow = filtered.slice(0, 2);
                 btnShowAll.style.display = 'flex';
                 btnShowAll.innerText = `Se alle ${allReviews.length} anmeldelser`;
             } else {
                 btnShowAll.style.display = 'none';
             }
 
-            if(toShow.length === 0) {
+            if (toShow.length === 0) {
                 container.innerHTML = `<div class="empty-state">Ingen anmeldelser endnu.</div>`;
                 return;
             }
@@ -1492,77 +2705,198 @@
         // TUR HANDLINGER (AFLYS & AFSLUT MED EDGE FUNCTIONS)
         // ==========================================
 
-        function completeTrip(groupId) {
-            // Find turen i din lokalt gemte liste over ture (håndterer evt. mellemstops)
-            const group = groupedDriverRides.find(g => g.id === groupId);
-            if (!group) return;
+        let currentEndTripGroup = null;
+        let endTripPassengers = [];
 
-            showModal("Afslut tur?", "Dette vil hæve pengene hos passagererne og overføre beløbet til din konto.", "Afslut nu", async () => {
-                try {
-                    // Giv brugeren feedback i modalen mens der arbejdes
-                    document.getElementById('modalConfirmBtn').innerText = "Arbejder...";
-                    
-                    const session = (await _supabase.auth.getSession()).data.session;
+        function closeEndTripModal() {
+            document.getElementById('endTripModal').style.display = 'none';
+        }
 
-                    // Loop igennem alle del-strækninger for denne tur
-                    for (const ride of group.rides) {
-                        // 1. Træk penge for alle passagerer med status 'approved' på denne del-strækning
-                        const { data: pax } = await _supabase.from('bookings').select('stripe_payment_id').eq('ride_id', ride.id).eq('status', 'approved');
-                        
-                        for (let p of (pax || [])) {
-                            if (p.stripe_payment_id) {
-                                await _supabase.functions.invoke('settle-payment', { 
-                                    body: { paymentIntentId: p.stripe_payment_id, action: 'capture' }
-                                });
-                            }
+        async function completeTrip(groupId) {
+            currentEndTripGroup = groupedDriverRides.find(g => g.id === groupId);
+            if (!currentEndTripGroup) return;
+
+            // Nulstil modal
+            document.getElementById('endTripModal').style.display = 'flex';
+            document.getElementById('endTripStepLoading').classList.add('active');
+            document.getElementById('endTripStepContent').classList.remove('active');
+            document.getElementById('donationInput').value = "0";
+
+            try {
+                // Find alle godkendte passagerer for alle del-strækninger
+                let allPassengers = [];
+                let totalCost = 0;
+
+                for (const ride of currentEndTripGroup.rides) {
+                    const { data: pax } = await _supabase
+                        .from('bookings')
+                        .select('id, passenger_id, profiles(full_name, avatar_url)')
+                        .eq('ride_id', ride.id)
+                        .eq('status', 'approved');
+
+                    if (pax && pax.length > 0) {
+                        allPassengers = allPassengers.concat(pax);
+                        // Udregn platformens omkostning for disse passagerer
+                        const tCost = (ride.price_dkk * 0.015 + 1.8);
+                        totalCost += (tCost * pax.length);
+                    }
+                }
+
+                endTripPassengers = allPassengers;
+
+                const passListEl = document.getElementById('endTripPassengersList');
+
+                if (endTripPassengers.length === 0) {
+                    // Hvis der slet ingen passagerer er, spring rating og validering over
+                    document.getElementById('endTripStepLoading').classList.remove('active');
+                    passListEl.innerHTML = '<p style="margin-bottom: 20px;">Du havde ingen passagerer på denne tur.</p>';
+                    document.querySelector('.donation-box').style.display = 'none';
+                    document.getElementById('endTripStepContent').classList.add('active');
+                } else {
+                    document.getElementById('donationDescText').innerText = `Din donation går til at holde platformen kørende. Din transaktion koster os ca. ${totalCost.toFixed(2).replace('.', ',')} kr. i alt.`;
+                    document.querySelector('.donation-box').style.display = 'block';
+
+                    let pHTML = '';
+                    endTripPassengers.forEach((p, idx) => {
+                        const name = p.profiles?.full_name || 'Passager';
+                        const avatar = p.profiles?.avatar_url;
+                        pHTML += `
+                            <div class="passenger-rate-row" data-pax-id="${p.passenger_id}">
+                                <div class="passenger-rate-info">
+                                    <div class="passenger-rate-avatar">
+                                        ${avatar ? `<img src="${avatar}" style="width:100%; height:100%; object-fit:cover;">` : '👤'}
+                                    </div>
+                                    <div class="passenger-rate-name">${name}</div>
+                                </div>
+                                <div class="passenger-rate-stars" id="pax-stars-${idx}">
+                                    <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span><span data-val="4">★</span><span data-val="5">★</span>
+                                </div>
+                            </div>
+                        `;
+                        // Standard rating er 5 stjerner
+                        p.selectedRating = 5;
+                    });
+                    passListEl.innerHTML = pHTML;
+
+                    // Bind klik-events til stjernerne
+                    endTripPassengers.forEach((p, idx) => {
+                        const starContainer = document.getElementById(`pax-stars-${idx}`);
+                        const spans = starContainer.querySelectorAll('span');
+
+                        function updateStars() {
+                            spans.forEach(span => {
+                                const val = parseInt(span.getAttribute('data-val'));
+                                span.innerText = val <= p.selectedRating ? '★' : '☆';
+                                if (val <= p.selectedRating) span.classList.add('active'); else span.classList.remove('active');
+                            });
                         }
 
-                        // 2. Kør din edge function til at afslutte strækningen
-                        const res = await _supabase.functions.invoke('complete-trip', { 
-                            body: { trip_id: ride.id }, 
-                            headers: { Authorization: `Bearer ${session.access_token}` } 
+                        updateStars(); // Initial render til 5 stjerner
+
+                        spans.forEach(span => {
+                            span.addEventListener('click', (e) => {
+                                p.selectedRating = parseInt(e.target.getAttribute('data-val'));
+                                updateStars();
+                            });
                         });
-                        
-                        if (res.error) throw res.error;
+                    });
+
+                    document.getElementById('endTripStepLoading').classList.remove('active');
+                    document.getElementById('endTripStepContent').classList.add('active');
+                }
+            } catch (err) {
+                alert("Kunne ikke hente passagerer: " + err.message);
+                closeEndTripModal();
+            }
+        }
+
+        // Håndter bekræftelse af turen via den nye flow
+        document.getElementById('endTripConfirmBtn').addEventListener('click', async () => {
+            if (!currentEndTripGroup) return;
+
+            const btn = document.getElementById('endTripConfirmBtn');
+            btn.disabled = true;
+            btn.innerText = "Afslutter...";
+
+            let donationAmount = parseInt(document.getElementById('donationInput').value) || 0;
+            if (donationAmount < 0) donationAmount = 0;
+
+            try {
+                const session = (await _supabase.auth.getSession()).data.session;
+
+                // 0. Indsend anmeldelser for alle passagerer
+                for (const p of endTripPassengers) {
+                    await _supabase.from('reviews').insert({
+                        reviewer_id: currentUserId,
+                        reviewee_id: p.passenger_id,
+                        rating: p.selectedRating,
+                        comment: "" // Du kan evt. tilføje en kommentar input senere hvis ønsket
+                    });
+                }
+
+                // Vi fordeler donationen ligeligt ud på alle del-strækninger
+                const donationPerRide = donationAmount / currentEndTripGroup.rides.length;
+
+                for (const ride of currentEndTripGroup.rides) {
+                    // 1. Træk penge
+                    const { data: pax } = await _supabase.from('bookings').select('stripe_payment_id').eq('ride_id', ride.id).eq('status', 'approved');
+                    for (let p of (pax || [])) {
+                        if (p.stripe_payment_id) {
+                            await _supabase.functions.invoke('settle-payment', {
+                                body: { paymentIntentId: p.stripe_payment_id, action: 'capture' }
+                            });
+                        }
                     }
 
-                    alert("Turen er afsluttet! 💸");
-                    loadData(); // Genindlæser profilen for at opdatere din nye balance
-                    fetchDriverRides(); // Fjerner turen fra de aktive
-                } catch(e) { 
-                    alert("Fejl: " + e.message); 
+                    // 2. Afslut strækningen med donation
+                    const res = await _supabase.functions.invoke('complete-trip', {
+                        body: { trip_id: ride.id, donation_amount: donationPerRide },
+                        headers: { Authorization: `Bearer ${session.access_token}` }
+                    });
+
+                    if (res.error) throw res.error;
                 }
-            });
-        }
+
+                alert("Turen er afsluttet! 💸");
+                closeEndTripModal();
+                loadData();
+                fetchDriverRides();
+            } catch (e) {
+                alert("Fejl: " + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Afslut Tur";
+            }
+        });
 
         function deleteTrip(groupId) {
             const group = groupedDriverRides.find(g => g.id === groupId);
             if (!group) return;
 
             showModal(
-                "Aflys tur?", 
-                "Er du sikker på, at du vil aflyse denne tur? Har du allerede passagerer, vil de automatisk få deres betaling refunderet.", 
-                "Ja, aflys", 
+                "Aflys tur?",
+                "Er du sikker på, at du vil aflyse denne tur? Har du allerede passagerer, vil de automatisk få deres betaling refunderet.",
+                "Ja, aflys",
                 async () => {
                     try {
                         document.getElementById('modalConfirmBtn').innerText = "Arbejder...";
-                        
+
                         const session = (await _supabase.auth.getSession()).data.session;
-                        
+
                         // Loop igennem alle del-strækninger og aflys dem via edge function
                         for (const ride of group.rides) {
-                            const res = await _supabase.functions.invoke('delete-trip', { 
-                                body: { trip_id: ride.id }, 
-                                headers: { Authorization: `Bearer ${session.access_token}` } 
+                            const res = await _supabase.functions.invoke('delete-trip', {
+                                body: { trip_id: ride.id },
+                                headers: { Authorization: `Bearer ${session.access_token}` }
                             });
-                            
+
                             if (res.error) throw res.error;
                         }
 
                         alert("Turen er nu aflyst.");
-                        fetchDriverRides(); 
-                    } catch(e) { 
-                        alert("Fejl ved aflysning: " + e.message); 
+                        fetchDriverRides();
+                    } catch (e) {
+                        alert("Fejl ved aflysning: " + e.message);
                     }
                 }
             );
@@ -1577,7 +2911,7 @@
             document.getElementById('customModal').style.display = 'flex';
         }
         function closeModal() { document.getElementById('customModal').style.display = 'none'; }
-        document.getElementById('modalConfirmBtn').addEventListener('click', () => { closeModal(); if(modalConfirmCallback) modalConfirmCallback(); });
+        document.getElementById('modalConfirmBtn').addEventListener('click', () => { closeModal(); if (modalConfirmCallback) modalConfirmCallback(); });
 
         async function updateBooking(bookingId, newStatus, passengerName) {
             const actionText = newStatus === 'approved' ? 'godkende' : 'afvise';
@@ -1604,15 +2938,15 @@
         function openEditModal(groupId) {
             const group = groupedDriverRides.find(g => g.id === groupId);
             if (!group) return;
-            const ride = group.main_ride; 
+            const ride = group.main_ride;
 
             document.getElementById('editRideId').value = ride.id;
-            
+
             const depDate = new Date(ride.departure_time);
             document.getElementById('editDate').value = depDate.toISOString().split('T')[0];
             document.getElementById('editDepHour').value = depDate.getHours().toString().padStart(2, '0');
             document.getElementById('editDepMin').value = depDate.getMinutes().toString().padStart(2, '0');
-            
+
             const arrDate = new Date(ride.arrival_time);
             document.getElementById('editArrHour').value = arrDate.getHours().toString().padStart(2, '0');
             document.getElementById('editArrMin').value = arrDate.getMinutes().toString().padStart(2, '0');
@@ -1629,7 +2963,7 @@
 
         function adjustEditPrice(amt) {
             editCurrentPrice += amt;
-            if(editCurrentPrice < 20) editCurrentPrice = 20;
+            if (editCurrentPrice < 20) editCurrentPrice = 20;
             document.getElementById('editPriceDisplay').innerText = editCurrentPrice;
         }
 
@@ -1649,7 +2983,7 @@
                 const [year, month, day] = dateStr.split('-').map(Number);
                 const newDep = new Date(year, month - 1, day, parseInt(dH), parseInt(dM), 0);
                 const newArr = new Date(year, month - 1, day, parseInt(aH), parseInt(aM), 0);
-                
+
                 if (newArr <= newDep) newArr.setDate(newArr.getDate() + 1);
 
                 const seats = parseInt(document.getElementById('editSeats').value);
@@ -1666,7 +3000,7 @@
                 if (error) throw error;
                 alert("Turen er opdateret! ✅");
                 closeEditModal();
-                fetchDriverRides(); 
+                fetchDriverRides();
             } catch (e) {
                 alert("Fejl ved opdatering: " + e.message);
             } finally {
@@ -1694,7 +3028,7 @@
             starSpans.forEach(span => {
                 const val = parseInt(span.getAttribute('data-val'));
                 span.innerText = val <= selectedInputStars ? '★' : '☆';
-                if(val <= selectedInputStars) span.classList.add('active'); else span.classList.remove('active');
+                if (val <= selectedInputStars) span.classList.add('active'); else span.classList.remove('active');
             });
         }
 
@@ -1709,8 +3043,8 @@
                     comment: comment
                 });
                 alert("Tak for din anmeldelse!");
-                loadData(); 
-            } catch(e) { alert("Kunne ikke sende anmeldelse."); }
+                loadData();
+            } catch (e) { alert("Kunne ikke sende anmeldelse."); }
         }
 
         function showReportDialog() { document.getElementById('reportModal').style.display = 'flex'; }
@@ -1724,7 +3058,7 @@
             const plate = plateInput.value.trim();
             const badge = document.getElementById('carBadge');
             const err = document.getElementById('plateError');
-            
+
             if (!plate) return;
 
             err.style.display = "none";
@@ -1734,10 +3068,10 @@
 
             if (data && !data.error && data.make) {
                 const formattedPlate = plate.toUpperCase();
-                
+
                 document.getElementById('displayCarName').innerText = `${data.make} ${data.model}`;
                 document.getElementById('displayCarMeta').innerText = `${data.model_year || ''} • ${data.color || ''} • ${formattedPlate}`;
-                
+
                 carDataStorage = {
                     make: data.make,
                     model: data.model,
@@ -1747,9 +3081,9 @@
                     details: `${data.model_year || ''} • ${data.color || ''} • ${formattedPlate}`,
                     display_name: `${data.make} ${data.model}`
                 };
-                
+
                 badge.style.display = "flex";
-                plateInput.value = ""; 
+                plateInput.value = "";
             } else {
                 err.innerText = "❌ Vi kunne ikke finde bilen. Tjek nummerpladen.";
                 err.style.display = "block";
@@ -1767,19 +3101,20 @@
             document.getElementById(tabId).classList.add('active');
             btn.classList.add('active');
         }
-        
+
         function switchSubTab(tabId, btn) {
             document.querySelectorAll('.sub-tab-content').forEach(e => e.classList.remove('active'));
             document.querySelectorAll('.sub-tab-btn').forEach(e => e.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             btn.classList.add('active');
         }
-        
+
         function toggleExpand(id) {
             const el = document.getElementById(id);
-            if(!el) return;
+            if (!el) return;
             el.style.display = el.style.display === 'block' ? 'none' : 'block';
         }
     </script>
 </body>
+
 </html>
