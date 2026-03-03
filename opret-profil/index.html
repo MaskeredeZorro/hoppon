@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="da">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Opret Profil | HoppOn</title>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
     <link rel="stylesheet" href="/style.css">
     <script src="/supabase.js"></script>
     <script src="/components.js" defer></script>
@@ -23,67 +25,273 @@
             justify-content: center;
             padding: 7rem 1rem 3rem 1rem;
         }
-        
-        .card { 
+
+        .card {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.6);
-            width: 100%; 
-            max-width: 480px; 
-            border-radius: 32px; 
-            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15); 
-            padding: 3rem 2.5rem; 
+            width: 100%;
+            max-width: 480px;
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+            padding: 3rem 2.5rem;
             animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        
-        .card h1 { font-size: 2rem; text-align: center; margin-bottom: 0.5rem; color: var(--brand); font-weight: 900; letter-spacing: -0.5px;}
-        .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 2.5rem; font-size: 1rem; }
 
-        .form-group { margin-bottom: 1.5rem; }
-        .form-group label { display: block; font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main); }
-        input, select { width: 100%; padding: 14px 16px; border: 1px solid var(--border); border-radius: 14px; font-size: 1rem; background: #F8FAFC; color: var(--brand); font-weight: 500; outline: none; transition: 0.2s; }
-        input:focus, select:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+        .card h1 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: var(--brand);
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            font-size: 1rem;
+            background: #F8FAFC;
+            color: var(--brand);
+            font-weight: 500;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--accent);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
 
         /* Avatar */
-        .avatar-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 2rem; cursor: pointer; }
-        .avatar-preview { width: 100px; height: 100px; border-radius: 50%; background: #F1F5F9; border: 2px dashed #CBD5E1; display: flex; justify-content: center; align-items: center; overflow: hidden; margin-bottom: 10px; transition: 0.2s;}
-        .avatar-section:hover .avatar-preview { border-color: var(--accent); background: white; }
-        .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+            cursor: pointer;
+        }
+
+        .avatar-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #F1F5F9;
+            border: 2px dashed #CBD5E1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            margin-bottom: 10px;
+            transition: 0.2s;
+        }
+
+        .avatar-section:hover .avatar-preview {
+            border-color: var(--accent);
+            background: white;
+        }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
         /* Driver Toggle */
-        .driver-box { background: #EEF2FF; border: 1px solid #C7D2FE; padding: 1.2rem; border-radius: 16px; margin: 2rem 0; display: flex; justify-content: space-between; align-items: center; }
-        .switch { position: relative; width: 48px; height: 26px; cursor: pointer; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #cbd5e1; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1);}
-        input:checked + .slider { background: var(--accent); }
-        input:checked + .slider:before { transform: translateX(22px); }
+        .driver-box {
+            background: #EEF2FF;
+            border: 1px solid #C7D2FE;
+            padding: 1.2rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-        #carFields { display: none; border-top: 1px dashed var(--border); padding-top: 1.5rem; }
-        .plate-row { display: flex; gap: 10px; }
-        .btn-lookup { background: var(--brand); color: white; border: none; padding: 0 20px; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 0.95rem; transition: 0.2s;}
-        .btn-lookup:hover { background: var(--accent); }
+        .switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            cursor: pointer;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #cbd5e1;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        input:checked+.slider {
+            background: var(--accent);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(22px);
+        }
+
+        #carFields {
+            display: none;
+            border-top: 1px dashed var(--border);
+            padding-top: 1.5rem;
+        }
+
+        .plate-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-lookup {
+            background: var(--brand);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: 0.2s;
+        }
+
+        .btn-lookup:hover {
+            background: var(--accent);
+        }
 
         /* Flot Bil-visning */
-        #carBadge { display: none; background: #F0FDF4; border: 1px solid #BBF7D0; padding: 16px; border-radius: 16px; margin-top: 16px; align-items: center; gap: 14px; }
-        .car-icon { background: #DCFCE7; padding: 10px; border-radius: 12px; font-size: 1.4rem; }
-        .car-info { flex: 1; }
-        .car-name { font-weight: 800; color: #166534; font-size: 1rem; display: block; margin-bottom: 2px;}
-        .car-details { font-size: 0.8rem; color: #15803d; font-weight: 500;}
-        
-        .btn-main { width: 100%; padding: 16px; background: var(--brand); color: white; border: none; border-radius: 16px; font-size: 1.1rem; font-weight: 800; cursor: pointer; margin-top: 1.5rem; transition: 0.2s; }
-        .btn-main:hover { background: var(--accent); transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4); }
-        .btn-main:disabled { background: #A5B4FC; cursor: not-allowed; transform: none; box-shadow: none;}
-        
-        #statusMsg { text-align: center; margin-top: 1.5rem; font-size: 0.95rem; font-weight: 700; transition: 0.3s; }
+        #carBadge {
+            display: none;
+            background: #F0FDF4;
+            border: 1px solid #BBF7D0;
+            padding: 16px;
+            border-radius: 16px;
+            margin-top: 16px;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .car-icon {
+            background: #DCFCE7;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 1.4rem;
+        }
+
+        .car-info {
+            flex: 1;
+        }
+
+        .car-name {
+            font-weight: 800;
+            color: #166534;
+            font-size: 1rem;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .car-details {
+            font-size: 0.8rem;
+            color: #15803d;
+            font-weight: 500;
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 16px;
+            background: var(--brand);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 1.5rem;
+            transition: 0.2s;
+        }
+
+        .btn-main:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-main:disabled {
+            background: #A5B4FC;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #statusMsg {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            transition: 0.3s;
+        }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(40px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
     </style>
 </head>
+
 <body>
 
     <hoppon-header></hoppon-header>
@@ -95,7 +303,8 @@
 
             <div class="avatar-section" onclick="document.getElementById('avatarFile').click()">
                 <div class="avatar-preview">
-                    <img id="previewImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23CBD5E1' viewBox='0 0 24 24'%3E%3Cpath d='M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z' /%3E%3C/svg%3E">
+                    <img id="previewImg"
+                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23CBD5E1' viewBox='0 0 24 24'%3E%3Cpath d='M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z' /%3E%3C/svg%3E">
                 </div>
                 <span style="color: var(--accent); font-size: 0.85rem; font-weight: 700;">Upload profilbillede *</span>
                 <input type="file" id="avatarFile" accept="image/*" style="display:none" onchange="previewAvatar()">
@@ -150,7 +359,7 @@
                         <input type="text" id="plateInput" placeholder="AB 12 345" style="text-transform: uppercase;">
                         <button class="btn-lookup" onclick="lookupPlate()">Søg bil</button>
                     </div>
-                    
+
                     <div id="carBadge">
                         <div class="car-icon">🚗</div>
                         <div class="car-info">
@@ -158,8 +367,22 @@
                             <span class="car-details" id="displayCarMeta">2021 • Sort • AB 12 345</span>
                         </div>
                     </div>
-                    <div id="plateError" style="font-size: 0.85rem; margin-top: 10px; font-weight: 600; color: #EF4444; display: none;"></div>
+                    <div id="plateError"
+                        style="font-size: 0.85rem; margin-top: 10px; font-weight: 600; color: #EF4444; display: none;">
+                    </div>
                 </div>
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: flex-start; gap: 10px; margin-top: 2rem;">
+                <input type="checkbox" id="acceptTerms" style="width: 20px; height: 20px; margin-top: 3px;">
+                <label for="acceptTerms"
+                    style="font-size: 0.9rem; font-weight: 500; color: var(--text-main); line-height: 1.4;">
+                    Jeg bekræfter, at jeg har læst og accepterer HoppOns
+                    <a href="https://hoppon.dk/toc/" target="_blank"
+                        style="color: var(--accent); text-decoration: underline;">Handelsbetingelser</a> og
+                    <a href="https://hoppon.dk/privacy_policy/" target="_blank"
+                        style="color: var(--accent); text-decoration: underline;">Privatlivspolitik</a>. *
+                </label>
             </div>
 
             <button class="btn-main" id="submitBtn" onclick="handleSignup()">Opret Konto</button>
@@ -187,14 +410,14 @@
                 // Skift teksten midlertidigt, så brugeren ved vi arbejder
                 document.querySelector('.avatar-section span').innerText = "Konverterer billede... ⏳";
                 document.querySelector('.avatar-section span').style.color = "var(--text-muted)";
-                
+
                 try {
                     const convertedBlob = await heic2any({
                         blob: file,
                         toType: "image/jpeg",
                         quality: 0.8
                     });
-                    
+
                     // Lav det om til en ny .jpg fil
                     file = new File([convertedBlob], file.name.replace(/\.heic$/i, ".jpg"), {
                         type: "image/jpeg"
@@ -232,7 +455,7 @@
             const plate = plateInput.value.trim();
             const badge = document.getElementById('carBadge');
             const err = document.getElementById('plateError');
-            
+
             if (!plate) return;
 
             err.style.display = "none";
@@ -243,7 +466,7 @@
             if (data && !data.error && data.make) {
                 document.getElementById('displayCarName').innerText = `${data.make} ${data.model}`;
                 document.getElementById('displayCarMeta').innerText = `${data.model_year || ''} • ${data.color || ''} • ${plate.toUpperCase()}`;
-                
+
                 // Gem alt relevant bil-data i vores globale variabel, så vi har det til oprettelsen
                 carDataStorage = {
                     make: data.make,
@@ -251,7 +474,7 @@
                     year: data.model_year ? data.model_year.toString() : "",
                     color: data.color || ""
                 };
-                
+
                 badge.style.display = "flex";
             } else {
                 err.innerText = "❌ Vi kunne ikke finde bilen. Tjek nummerpladen.";
@@ -263,7 +486,7 @@
         async function handleSignup() {
             const btn = document.getElementById('submitBtn');
             const msg = document.getElementById('statusMsg');
-            
+
             const email = document.getElementById('regEmail').value.trim();
             const pass = document.getElementById('regPass').value;
             const name = document.getElementById('regName').value.trim();
@@ -272,12 +495,18 @@
             const isDriver = document.getElementById('isDriver').checked;
             const phone = document.getElementById('regPhone').value.trim();
             const plate = document.getElementById('plateInput').value.trim();
-            
+            const acceptTerms = document.getElementById('acceptTerms').checked;
+
             // HER SKER MAGIEN: Vi bruger processedAvatarFile i stedet for filen fra input-feltet
             const avatarFile = processedAvatarFile;
 
             if (!email || !pass || !name || !avatarFile) {
                 alert("Husk at udfylde navn, email, password og vælge et billede.");
+                return;
+            }
+
+            if (!acceptTerms) {
+                alert("Du skal acceptere handelsbetingelser og privatlivspolitik for at oprette en konto.");
                 return;
             }
 
@@ -329,12 +558,12 @@
                 // Succes!
                 msg.style.color = "#10B981"; // Success Green
                 msg.innerText = "Konto oprettet! Sender dig videre... 🚀";
-                
+
                 // Redirect efter 1.5 sekund
                 setTimeout(() => {
                     window.location.href = '/login';
                 }, 1500);
-                
+
             } catch (e) {
                 msg.style.color = "#EF4444"; // Error Red
                 msg.innerText = "Ups! " + e.message;
@@ -343,4 +572,5 @@
         }
     </script>
 </body>
+
 </html>
