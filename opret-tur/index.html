@@ -1194,6 +1194,24 @@
 
     <hoppon-footer></hoppon-footer>
 
+    <!-- Zero Donation Confirmation Modal -->
+    <div class="modal-overlay" id="zeroDonationModal" style="display:none; z-index: 10001;">
+        <div class="modal-box" style="text-align: center;">
+            <h2 class="modal-title" style="margin-bottom: 10px; color: var(--brand);">Er du sikker på, at du ikke vil
+                støtte platformen?</h2>
+            <p class="modal-text" style="margin-bottom: 20px;" id="zeroDonationCostText">
+                Din donation går til at holde platformen kørende. Din transaktion koster os ca. 0 kr. i alt at
+                facilitere for dine passagerer.
+            </p>
+            <div class="modal-actions" style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn-outline" style="flex:1" onclick="closeZeroDonationModal()">Tilbage til
+                    slider</button>
+                <button class="btn-submit" style="flex:1; background-color: var(--border); color: var(--text-main);"
+                    onclick="confirmZeroDonation()">Ja, jeg vil ikke støtte</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const MAPBOX_TOKEN = 'pk.eyJ1IjoiaG9wcG9uIiwiYSI6ImNtbGpxd2dvNDAybmkzZXBnMnE3emFtY3oifQ.125QBf3ZNc7sCVxuBwnCnA';
         mapboxgl.accessToken = MAPBOX_TOKEN;
@@ -1875,8 +1893,39 @@
         }
 
         // --- SUBMIT ---
-        async function submitRides() {
+        let _pendingSubmit = false; // Flag for pausing submission
+
+        function closeZeroDonationModal() {
+            document.getElementById('zeroDonationModal').style.display = 'none';
+            _pendingSubmit = false;
+        }
+
+        function confirmZeroDonation() {
+            document.getElementById('zeroDonationModal').style.display = 'none';
+            _pendingSubmit = true;
+            submitRides(true); // Proceed with submit, bypassing the check
+        }
+
+        async function submitRides(bypassDonationCheck = false) {
             if (!currentUser || !originCoords || !destCoords) { alert("Fejl: Mangler rute-information."); return; }
+
+            if (currentDonation === 0 && !bypassDonationCheck) {
+                // Beregn hvor meget transaktionen ville have kostet platformen
+                // (antal bookbare pladser * transaktionsgebyr)
+                const seats = parseInt(document.getElementById('seatsInput').value) || 3;
+                let potentialPlatformCost = 0;
+                // Estimer hvad den lavest mulige payout pr plads er (A->B)
+                const estPrice = currentPrice;
+                const platformFeePerSeat = (estPrice * 0.015 + 1.8);
+                potentialPlatformCost = platformFeePerSeat * seats;
+
+                const costText = `Din transaktion koster os ca. ${potentialPlatformCost.toFixed(2).replace('.', ',')} kr. i alt at facilitere for dine passagerer. Vi har ingen andre indtægtskilder end din donation så uden disse, vil platformen ikke kunne løbe rundt.`;
+                document.getElementById('zeroDonationCostText').innerText = costText;
+
+                document.getElementById('zeroDonationModal').style.display = 'flex';
+                return; // Stop inntil bekræftelse
+            }
+
             setLoading(true, "Opretter ture...");
 
             const validWps = waypoints.filter(wp => wp.coords);
