@@ -1636,15 +1636,18 @@
                 </div>
 
                 <div class="donation-box">
-                    <div class="donation-title">Støt HoppOn</div>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <div class="donation-title" style="margin: 0;">Støt HoppOn 💖</div>
+                        <div class="donation-value" id="donationDisplay"
+                            style="font-weight: 900; font-size: 1.1rem; color: #A7F3D0;">0 kr</div>
+                    </div>
+
+                    <input type="range" id="donationInput" class="donation-slider" min="0" max="0" step="1" value="0"
+                        oninput="updateEndTripDonationUI()">
+
                     <div class="donation-desc" id="donationDescText">Din donation går til at holde platformen kørende.
                         Din transaktion koster os ca. 0 kr. pr. passager.</div>
-                    <label style="font-size: 0.9rem; font-weight: 600; margin-bottom: 5px; display: block;">Hvor meget
-                        vil du donere? (Valgfrit)</label>
-                    <div class="donation-input-group">
-                        <input type="number" id="donationInput" min="0" value="0" step="1">
-                        <span>kr. i alt</span>
-                    </div>
                 </div>
 
                 <div class="modal-actions" style="margin-top: 20px;">
@@ -2757,6 +2760,11 @@
             document.getElementById('endTripModal').style.display = 'none';
         }
 
+        function updateEndTripDonationUI() {
+            const val = document.getElementById('donationInput').value || 0;
+            document.getElementById('donationDisplay').innerText = `${val} kr`;
+        }
+
         async function completeTrip(groupId) {
             currentEndTripGroup = groupedDriverRides.find(g => g.id === groupId);
             if (!currentEndTripGroup) return;
@@ -2799,6 +2807,11 @@
                     document.getElementById('endTripStepContent').classList.add('active');
                 } else {
                     document.getElementById('donationDescText').innerText = `Din donation går til at holde platformen kørende. Din transaktion koster os ca. ${totalCost.toFixed(2).replace('.', ',')} kr. i alt.`;
+
+                    const donationSlider = document.getElementById('donationInput');
+                    // Gør donation slideren dynamisk baseret på total cost (afrund opad til nærmeste hele krone)
+                    donationSlider.max = Math.ceil(totalCost);
+
                     document.querySelector('.donation-box').style.display = 'block';
 
                     let pHTML = '';
