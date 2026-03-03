@@ -1057,7 +1057,8 @@
                                     value="0" oninput="updateDonationUI()">
                                 <div class="donation-desc" id="donationDescText" style="text-align: left;">Din donation
                                     går til at holde platformen kørende. Din transaktion koster os ca. 0 kr. pr.
-                                    passager.</div>
+                                    passager. Vi har ingen andre indtægtskilder end din donation så uden disse, vil
+                                    platformen ikke kunne løbe rundt.</div>
                             </div>
 
                             <div class="section-title" style="margin-top:1.5rem;">Indstillinger</div>
@@ -1858,7 +1859,7 @@
             const transactionCost = (currentPrice * 0.015 + 1.8).toFixed(2).replace('.', ',');
             const descEl = document.getElementById('donationDescText');
             if (descEl) {
-                descEl.innerText = `Din donation går til at holde platformen kørende. Din transaktion koster os ca. ${transactionCost} kr. pr. passager.`;
+                descEl.innerText = `Din donation går til at holde platformen kørende. Din transaktion koster os ca. ${transactionCost} kr. pr. passager. Vi har ingen andre indtægtskilder end din donation så uden disse, vil platformen ikke kunne løbe rundt.`;
             }
         }
 

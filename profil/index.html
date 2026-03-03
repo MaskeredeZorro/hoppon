@@ -1647,7 +1647,8 @@
                         oninput="updateEndTripDonationUI()">
 
                     <div class="donation-desc" id="donationDescText">Din donation går til at holde platformen kørende.
-                        Din transaktion koster os ca. 0 kr. pr. passager.</div>
+                        Din transaktion koster os ca. 0 kr. pr. passager. Vi har ingen andre indtægtskilder end din
+                        donation så uden disse, vil platformen ikke kunne løbe rundt.</div>
                 </div>
 
                 <div class="modal-actions" style="margin-top: 20px;">
@@ -2806,7 +2807,7 @@
                     document.querySelector('.donation-box').style.display = 'none';
                     document.getElementById('endTripStepContent').classList.add('active');
                 } else {
-                    document.getElementById('donationDescText').innerText = `Din donation går til at holde platformen kørende. Din transaktion koster os ca. ${totalCost.toFixed(2).replace('.', ',')} kr. i alt.`;
+                    document.getElementById('donationDescText').innerText = `Din donation går til at holde platformen kørende. Din transaktion koster os ca. ${totalCost.toFixed(2).replace('.', ',')} kr. i alt. Vi har ingen andre indtægtskilder end din donation så uden disse, vil platformen ikke kunne løbe rundt.`;
 
                     const donationSlider = document.getElementById('donationInput');
                     // Gør donation slideren dynamisk baseret på total cost (afrund opad til nærmeste hele krone)
