@@ -1909,7 +1909,7 @@
         async function submitRides(bypassDonationCheck = false) {
             if (!currentUser || !originCoords || !destCoords) { alert("Fejl: Mangler rute-information."); return; }
 
-            if (currentDonation === 0 && !bypassDonationCheck) {
+            if (currentDonation === 0 && !bypassDonationCheck && !_pendingSubmit) {
                 // Beregn hvor meget transaktionen ville have kostet platformen
                 // (antal bookbare pladser * transaktionsgebyr)
                 const seats = parseInt(document.getElementById('seatsInput').value) || 3;
