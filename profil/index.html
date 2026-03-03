@@ -3185,7 +3185,6 @@
                 };
 
                 badge.style.display = "flex";
-                plateInput.value = "";
             } else {
                 err.innerText = "❌ Vi kunne ikke finde bilen. Tjek nummerpladen.";
                 err.style.display = "block";
@@ -3232,10 +3231,10 @@
                     display_name: carDataStorage.display_name
                 };
 
-                // 2. Update profile with driver intent (is_driver = true, but phone_verified might be false still)
+                // 2. Update profile with driver intent (is_driver = true)
+                // phone_number gemmes IKKE her - kun efter SMS-verifikation er gennemført
                 const { error: profErr } = await _supabase.from('profiles').update({
                     is_driver: true,
-                    phone_number: phoneInput,
                     license_plate: carDataStorage.plate,
                     car_details: carDetailsJSON,
                     phone_verified: false // Will be set true in verification
@@ -3263,6 +3262,7 @@
 
                 // 5. Redirect to verification
                 sessionStorage.setItem('verify_phone', phoneInput);
+                sessionStorage.setItem('pending_phone', phoneInput); // Bruges af verification-siden til at gemme nummeret
                 window.location.href = '/verification';
 
             } catch (err) {
@@ -3288,10 +3288,10 @@
 
                 let toUpdate = {
                     full_name: newName,
-                    phone_number: newPhone,
                     gender: newGender,
                     bio: newBio
                 };
+                // Telefonnummer opdateres KUN via SMS-verifikation, ikke her
 
                 // Opdater Kun Bil, HVIS den er søgt frem (hvis ikke brugeren prøver at blive chauffør nu)
                 if (carDataStorage) {
