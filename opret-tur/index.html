@@ -1921,7 +1921,7 @@
                 const platformFeePerSeat = (estPrice * 0.015 + 1.8);
                 potentialPlatformCost = platformFeePerSeat * seats;
 
-                const costText = `Din donation går til at holde platformen kørende. <strong style="background: rgba(239, 68, 68, 0.1); color: #EF4444; padding: 2px 6px; border-radius: 4px;">Din transaktion koster os ca. ${potentialPlatformCost.toFixed(2).replace('.', ',')} kr. i alt at facilitere for dine passagerer.</strong> Vi har ingen andre indtægtskilder end din donation så uden disse, vil platformen ikke kunne løbe rundt.`;
+                const costText = `Din donation går til at holde platformen kørende. <strong style="background: rgba(239, 68, 68, 0.1); color: #EF4444; padding: 2px 6px; border-radius: 4px;">Din transaktion koster os ca. mellem ${platformFeePerSeat.toFixed(2).replace('.', ',')} og ${potentialPlatformCost.toFixed(2).replace('.', ',')} kr. i alt at facilitere for dine passagerer.</strong> Vi har ingen andre indtægtskilder end din donation så uden disse, vil platformen ikke kunne løbe rundt.`;
                 document.getElementById('zeroDonationCostText').innerHTML = costText;
 
                 document.getElementById('zeroDonationModal').style.display = 'flex';
