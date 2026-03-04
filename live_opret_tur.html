@@ -1,0 +1,2057 @@
+<!DOCTYPE html>
+<html lang="da">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opret Tur | HoppOn Samkørsel</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <link rel="stylesheet" href="/style.css">
+    <script src="/supabase.js"></script>
+    <script src="/components.js" defer></script>
+
+    <style>
+        /* Specifikke styles til Opret Tur (Wizard, Mapbox, kalender osv.) */
+
+        main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 4rem 1rem 2rem 1rem;
+            width: 100%;
+        }
+
+        /* WIZARD PROGRESS BAR */
+        .wizard-bar {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            padding: 0.8rem 1.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .wizard-steps {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .w-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: 0.3s;
+        }
+
+        .w-step.active,
+        .w-step.completed {
+            color: var(--brand);
+        }
+
+        .w-circle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #E2E8F0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            transition: 0.3s;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .w-step.active .w-circle,
+        .w-step.completed .w-circle {
+            background: var(--brand);
+            color: white;
+        }
+
+        .w-line {
+            width: 40px;
+            height: 3px;
+            background: #E2E8F0;
+            border-radius: 2px;
+            transition: 0.3s;
+            margin: 0 4px;
+        }
+
+        .w-line.completed {
+            background: var(--brand);
+        }
+
+        .header-co2 {
+            font-weight: 700;
+            color: var(--success);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-co2 span {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .wizard-bar {
+                flex-direction: column;
+                gap: 0.8rem;
+                padding: 1rem;
+            }
+
+            .w-step span {
+                display: none;
+            }
+        }
+
+        /* MAIN APP CONTAINER */
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+            margin-bottom: 2rem;
+        }
+
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 2rem;
+            transition: grid-template-columns 0.3s ease;
+        }
+
+        .layout-grid.full-width {
+            grid-template-columns: 1fr;
+        }
+
+        @media (max-width: 850px) {
+
+            .layout-grid,
+            .layout-grid.full-width {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        .right-col {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+            transition: opacity 0.3s;
+        }
+
+        /* WIZARD CONTAINERS */
+        .step-container {
+            display: none;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .step-container.active {
+            display: block;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 0.3rem;
+            color: var(--brand);
+            letter-spacing: -0.5px;
+        }
+
+        .step-desc {
+            color: var(--text-muted);
+            margin-bottom: 1.2rem;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .section-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin: 1rem 0 0.6rem 0;
+            color: var(--brand);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 6px;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            color: var(--text-main);
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            background: #F8FAFC;
+            color: var(--brand);
+            font-weight: 500;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: var(--accent);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary {
+            background: var(--brand);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent);
+        }
+
+        .btn-accent {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--brand);
+        }
+
+        .btn-outline:hover {
+            background: #F8FAFC;
+            box-shadow: none;
+            transform: none;
+            border-color: var(--brand);
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            width: auto;
+            display: inline-block;
+            border-radius: 10px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1.5rem;
+        }
+
+        /* CALENDAR GRID */
+        .calendar-wrapper {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 12px;
+            background: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .calendar-scroll {
+            max-height: 220px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .calendar-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .calendar-scroll::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+            gap: 8px;
+        }
+
+        .date-box {
+            padding: 10px 4px;
+            border: 2px solid #F1F5F9;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            background: #F8FAFC;
+            user-select: none;
+        }
+
+        .date-box:hover {
+            border-color: var(--accent);
+            background: white;
+        }
+
+        .date-box.selected {
+            background: var(--brand);
+            border-color: var(--brand);
+            color: white;
+            transform: scale(0.95);
+        }
+
+        .date-box .day-name {
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            opacity: 0.8;
+            font-weight: 700;
+        }
+
+        .date-box .day-num {
+            display: block;
+            font-size: 1.3rem;
+            font-weight: 900;
+            margin: 2px 0;
+        }
+
+        .date-box .month-name {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Mapbox autocomplete */
+        .suggestions-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 50;
+            display: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            margin-top: 5px;
+        }
+
+        .suggestion-item {
+            padding: 12px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid #F1F5F9;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover {
+            background: #F8FAFC;
+        }
+
+        .sugg-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--brand);
+        }
+
+        .sugg-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Price Selector */
+        .price-selector {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 4px;
+        }
+
+        .price-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--brand);
+            transition: 0.2s;
+        }
+
+        .price-btn:hover {
+            background: var(--border);
+        }
+
+        .price-value {
+            font-weight: 900;
+            font-size: 1.2rem;
+            color: var(--brand);
+        }
+
+        .rec-price-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            text-align: right;
+        }
+
+        /* Donation Slider */
+        .donation-container {
+            margin-top: 20px;
+            padding: 15px;
+            background: #4F46E5;
+            /* Indigo accent */
+            border: 1px solid #4338CA;
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        }
+
+        .donation-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        .donation-value {
+            color: #A7F3D0;
+            /* Light emerald for contrast on indigo */
+            font-weight: 900;
+            font-size: 1.1em;
+        }
+
+        .donation-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            transition: 0.2s;
+            margin-bottom: 5px;
+        }
+
+        .donation-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #10B981;
+            /* Success Green */
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            border: 3px solid white;
+        }
+
+        .donation-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #10B981;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            border: 3px solid white;
+        }
+
+        .donation-desc {
+            font-size: 0.8rem;
+            color: #E0E7FF;
+            margin-top: 10px;
+            line-height: 1.4;
+            text-align: left;
+        }
+
+        /* Settings Toggles */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .switch-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: white;
+        }
+
+        .switch-info {
+            display: flex;
+            flex-direction: column;
+            padding-right: 8px;
+        }
+
+        .switch-title {
+            font-weight: 800;
+            color: var(--brand);
+            font-size: 0.9rem;
+        }
+
+        .switch-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+            line-height: 1.3;
+        }
+
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 22px;
+            flex-shrink: 0;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        input:checked+.slider {
+            background-color: var(--accent);
+        }
+
+        /* Lyserød farve specifikt til Ladies Only */
+        input:checked+.slider.pink {
+            background-color: var(--pink, #EC4899) !important;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(18px);
+        }
+
+        /* Rules Grid */
+        .rules-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .rule-btn {
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .rule-true {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: var(--brand);
+        }
+
+        .rule-false {
+            background: rgba(239, 68, 68, 0.05);
+            border-color: rgba(239, 68, 68, 0.2);
+            color: var(--text-muted);
+        }
+
+        /* Map & Info Card */
+        #map {
+            width: 100%;
+            height: 280px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            margin-bottom: 1.2rem;
+        }
+
+        .info-card {
+            background: white;
+            padding: 1.2rem;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            border-bottom: 1px dashed var(--border);
+            padding-bottom: 8px;
+        }
+
+        .info-row:last-of-type {
+            border-bottom: none;
+        }
+
+        .info-row span:first-child {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .info-row span:last-child {
+            font-weight: 800;
+            color: var(--brand);
+        }
+
+        /* NYT MILITARY TIME INPUT FELT DESIGN (Tvinger 24t format) */
+        .military-time-input {
+            display: flex;
+            align-items: center;
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 8px 12px;
+            width: fit-content;
+            transition: 0.2s;
+        }
+
+        .military-time-input:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            background: white;
+        }
+
+        .military-time-input input {
+            width: 45px;
+            padding: 4px;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--brand);
+            outline: none;
+            box-shadow: none;
+        }
+
+        .military-time-input input:focus {
+            box-shadow: none;
+            background: transparent;
+            border: none;
+        }
+
+        .military-time-input span {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--brand);
+            margin: 0 2px;
+        }
+
+        /* Styling til Ankomst/Mellemstop tid (som man kan rette) */
+        .editable-time-container {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .editable-time-input {
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 900;
+            color: var(--brand);
+            background: transparent;
+            border: none;
+            border-bottom: 2px dashed var(--accent);
+            width: 28px;
+            text-align: center;
+            cursor: pointer;
+            outline: none;
+            transition: 0.2s;
+            padding: 0;
+        }
+
+        .editable-time-input:focus {
+            background: #EEF2FF;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .payout-highlight {
+            margin-top: 12px;
+            padding: 16px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            text-align: center;
+        }
+
+        .payout-highlight .gebyr-badge {
+            display: inline-block;
+            background: var(--brand);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 16px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .payout-highlight .amount {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--brand);
+            letter-spacing: -1px;
+        }
+
+        .payout-highlight .sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        .waypoint-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        /* AUTH SEKTION */
+        #authSection {
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem;
+        }
+
+        #authSection h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 0.3rem;
+            text-align: center;
+            color: var(--brand);
+            letter-spacing: -0.5px;
+        }
+
+        #authSection .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        #errorMessage {
+            color: var(--danger);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+            background: #FEF2F2;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #FCA5A5;
+        }
+
+        /* Loading Overlay Global */
+        #globalLoader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+            text-align: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            font-weight: 700;
+            color: var(--brand);
+            font-size: 1.1rem;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="globalLoader">
+        <div class="spinner" id="loaderSpinner"></div>
+        <div class="loading-text" id="loadingText">Arbejder...</div>
+    </div>
+
+    <hoppon-header></hoppon-header>
+
+    <main-content>
+        <div class="wizard-bar" id="wizardBar" style="display:none;">
+            <div class="wizard-steps">
+                <div class="w-step active" id="wStep1">
+                    <div class="w-circle">1</div><span>Rute</span>
+                </div>
+                <div class="w-line" id="wLine1"></div>
+                <div class="w-step" id="wStep2">
+                    <div class="w-circle">2</div><span>Tid</span>
+                </div>
+                <div class="w-line" id="wLine2"></div>
+                <div class="w-step" id="wStep3">
+                    <div class="w-circle">3</div><span>Detaljer</span>
+                </div>
+            </div>
+            <div class="header-co2">
+                🌱 <span><strong id="co2Value">0.0</strong> kg CO₂ sparet*</span>
+            </div>
+        </div>
+
+        <div class="container" id="mainAppContainer" style="display:none;">
+            <div class="card" id="createRideForm">
+                <div class="layout-grid" id="mainGrid">
+
+                    <div class="left-col">
+
+                        <div id="step1" class="step-container active">
+                            <h2>Hvor skal du hen?</h2>
+                            <p class="step-desc">Vælg din start- og slutdestination. Tilføj mellemstops, hvis du vil
+                                samle passagerer op på vejen.</p>
+
+                            <div class="section-title" style="margin-top:0;">Ruten</div>
+                            <div class="form-group">
+                                <label>Fra</label>
+                                <input type="text" id="originInput" placeholder="Søg efter by, station eller adresse..."
+                                    oninput="debouncedSearch(this, 'origin')" autocomplete="off">
+                                <div id="originSuggestions" class="suggestions-list"></div>
+                            </div>
+
+                            <div id="waypointsContainer"></div>
+                            <button class="btn btn-outline btn-small" onclick="addWaypointInput()"
+                                style="margin-bottom: 1rem;">+ Tilføj mellemstop</button>
+
+                            <div class="form-group">
+                                <label>Til</label>
+                                <input type="text" id="destInput" placeholder="Søg efter by, station eller adresse..."
+                                    oninput="debouncedSearch(this, 'dest')" autocomplete="off">
+                                <div id="destSuggestions" class="suggestions-list"></div>
+                            </div>
+
+                            <div class="switch-row" style="margin-top: 1.5rem; border-color: var(--accent);">
+                                <div class="switch-info"><span class="switch-title">Kører du via færge?</span><span
+                                        class="switch-sub">Ruten krydser Kattegat (Giver automatisk +90 min)</span>
+                                </div>
+                                <label class="toggle"><input type="checkbox" id="swFerry"
+                                        onchange="currentPrice = 0; calculateRoute()"><span
+                                        class="slider"></span></label>
+                            </div>
+
+                            <div class="nav-buttons" style="justify-content: flex-end;">
+                                <button class="btn btn-accent" style="width: auto; padding: 14px 35px;"
+                                    onclick="goToStep(2)">Næste trin &rarr;</button>
+                            </div>
+                        </div>
+
+                        <div id="step2" class="step-container">
+                            <h2>Hvornår kører du?</h2>
+                            <p class="step-desc">Vælg de datoer, du gerne vil køre turen. Du kan klikke for at vælge
+                                lige så mange du har lyst til!</p>
+
+                            <div class="section-title" style="margin-top:0;">Vælg datoer</div>
+                            <div class="calendar-wrapper">
+                                <div class="calendar-scroll">
+                                    <div class="calendar-grid" id="calendarGrid"></div>
+                                </div>
+                            </div>
+
+                            <div class="section-title">Afgangstidspunkt</div>
+                            <div class="form-group">
+                                <label>Hvornår kører du fra din start-destination?</label>
+                                <div class="military-time-input">
+                                    <input type="text" id="rideTimeHour" value="12" maxlength="2"
+                                        oninput="validateTimeInput(this, 23); updateTimes();" onfocus="this.select()">
+                                    <span>:</span>
+                                    <input type="text" id="rideTimeMin" value="00" maxlength="2"
+                                        oninput="validateTimeInput(this, 59); updateTimes();" onfocus="this.select()">
+                                </div>
+                            </div>
+
+                            <div class="nav-buttons">
+                                <button class="btn btn-outline" style="flex: 1; margin: 0;" onclick="goToStep(1)">&larr;
+                                    Tilbage</button>
+                                <button class="btn btn-accent" style="flex: 2; margin: 0;" onclick="goToStep(3)">Næste
+                                    trin &rarr;</button>
+                            </div>
+                        </div>
+
+                        <div id="step3" class="step-container">
+                            <h2>De sidste detaljer</h2>
+                            <p class="step-desc">Tilpas antallet af ledige pladser, fastsæt din pris, og angiv dine
+                                husregler for turen.</p>
+
+                            <div class="section-title" style="margin-top:0;">Pladser & Pris for hele turen</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 12px;">
+                                <div class="form-group">
+                                    <label>Ledige Sæder</label>
+                                    <input type="number" id="seatsInput" value="3" min="1" max="7"
+                                        onchange="currentPrice = 0; calculateRoute();">
+                                </div>
+                                <div class="form-group">
+                                    <label>Din Pris (kr)</label>
+                                    <div class="price-selector">
+                                        <button class="price-btn" onclick="adjustPrice(-5)">-</button>
+                                        <div class="price-value" id="priceDisplay">0</div>
+                                        <button class="price-btn" onclick="adjustPrice(5)">+</button>
+                                    </div>
+                                    <div class="rec-price-text">Vi anbefaler <strong id="recPriceDisplay"
+                                            style="color:var(--brand)">0</strong> kr <span
+                                            style="color:var(--success); font-weight:800;">(0 kr i gebyr)</span></div>
+                                </div>
+                            </div>
+
+                            <div class="donation-container"
+                                style="margin-top: 5px; padding-top: 15px; border-top: 1px dashed var(--border); margin-bottom: 20px;">
+                                <div class="donation-label">
+                                    <span>Donation til platformen 💖</span>
+                                    <span class="donation-value" id="donationDisplay">0 kr</span>
+                                </div>
+                                <input type="range" id="donationSlider" class="donation-slider" min="0" max="0" step="1"
+                                    value="0" oninput="updateDonationUI()">
+                                <div class="donation-desc" id="donationDescText" style="text-align: left;">Din donation
+                                    går til at holde platformen kørende. Din transaktion koster os ca. 0 kr. pr.
+                                    passager. Vi har ingen andre indtægtskilder end din donation så uden disse, vil
+                                    platformen ikke kunne løbe rundt.</div>
+                            </div>
+
+                            <div class="section-title" style="margin-top:1.5rem;">Indstillinger</div>
+                            <div class="settings-grid">
+                                <div class="switch-row">
+                                    <div class="switch-info"><span class="switch-title">Lynbooking</span><span
+                                            class="switch-sub">Godkend automatisk</span></div>
+                                    <label class="toggle"><input type="checkbox" id="swInstant"><span
+                                            class="slider"></span></label>
+                                </div>
+                                <div class="switch-row">
+                                    <div class="switch-info"><span class="switch-title">Fleksibel</span><span
+                                            class="switch-sub">Max 5 min. omvej</span></div>
+                                    <label class="toggle"><input type="checkbox" id="swFlex" checked><span
+                                            class="slider"></span></label>
+                                </div>
+                                <div class="switch-row">
+                                    <div class="switch-info"><span class="switch-title">Komfort Garanti</span><span
+                                            class="switch-sub">Max 2 på bagsædet</span></div>
+                                    <label class="toggle"><input type="checkbox" id="swComfort"><span
+                                            class="slider"></span></label>
+                                </div>
+                                <div class="switch-row" id="ladiesOnlyRow" style="display:none;">
+                                    <div class="switch-info"><span class="switch-title"
+                                            style="color:var(--pink, #EC4899)">Ladies Only</span><span
+                                            class="switch-sub">Kun for kvinder</span></div>
+                                    <label class="toggle"><input type="checkbox" id="swLadies"><span
+                                            class="slider pink"></span></label>
+                                </div>
+                            </div>
+
+                            <div class="section-title" style="margin-top:1.5rem;">Husregler</div>
+                            <div class="rules-grid">
+                                <div class="rule-btn rule-true" id="ruleMusic" onclick="toggleRule('Music')">
+                                    <span>✔️</span> Musik
+                                </div>
+                                <div class="rule-btn rule-false" id="ruleSmoking" onclick="toggleRule('Smoking')">
+                                    <span>❌</span> Rygning
+                                </div>
+                                <div class="rule-btn rule-false" id="rulePets" onclick="toggleRule('Pets')">
+                                    <span>❌</span> Kæledyr
+                                </div>
+                                <div class="rule-btn rule-true" id="ruleKids" onclick="toggleRule('Kids')">
+                                    <span>✔️</span> Børn
+                                </div>
+                            </div>
+
+                            <div class="section-title" style="margin-top:1.5rem;">Besked til passagerer</div>
+                            <div class="form-group">
+                                <textarea id="commentInput" rows="2"
+                                    placeholder="Skriv lidt om opsamlingssted, plads i bagagerummet..."></textarea>
+                            </div>
+
+                            <div class="nav-buttons">
+                                <button class="btn btn-outline" style="flex: 1; margin: 0;" onclick="goToStep(2)">&larr;
+                                    Tilbage</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-col" id="rightColumn">
+                        <div id="map"></div>
+
+                        <div class="info-card" id="infoCard" style="display: none;">
+                            <h3 style="margin-bottom: 15px; color: var(--brand); font-size: 1.2rem; font-weight: 900;">
+                                Tur Overblik</h3>
+
+                            <div class="info-row">
+                                <span>Afgang:</span>
+                                <span id="departureText">--:--</span>
+                            </div>
+
+                            <div id="waypointTimesContainer"></div>
+
+                            <div class="info-row" style="align-items: center;">
+                                <span>Est. ankomst (klik for at rette):</span>
+                                <div class="editable-time-container">
+                                    <input type="text" id="arrTimeHour" class="editable-time-input" value="00"
+                                        maxlength="2" oninput="validateTimeInput(this, 23)" onfocus="this.select()">
+                                    <span style="font-weight:900;">:</span>
+                                    <input type="text" id="arrTimeMin" class="editable-time-input" value="00"
+                                        maxlength="2" oninput="validateTimeInput(this, 59)" onfocus="this.select()">
+                                </div>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Køretid:</span>
+                                <span id="durationText">0 t 0 m</span>
+                            </div>
+                            <div class="info-row">
+                                <span>Samlet kørsel:</span>
+                                <span id="distanceText">0 km</span>
+                            </div>
+
+                            <div id="segmentPricesContainer"></div>
+
+                            <div class="payout-highlight">
+                                <div class="gebyr-badge">0 kr i gebyr</div>
+                                <div class="amount"><span id="payoutText">0</span> kr.</div>
+                                <div class="sub">Din overordnede udbetaling pr. passager</div>
+                            </div>
+
+                            <button class="btn btn-primary" style="margin-top: 15px;"
+                                onclick="submitRides()">OFFENTLIGGØR TUR(E) 🚀</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="authSection" class="card" style="display: none;">
+            <h1>Velkommen tilbage</h1>
+            <p class="subtitle">Log ind for at udbyde en tur</p>
+            <div id="loginForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="din@email.dk" required>
+                </div>
+                <div class="form-group">
+                    <label>Adgangskode</label>
+                    <input type="password" id="loginPass" placeholder="••••••••" required>
+                </div>
+                <div id="errorMessage"></div>
+                <button class="btn btn-primary" onclick="handleLogin()">Log Ind</button>
+                <div style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted);">
+                    Har du ikke en konto? <a href="/opret-profil"
+                        style="color: var(--accent); font-weight: 700; text-decoration: none;">Opret profil her</a>
+                </div>
+            </div>
+        </div>
+    </main-content>
+
+    <hoppon-footer></hoppon-footer>
+
+    <!-- Zero Donation Confirmation Modal -->
+    <div class="modal-overlay" id="zeroDonationModal" style="display:none; z-index: 10001;">
+        <div class="modal-box" style="text-align: center;">
+            <h2 class="modal-title" style="margin-bottom: 10px; color: var(--brand);">Vil du virkelig ikke støtte
+                platformen?</h2>
+            <p class="modal-text" style="margin-bottom: 20px; line-height: 1.5;" id="zeroDonationCostText">
+                Din donation går til at holde platformen kørende. <strong
+                    style="background: rgba(239, 68, 68, 0.1); color: #EF4444; padding: 2px 6px; border-radius: 4px;">Din
+                    transaktion koster os ca. 0 kr. i alt at facilitere for dine passagerer.</strong> Vi har ingen andre
+                indtægtskilder end din donation så uden disse, vil platformen ikke kunne løbe rundt.
+            </p>
+            <div class="modal-actions" style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn-primary" style="flex:1" onclick="closeZeroDonationModal()">Giv en lille
+                    donation</button>
+                <button class="btn-outline" style="flex:1; color: var(--text-muted);"
+                    onclick="confirmZeroDonation()">Nej, jeg vil ikke støtte</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MAPBOX_TOKEN = 'pk.eyJ1IjoiaG9wcG9uIiwiYSI6ImNtbGpxd2dvNDAybmkzZXBnMnE3emFtY3oifQ.125QBf3ZNc7sCVxuBwnCnA';
+        mapboxgl.accessToken = MAPBOX_TOKEN;
+
+        let currentUser = null;
+        let currentUserCarDetails = null;
+
+        let map = null;
+        // LEAFLET FALLBACK VARIABLER
+        let leafletMap = null;
+        let leafletRouteLayer = null;
+        let leafletMarkerLayers = [];
+
+        let currentPrice = 0;
+        let recommendedPrice = 0;
+        let cachedDistanceKm = 0;
+        let cachedDurationMin = 0;
+        let legDurationsMin = []; // Nyt array der gemmer tiden mellem hver destination
+        let crossesSeaGlobal = false;
+
+        let originCoords = null;
+        let destCoords = null;
+        let waypoints = [];
+        let rules = { Music: true, Smoking: false, Pets: false, Kids: true };
+        let searchTimeout = null;
+        let selectedDates = [];
+        let routeSegments = []; // Holder priserne for hver kombineret strækning
+        let currentDonation = 0;
+
+        const FERRY_AARHUS = [10.21396, 56.15720];
+        const FERRY_ODDEN = [11.29615, 55.97330];
+
+        window.onload = async () => {
+            setLoading(true, "Tjekker bruger...");
+            const { data: { session } } = await _supabase.auth.getSession();
+
+            if (session) {
+                currentUser = session.user;
+                await fetchUserProfile(currentUser.id);
+
+                document.getElementById('mainAppContainer').style.display = 'block';
+                document.getElementById('wizardBar').style.display = 'flex';
+
+                initMap();
+
+                const now = new Date();
+                const defaultTime = new Date(now.getTime() + 3600000);
+                const hours = defaultTime.getHours().toString().padStart(2, '0');
+                const minutes = defaultTime.getMinutes().toString().padStart(2, '0');
+
+                document.getElementById('rideTimeHour').value = hours;
+                document.getElementById('rideTimeMin').value = minutes;
+
+                generateCalendar();
+                updateTimes();
+            } else {
+                document.getElementById('authSection').style.display = 'block';
+            }
+            setLoading(false);
+        };
+
+        // --- CUSTOM 24H TIME LOGIK ---
+        function validateTimeInput(input, maxVal) {
+            input.value = input.value.replace(/[^0-9]/g, '');
+            if (input.value !== '') {
+                let val = parseInt(input.value);
+                if (val > maxVal) input.value = maxVal;
+            }
+            if (input.value.length === 1 && parseInt(input.value) > (maxVal > 23 ? 5 : 2)) {
+                input.value = '0' + input.value;
+            }
+        }
+
+        function getDepartureTimeStr() {
+            let h = document.getElementById('rideTimeHour').value || "00";
+            let m = document.getElementById('rideTimeMin').value || "00";
+            return `${h.padStart(2, '0')}:${m.padStart(2, '0')}`;
+        }
+        function getArrivalTimeStr() {
+            let h = document.getElementById('arrTimeHour').value || "00";
+            let m = document.getElementById('arrTimeMin').value || "00";
+            return `${h.padStart(2, '0')}:${m.padStart(2, '0')}`;
+        }
+
+        // --- WIZARD & UI NAVIGATION ---
+        function goToStep(step) {
+            if (step === 2 && (!originCoords || !destCoords)) { alert("Hov! Vælg venligst både en start- og slutdestination."); return; }
+            if (step === 3 && selectedDates.length === 0) { alert("Vælg mindst én dato i kalenderen."); return; }
+
+            document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+
+            document.getElementById('wStep1').className = step >= 1 ? 'w-step active' : 'w-step';
+            document.getElementById('wLine1').className = step >= 2 ? 'w-line completed' : 'w-line';
+            document.getElementById('wStep2').className = step >= 2 ? 'w-step active' : 'w-step';
+            document.getElementById('wLine2').className = step >= 3 ? 'w-line completed' : 'w-line';
+            document.getElementById('wStep3').className = step >= 3 ? 'w-step active' : 'w-step';
+
+            const rightCol = document.getElementById('rightColumn');
+            const mainGrid = document.getElementById('mainGrid');
+            const infoCard = document.getElementById('infoCard');
+
+            if (step === 1) {
+                mainGrid.classList.remove('full-width');
+                infoCard.style.display = 'none';
+                rightCol.style.display = 'block';
+                setTimeout(() => {
+                    rightCol.style.opacity = '1';
+                    if (map) map.resize();
+                    if (leafletMap) leafletMap.invalidateSize();
+                }, 50);
+            } else if (step === 2) {
+                rightCol.style.opacity = '0';
+                setTimeout(() => { rightCol.style.display = 'none'; mainGrid.classList.add('full-width'); }, 300);
+            } else {
+                mainGrid.classList.remove('full-width');
+                infoCard.style.display = 'block';
+                rightCol.style.display = 'block';
+                setTimeout(() => {
+                    rightCol.style.opacity = '1';
+                    if (map) map.resize();
+                    if (leafletMap) leafletMap.invalidateSize();
+                }, 50);
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- KALENDER ---
+        function generateCalendar() {
+            const container = document.getElementById('calendarGrid');
+            container.innerHTML = '';
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            for (let i = 0; i < 365; i++) {
+                const d = new Date(today);
+                d.setDate(today.getDate() + i);
+
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                const dateStr = `${year}-${month}-${day}`;
+                const dayName = d.toLocaleDateString('da-DK', { weekday: 'short' }).replace('.', '');
+                const dayNum = d.getDate();
+                const monthName = d.toLocaleDateString('da-DK', { month: 'short' }).replace('.', '');
+
+                const box = document.createElement('div');
+                box.className = 'date-box';
+                if (selectedDates.includes(dateStr)) box.classList.add('selected');
+
+                box.innerHTML = `<span class="day-name">${dayName}</span><span class="day-num">${dayNum}.</span><span class="month-name">${monthName}</span>`;
+
+                box.onclick = () => {
+                    if (selectedDates.includes(dateStr)) {
+                        selectedDates = selectedDates.filter(ds => ds !== dateStr);
+                        box.classList.remove('selected');
+                    } else {
+                        selectedDates.push(dateStr);
+                        box.classList.add('selected');
+                    }
+                };
+                container.appendChild(box);
+            }
+        }
+
+        function renderWaypointTimeInputs() {
+            const container = document.getElementById('waypointTimesContainer');
+            const validWps = waypoints.filter(w => w.coords);
+
+            // Tjek om vi allerede har de rigtige inputs
+            const currentIds = Array.from(container.querySelectorAll('input[id^="wpTimeHour_"]')).map(el => parseInt(el.id.split('_')[1]));
+            const newIds = validWps.map(w => w.id);
+            if (JSON.stringify(currentIds) === JSON.stringify(newIds)) return;
+
+            container.innerHTML = '';
+            validWps.forEach((wp) => {
+                const html = `
+                <div class="info-row" style="align-items: center;">
+                    <span>Via ${wp.name || 'Mellemstop'} (Est. ankomst):</span>
+                    <div class="editable-time-container">
+                        <input type="text" id="wpTimeHour_${wp.id}" class="editable-time-input" value="00" maxlength="2" oninput="validateTimeInput(this, 23)" onfocus="this.select()">
+                        <span style="font-weight:900;">:</span>
+                        <input type="text" id="wpTimeMin_${wp.id}" class="editable-time-input" value="00" maxlength="2" oninput="validateTimeInput(this, 59)" onfocus="this.select()">
+                    </div>
+                </div>`;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        // --- STRÆKNINGSPRISER (NY FUNKTION) ---
+        function generateRouteSegments() {
+            routeSegments = [];
+            const originName = document.getElementById('originInput').value || 'Start';
+            const destName = document.getElementById('destInput').value || 'Slut';
+
+            let points = [{ name: originName }];
+            waypoints.filter(w => w.coords).forEach(w => points.push({ name: w.name || 'Mellemstop' }));
+            points.push({ name: destName });
+
+            for (let i = 0; i < points.length - 1; i++) {
+                for (let j = i + 1; j < points.length; j++) {
+                    routeSegments.push({
+                        from: points[i].name,
+                        to: points[j].name,
+                        price: currentPrice
+                    });
+                }
+            }
+            renderSegmentPrices();
+        }
+
+        function renderSegmentPrices() {
+            const container = document.getElementById('segmentPricesContainer');
+            if (routeSegments.length <= 1) {
+                container.innerHTML = ''; // Skjul det, hvis det kun er én strækning (A->B)
+                return;
+            }
+
+            let html = '<div style="margin-top: 15px; border-top: 1px dashed var(--border); padding-top: 15px;"><h4 style="font-size: 0.95rem; margin-bottom: 10px; color: var(--brand);">Pris pr. strækning:</h4>';
+            routeSegments.forEach((seg, idx) => {
+                html += `
+                <div class="info-row" style="align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 0.85rem; color: var(--text-main); font-weight: 600;">${seg.from} ➝ ${seg.to}</span>
+                    <div class="editable-time-container" style="gap: 5px; background: #F8FAFC; padding: 2px 6px; border-radius: 8px; border: 1px solid var(--border);">
+                        <button class="price-btn" style="width: 24px; height: 24px; font-size: 1rem; line-height: 1;" onclick="adjustSegmentPrice(${idx}, -5)">-</button>
+                        <span style="font-weight: 800; color: var(--brand); min-width: 32px; text-align: center; font-size: 0.9rem;">${seg.price} kr</span>
+                        <button class="price-btn" style="width: 24px; height: 24px; font-size: 1rem; line-height: 1;" onclick="adjustSegmentPrice(${idx}, 5)">+</button>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function adjustSegmentPrice(idx, amt) {
+            routeSegments[idx].price += amt;
+            if (routeSegments[idx].price < 20) routeSegments[idx].price = 20; // Minimumspris er stadig 20 kr.
+            renderSegmentPrices();
+        }
+
+        // --- TIDER & CO2 ---
+        function updateTimes() {
+            const timeStr = getDepartureTimeStr();
+            if (!timeStr) return;
+
+            document.getElementById('departureText').innerText = timeStr;
+
+            if (cachedDurationMin > 0 || legDurationsMin.length > 0) {
+                const [startH, startM] = timeStr.split(':').map(Number);
+                let cumulativeMins = (startH * 60) + startM;
+
+                const validWps = waypoints.filter(w => w.coords);
+
+                // Beregn for mellemstops dynamisk ud fra Mapbox legs
+                validWps.forEach((wp, idx) => {
+                    if (legDurationsMin[idx] !== undefined) {
+                        cumulativeMins += legDurationsMin[idx];
+                    }
+                    const wpH = Math.floor(cumulativeMins / 60) % 24;
+                    const wpM = Math.round(cumulativeMins % 60);
+
+                    const hrEl = document.getElementById(`wpTimeHour_${wp.id}`);
+                    const minEl = document.getElementById(`wpTimeMin_${wp.id}`);
+                    if (hrEl && minEl) {
+                        hrEl.value = wpH.toString().padStart(2, '0');
+                        minEl.value = wpM.toString().padStart(2, '0');
+                    }
+                });
+
+                // Beregn for slutdestination
+                if (legDurationsMin[validWps.length] !== undefined) {
+                    cumulativeMins += legDurationsMin[validWps.length];
+                } else if (legDurationsMin.length > 0) {
+                    cumulativeMins += legDurationsMin[0]; // Fallback hvis ingen mellemstops
+                } else {
+                    const isFerry = document.getElementById('swFerry').checked;
+                    const ferryExtraMins = (isFerry && crossesSeaGlobal) ? 90 : 0;
+                    cumulativeMins = (startH * 60) + startM + cachedDurationMin + ferryExtraMins;
+                }
+
+                const arrH = Math.floor(cumulativeMins / 60) % 24;
+                const arrM = Math.round(cumulativeMins % 60);
+
+                const arrTimeHourEl = document.getElementById('arrTimeHour');
+                const arrTimeMinEl = document.getElementById('arrTimeMin');
+                if (arrTimeHourEl && arrTimeMinEl) {
+                    arrTimeHourEl.value = arrH.toString().padStart(2, '0');
+                    arrTimeMinEl.value = arrM.toString().padStart(2, '0');
+                }
+
+                const totalDurH = Math.floor((cumulativeMins - ((startH * 60) + startM)) / 60);
+                const totalDurM = Math.round((cumulativeMins - ((startH * 60) + startM)) % 60);
+                document.getElementById('durationText').innerText = `${totalDurH} t ${totalDurM} m`;
+            }
+        }
+
+        function updateCO2Display() {
+            if (cachedDistanceKm === 0) return;
+            const seats = parseInt(document.getElementById('seatsInput').value) || 3;
+            const potentialCO2 = (cachedDistanceKm * 0.16) * (seats + 1);
+            document.getElementById('co2Value').innerText = potentialCO2.toFixed(1);
+        }
+
+        // --- AUTH & PROFIL ---
+        async function fetchUserProfile(userId) {
+            const { data } = await _supabase.from('profiles').select('*').eq('id', userId).single();
+            if (data) {
+                if (data.gender === 'Kvinde') document.getElementById('ladiesOnlyRow').style.display = 'flex';
+                if (data.car_details) currentUserCarDetails = typeof data.car_details === 'object' ? JSON.stringify(data.car_details) : data.car_details;
+            }
+        }
+
+        async function handleLogin() {
+            setLoading(true, "Logger ind...");
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
+            const errDiv = document.getElementById('errorMessage');
+
+            if (!email || !pass) { errDiv.innerText = "Udfyld venligst alt"; errDiv.style.display = "block"; setLoading(false); return; }
+
+            const { data, error } = await _supabase.auth.signInWithPassword({ email, password: pass });
+
+            if (error) {
+                errDiv.innerText = "Fejl: " + error.message;
+                errDiv.style.display = "block";
+                setLoading(false);
+            } else {
+                location.reload();
+            }
+        }
+
+        function setLoading(isLoading, text = "Arbejder...") {
+            const loader = document.getElementById('globalLoader');
+            document.getElementById('loadingText').innerHTML = text;
+            loader.style.display = isLoading ? 'flex' : 'none';
+
+            if (text.includes('Succes')) {
+                document.getElementById('loaderSpinner').style.display = 'none';
+            } else {
+                document.getElementById('loaderSpinner').style.display = 'block';
+            }
+        }
+
+        function toggleRule(ruleName) {
+            rules[ruleName] = !rules[ruleName];
+            const btn = document.getElementById('rule' + ruleName);
+            const dkName = ruleName === 'Kids' ? 'Børn' : ruleName === 'Pets' ? 'Kæledyr' : ruleName === 'Smoking' ? 'Rygning' : 'Musik';
+            if (rules[ruleName]) {
+                btn.className = 'rule-btn rule-true';
+                btn.innerHTML = `<span>✔️</span> ${dkName}`;
+            } else {
+                btn.className = 'rule-btn rule-false';
+                btn.innerHTML = `<span>❌</span> ${dkName}`;
+            }
+        }
+
+        // --- MAPBOX & FALLBACK ---
+        function initMap() {
+            if (mapboxgl.supported()) {
+                if (map) return;
+                try {
+                    map = new mapboxgl.Map({
+                        container: 'map',
+                        style: 'mapbox://styles/mapbox/streets-v12',
+                        center: [10.2039, 56.1629],
+                        zoom: 6
+                    });
+                    setTimeout(() => map.resize(), 500);
+                } catch (e) {
+                    initLeafletFallback();
+                }
+            } else {
+                initLeafletFallback();
+            }
+        }
+
+        function initLeafletFallback() {
+            if (leafletMap) return;
+            leafletMap = L.map('map', { zoomControl: false }).setView([56.1629, 10.2039], 6);
+            L.control.zoom({ position: 'topright' }).addTo(leafletMap);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(leafletMap);
+            setTimeout(() => leafletMap.invalidateSize(), 500);
+        }
+
+        function addWaypointInput() {
+            const id = Date.now();
+            const container = document.getElementById('waypointsContainer');
+            const row = document.createElement('div');
+            row.className = 'waypoint-row form-group';
+            row.innerHTML = `
+                <div style="flex:1; position:relative;">
+                    <input type="text" placeholder="Søg efter mellemstop..." oninput="debouncedSearch(this, 'wp_${id}')" autocomplete="off">
+                    <div id="wp_${id}Suggestions" class="suggestions-list"></div>
+                </div>
+                <button class="btn btn-outline btn-small" style="margin:0; border-color:var(--danger); color:var(--danger);" onclick="removeWaypoint(this, ${id})">X</button>
+            `;
+            waypoints.push({ id: id, name: '', coords: null });
+            container.appendChild(row);
+        }
+
+        function removeWaypoint(btn, id) {
+            waypoints = waypoints.filter(wp => wp.id !== id);
+            btn.parentElement.remove();
+            calculateRoute();
+        }
+
+        function debouncedSearch(input, type) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => { handleSearch(input, type); }, 300);
+        }
+
+        async function handleSearch(input, type) {
+            const query = input.value;
+            const listEl = document.getElementById(type + 'Suggestions');
+            if (query.length < 2) { listEl.style.display = 'none'; return; }
+
+            try {
+                const optimizedQuery = encodeURIComponent(query + ", Denmark");
+                const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${optimizedQuery}.json?access_token=${MAPBOX_TOKEN}&country=dk&types=address,place,poi&limit=5`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                listEl.innerHTML = '';
+                if (data.features.length === 0) { listEl.style.display = 'none'; return; }
+
+                data.features.forEach(feat => {
+                    const div = document.createElement('div');
+                    div.className = 'suggestion-item';
+                    const placeNameParts = feat.place_name.split(', ');
+                    div.innerHTML = `<span class="sugg-title">${placeNameParts[0]}</span><span class="sugg-sub">${placeNameParts.slice(1).join(', ')}</span>`;
+
+                    div.onclick = () => {
+                        input.value = feat.place_name.replace(', Denmark', '');
+                        listEl.style.display = 'none';
+                        const coords = { lng: feat.center[0], lat: feat.center[1] };
+
+                        if (type === 'origin') { originCoords = coords; currentPrice = 0; }
+                        else if (type === 'dest') { destCoords = coords; currentPrice = 0; }
+                        else {
+                            const wp = waypoints.find(w => w.id === parseInt(type.split('_')[1]));
+                            if (wp) { wp.coords = coords; wp.name = placeNameParts[0]; currentPrice = 0; }
+                        }
+                        calculateRoute();
+                    };
+                    listEl.appendChild(div);
+                });
+                listEl.style.display = 'block';
+            } catch (e) { console.error(e); }
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.form-group')) {
+                document.querySelectorAll('.suggestions-list').forEach(el => el.style.display = 'none');
+            }
+        });
+
+        // --- RUTE & PRIS BEREGNING ---
+        async function calculateRoute() {
+            if (!originCoords || !destCoords) return;
+            if (map) map.resize();
+            if (leafletMap) leafletMap.invalidateSize();
+
+            const isFerry = document.getElementById('swFerry').checked;
+            crossesSeaGlobal = (originCoords.lng < 10.8 && destCoords.lng > 10.8) || (originCoords.lng > 10.8 && destCoords.lng < 10.8);
+
+            let totalDistance = 0, totalDuration = 0;
+            let routeGeojson = { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [] } };
+
+            let allPoints = [originCoords];
+            waypoints.forEach(wp => { if (wp.coords) allPoints.push(wp.coords); });
+            allPoints.push(destCoords);
+
+            legDurationsMin = [];
+
+            if (isFerry && crossesSeaGlobal) {
+                const isEastbound = originCoords.lng < destCoords.lng;
+                const fStart = isEastbound ? { lng: FERRY_AARHUS[0], lat: FERRY_AARHUS[1] } : { lng: FERRY_ODDEN[0], lat: FERRY_ODDEN[1] };
+                const fEnd = isEastbound ? { lng: FERRY_ODDEN[0], lat: FERRY_ODDEN[1] } : { lng: FERRY_AARHUS[0], lat: FERRY_AARHUS[1] };
+
+                let wpsLeg1 = [], wpsLeg2 = [];
+                waypoints.forEach(wp => {
+                    if (!wp.coords) return;
+                    if (isEastbound) { if (wp.coords.lng < 10.8) wpsLeg1.push(wp.coords); else wpsLeg2.push(wp.coords); }
+                    else { if (wp.coords.lng > 10.8) wpsLeg1.push(wp.coords); else wpsLeg2.push(wp.coords); }
+                });
+
+                const coordsLeg1 = [originCoords, ...wpsLeg1, fStart].map(c => `${c.lng},${c.lat}`).join(';');
+                const coordsLeg2 = [fEnd, ...wpsLeg2, destCoords].map(c => `${c.lng},${c.lat}`).join(';');
+
+                const [res1, res2] = await Promise.all([
+                    fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${coordsLeg1}?geometries=geojson&access_token=${MAPBOX_TOKEN}`),
+                    fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${coordsLeg2}?geometries=geojson&access_token=${MAPBOX_TOKEN}`)
+                ]);
+                const data1 = await res1.json(); const data2 = await res2.json();
+
+                if (data1.routes?.[0] && data2.routes?.[0]) {
+                    totalDistance = (data1.routes[0].distance + data2.routes[0].distance) / 1000;
+                    totalDuration = (data1.routes[0].duration + data2.routes[0].duration) / 60;
+
+                    const legs1 = data1.routes[0].legs.map(l => l.duration / 60);
+                    const legs2 = data2.routes[0].legs.map(l => l.duration / 60);
+
+                    for (let i = 0; i < legs1.length - 1; i++) legDurationsMin.push(legs1[i]);
+                    const crossingDuration = legs1[legs1.length - 1] + 90 + legs2[0];
+                    legDurationsMin.push(crossingDuration);
+                    for (let i = 1; i < legs2.length; i++) legDurationsMin.push(legs2[i]);
+
+                    routeGeojson.geometry.type = 'MultiLineString';
+                    routeGeojson.geometry.coordinates = [data1.routes[0].geometry.coordinates, data2.routes[0].geometry.coordinates];
+                    drawRouteOnMap(routeGeojson, allPoints, true);
+                }
+            } else {
+                const coordsString = allPoints.map(c => `${c.lng},${c.lat}`).join(';');
+                let url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordsString}?geometries=geojson&access_token=${MAPBOX_TOKEN}`;
+                if (!isFerry || !crossesSeaGlobal) url += '&exclude=ferry';
+
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.routes?.[0]) {
+                    totalDistance = data.routes[0].distance / 1000;
+                    totalDuration = data.routes[0].duration / 60;
+                    legDurationsMin = data.routes[0].legs.map(l => l.duration / 60);
+
+                    routeGeojson.geometry = data.routes[0].geometry;
+                    drawRouteOnMap(routeGeojson, allPoints, false);
+                }
+            }
+
+            if (totalDistance > 0) {
+                cachedDistanceKm = totalDistance;
+                cachedDurationMin = Math.round(totalDuration);
+
+                const seats = parseInt(document.getElementById('seatsInput').value) || 3;
+                const ferryCost = (isFerry && crossesSeaGlobal) ? 249 : 0;
+                const maxPrice = Math.floor((cachedDistanceKm * 3.73 + ferryCost) / seats);
+
+                if (currentPrice === 0 || currentPrice > maxPrice) {
+                    let recommended = Math.floor(cachedDistanceKm * 0.9);
+                    if (recommended > 125) recommended = 125;
+                    if (recommended < 20) recommended = 20;
+                    recommended = Math.round(recommended / 5) * 5;
+
+                    currentPrice = Math.min(recommended, maxPrice);
+                    recommendedPrice = currentPrice;
+                }
+
+                document.getElementById('distanceText').innerText = `${Math.round(cachedDistanceKm)} km`;
+                document.getElementById('recPriceDisplay').innerText = recommendedPrice;
+
+                renderWaypointTimeInputs(); // Opret redigerbare tidspunkter før updateTimes udfylder dem
+                updateTimes();
+                updatePriceUI();
+                updateCO2Display();
+                generateRouteSegments(); // Beregn strækningspriser nu hvor alt er klart
+            }
+        }
+
+        function drawRouteOnMap(routeGeojson, points, showFerryLine) {
+            if (map) {
+                if (map.getLayer('route')) map.removeLayer('route');
+                if (map.getLayer('ferry-line')) map.removeLayer('ferry-line');
+                if (map.getSource('route')) map.removeSource('route');
+                if (map.getSource('ferry-line')) map.removeSource('ferry-line');
+
+                document.querySelectorAll('.mapboxgl-marker').forEach(m => m.remove());
+
+                map.addSource('route', { type: 'geojson', data: routeGeojson });
+                map.addLayer({ id: 'route', type: 'line', source: 'route', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#0F172A', 'line-width': 4 } });
+
+                if (showFerryLine) {
+                    map.addSource('ferry-line', { type: 'geojson', data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [FERRY_AARHUS, FERRY_ODDEN] } } });
+                    map.addLayer({ id: 'ferry-line', type: 'line', source: 'ferry-line', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#3B82F6', 'line-width': 4, 'line-dasharray': [2, 2] } });
+                }
+
+                points.forEach((p, idx) => {
+                    const color = idx === 0 ? '#10B981' : (idx === points.length - 1 ? '#EF4444' : '#6366F1');
+                    new mapboxgl.Marker({ color: color }).setLngLat([p.lng, p.lat]).addTo(map);
+                });
+
+                const bounds = new mapboxgl.LngLatBounds(points[0], points[0]);
+                points.forEach(p => bounds.extend([p.lng, p.lat]));
+                map.fitBounds(bounds, { padding: 40 });
+            }
+            else if (leafletMap) {
+                if (leafletRouteLayer) leafletMap.removeLayer(leafletRouteLayer);
+                leafletMarkerLayers.forEach(m => leafletMap.removeLayer(m));
+                leafletMarkerLayers = [];
+
+                leafletRouteLayer = L.geoJSON(routeGeojson, {
+                    style: function () { return { color: '#0F172A', weight: 4 }; }
+                }).addTo(leafletMap);
+
+                if (showFerryLine) {
+                    const ferryLine = L.polyline([
+                        [FERRY_AARHUS[1], FERRY_AARHUS[0]],
+                        [FERRY_ODDEN[1], FERRY_ODDEN[0]]
+                    ], { color: '#3B82F6', weight: 4, dashArray: '5, 10' }).addTo(leafletMap);
+                    leafletMarkerLayers.push(ferryLine);
+                }
+
+                points.forEach((p, idx) => {
+                    const color = idx === 0 ? '#10B981' : (idx === points.length - 1 ? '#EF4444' : '#6366F1');
+                    const customIcon = L.divIcon({
+                        className: '',
+                        html: `<div style="background-color: ${color}; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
+                        iconSize: [16, 16],
+                        iconAnchor: [8, 8]
+                    });
+                    const marker = L.marker([p.lat, p.lng], { icon: customIcon }).addTo(leafletMap);
+                    leafletMarkerLayers.push(marker);
+                });
+
+                const bounds = L.latLngBounds(points.map(p => [p.lat, p.lng]));
+                leafletMap.fitBounds(bounds, { padding: [40, 40] });
+            }
+        }
+
+        function adjustPrice(amt) {
+            currentPrice += amt;
+            if (currentPrice < 20) currentPrice = 20;
+
+            const seats = parseInt(document.getElementById('seatsInput').value) || 3;
+            const ferryCost = (document.getElementById('swFerry').checked) ? 249 : 0;
+            const maxPrice = Math.floor((cachedDistanceKm * 3.73 + ferryCost) / seats);
+
+            if (currentPrice > maxPrice) {
+                alert(`Du har ramt grænsen! Du kan maksimalt tage ${maxPrice} kr. på denne tur (Skattefrit loft).`);
+                currentPrice = maxPrice;
+            }
+            updatePriceUI();
+
+            // Opdater automatisk alle strækningspriser, hvis hovedprisen ændres
+            if (routeSegments.length > 0) {
+                routeSegments.forEach(seg => seg.price = currentPrice);
+                renderSegmentPrices();
+            }
+        }
+
+        function updatePriceUI() {
+            document.getElementById('priceDisplay').innerText = currentPrice;
+
+            // Opdater max på donation slider (man kan max donere hele beløbet minus evt. platform fee, men vi lader den gå op til currentPrice - 20 eller bare currentPrice)
+            // Lader os sætte max donation til currentPrice, men sikrer vi er i bounds.
+            const donationSlider = document.getElementById('donationSlider');
+            donationSlider.max = currentPrice;
+            if (parseInt(donationSlider.value) > currentPrice) {
+                donationSlider.value = currentPrice;
+            }
+            updateDonationUI();
+        }
+
+        function updateDonationUI() {
+            const donationSlider = document.getElementById('donationSlider');
+            currentDonation = parseInt(donationSlider.value) || 0;
+            document.getElementById('donationDisplay').innerText = `${currentDonation} kr`;
+
+            // Opdater payout i infokortet (payout er pris minus donation, da gebyret "er 0" for chaufføren som standard udover dette)
+            document.getElementById('payoutText').innerText = currentPrice - currentDonation;
+
+            const transactionCost = (currentPrice * 0.015 + 1.8).toFixed(2).replace('.', ',');
+            const descEl = document.getElementById('donationDescText');
+            if (descEl) {
+                descEl.innerText = `Din donation går til at holde platformen kørende. Din transaktion koster os ca. ${transactionCost} kr. pr. passager. Vi har ingen andre indtægtskilder end din donation så uden disse, vil platformen ikke kunne løbe rundt.`;
+            }
+        }
+
+        // Helper til Date-objekter for at bygge korrekt rute-kombinatorik
+        function makeDateObj(dateStr, timeStr, prevDateObj) {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            const [h, m] = timeStr.split(':').map(Number);
+            let d = new Date(year, month - 1, day, h, m, 0);
+            if (prevDateObj && d < prevDateObj) {
+                d.setDate(d.getDate() + 1); // Passerer midnat
+            }
+            return d;
+        }
+
+        // --- SUBMIT ---
+        let _hasDeclinedDonation = false;
+
+        function closeZeroDonationModal() {
+            document.getElementById('zeroDonationModal').style.display = 'none';
+            _hasDeclinedDonation = false;
+        }
+
+        function confirmZeroDonation() {
+            document.getElementById('zeroDonationModal').style.display = 'none';
+            _hasDeclinedDonation = true;
+            submitRides(true);
+        }
+
+        async function submitRides(bypassDonationCheck = false) {
+            if (!currentUser || !originCoords || !destCoords) { alert("Fejl: Mangler rute-information."); return; }
+
+            if (currentDonation === 0 && !bypassDonationCheck && !_hasDeclinedDonation) {
+                // Beregn hvor meget transaktionen ville have kostet platformen
+                // (antal bookbare pladser * transaktionsgebyr)
+                const seats = parseInt(document.getElementById('seatsInput').value) || 3;
+                let potentialPlatformCost = 0;
+                // Estimer hvad den lavest mulige payout pr plads er (A->B)
+                const estPrice = currentPrice;
+                const platformFeePerSeat = (estPrice * 0.015 + 1.8);
+                potentialPlatformCost = platformFeePerSeat * seats;
+
+                const costText = `Din donation går til at holde platformen kørende. <strong style="background: rgba(239, 68, 68, 0.1); color: #EF4444; padding: 2px 6px; border-radius: 4px;">Din transaktion koster os ca. ${potentialPlatformCost.toFixed(2).replace('.', ',')} kr. i alt at facilitere for dine passagerer.</strong> Vi har ingen andre indtægtskilder end din donation så uden disse, vil platformen ikke kunne løbe rundt.`;
+                document.getElementById('zeroDonationCostText').innerHTML = costText;
+
+                document.getElementById('zeroDonationModal').style.display = 'flex';
+                return; // Stop inntil bekræftelse
+            }
+
+            setLoading(true, "Opretter ture...");
+
+            const validWps = waypoints.filter(wp => wp.coords);
+            const depTimeStr = getDepartureTimeStr();
+            const arrTimeStr = getArrivalTimeStr();
+            const payloadsToInsert = [];
+
+            // Genere en unik ID til at samle hele turen i databasen (kræver 'route_group_id' kolonne)
+            const routeGroupId = self.crypto && self.crypto.randomUUID ? self.crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substr(2);
+
+            // Dobbelt-loop over alle valgte datoer for at skabe rute-kombinationer
+            selectedDates.forEach(dateStr => {
+                let routePoints = [];
+
+                // 1. Definer startpunkt
+                let currentDt = makeDateObj(dateStr, depTimeStr, null);
+                routePoints.push({
+                    city: document.getElementById('originInput').value,
+                    lat: originCoords.lat,
+                    lng: originCoords.lng,
+                    time: currentDt,
+                    type: 'origin'
+                });
+
+                // 2. Definer alle mellemstops (indsæt den fastsatte tid fra UI'en)
+                validWps.forEach(wp => {
+                    const h = document.getElementById(`wpTimeHour_${wp.id}`).value || '00';
+                    const m = document.getElementById(`wpTimeMin_${wp.id}`).value || '00';
+                    const wpTimeStr = `${h.padStart(2, '0')}:${m.padStart(2, '0')}`;
+                    currentDt = makeDateObj(dateStr, wpTimeStr, currentDt);
+
+                    routePoints.push({
+                        city: wp.name,
+                        lat: wp.coords.lat,
+                        lng: wp.coords.lng,
+                        time: currentDt,
+                        type: 'waypoint'
+                    });
+                });
+
+                // 3. Definer slutdestination
+                currentDt = makeDateObj(dateStr, arrTimeStr, currentDt);
+                routePoints.push({
+                    city: document.getElementById('destInput').value,
+                    lat: destCoords.lat,
+                    lng: destCoords.lng,
+                    time: currentDt,
+                    type: 'destination'
+                });
+
+                // 4. Byg de specifikke kombinatoriske ruter!
+                for (let i = 0; i < routePoints.length - 1; i++) {
+                    for (let j = i + 1; j < routePoints.length; j++) {
+                        const fromP = routePoints[i];
+                        const toP = routePoints[j];
+
+                        let subWaypoints = [];
+                        for (let k = i + 1; k < j; k++) {
+                            const dateObj = routePoints[k].time;
+                            subWaypoints.push({
+                                city: routePoints[k].city,
+                                lat: routePoints[k].lat,
+                                lng: routePoints[k].lng,
+                                departure_time: `${dateObj.getHours().toString().padStart(2, '0')}:${dateObj.getMinutes().toString().padStart(2, '0')}`
+                            });
+                        }
+
+                        // Find den specifikke pris, som brugeren har sat for præcis denne kombination
+                        const specificSegment = routeSegments.find(s => s.from === fromP.city && s.to === toP.city);
+                        const finalPrice = specificSegment ? specificSegment.price : currentPrice;
+
+                        payloadsToInsert.push({
+                            route_group_id: routeGroupId, // Kæder ruterne sammen
+                            driver_id: currentUser.id,
+                            origin_city: fromP.city,
+                            destination_city: toP.city,
+                            origin_location: `POINT(${fromP.lng} ${fromP.lat})`,
+                            destination_location: `POINT(${toP.lng} ${toP.lat})`,
+
+                            departure_time: fromP.time.toISOString(),
+                            arrival_time: toP.time.toISOString(),
+
+                            seats_available: parseInt(document.getElementById('seatsInput').value),
+                            price_dkk: finalPrice, // Bruger nu den specifikke strækningspris!
+                            platform_donation: currentDonation,
+                            car_model: currentUserCarDetails,
+                            status: 'active',
+                            is_ferry: document.getElementById('swFerry').checked,
+                            instant_booking: document.getElementById('swInstant').checked,
+                            detour_flex: document.getElementById('swFlex').checked,
+                            comfort_guarantee: document.getElementById('swComfort').checked,
+                            ladies_only: document.getElementById('swLadies') ? document.getElementById('swLadies').checked : false,
+                            pref_music: rules.Music,
+                            pref_smoking: rules.Smoking,
+                            pref_pets: rules.Pets,
+                            pref_kids: rules.Kids,
+                            comment: document.getElementById('commentInput').value,
+                            waypoints: subWaypoints
+                        });
+                    }
+                }
+            });
+
+            const { error } = await _supabase.from('rides').insert(payloadsToInsert);
+
+            if (error) {
+                alert("Fejl ved oprettelse: " + error.message);
+                setLoading(false);
+            } else {
+                confetti({
+                    particleCount: 150,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    zIndex: 3000
+                });
+
+                setLoading(true, `🎉 Succes!<br><br><span style="font-size:1.1rem; font-weight:500; color:var(--text-main);">Du har oprettet ${payloadsToInsert.length} tur(e). Sender dig videre...</span>`);
+
+                setTimeout(() => {
+                    window.location.href = "/lift";
+                }, 2500);
+            }
+        }
+    </script>
+</body>
+
+</html>
