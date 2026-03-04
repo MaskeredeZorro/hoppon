@@ -1662,17 +1662,19 @@
     <!-- Zero Donation Confirmation Modal (End Trip) -->
     <div class="modal-overlay" id="zeroDonationModalEndTrip" style="display:none; z-index: 10002;">
         <div class="modal-box" style="text-align: center;">
-            <h2 class="modal-title" style="margin-bottom: 10px; color: var(--brand);">Er du sikker på, at du ikke vil
-                støtte platformen?</h2>
-            <p class="modal-text" style="margin-bottom: 20px;" id="zeroDonationEndTripCostText">
-                Din donation går til at holde platformen kørende. Din transaktion koster os ca. 0 kr. i alt at
-                facilitere for dine passagerer.
+            <h2 class="modal-title" style="margin-bottom: 10px; color: var(--brand);">Vil du virkelig ikke støtte
+                platformen?</h2>
+            <p class="modal-text" style="margin-bottom: 20px; line-height: 1.5;" id="zeroDonationEndTripCostText">
+                Din donation går til at holde platformen kørende. <strong
+                    style="background: rgba(239, 68, 68, 0.1); color: #EF4444; padding: 2px 6px; border-radius: 4px;">Din
+                    transaktion koster os ca. 0 kr. i alt at facilitere for dine passagerer.</strong> Vi har ingen andre
+                indtægtskilder end din donation så uden disse, vil platformen ikke kunne løbe rundt.
             </p>
             <div class="modal-actions" style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn-outline" style="flex:1" onclick="closeZeroDonationEndTripModal()">Tilbage til
-                    slider</button>
-                <button class="btn-submit" style="flex:1; background-color: var(--border); color: var(--text-main);"
-                    onclick="confirmZeroDonationEndTrip()">Ja, jeg vil ikke støtte</button>
+                <button class="btn-primary" style="flex:1" onclick="closeZeroDonationEndTripModal()">Giv en lille
+                    donation</button>
+                <button class="btn-outline" style="flex:1; color: var(--text-muted);"
+                    onclick="confirmZeroDonationEndTrip()">Nej, jeg vil ikke støtte</button>
             </div>
         </div>
     </div>
@@ -2774,7 +2776,7 @@
 
         let currentEndTripGroup = null;
         let endTripPassengers = [];
-        let _pendingEndTripSubmit = false;
+        let _hasDeclinedEndTripDonation = false;
 
         function closeEndTripModal() {
             document.getElementById('endTripModal').style.display = 'none';
@@ -2782,13 +2784,12 @@
 
         function closeZeroDonationEndTripModal() {
             document.getElementById('zeroDonationModalEndTrip').style.display = 'none';
-            _pendingEndTripSubmit = false;
+            _hasDeclinedEndTripDonation = false;
         }
 
         function confirmZeroDonationEndTrip() {
             document.getElementById('zeroDonationModalEndTrip').style.display = 'none';
-            _pendingEndTripSubmit = true;
-            document.getElementById('endTripConfirmBtn').click(); // Gennemfør klikket igen, nu med flaget sat
+            _hasDeclinedEndTripDonation = true;
         }
 
         function updateEndTripDonationUI() {
@@ -2806,7 +2807,7 @@
             document.getElementById('endTripStepContent').classList.remove('active');
             document.getElementById('donationInput').value = "0";
             updateEndTripDonationUI();
-            _pendingEndTripSubmit = false;
+            _hasDeclinedEndTripDonation = false;
 
             try {
                 // Find alle godkendte passagerer for alle del-strækninger
@@ -2845,7 +2846,7 @@
                     document.getElementById('donationDescText').innerText = `Din donation går til at holde platformen kørende. Din transaktion koster os ca. ${totalCost.toFixed(2).replace('.', ',')} kr. i alt. Vi har ingen andre indtægtskilder end din donation så uden disse, vil platformen ikke kunne løbe rundt.`;
 
                     // Sæt cost texten i det nye modal också (if necessary)
-                    document.getElementById('zeroDonationEndTripCostText').innerText = `Din donation går til at holde platformen kørende. Din transaktion koster os ca. ${totalCost.toFixed(2).replace('.', ',')} kr. i alt at facilitere for dine passagerer. Vi har ingen andre indtægtskilder end din donation så uden disse, vil platformen ikke kunne løbe rundt.`;
+                    document.getElementById('zeroDonationEndTripCostText').innerHTML = `Din donation går til at holde platformen kørende. <strong style="background: rgba(239, 68, 68, 0.1); color: #EF4444; padding: 2px 6px; border-radius: 4px;">Din transaktion koster os ca. ${totalCost.toFixed(2).replace('.', ',')} kr. i alt at facilitere for dine passagerer.</strong> Vi har ingen andre indtægtskilder end din donation så uden disse, vil platformen ikke kunne løbe rundt.`;
 
                     const donationSlider = document.getElementById('donationInput');
                     // Gør donation slideren dynamisk baseret på the total pris for de passagerne
@@ -2914,7 +2915,7 @@
             let donationAmount = parseInt(document.getElementById('donationInput').value) || 0;
             if (donationAmount < 0) donationAmount = 0;
 
-            if (donationAmount === 0 && !_pendingEndTripSubmit && document.querySelector('.donation-box').style.display !== 'none') {
+            if (donationAmount === 0 && !_hasDeclinedEndTripDonation && document.querySelector('.donation-box').style.display !== 'none') {
                 document.getElementById('zeroDonationModalEndTrip').style.display = 'flex';
                 return; // Stop her og vent på popup
             }

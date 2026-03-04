@@ -1197,17 +1197,19 @@
     <!-- Zero Donation Confirmation Modal -->
     <div class="modal-overlay" id="zeroDonationModal" style="display:none; z-index: 10001;">
         <div class="modal-box" style="text-align: center;">
-            <h2 class="modal-title" style="margin-bottom: 10px; color: var(--brand);">Er du sikker på, at du ikke vil
-                støtte platformen?</h2>
-            <p class="modal-text" style="margin-bottom: 20px;" id="zeroDonationCostText">
-                Din donation går til at holde platformen kørende. Din transaktion koster os ca. 0 kr. i alt at
-                facilitere for dine passagerer.
+            <h2 class="modal-title" style="margin-bottom: 10px; color: var(--brand);">Vil du virkelig ikke støtte
+                platformen?</h2>
+            <p class="modal-text" style="margin-bottom: 20px; line-height: 1.5;" id="zeroDonationCostText">
+                Din donation går til at holde platformen kørende. <strong
+                    style="background: rgba(239, 68, 68, 0.1); color: #EF4444; padding: 2px 6px; border-radius: 4px;">Din
+                    transaktion koster os ca. 0 kr. i alt at facilitere for dine passagerer.</strong> Vi har ingen andre
+                indtægtskilder end din donation så uden disse, vil platformen ikke kunne løbe rundt.
             </p>
             <div class="modal-actions" style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn-outline" style="flex:1" onclick="closeZeroDonationModal()">Tilbage til
-                    slider</button>
-                <button class="btn-submit" style="flex:1; background-color: var(--border); color: var(--text-main);"
-                    onclick="confirmZeroDonation()">Ja, jeg vil ikke støtte</button>
+                <button class="btn-primary" style="flex:1" onclick="closeZeroDonationModal()">Giv en lille
+                    donation</button>
+                <button class="btn-outline" style="flex:1; color: var(--text-muted);"
+                    onclick="confirmZeroDonation()">Nej, jeg vil ikke støtte</button>
             </div>
         </div>
     </div>
@@ -1893,23 +1895,22 @@
         }
 
         // --- SUBMIT ---
-        let _pendingSubmit = false; // Flag for pausing submission
+        let _hasDeclinedDonation = false;
 
         function closeZeroDonationModal() {
             document.getElementById('zeroDonationModal').style.display = 'none';
-            _pendingSubmit = false;
+            _hasDeclinedDonation = false;
         }
 
         function confirmZeroDonation() {
             document.getElementById('zeroDonationModal').style.display = 'none';
-            _pendingSubmit = true;
-            submitRides(true); // Proceed with submit, bypassing the check
+            _hasDeclinedDonation = true;
         }
 
         async function submitRides(bypassDonationCheck = false) {
             if (!currentUser || !originCoords || !destCoords) { alert("Fejl: Mangler rute-information."); return; }
 
-            if (currentDonation === 0 && !bypassDonationCheck && !_pendingSubmit) {
+            if (currentDonation === 0 && !bypassDonationCheck && !_hasDeclinedDonation) {
                 // Beregn hvor meget transaktionen ville have kostet platformen
                 // (antal bookbare pladser * transaktionsgebyr)
                 const seats = parseInt(document.getElementById('seatsInput').value) || 3;
@@ -1919,8 +1920,8 @@
                 const platformFeePerSeat = (estPrice * 0.015 + 1.8);
                 potentialPlatformCost = platformFeePerSeat * seats;
 
-                const costText = `Din transaktion koster os ca. ${potentialPlatformCost.toFixed(2).replace('.', ',')} kr. i alt at facilitere for dine passagerer. Vi har ingen andre indtægtskilder end din donation så uden disse, vil platformen ikke kunne løbe rundt.`;
-                document.getElementById('zeroDonationCostText').innerText = costText;
+                const costText = `Din donation går til at holde platformen kørende. <strong style="background: rgba(239, 68, 68, 0.1); color: #EF4444; padding: 2px 6px; border-radius: 4px;">Din transaktion koster os ca. ${potentialPlatformCost.toFixed(2).replace('.', ',')} kr. i alt at facilitere for dine passagerer.</strong> Vi har ingen andre indtægtskilder end din donation så uden disse, vil platformen ikke kunne løbe rundt.`;
+                document.getElementById('zeroDonationCostText').innerHTML = costText;
 
                 document.getElementById('zeroDonationModal').style.display = 'flex';
                 return; // Stop inntil bekræftelse
