@@ -1905,6 +1905,7 @@
         function confirmZeroDonation() {
             document.getElementById('zeroDonationModal').style.display = 'none';
             _hasDeclinedDonation = true;
+            submitRides(true);
         }
 
         async function submitRides(bypassDonationCheck = false) {
