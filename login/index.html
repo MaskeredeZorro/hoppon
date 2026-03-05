@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="da">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Log ind | HoppOn</title>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
     <script src="/supabase.js"></script>
     <script src="/components.js" defer></script>
@@ -127,7 +129,7 @@
             color: var(--text-main);
             margin-top: 10px;
         }
-        
+
         .btn-secondary:hover {
             background: #E2E8F0;
             box-shadow: none;
@@ -159,7 +161,7 @@
         }
 
         .error-msg {
-            color: #EF4444; 
+            color: #EF4444;
             background: #FEF2F2;
             border: 1px solid #FCA5A5;
         }
@@ -176,7 +178,10 @@
 
         #globalLoader {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(255, 255, 255, 0.9);
             display: none;
             justify-content: center;
@@ -186,16 +191,46 @@
             z-index: 2000;
             backdrop-filter: blur(5px);
         }
-        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
-        .loading-text { font-weight: 700; color: var(--brand); font-size: 1.1rem;}
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            font-weight: 700;
+            color: var(--brand);
+            font-size: 1.1rem;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(40px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
     </style>
 </head>
+
 <body>
 
     <div id="globalLoader">
@@ -207,7 +242,7 @@
 
     <main>
         <div class="login-card">
-            
+
             <div id="loginView">
                 <h1>Velkommen tilbage</h1>
                 <p class="subtitle">Log ind for at køre med</p>
@@ -226,7 +261,7 @@
                 <div id="loginMessage" class="message-box error-msg"></div>
 
                 <button class="btn-submit" onclick="handleLogin()">Log ind</button>
-                
+
                 <div class="footer-link">
                     Har du ikke en konto? <a href="/opret-profil">Opret profil her</a>
                 </div>
@@ -286,7 +321,7 @@
             hideMessages();
             const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPass').value.trim();
-            
+
             if (!email || !pass) { showMessage('loginMessage', "Indtast venligst email og adgangskode."); return; }
 
             setLoading(true, "Logger ind...");
@@ -317,7 +352,7 @@
 
                 if (profileError) throw profileError;
 
-                if (profile.phone_verified) {
+                if (profile.phone_verified || !profile.phone_number) {
                     window.location.href = '/lift';
                 } else {
                     await sendVerificationSMS(userId, profile.phone_number);
@@ -333,7 +368,7 @@
         async function handleResetPassword() {
             hideMessages();
             const email = document.getElementById('resetEmail').value.trim();
-            
+
             if (!email) { showMessage('resetMessage', "Indtast venligst din email."); return; }
 
             setLoading(true, "Sender link...");
@@ -341,7 +376,7 @@
             try {
                 const { error } = await _supabase.auth.resetPasswordForEmail(email, {
                     // LINKET ER RETTET HER: Ingen skråstreg til sidst!
-                    redirectTo: 'https://hoppon.dk/nulstil-kode', 
+                    redirectTo: 'https://hoppon.dk/nulstil-kode',
                 });
 
                 if (error) throw error;
@@ -359,11 +394,11 @@
 
         async function sendVerificationSMS(userId, phoneNumber) {
             if (!phoneNumber) throw new Error("Ingen telefonnummer fundet på profilen. Kontakt support.");
-            
+
             setLoading(true, "Sender SMS kode...");
             const code = Math.floor(100000 + Math.random() * 900000).toString();
             const expiresAt = new Date();
-            expiresAt.setMinutes(expiresAt.getMinutes() + 10); 
+            expiresAt.setMinutes(expiresAt.getMinutes() + 10);
 
             const { error: dbError } = await _supabase.from('sms_verifications').insert({
                 user_id: userId, code: code, expires_at: expiresAt.toISOString()
@@ -392,4 +427,5 @@
         });
     </script>
 </body>
+
 </html>
