@@ -3349,6 +3349,97 @@
             if (!el) return;
             el.style.display = el.style.display === 'block' ? 'none' : 'block';
         }
+
+        async function submitTaxInfo(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const msg = document.getElementById('formMessage');
+            
+            btn.disabled = true;
+            btn.innerText = "Gemmer og krypterer...";
+            msg.style.display = 'none';
+
+            try {
+                if (!currentUserId) throw new Error("Du er ikke logget ind.");
+
+                const fName = document.getElementById('fName').value.trim();
+                const lName = document.getElementById('lName').value.trim();
+                const fullName = `${fName} ${lName}`;
+                
+                const dobInput = document.getElementById('dob').value;
+                if (!dobInput) throw new Error("Vælg venligst fødselsdato.");
+                const [dobYear, dobMonth, dobDay] = dobInput.split('-');
+
+                const country = document.getElementById('country').value || 'Danmark';
+                const baseAddr = document.getElementById('address').value.trim();
+                const floorDoor = document.getElementById('floorDoor').value.trim();
+                const fullAddress = floorDoor ? `${baseAddr}, ${floorDoor}` : baseAddr;
+                
+                const cpr = document.getElementById('cpr').value.trim();
+                if (cpr.length !== 10 || isNaN(cpr)) {
+                    throw new Error("CPR skal være 10 cifre uden bindestreg.");
+                }
+                
+                let iban = document.getElementById('iban').value.trim().replace(/\s/g, '').toUpperCase();
+                if (!iban.startsWith("DK") || iban.length !== 18) {
+                    throw new Error("Ugyldigt dansk IBAN.");
+                }
+
+                // 1. Gem skatte/bank info (RPC)
+                const { error: rpcError } = await _supabase.rpc('submit_tax_info', {
+                    p_full_name: fullName,
+                    p_address: fullAddress,
+                    p_country: country,
+                    p_cpr: cpr,
+                    p_bank_iban: iban
+                });
+
+                if (rpcError) {
+                    console.error("RPC Error:", rpcError);
+                    if (rpcError.message && rpcError.message.includes("Invalid account number")) {
+                        throw new Error("Ugyldigt IBAN nummer. Tjek venligst igen.");
+                    }
+                    throw rpcError;
+                }
+
+                // 2. Opret Stripe Connect-konto
+                const { data: userData, error: userError } = await _supabase.auth.getUser();
+                if (userError) throw userError;
+
+                const { error: stripeError } = await _supabase.functions.invoke('create-stripe-account', {
+                    body: {
+                        user_id: currentUserId,
+                        email: userData.user.email,
+                        dob_day: parseInt(dobDay),
+                        dob_month: parseInt(dobMonth),
+                        dob_year: parseInt(dobYear),
+                        client_ip: '0.0.0.0'
+                    }
+                });
+
+                if (stripeError) {
+                    console.error("Stripe Error:", stripeError);
+                    throw stripeError;
+                }
+
+                msg.innerText = "Oplysninger gemt og udbetaling aktiveret! 🔒✅";
+                msg.style.color = "#10B981";
+                msg.style.display = "block";
+                
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+
+            } catch (err) {
+                console.error("Tax form error:", err);
+                msg.innerText = err.message || "Der skete en fejl. Tjek dine oplysninger.";
+                msg.style.color = "#EF4444";
+                msg.style.display = "block";
+                
+                btn.disabled = false;
+                btn.innerText = "Gem & Krypter Oplysninger";
+            }
+        }
     </script>
 </body>
 
