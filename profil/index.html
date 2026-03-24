@@ -3440,6 +3440,61 @@
                 btn.innerText = "Gem & Krypter Oplysninger";
             }
         }
+
+        async function loadTaxInfo() {
+            if (typeof currentUserId === 'undefined' || !currentUserId) return;
+            try {
+                const { data: stripeData } = await _supabase
+                    .from('user_stripe_data')
+                    .select('onboarding_completed')
+                    .eq('user_id', currentUserId)
+                    .maybeSingle();
+                
+                if (stripeData && stripeData.onboarding_completed) {
+                    const { data: taxData } = await _supabase
+                        .from('tax_identities')
+                        .select('full_name, address, country')
+                        .eq('user_id', currentUserId)
+                        .maybeSingle();
+                        
+                    if (taxData) {
+                        const names = taxData.full_name.split(' ');
+                        document.getElementById('fName').value = names[0] || '';
+                        document.getElementById('lName').value = names.slice(1).join(' ') || '';
+                        document.getElementById('address').value = taxData.address || '';
+                        document.getElementById('country').value = taxData.country || 'Danmark';
+                        
+                        document.getElementById('cpr').value = '**********';
+                        document.getElementById('cpr').readOnly = true;
+                        document.getElementById('iban').value = '**********';
+                        document.getElementById('iban').readOnly = true;
+                        
+                        const btn = document.getElementById('submitBtn');
+                        btn.disabled = true;
+                        btn.innerText = "Udbetalingskonto Aktiv ✓";
+                        btn.style.background = "#10B981";
+                        btn.style.cursor = "default";
+                        
+                        const msg = document.getElementById('formMessage');
+                        msg.innerText = "✅ Dine skatteoplysninger er modtaget og godkendt. Udbetaling er aktiveret!";
+                        msg.style.color = "#065F46";
+                        msg.style.display = "block";
+                        msg.style.padding = "10px";
+                        msg.style.background = "#D1FAE5";
+                        msg.style.borderRadius = "8px";
+                    }
+                }
+            } catch(e) { console.error("Could not load tax info:", e); }
+        }
+
+        let _checkUserIdInterval = setInterval(() => {
+            if (typeof currentUserId !== 'undefined' && currentUserId) {
+                clearInterval(_checkUserIdInterval);
+                loadTaxInfo();
+            }
+        }, 200);
+        setTimeout(() => clearInterval(_checkUserIdInterval), 10000);
+
     </script>
 </body>
 
