@@ -3354,7 +3354,7 @@
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
             const msg = document.getElementById('formMessage');
-            
+
             btn.disabled = true;
             btn.innerText = "Gemmer og krypterer...";
             msg.style.display = 'none';
@@ -3365,7 +3365,7 @@
                 const fName = document.getElementById('fName').value.trim();
                 const lName = document.getElementById('lName').value.trim();
                 const fullName = `${fName} ${lName}`;
-                
+
                 const dobInput = document.getElementById('dob').value;
                 if (!dobInput) throw new Error("Vælg venligst fødselsdato.");
                 const [dobYear, dobMonth, dobDay] = dobInput.split('-');
@@ -3374,12 +3374,12 @@
                 const baseAddr = document.getElementById('address').value.trim();
                 const floorDoor = document.getElementById('floorDoor').value.trim();
                 const fullAddress = floorDoor ? `${baseAddr}, ${floorDoor}` : baseAddr;
-                
+
                 const cpr = document.getElementById('cpr').value.trim();
                 if (cpr.length !== 10 || isNaN(cpr)) {
                     throw new Error("CPR skal være 10 cifre uden bindestreg.");
                 }
-                
+
                 let iban = document.getElementById('iban').value.trim().replace(/\s/g, '').toUpperCase();
                 if (!iban.startsWith("DK") || iban.length !== 18) {
                     throw new Error("Ugyldigt dansk IBAN.");
@@ -3425,7 +3425,7 @@
                 msg.innerText = "Oplysninger gemt og udbetaling aktiveret! 🔒✅";
                 msg.style.color = "#10B981";
                 msg.style.display = "block";
-                
+
                 setTimeout(() => {
                     window.location.reload();
                 }, 2000);
@@ -3435,7 +3435,7 @@
                 msg.innerText = err.message || "Der skete en fejl. Tjek dine oplysninger.";
                 msg.style.color = "#EF4444";
                 msg.style.display = "block";
-                
+
                 btn.disabled = false;
                 btn.innerText = "Gem & Krypter Oplysninger";
             }
@@ -3449,32 +3449,32 @@
                     .select('onboarding_completed')
                     .eq('user_id', currentUserId)
                     .maybeSingle();
-                
+
                 if (stripeData && stripeData.onboarding_completed) {
                     const { data: taxData } = await _supabase
                         .from('tax_identities')
                         .select('full_name, address, country')
                         .eq('user_id', currentUserId)
                         .maybeSingle();
-                        
+
                     if (taxData) {
                         const names = taxData.full_name.split(' ');
                         document.getElementById('fName').value = names[0] || '';
                         document.getElementById('lName').value = names.slice(1).join(' ') || '';
                         document.getElementById('address').value = taxData.address || '';
                         document.getElementById('country').value = taxData.country || 'Danmark';
-                        
+
                         document.getElementById('cpr').value = '**********';
                         document.getElementById('cpr').readOnly = true;
                         document.getElementById('iban').value = '**********';
                         document.getElementById('iban').readOnly = true;
-                        
+
                         const btn = document.getElementById('submitBtn');
                         btn.disabled = true;
                         btn.innerText = "Udbetalingskonto Aktiv ✓";
                         btn.style.background = "#10B981";
                         btn.style.cursor = "default";
-                        
+
                         const msg = document.getElementById('formMessage');
                         msg.innerText = "✅ Dine skatteoplysninger er modtaget og godkendt. Udbetaling er aktiveret!";
                         msg.style.color = "#065F46";
@@ -3483,8 +3483,60 @@
                         msg.style.background = "#D1FAE5";
                         msg.style.borderRadius = "8px";
                     }
+                    
+                    // AKTIVER UDBETALINGSKNAPPEN (hvis den findes i DOM'en)
+                    const payoutBtn = document.getElementById('ui-payout-btn');
+                    if (payoutBtn) {
+                        payoutBtn.disabled = false;
+                        payoutBtn.title = "Din udbetalingskonto er aktiv.";
+                    }
                 }
-            } catch(e) { console.error("Could not load tax info:", e); }
+            } catch (e) { console.error("Could not load tax info:", e); }
+        }
+
+        async function payoutFunds() {
+            if (!currentUserId) return;
+            
+            const btn = document.getElementById('ui-payout-btn');
+            const balanceElem = document.getElementById('ui-balance');
+            const balance = parseFloat(balanceElem.innerText.replace(',', '.'));
+            
+            if (isNaN(balance) || balance <= 0) {
+                alert("Du har ingen tilgængelig saldo at udbetale.");
+                return;
+            }
+            
+            if (!confirm(`Er du sikker på, at du vil udbetale ${balance} kr. til din bankkonto?`)) return;
+            
+            const originalText = btn.innerText;
+            btn.innerText = "Overfører...";
+            btn.disabled = true;
+            
+            try {
+                const { data, error } = await _supabase.functions.invoke('payout', {
+                    body: { id: currentUserId }
+                });
+                
+                if (error) throw error;
+                if (data && data.error) throw new Error(data.error);
+                
+                alert("✅ Udbetalingen er gennemført! Pengene er på vej til din bankkonto (kan tage 1-3 hverdage afhængig af din bank).");
+                
+                // Opdater UI lokalt
+                document.getElementById('ui-balance').innerText = "0.00";
+                
+                const pendingElem = document.getElementById('ui-pending');
+                if (pendingElem) {
+                    const currentPending = parseFloat(pendingElem.innerText.replace(',', '.')) || 0;
+                    pendingElem.innerText = (currentPending + balance).toFixed(2);
+                }
+            } catch (err) {
+                console.error("Payout fejl:", err);
+                alert("Der opstod en fejl ved udbetaling: " + (err.message || "Prøv igen senere."));
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         }
 
         let _checkUserIdInterval = setInterval(() => {
