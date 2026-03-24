@@ -3531,12 +3531,6 @@
                 
                 // Opdater UI lokalt
                 document.getElementById('ui-balance').innerText = "0.00";
-                
-                const pendingElem = document.getElementById('ui-pending');
-                if (pendingElem) {
-                    const currentPending = parseFloat(pendingElem.innerText.replace(',', '.')) || 0;
-                    pendingElem.innerText = (currentPending + balance).toFixed(2);
-                }
             } catch (err) {
                 console.error("Payout fejl:", err);
                 alert("Der opstod en fejl ved udbetaling: " + (err.message || "Prøv igen senere."));
