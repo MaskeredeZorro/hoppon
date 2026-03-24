@@ -3513,13 +3513,20 @@
             btn.disabled = true;
             
             try {
+                // Sender både id og amount, da din foretrukne Deno-funktion forventer det
                 const { data, error } = await _supabase.functions.invoke('payout', {
-                    body: { id: currentUserId }
+                    body: { id: currentUserId, amount: balance }
                 });
                 
                 if (error) throw error;
                 if (data && data.error) throw new Error(data.error);
                 
+                // Da din Deno-funktion ikke selv sætter databasen til 0, gør vi det via frontend her:
+                await _supabase
+                    .from('profiles')
+                    .update({ balance: 0 })
+                    .eq('id', currentUserId);
+
                 alert("✅ Udbetalingen er gennemført! Pengene er på vej til din bankkonto (kan tage 1-3 hverdage afhængig af din bank).");
                 
                 // Opdater UI lokalt
