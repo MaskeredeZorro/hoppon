@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://hoppon.dk/sitemap.xml
